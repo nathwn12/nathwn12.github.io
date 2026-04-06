@@ -92,30 +92,60 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 
 /* ── Contact form ────────────────────────────────────────── */
 const contactForm = document.getElementById('contactForm');
+const formStatus = document.getElementById('formStatus');
 
 if (contactForm) {
-  contactForm.addEventListener('submit', function (e) {
+  contactForm.addEventListener('submit', async function (e) {
     e.preventDefault();
 
     const btn = contactForm.querySelector('.form-submit');
     const original = btn.textContent;
+    const formData = new FormData(contactForm);
+    const payload = Object.fromEntries(formData.entries());
 
-    btn.textContent = 'Sending…';
+    btn.textContent = 'Sending...';
     btn.disabled = true;
     btn.style.opacity = '0.7';
+    if (formStatus) {
+      formStatus.textContent = 'Sending your message...';
+      formStatus.className = 'form-status is-pending';
+    }
+
+    try {
+      const response = await fetch(contactForm.action, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || 'Something went wrong. Please try again.');
+      }
+
+      btn.textContent = 'Message Sent';
+      contactForm.reset();
+      if (formStatus) {
+        formStatus.textContent = result.message || 'Message sent successfully. Check your email for the first-time confirmation.';
+        formStatus.className = 'form-status is-success';
+      }
+    } catch (error) {
+      btn.textContent = 'Try Again';
+      if (formStatus) {
+        formStatus.textContent = error.message || 'Something went wrong. Please try again.';
+        formStatus.className = 'form-status is-error';
+      }
+    }
 
     setTimeout(() => {
-      btn.textContent = '✓ Message Sent!';
-      btn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
-      contactForm.reset();
-
-      setTimeout(() => {
-        btn.textContent = original;
-        btn.style.background = '';
-        btn.disabled = false;
-        btn.style.opacity = '';
-      }, 3000);
-    }, 1400);
+      btn.textContent = original;
+      btn.disabled = false;
+      btn.style.opacity = '';
+    }, 3000);
   });
 }
 
