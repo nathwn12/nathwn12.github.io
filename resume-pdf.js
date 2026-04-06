@@ -41,6 +41,21 @@
     anchor.remove();
   }
 
+  async function fetchPackagedPdfBlob() {
+    const fallbackHref = button.getAttribute('data-fallback-href') || button.getAttribute('href');
+
+    if (!fallbackHref) {
+      throw new Error('Packaged PDF path is missing.');
+    }
+
+    const response = await fetch(fallbackHref, { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error(`Packaged PDF fetch failed with status ${response.status}.`);
+    }
+
+    return response.blob();
+  }
+
   function getDependencies() {
     const manifest = window.resumePdfManifest;
     const jspdf = window.jspdf && window.jspdf.jsPDF;
@@ -114,31 +129,7 @@
   }
 
   async function buildPdfBlob() {
-    const { manifest, jspdf } = getDependencies();
-
-    if (!manifest || !jspdf) {
-      throw new Error('PDF manifest or jsPDF dependency is missing.');
-    }
-
-    await waitForFonts();
-
-    const canvas = renderResumeCanvas(manifest);
-    const pdf = new jspdf({
-      orientation: 'portrait',
-      unit: 'pt',
-      format: [manifest.page.width, manifest.page.height],
-      compress: true,
-      putOnlyUsedFonts: true,
-    });
-
-    pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, manifest.page.width, manifest.page.height, undefined, 'FAST');
-
-    manifest.links.forEach((link) => {
-      const [x0, y0, x1, y1] = link.rect;
-      pdf.link(x0, y0, x1 - x0, y1 - y0, { url: link.uri });
-    });
-
-    return pdf.output('blob');
+    return fetchPackagedPdfBlob();
   }
 
   async function savePdf() {
