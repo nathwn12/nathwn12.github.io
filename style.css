@@ -1406,6 +1406,29 @@ body::before {
   box-shadow: 0 0 0 3px rgba(99,179,237,0.08);
 }
 
+.form-input:-webkit-autofill,
+.form-input:-webkit-autofill:hover,
+.form-textarea:-webkit-autofill,
+.form-textarea:-webkit-autofill:hover {
+  -webkit-text-fill-color: var(--text-primary);
+  caret-color: var(--text-primary);
+  border: 1px solid rgba(255,255,255,0.08);
+  -webkit-box-shadow: 0 0 0 1000px rgba(255,255,255,0.03) inset;
+  box-shadow: 0 0 0 1000px rgba(255,255,255,0.03) inset;
+  transition: background-color 9999s ease-out 0s;
+}
+
+.form-input:-webkit-autofill:focus,
+.form-textarea:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-primary);
+  caret-color: var(--text-primary);
+  border-color: rgba(99,179,237,0.4);
+  -webkit-box-shadow: 0 0 0 1000px rgba(99,179,237,0.04) inset,
+                      0 0 0 3px rgba(99,179,237,0.08);
+  box-shadow: 0 0 0 1000px rgba(99,179,237,0.04) inset,
+              0 0 0 3px rgba(99,179,237,0.08);
+}
+
 .form-input::placeholder,
 .form-textarea::placeholder { color: var(--text-muted); }
 
@@ -1429,6 +1452,19 @@ body::before {
   transform: translateY(-2px);
   box-shadow: 0 8px 30px rgba(99,179,237,0.3);
 }
+
+.form-status {
+  min-height: 24px;
+  margin-top: 14px;
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+}
+
+.form-status.is-pending { color: var(--text-secondary); }
+
+.form-status.is-success { color: var(--accent); }
+
+.form-status.is-error { color: rgba(240, 244, 248, 0.72); }
 
 /* ============================================================
    FOOTER
