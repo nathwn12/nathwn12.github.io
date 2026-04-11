@@ -43,28 +43,6 @@ function updateActiveNav() {
 window.addEventListener('scroll', updateActiveNav, { passive: true });
 updateActiveNav();
 
-/* ── Mobile menu ─────────────────────────────────────────── */
-const hamburger  = document.getElementById('hamburger');
-const mobileMenu = document.getElementById('mobileMenu');
-const mobileClose = document.getElementById('mobileClose');
-const mobileLinks = document.querySelectorAll('.mobile-menu a');
-
-function openMenu() {
-  hamburger.classList.add('open');
-  mobileMenu.classList.add('open');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeMenu() {
-  hamburger.classList.remove('open');
-  mobileMenu.classList.remove('open');
-  document.body.style.overflow = '';
-}
-
-hamburger.addEventListener('click', openMenu);
-mobileClose.addEventListener('click', closeMenu);
-mobileLinks.forEach(link => link.addEventListener('click', closeMenu));
-
 /* ── Reveal on scroll ────────────────────────────────────── */
 const revealEls = document.querySelectorAll('.reveal');
 
