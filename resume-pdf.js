@@ -56,10 +56,8 @@
     return response.blob();
   }
 
-  function getDependencies() {
-    const manifest = window.resumePdfManifest;
-    const jspdf = window.jspdf && window.jspdf.jsPDF;
-    return { manifest, jspdf };
+  function getManifest() {
+    return window.resumePdfManifest || null;
   }
 
   async function waitForFonts() {
@@ -133,14 +131,17 @@
   }
 
   async function savePdf() {
-    const { manifest } = getDependencies();
+    const manifest = getManifest();
     const blob = await buildPdfBlob();
     const url = URL.createObjectURL(blob);
+    const fileName = (manifest && manifest.page && manifest.page.filename)
+      || button.getAttribute('download')
+      || 'Nathaniel-Nikolai-Ladero-Resume.pdf';
 
     try {
       const anchor = document.createElement('a');
       anchor.href = url;
-      anchor.download = manifest.page.filename;
+      anchor.download = fileName;
       document.body.append(anchor);
       anchor.click();
       anchor.remove();
@@ -150,9 +151,7 @@
   }
 
   async function handleClick(event) {
-    const { manifest, jspdf } = getDependencies();
-
-    if (!manifest || !jspdf || button.dataset.busy === 'true') {
+    if (button.dataset.busy === 'true') {
       return;
     }
 
@@ -163,7 +162,7 @@
     try {
       await savePdf();
     } catch (error) {
-      console.error('Manifest-based PDF generation failed. Falling back to the packaged PDF.', error);
+      console.error('Resume PDF download failed. Falling back to the packaged PDF.', error);
       triggerFallbackDownload();
     } finally {
       delete button.dataset.busy;
