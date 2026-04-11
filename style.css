@@ -224,70 +224,6 @@ body::before {
 
 .nav-cta::after { display: none !important; }
 
-.hamburger {
-  display: none;
-  flex-direction: column;
-  gap: 5px;
-  cursor: pointer;
-  padding: 6px;
-  border-radius: var(--radius-sm);
-  transition: var(--transition);
-}
-.hamburger:hover { background: rgba(255,255,255,0.05); }
-.hamburger span {
-  display: block;
-  width: 22px;
-  height: 2px;
-  background: var(--text-secondary);
-  border-radius: 1px;
-  transition: var(--transition);
-}
-.hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
-.hamburger.open span:nth-child(2) { opacity: 0; }
-.hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
-
-.mobile-menu {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(8,11,16,0.97);
-  backdrop-filter: blur(20px);
-  z-index: 999;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-.mobile-menu.open { display: flex; }
-.mobile-menu a {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  padding: 14px 32px;
-  border-radius: var(--radius-md);
-  transition: var(--transition);
-}
-.mobile-menu a:hover { color: var(--accent); background: rgba(99,179,237,0.06); }
-.mobile-close {
-  position: absolute;
-  top: 24px;
-  right: 24px;
-  font-size: 1.5rem;
-  color: var(--text-secondary);
-  cursor: pointer;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius-sm);
-  transition: var(--transition);
-}
-.mobile-close:hover { color: var(--text-primary); background: rgba(255,255,255,0.05); }
-
 /* ============================================================
    HERO
    ============================================================ */
@@ -1566,10 +1502,8 @@ footer {
 
 @media (max-width: 768px) {
   .nav-links { display: none; }
-  .hamburger { display: flex; }
-
   .hero-actions { flex-direction: column; align-items: flex-start; }
-  .btn-primary, .btn-secondary { width: 100%; justify-content: center; }
+  .btn-primary, .btn-secondary { width: 100%; justify-content: center; padding: 12px 20px; font-size: 0.88rem; }
   .hero-link-pill { width: 100%; min-width: 0; }
   .hero-stats { grid-template-columns: 1fr; }
   .hero-stat { min-height: 0; }
