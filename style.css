@@ -231,6 +231,7 @@ body::before {
   border-radius: 50%;
   filter: blur(80px);
   animation: orb-float 8s ease-in-out infinite;
+  will-change: transform;
 }
 
 .hero-orb-1 {
@@ -1459,6 +1460,27 @@ footer {
 .reveal-delay-3 { transition-delay: 0.3s; }
 .reveal-delay-4 { transition-delay: 0.4s; }
 .reveal-delay-5 { transition-delay: 0.5s; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .hero-orb,
+  .hero-badge-dot,
+  .hero-scroll,
+  .hero-badge,
+  .hero-name,
+  .hero-title,
+  .hero-desc,
+  .hero-actions,
+  .reveal {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
 
 @keyframes fade-in-up {
   from { opacity: 0; transform: translateY(30px); }
