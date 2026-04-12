@@ -207,23 +207,6 @@ body::before {
   border-radius: 1px;
 }
 
-.nav-cta {
-  background: var(--gradient-accent) !important;
-  color: #fff !important;
-  padding: 8px 20px !important;
-  border-radius: var(--radius-sm) !important;
-  font-weight: 600 !important;
-  box-shadow: 0 4px 20px rgba(99,179,237,0.2);
-}
-
-.nav-cta:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-  box-shadow: 0 8px 30px rgba(99,179,237,0.3) !important;
-}
-
-.nav-cta::after { display: none !important; }
-
 /* ============================================================
    HERO
    ============================================================ */
