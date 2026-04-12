@@ -147,18 +147,35 @@ if (typedEl) {
 
 /* ── Parallax subtle effect on hero orbs ────────────────── */
 const orbs = document.querySelectorAll('.hero-orb');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const finePointer = window.matchMedia('(pointer: fine)').matches;
 
-window.addEventListener('mousemove', (e) => {
-  const cx = window.innerWidth  / 2;
-  const cy = window.innerHeight / 2;
-  const dx = (e.clientX - cx) / cx;
-  const dy = (e.clientY - cy) / cy;
+if (!reduceMotion && finePointer) {
+  let rafId = 0;
+  let lastEvent = null;
 
-  orbs.forEach((orb, i) => {
-    const factor = (i + 1) * 10;
-    orb.style.transform = `translate(${dx * factor}px, ${dy * factor}px)`;
-  });
-}, { passive: true });
+  const updateOrbs = () => {
+    rafId = 0;
+    if (!lastEvent) return;
+
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    const dx = (lastEvent.clientX - cx) / cx;
+    const dy = (lastEvent.clientY - cy) / cy;
+
+    orbs.forEach((orb, i) => {
+      const factor = (i + 1) * 10;
+      orb.style.transform = `translate(${dx * factor}px, ${dy * factor}px)`;
+    });
+  };
+
+  window.addEventListener('mousemove', (e) => {
+    lastEvent = e;
+    if (!rafId) {
+      rafId = window.requestAnimationFrame(updateOrbs);
+    }
+  }, { passive: true });
+}
 
 /* ── Skill pill hover glow ───────────────────────────────── */
 document.querySelectorAll('.skill-pill').forEach(pill => {
