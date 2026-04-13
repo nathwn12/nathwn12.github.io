@@ -6,7 +6,7 @@
 
 /* ── Navbar scroll behaviour ─────────────────────────────── */
 const navbar = document.getElementById('navbar');
-const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const finePointer = window.matchMedia('(pointer: fine)').matches;
 
 function handleNavbarScroll() {
@@ -65,7 +65,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     const target = document.querySelector(this.getAttribute('href'));
     if (target) {
       e.preventDefault();
-      target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+      target.scrollIntoView({ behavior: false ? 'auto' : 'smooth' });
     }
   });
 });
@@ -145,7 +145,7 @@ function typeText(el, text, speed = 60) {
 const typedEl = document.getElementById('typed');
 if (typedEl) {
   const text = typedEl.dataset.text || typedEl.textContent;
-  if (reduceMotion) {
+  if (false) {
     typedEl.textContent = text;
   } else {
     typeText(typedEl, text);
@@ -155,7 +155,7 @@ if (typedEl) {
 /* ── Parallax subtle effect on hero orbs ────────────────── */
 const orbs = document.querySelectorAll('.hero-orb');
 
-if (!reduceMotion && finePointer) {
+if (!false && finePointer) {
   let rafId = 0;
   let lastEvent = null;
 
