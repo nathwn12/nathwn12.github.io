@@ -13,7 +13,7 @@
         button.dataset.originalLabel = button.innerHTML;
       }
       button.classList.add('is-generating');
-      button.innerHTML = 'Generating PDF...';
+      button.innerHTML = 'Generating PDF…';
       return;
     }
 

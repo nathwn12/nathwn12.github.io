@@ -6,6 +6,8 @@
 
 /* ── Navbar scroll behaviour ─────────────────────────────── */
 const navbar = document.getElementById('navbar');
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const finePointer = window.matchMedia('(pointer: fine)').matches;
 
 function handleNavbarScroll() {
   if (window.scrollY > 50) {
@@ -63,7 +65,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     const target = document.querySelector(this.getAttribute('href'));
     if (target) {
       e.preventDefault();
-      target.scrollIntoView({ behavior: 'smooth' });
+      target.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
     }
   });
 });
@@ -81,11 +83,11 @@ if (contactForm) {
     const formData = new FormData(contactForm);
     const payload = Object.fromEntries(formData.entries());
 
-    btn.textContent = 'Sending...';
+    btn.textContent = 'Sending…';
     btn.disabled = true;
     btn.style.opacity = '0.7';
     if (formStatus) {
-      formStatus.textContent = 'Sending your message...';
+      formStatus.textContent = 'Sending your message…';
       formStatus.className = 'form-status is-pending';
     }
 
@@ -142,13 +144,16 @@ function typeText(el, text, speed = 60) {
 
 const typedEl = document.getElementById('typed');
 if (typedEl) {
-  typeText(typedEl, typedEl.dataset.text || typedEl.textContent);
+  const text = typedEl.dataset.text || typedEl.textContent;
+  if (reduceMotion) {
+    typedEl.textContent = text;
+  } else {
+    typeText(typedEl, text);
+  }
 }
 
 /* ── Parallax subtle effect on hero orbs ────────────────── */
 const orbs = document.querySelectorAll('.hero-orb');
-const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const finePointer = window.matchMedia('(pointer: fine)').matches;
 
 if (!reduceMotion && finePointer) {
   let rafId = 0;
@@ -176,16 +181,6 @@ if (!reduceMotion && finePointer) {
     }
   }, { passive: true });
 }
-
-/* ── Skill pill hover glow ───────────────────────────────── */
-document.querySelectorAll('.skill-pill').forEach(pill => {
-  pill.addEventListener('mouseenter', function () {
-    this.style.boxShadow = '0 0 18px rgba(99,179,237,0.18)';
-  });
-  pill.addEventListener('mouseleave', function () {
-    this.style.boxShadow = '';
-  });
-});
 
 /* ── Year in footer ──────────────────────────────────────── */
 const yearEl = document.getElementById('year');
