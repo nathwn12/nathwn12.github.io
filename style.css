@@ -501,11 +501,7 @@ textarea:focus-visible {
 }
 
 .hero-panel-glow {
-  position: absolute;
-  inset: auto -10% 74% 40%;
-  height: 180px;
-  background: radial-gradient(circle, rgba(99,179,237,0.2), transparent 68%);
-  pointer-events: none;
+  display: none;
 }
 
 .hero-panel-head {
