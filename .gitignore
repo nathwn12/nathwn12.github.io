@@ -4,3 +4,4 @@ node_modules/
 dist/
 .vite/
 *.tsbuildinfo
+AGENTS.md
