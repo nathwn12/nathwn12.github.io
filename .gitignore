@@ -1,4 +1,6 @@
 .opencode/
 .logs/
-*.md
-/.playwright-mcp
+node_modules/
+dist/
+.vite/
+*.tsbuildinfo
