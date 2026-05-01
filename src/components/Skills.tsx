@@ -101,7 +101,7 @@ export function Skills() {
         >
           <span className="text-accent-3 text-sm">$</span>
           <span className="text-xs tracking-[0.4em] text-text-dim">
-            SECTION 04 // SKILLS
+            which skills
           </span>
           <div className="flex-1 h-[1px] bg-border" />
         </motion.div>
@@ -141,7 +141,7 @@ export function Skills() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
             transition={{ delay: 0.4, duration: 0.4 }}
-          className="mt-16 overflow-hidden border-y border-border py-4"
+          className="mt-16 overflow-hidden border-y border-border py-4 marquee-wrap"
         >
           <div className="flex whitespace-nowrap marquee-track">
             {Array.from({ length: 2 }).map((_, i) => (
@@ -151,13 +151,14 @@ export function Skills() {
                   "JWT", "EF CORE", "POSTGRES", "REDIS", "GIT",
                   "LINUX", "OAUTH", "SNYK", "REST", "SWAGGER",
                 ].map((tech) => (
-                  <span
+                  <a
                     key={`${i}-${tech}`}
-                    className="text-xs tracking-[0.3em] text-border-accent hover:text-accent transition-colors duration-300 cursor-default"
+                    href="#skills"
+                    className="text-xs tracking-[0.3em] text-border-accent hover:text-accent transition-colors duration-300 no-underline"
                   >
                     {tech}
-                    <span className="text-border mx-4">◆</span>
-                  </span>
+                    <span className="text-border mx-4 pointer-events-none">◆</span>
+                  </a>
                 ))}
               </div>
             ))}

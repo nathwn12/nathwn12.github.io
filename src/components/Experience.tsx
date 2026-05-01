@@ -63,7 +63,7 @@ export function Experience() {
         >
           <span className="text-accent text-sm">$</span>
           <span className="text-xs tracking-[0.4em] text-text-dim">
-            SECTION 02 // EXPERIENCE
+            tail -f experience.log
           </span>
           <div className="flex-1 h-[1px] bg-border" />
         </motion.div>

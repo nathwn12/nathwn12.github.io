@@ -5,3 +5,5 @@ dist/
 .vite/
 *.tsbuildinfo
 AGENTS.md
+.playwright-mcp/
+.stitch/

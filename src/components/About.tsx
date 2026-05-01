@@ -17,7 +17,7 @@ export function About() {
         >
           <span className="text-accent text-sm">$</span>
           <span className="text-xs tracking-[0.4em] text-text-dim">
-            SECTION 01 // ABOUT
+            cat about.md
           </span>
           <div className="flex-1 h-[1px] bg-border" />
         </motion.div>
