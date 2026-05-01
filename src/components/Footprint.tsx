@@ -13,7 +13,7 @@ export function Footprint() {
         >
           <span className="text-accent-2 text-sm">$</span>
           <span className="text-xs tracking-[0.4em] text-text-dim">
-            SECTION 03 // FOOTPRINT
+            du -sh footprint/
           </span>
           <div className="flex-1 h-[1px] bg-border" />
         </motion.div>

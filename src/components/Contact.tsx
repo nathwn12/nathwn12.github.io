@@ -48,7 +48,7 @@ export function Contact() {
         >
           <span className="text-accent-2 text-sm">$</span>
           <span className="text-xs tracking-[0.4em] text-text-dim">
-            SECTION 07 // CONTACT
+            ./contact.sh
           </span>
           <div className="flex-1 h-[1px] bg-border" />
         </motion.div>
@@ -121,9 +121,11 @@ export function Contact() {
           transition={{ delay: 0.4, duration: 0.5 }}
           className="border border-border-accent bg-surface p-6 md:p-8 mb-12"
         >
-          <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
-            <span className="text-accent-2">$</span> Send a message
-          </h3>
+          <div className="flex items-center gap-2 mb-6">
+            <span className="text-accent-2">$</span>
+            <span className="text-sm text-text-dim">cat mail.sh</span>
+            <span className="cursor-blink text-accent text-sm">█</span>
+          </div>
           <form
             id="contactForm"
             action="https://formsubmit.co/ajax/nathanielnikolai.ladero@gmail.com"
@@ -134,66 +136,99 @@ export function Contact() {
             <input type="hidden" name="_captcha" value="false" />
             <input type="text" name="_honey" tabIndex={-1} autoComplete="off" style={{ display: "none" }} />
 
-            <div className="grid md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label htmlFor="form-name" className="text-[10px] tracking-widest text-text-muted block mb-1">NAME</label>
-                <input
-                  id="form-name"
-                  name="name"
-                  type="text"
-                  required
-                  autoComplete="name"
-                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-white font-mono outline-none focus:border-accent transition-colors"
-                />
+            <div className="space-y-1 mb-4">
+              <div className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
+                <span className="text-accent">$</span>
+                <span>read -p "Name: " name</span>
               </div>
-              <div>
-                <label htmlFor="form-email" className="text-[10px] tracking-widest text-text-muted block mb-1">EMAIL</label>
-                <input
-                  id="form-email"
-                  name="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-white font-mono outline-none focus:border-accent transition-colors"
-                />
-              </div>
+              <input
+                id="form-name"
+                name="name"
+                type="text"
+                required
+                autoComplete="name"
+                placeholder="Nathaniel Nikolai Ladero"
+                className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-white font-mono outline-none focus:border-accent transition-colors placeholder:text-text-muted/30"
+              />
             </div>
 
-            <div className="mb-4">
-              <label htmlFor="form-subject" className="text-[10px] tracking-widest text-text-muted block mb-1">SUBJECT</label>
+            <div className="space-y-1 mb-4">
+              <div className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
+                <span className="text-accent">$</span>
+                <span>read -p "Email: " email</span>
+              </div>
+              <input
+                id="form-email"
+                name="email"
+                type="email"
+                required
+                autoComplete="email"
+                placeholder="user@example.com"
+                className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-white font-mono outline-none focus:border-accent transition-colors placeholder:text-text-muted/30"
+              />
+            </div>
+
+            <div className="space-y-1 mb-4">
+              <div className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
+                <span className="text-accent">$</span>
+                <span>read -p "Subject: " subject</span>
+              </div>
               <input
                 id="form-subject"
                 name="subject"
                 type="text"
                 required
-                className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-white font-mono outline-none focus:border-accent transition-colors"
+                placeholder="What is this regarding?"
+                className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-white font-mono outline-none focus:border-accent transition-colors placeholder:text-text-muted/30"
               />
             </div>
 
-            <div className="mb-6">
-              <label htmlFor="form-message" className="text-[10px] tracking-widest text-text-muted block mb-1">MESSAGE</label>
+            <div className="space-y-1 mb-6">
+              <div className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
+                <span className="text-accent">$</span>
+                <span>read -p "Message: " message</span>
+              </div>
               <textarea
                 id="form-message"
                 name="message"
                 required
                 rows={4}
-                className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-white font-mono outline-none focus:border-accent transition-colors resize-none"
+                placeholder="Your message here..."
+                className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-white font-mono outline-none focus:border-accent transition-colors resize-none placeholder:text-text-muted/30"
               />
             </div>
 
-            <button
-              type="submit"
-              className="form-submit px-8 py-3 bg-accent text-bg text-xs font-bold tracking-widest hover:bg-white transition-colors duration-300"
-            >
-              SEND MESSAGE →
-            </button>
+            <div className="flex items-center gap-3">
+              <span className="text-accent text-xs">$</span>
+              <button
+                type="submit"
+                className="form-submit px-6 py-3 bg-accent/10 border border-accent/30 text-accent text-xs font-bold tracking-widest hover:bg-accent/20 hover:border-accent/60 transition-all duration-300"
+              >
+                ./send-message --send
+              </button>
+              <span className="cursor-blink text-accent text-xs">█</span>
+            </div>
 
             {formStatus && (
-              <p className={`mt-3 text-xs ${
-                formStatus.type === "success" ? "text-accent" : formStatus.type === "error" ? "text-accent-3" : "text-text-dim"
+              <div className={`mt-4 border-l-2 pl-4 py-2 text-xs font-mono ${
+                formStatus.type === "success"
+                  ? "border-accent text-accent bg-accent/5"
+                  : formStatus.type === "error"
+                  ? "border-accent-3 text-accent-3 bg-accent-3/5"
+                  : "border-text-muted text-text-dim bg-white/5"
               }`}>
+                <span className="text-text-muted mr-2">$</span>
                 {formStatus.message}
-              </p>
+                {formStatus.type === "pending" && (
+                  <motion.span
+                    animate={{ opacity: [1, 0] }}
+                    transition={{ duration: 0.8, repeat: Infinity }}
+                    className="ml-1"
+                  >
+                    █
+                  </motion.span>
+                )}
+              </div>
             )}
           </form>
         </motion.div>

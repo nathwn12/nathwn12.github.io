@@ -13,45 +13,72 @@ export function Education() {
         >
           <span className="text-accent-2 text-sm">$</span>
           <span className="text-xs tracking-[0.4em] text-text-dim">
-            SECTION 06 // EDUCATION
+            cat education.md
           </span>
           <div className="flex-1 h-[1px] bg-border" />
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-px bg-border-accent border border-border-accent mb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="bg-bg p-6 md:p-8"
-          >
-            <div className="flex items-center gap-4 mb-4">
-              <span className="text-accent text-lg">◆</span>
-              <div>
-                <h3 className="text-base md:text-lg font-bold text-white">B.S. Information Technology</h3>
-                <p className="text-xs text-accent-2">La Consolacion University Philippines</p>
-                <p className="text-[10px] text-text-muted">2019 – 2023</p>
-              </div>
-            </div>
-          </motion.div>
+        <div className="border border-border-accent bg-surface p-6 md:p-8 mb-12">
+          <div className="flex items-center gap-3 mb-8">
+            <span className="text-[10px] tracking-widest text-accent">[EDUCATION TIMELINE]</span>
+            <div className="flex-1 h-[1px] bg-border" />
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1, duration: 0.5 }}
-            className="bg-bg p-6 md:p-8"
-          >
-            <div className="flex items-center gap-4 mb-4">
-              <span className="text-accent-3 text-lg">◆</span>
-              <div>
-                <h3 className="text-base md:text-lg font-bold text-white">STEM Strand</h3>
-                <p className="text-xs text-accent-2">La Consolacion University Philippines</p>
-                <p className="text-[10px] text-text-muted">2017 – 2019</p>
-              </div>
-            </div>
-          </motion.div>
+          <div className="space-y-0">
+            {[
+              {
+                year: "2017",
+                label: "STEM STRAND",
+                school: "La Consolacion University Philippines",
+                desc: "Science, Technology, Engineering, and Mathematics",
+                dotColor: "#7b61ff",
+                textColor: "text-accent-4",
+              },
+              {
+                year: "2019",
+                label: "B.S. INFORMATION TECHNOLOGY",
+                school: "La Consolacion University Philippines",
+                desc: "Bachelor of Science in Information Technology",
+                dotColor: "#00d4ff",
+                textColor: "text-accent-2",
+              },
+              {
+                year: "2023",
+                label: "PROFESSIONAL DEPLOYMENT",
+                school: "Xentra Infotech Solutions, Inc.",
+                desc: "Backend Developer — Fintech Systems",
+                dotColor: "#00ff41",
+                textColor: "text-accent",
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={item.year}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.12, duration: 0.4 }}
+                className="relative flex gap-4 md:gap-6 pb-6 last:pb-0"
+              >
+                <div className="flex flex-col items-center">
+                  <div
+                    className="w-3 h-3 rounded-full z-10"
+                    style={{ backgroundColor: item.dotColor }}
+                  />
+                  {i < 2 && <div className="flex-1 w-[1px] bg-border-accent mt-1" />}
+                </div>
+                <div className="flex-1 min-w-0 -mt-1">
+                  <div className="flex items-center gap-3 mb-1">
+                    <span className={`text-xs font-bold tracking-wider ${item.textColor}`}>
+                      {item.year}
+                    </span>
+                    <span className="text-xs font-bold text-white">{item.label}</span>
+                  </div>
+                  <p className="text-[11px] text-text-dim mb-1">{item.school}</p>
+                  <p className="text-[10px] text-text-muted">{item.desc}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
 
         <motion.div
@@ -63,7 +90,7 @@ export function Education() {
         >
           <span className="text-accent-4 text-sm">$</span>
           <span className="text-xs tracking-[0.4em] text-text-dim">
-            CERTIFICATIONS
+            ls certs/
           </span>
           <div className="flex-1 h-[1px] bg-border" />
         </motion.div>
