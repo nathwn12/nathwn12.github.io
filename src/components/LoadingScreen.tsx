@@ -1,10 +1,14 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 
 const bootLines = [
   "[OK] Loading kernel modules...",
+  "[OK] Initializing DMA controller...",
+  "[OK] Probing PCI bus...",
   "[OK] Initializing network interfaces...",
-  "[OK] Mounting filesystems...",
+  "[OK] Mounting root filesystem...",
+  "[OK] Starting syslogd...",
+  "[OK] Starting cron daemon...",
   "[OK] Starting system services...",
   "[OK] Loading operator profile...",
   "[OK] Decrypting resume data...",
@@ -12,29 +16,45 @@ const bootLines = [
   "[OK] System ready.",
 ];
 
+const delays = [140, 220, 160, 260, 240, 170, 250, 220, 200, 300, 220, 400];
+
 export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
   const [progress, setProgress] = useState(0);
   const [lines, setLines] = useState<string[]>([]);
+  const [showCursor, setShowCursor] = useState(false);
+
+  const activeRef = useRef(true);
 
   useEffect(() => {
+    activeRef.current = true;
     let lineIndex = 0;
-    const interval = setInterval(() => {
+    let timer: ReturnType<typeof setTimeout>;
+
+    const tick = () => {
+      if (!activeRef.current) return;
       if (lineIndex < bootLines.length) {
         setLines((prev) => [...prev, bootLines[lineIndex]]);
         setProgress(((lineIndex + 1) / bootLines.length) * 100);
+        const delay = delays[lineIndex] + (Math.random() - 0.5) * 100;
         lineIndex++;
+        timer = setTimeout(tick, delay);
       } else {
-        clearInterval(interval);
-        setTimeout(onComplete, 300);
+        setShowCursor(true);
+        timer = setTimeout(onComplete, 500);
       }
-    }, 140);
-    return () => clearInterval(interval);
+    };
+
+    timer = setTimeout(tick, delays[0]);
+    return () => {
+      activeRef.current = false;
+      clearTimeout(timer);
+    };
   }, [onComplete]);
 
   return (
     <motion.div
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: 0.4 }}
       className="fixed inset-0 z-50 bg-bg flex flex-col justify-center px-4 lg:px-8 font-mono"
     >
       <div className="max-w-lg mx-auto w-full">
@@ -43,10 +63,9 @@ export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
             BOOT SEQUENCE — V1.0.0
           </p>
           <div className="h-[2px] bg-border mb-6">
-            <motion.div
-              className="h-full bg-accent"
+            <div
+              className="h-full bg-accent transition-none"
               style={{ width: `${progress}%` }}
-              transition={{ duration: 0.15 }}
             />
           </div>
         </div>
@@ -56,18 +75,21 @@ export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
               key={i}
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.12 }}
               className="text-xs text-accent/80"
             >
               {line}
             </motion.p>
           ))}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: lines.length === bootLines.length ? 1 : 0 }}
-            className="text-xs text-text-muted mt-2"
-          >
-            $ <span className="cursor-blink text-accent">█</span>
-          </motion.p>
+          {showCursor && (
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="text-xs text-text-muted mt-2"
+            >
+              $ <span className="cursor-blink text-accent">█</span>
+            </motion.p>
+          )}
         </div>
       </div>
     </motion.div>

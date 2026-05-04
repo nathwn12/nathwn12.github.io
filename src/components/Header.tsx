@@ -11,6 +11,14 @@ const navItems = [
   { label: "CONTACT", href: "#contact" },
 ];
 
+const utcOffset = (() => {
+  const offset = -new Date().getTimezoneOffset();
+  const sign = offset >= 0 ? "+" : "-";
+  const hours = Math.floor(Math.abs(offset) / 60);
+  const minutes = Math.abs(offset) % 60;
+  return `UTC${sign}${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}`;
+})();
+
 export function Header() {
   const [time, setTime] = useState(new Date());
   const [scrolled, setScrolled] = useState(false);
@@ -25,11 +33,10 @@ export function Header() {
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 50);
-      const ids = navItems.map((n) => n.href.slice(1));
-      for (const id of ids.reverse()) {
-        const el = document.getElementById(id);
+      for (const item of [...navItems].reverse()) {
+        const el = document.getElementById(item.href.slice(1));
         if (el && el.getBoundingClientRect().top <= 200) {
-          setActiveSection(id.toUpperCase());
+          setActiveSection(item.label);
           break;
         }
       }
@@ -67,7 +74,7 @@ export function Header() {
           <span className="flex items-center gap-3">
             <span>{timeStr}</span>
             <span className="text-border-accent">|</span>
-            <span>UTC{new Date().getTimezoneOffset() > 0 ? "-" : "+"}{Math.abs(new Date().getTimezoneOffset() / 60)}</span>
+            <span>{utcOffset}</span>
             <span className="text-border-accent">|</span>
             <span className="text-accent">{activeSection || "HOME"}</span>
           </span>
@@ -111,6 +118,8 @@ export function Header() {
 
           <button
             onClick={() => setMenuOpen(!menuOpen)}
+            aria-label="Toggle navigation menu"
+            aria-expanded={menuOpen}
             className="md:hidden flex flex-col gap-1.5 p-2 group"
           >
             <span className={`block w-5 h-[2px] bg-text-dim transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-[7px]" : ""}`} />
@@ -150,7 +159,7 @@ export function Header() {
           )}
         </AnimatePresence>
       </motion.header>
-      <div className={`${menuOpen ? "h-[340px]" : "h-[88px]"} transition-all duration-300`} />
+      <div className="transition-all duration-300" style={{ height: menuOpen ? 88 + navItems.length * 44 : 88 }} />
     </>
   );
 }

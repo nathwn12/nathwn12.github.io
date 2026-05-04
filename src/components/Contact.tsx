@@ -1,18 +1,21 @@
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export function Contact() {
-  const [formStatus, setFormStatus] = useState<{ type: string; message: string } | null>(null);
+  const [formStatus, setFormStatus] = useState<{ type: "pending" | "success" | "error"; message: string } | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const statusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => { if (statusTimeoutRef.current) clearTimeout(statusTimeoutRef.current); };
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
-    const btn = form.querySelector(".form-submit") as HTMLButtonElement;
-    const originalText = btn.textContent;
 
     setFormStatus({ type: "pending", message: "Sending your message..." });
-    btn.textContent = "Sending…";
-    btn.disabled = true;
+    setIsSubmitting(true);
 
     try {
       const data = new FormData(form);
@@ -23,16 +26,15 @@ export function Contact() {
         body: JSON.stringify(payload),
       });
       const result = await res.json();
-      if (!res.ok) throw new Error(result.message || "Something went wrong.");
+      if (!res.ok) throw new Error(result?.message || "Something went wrong.");
       setFormStatus({ type: "success", message: "Message sent! Check your email for confirmation." });
       form.reset();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Something went wrong.";
       setFormStatus({ type: "error", message: msg });
     } finally {
-      btn.textContent = originalText;
-      btn.disabled = false;
-      setTimeout(() => setFormStatus(null), 5000);
+      setIsSubmitting(false);
+      statusTimeoutRef.current = setTimeout(() => setFormStatus(null), 5000);
     }
   }
 
@@ -137,10 +139,10 @@ export function Contact() {
             <input type="text" name="_honey" tabIndex={-1} autoComplete="off" style={{ display: "none" }} />
 
             <div className="space-y-1 mb-4">
-              <div className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
+              <label htmlFor="form-name" className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
                 <span className="text-accent">$</span>
                 <span>read -p "Name: " name</span>
-              </div>
+              </label>
               <input
                 id="form-name"
                 name="name"
@@ -153,10 +155,10 @@ export function Contact() {
             </div>
 
             <div className="space-y-1 mb-4">
-              <div className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
+              <label htmlFor="form-email" className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
                 <span className="text-accent">$</span>
                 <span>read -p "Email: " email</span>
-              </div>
+              </label>
               <input
                 id="form-email"
                 name="email"
@@ -169,10 +171,10 @@ export function Contact() {
             </div>
 
             <div className="space-y-1 mb-4">
-              <div className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
+              <label htmlFor="form-subject" className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
                 <span className="text-accent">$</span>
                 <span>read -p "Subject: " subject</span>
-              </div>
+              </label>
               <input
                 id="form-subject"
                 name="subject"
@@ -184,10 +186,10 @@ export function Contact() {
             </div>
 
             <div className="space-y-1 mb-6">
-              <div className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
+              <label htmlFor="form-message" className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
                 <span className="text-accent">$</span>
                 <span>read -p "Message: " message</span>
-              </div>
+              </label>
               <textarea
                 id="form-message"
                 name="message"
@@ -202,9 +204,10 @@ export function Contact() {
               <span className="text-accent text-xs">$</span>
               <button
                 type="submit"
-                className="form-submit px-6 py-3 bg-accent/10 border border-accent/30 text-accent text-xs font-bold tracking-widest hover:bg-accent/20 hover:border-accent/60 transition-all duration-300"
+                disabled={isSubmitting}
+                className="px-6 py-3 bg-accent/10 border border-accent/30 text-accent text-xs font-bold tracking-widest hover:bg-accent/20 hover:border-accent/60 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                ./send-message --send
+                {isSubmitting ? "./send-message --sending…" : "./send-message --send"}
               </button>
               <span className="cursor-blink text-accent text-xs">█</span>
             </div>

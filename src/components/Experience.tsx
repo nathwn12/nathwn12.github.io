@@ -49,7 +49,7 @@ const experiences = [
 ];
 
 export function Experience() {
-  const [activeExp, setActiveExp] = useState(0);
+  const [activeExp, setActiveExp] = useState<number | null>(0);
 
   return (
     <section id="experience" className="py-24 md:py-32 px-4 lg:px-8 border-t border-border">
@@ -76,10 +76,15 @@ export function Experience() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
                transition={{ delay: i * 0.08, duration: 0.4 }}
+              role="button"
+              tabIndex={0}
+              aria-expanded={activeExp === i}
               className={`group cursor-pointer transition-all duration-500 ${
                 activeExp === i ? "bg-accent/[0.02]" : "hover:bg-white/[0.01]"
               }`}
-              onMouseEnter={() => setActiveExp(i)}
+              onMouseEnter={() => setActiveExp((prev) => prev === i ? null : i)}
+              onFocus={() => setActiveExp((prev) => prev === i ? null : i)}
+              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") setActiveExp((prev) => prev === i ? null : i); }}
             >
               <div className="flex items-center gap-4 md:gap-8 py-5 md:py-6 px-4 md:px-6 border border-border group-hover:border-border-accent transition-colors duration-300">
                 <span className={`text-xs font-bold tabular-nums transition-colors duration-300 ${
