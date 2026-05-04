@@ -16,12 +16,13 @@ export function Hero() {
 
   useEffect(() => {
     const current = roles[roleIndex];
+    let innerTimer: ReturnType<typeof setTimeout> | undefined;
     const timeout = setTimeout(() => {
       if (!isDeleting) {
         setDisplayText(current.slice(0, charIndex + 1));
         setCharIndex((prev) => prev + 1);
         if (charIndex + 1 === current.length) {
-          setTimeout(() => setIsDeleting(true), 2000);
+          innerTimer = setTimeout(() => setIsDeleting(true), 2000);
         }
       } else {
         setDisplayText(current.slice(0, charIndex - 1));
@@ -32,7 +33,10 @@ export function Hero() {
         }
       }
     }, isDeleting ? 40 : 80);
-    return () => clearTimeout(timeout);
+    return () => {
+      clearTimeout(timeout);
+      clearTimeout(innerTimer);
+    };
   }, [charIndex, isDeleting, roleIndex]);
 
   return (

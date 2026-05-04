@@ -151,14 +151,13 @@ export function Skills() {
                   "JWT", "EF CORE", "POSTGRES", "REDIS", "GIT",
                   "LINUX", "OAUTH", "SNYK", "REST", "SWAGGER",
                 ].map((tech) => (
-                  <a
+                  <span
                     key={`${i}-${tech}`}
-                    href="#skills"
-                    className="text-xs tracking-[0.3em] text-border-accent hover:text-accent transition-colors duration-300 no-underline"
+                    className="text-xs tracking-[0.3em] text-border-accent hover:text-accent transition-colors duration-300"
                   >
                     {tech}
                     <span className="text-border mx-4 pointer-events-none">◆</span>
-                  </a>
+                  </span>
                 ))}
               </div>
             ))}

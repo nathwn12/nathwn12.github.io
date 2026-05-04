@@ -88,6 +88,8 @@ export function Projects() {
                 transition={{ delay: i * 0.08, duration: 0.4 }}
                 onMouseEnter={() => setHoveredId(project.id)}
                 onMouseLeave={() => setHoveredId(null)}
+                onFocus={() => setHoveredId(project.id)}
+                onBlur={() => setHoveredId(null)}
                 className="group relative border border-border hover:border-border-accent transition-all duration-500"
               >
                 <div
