@@ -81,14 +81,21 @@ export function Header() {
         </div>
 
         <div className="flex items-center justify-between px-4 lg:px-8 py-3">
-          <button
-            onClick={() => scrollTo("hero")}
-            className="text-sm font-bold tracking-tighter text-white flex items-center gap-2 group"
-          >
-            <span className="text-accent text-xs group-hover:animate-pulse">$</span>
-            <span className="group-hover:text-accent transition-colors duration-300">NNL</span>
-            <span className="cursor-blink text-accent text-xs">_</span>
-          </button>
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-1.5 mr-1">
+              <span className="w-2 h-2 rounded-full bg-accent-3/70" />
+              <span className="w-2 h-2 rounded-full bg-accent-2/70" />
+              <span className="w-2 h-2 rounded-full bg-accent/70" />
+            </div>
+            <button
+              onClick={() => scrollTo("hero")}
+              className="text-sm font-bold tracking-tighter text-white flex items-center gap-2 group"
+            >
+              <span className="text-accent text-xs group-hover:animate-pulse">$</span>
+              <span className="group-hover:text-accent transition-colors duration-300">NNL</span>
+              <span className="cursor-blink text-accent text-xs">_</span>
+            </button>
+          </div>
 
           <nav className="hidden md:flex items-center gap-0">
             {navItems.map((item, i) => (

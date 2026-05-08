@@ -138,7 +138,7 @@ export function Contact() {
             <input type="hidden" name="_captcha" value="false" />
             <input type="text" name="_honey" tabIndex={-1} autoComplete="off" style={{ display: "none" }} />
 
-            <div className="space-y-1 mb-4">
+            <div className="space-y-1 mb-4 input-glow">
               <label htmlFor="form-name" className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
                 <span className="text-accent">$</span>
                 <span>read -p "Name: " name</span>
@@ -154,7 +154,7 @@ export function Contact() {
               />
             </div>
 
-            <div className="space-y-1 mb-4">
+            <div className="space-y-1 mb-4 input-glow">
               <label htmlFor="form-email" className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
                 <span className="text-accent">$</span>
                 <span>read -p "Email: " email</span>
@@ -170,7 +170,7 @@ export function Contact() {
               />
             </div>
 
-            <div className="space-y-1 mb-4">
+            <div className="space-y-1 mb-4 input-glow">
               <label htmlFor="form-subject" className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
                 <span className="text-accent">$</span>
                 <span>read -p "Subject: " subject</span>
@@ -185,7 +185,7 @@ export function Contact() {
               />
             </div>
 
-            <div className="space-y-1 mb-6">
+            <div className="space-y-1 mb-6 input-glow">
               <label htmlFor="form-message" className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
                 <span className="text-accent">$</span>
                 <span>read -p "Message: " message</span>
@@ -209,7 +209,7 @@ export function Contact() {
               >
                 {isSubmitting ? "./send-message --sending…" : "./send-message --send"}
               </button>
-              <span className="cursor-blink text-accent text-xs">█</span>
+              <span className="cursor-blink cursor-glow text-accent text-xs">█</span>
             </div>
 
             {formStatus && (

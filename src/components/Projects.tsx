@@ -90,7 +90,7 @@ export function Projects() {
                 onMouseLeave={() => setHoveredId(null)}
                 onFocus={() => setHoveredId(project.id)}
                 onBlur={() => setHoveredId(null)}
-                className="group relative border border-border hover:border-border-accent transition-all duration-500"
+                className="group relative border border-border hover:border-border-accent hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] transition-all duration-500"
               >
                 <div
                   className="h-[2px] w-full transition-opacity duration-500"

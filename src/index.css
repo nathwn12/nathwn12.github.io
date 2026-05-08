@@ -99,31 +99,6 @@ body {
   text-shadow: 0 0 10px rgba(0, 255, 65, 0.5), 0 0 40px rgba(0, 255, 65, 0.1);
 }
 
-.glow-cyan {
-  text-shadow: 0 0 10px rgba(0, 212, 255, 0.5), 0 0 40px rgba(0, 212, 255, 0.1);
-}
-
-.glass {
-  background: rgba(17, 17, 17, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(42, 42, 42, 0.6);
-}
-
-.glass-strong {
-  background: rgba(17, 17, 17, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(42, 42, 42, 0.8);
-}
-
-.grid-bg {
-  background-image:
-    linear-gradient(rgba(42, 42, 42, 0.3) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(42, 42, 42, 0.3) 1px, transparent 1px);
-  background-size: 40px 40px;
-}
-
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.5; transform: scale(0.8); }
@@ -189,20 +164,70 @@ body {
   animation-play-state: paused;
 }
 
-.tag-hover {
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+/* Terminal window chrome */
+.terminal-titlebar {
+  @apply flex items-center gap-1.5 px-3 py-2 border-b border-border-accent bg-surface/80;
 }
 
-.tag-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 255, 65, 0.15);
+.terminal-dot {
+  @apply w-2.5 h-2.5 rounded-full transition-colors duration-300;
 }
 
-.block-highlight {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+/* Shimmer sweep for skill bars */
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
 }
 
-.block-highlight:hover {
-  background: rgba(0, 255, 65, 0.05);
-  border-color: rgba(0, 255, 65, 0.3);
+.skill-bar-shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  animation: shimmer 2.5s ease-in-out infinite;
 }
+
+/* Glow ring on contact inputs */
+.input-glow:focus-within {
+  box-shadow: 0 0 12px rgba(0, 255, 65, 0.08), 0 0 30px rgba(0, 255, 65, 0.03);
+}
+
+/* ASCII art section separator */
+.ascii-divider {
+  @apply flex items-center gap-2 my-8 text-[10px] tracking-[0.5em] text-border-accent select-none;
+}
+.ascii-divider::before,
+.ascii-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  @apply bg-border;
+}
+
+
+
+/* Typewriter cursor glow */
+@keyframes cursor-glow {
+  0%, 100% { text-shadow: 0 0 4px rgba(0, 255, 65, 0.4); }
+  50% { text-shadow: 0 0 12px rgba(0, 255, 65, 0.8), 0 0 24px rgba(0, 255, 65, 0.2); }
+}
+.cursor-glow {
+  animation: cursor-glow 1.5s ease-in-out infinite;
+}
+
+/* Power-on CRT flicker for loading screen */
+@keyframes crt-on {
+  0% { filter: brightness(0) saturate(0); }
+  20% { filter: brightness(10) saturate(2); }
+  30% { filter: brightness(0.3) saturate(1.5); }
+  45% { filter: brightness(2) saturate(0.8); }
+  55% { filter: brightness(0.6) saturate(1.2); }
+  70% { filter: brightness(1.2) saturate(0.9); }
+  85% { filter: brightness(0.8) saturate(1.1); }
+  100% { filter: brightness(1) saturate(1); }
+}
+.crt-boot {
+  animation: crt-on 0.6s ease-out forwards;
+}
+
+

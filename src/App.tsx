@@ -34,12 +34,19 @@ export default function App() {
           <Header />
           <main className="relative z-10">
             <div id="hero"><Hero /></div>
+            <div className="ascii-divider max-w-5xl mx-auto px-4 lg:px-8">❯❯❯</div>
             <div id="about"><About /></div>
+            <div className="ascii-divider max-w-5xl mx-auto px-4 lg:px-8">❯❯❯</div>
             <div id="experience"><Experience /></div>
+            <div className="ascii-divider max-w-5xl mx-auto px-4 lg:px-8">❯❯❯</div>
             <div id="footprint"><Footprint /></div>
+            <div className="ascii-divider max-w-5xl mx-auto px-4 lg:px-8">❯❯❯</div>
             <div id="skills"><Skills /></div>
+            <div className="ascii-divider max-w-5xl mx-auto px-4 lg:px-8">❯❯❯</div>
             <div id="projects"><Projects /></div>
+            <div className="ascii-divider max-w-5xl mx-auto px-4 lg:px-8">❯❯❯</div>
             <div id="education"><Education /></div>
+            <div className="ascii-divider max-w-5xl mx-auto px-4 lg:px-8">❯❯❯</div>
             <div id="contact"><Contact /></div>
           </main>
           <Footer />

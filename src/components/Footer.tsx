@@ -32,7 +32,7 @@ export function Footer() {
             <span>CONNECTION STABLE</span>
           </div>
           <div>
-            NNL · {new Date().getFullYear()} · HAGONOY, BULACAN, PH
+            NNL · {new Date().getFullYear()} · LUZON, PH
           </div>
           <div className="font-mono text-text-dim/50">
             <a href="https://github.com/nathwn12" target="_blank" rel="noopener noreferrer" className="hover:text-accent transition-colors">
