@@ -55,7 +55,7 @@ export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
     <motion.div
       exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}
-      className="fixed inset-0 z-50 bg-bg flex flex-col justify-center px-4 lg:px-8 font-mono"
+      className="fixed inset-0 z-50 bg-bg flex flex-col justify-center px-4 lg:px-8 font-mono crt-boot"
     >
       <div className="max-w-lg mx-auto w-full">
         <div className="mb-8">

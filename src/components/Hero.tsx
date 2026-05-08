@@ -108,26 +108,34 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 1.1, duration: 0.4 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border-accent border border-border-accent"
+            className="border border-border-accent"
           >
-            {[
-              { label: "LOCATION", value: "HAGONOY, BULACAN" },
-              { label: "EXPERIENCE", value: "3+ YEARS" },
-              { label: "ROLE", value: "BACKEND DEV" },
-              { label: "STATUS", value: "OPEN TO WORK" },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                className="bg-bg p-4 md:p-6 group hover:bg-accent/5 transition-colors duration-500"
-              >
-                <p className="text-[10px] tracking-[0.2em] text-text-muted mb-1">
-                  {stat.label}
-                </p>
-                <p className="text-sm md:text-base font-bold text-white group-hover:text-accent transition-colors duration-300">
-                  {stat.value}
-                </p>
-              </div>
-            ))}
+            <div className="terminal-titlebar">
+              <span className="terminal-dot bg-accent-3" />
+              <span className="terminal-dot bg-accent-2" />
+              <span className="terminal-dot bg-accent" />
+              <span className="text-[9px] tracking-[0.3em] text-text-muted ml-2 uppercase">sysinfo.exe</span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border-accent">
+              {[
+                { label: "LOCATION", value: "LUZON, PHILIPPINES" },
+                { label: "EXPERIENCE", value: "3+ YEARS" },
+                { label: "ROLE", value: "BACKEND DEV" },
+                { label: "STATUS", value: "OPEN TO WORK" },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="bg-bg p-4 md:p-6 group hover:bg-accent/5 transition-colors duration-500"
+                >
+                  <p className="text-[10px] tracking-[0.2em] text-text-muted mb-1">
+                    {stat.label}
+                  </p>
+                  <p className="text-sm md:text-base font-bold text-white group-hover:text-accent transition-colors duration-300">
+                    {stat.value}
+                  </p>
+                </div>
+              ))}
+            </div>
           </motion.div>
 
           <motion.a

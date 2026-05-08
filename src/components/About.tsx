@@ -97,7 +97,7 @@ export function About() {
                 modeling, implementation, API documentation, deployment support, and production issue resolution.
               </p>
               <p>
-                Based in Hagonoy, Bulacan, Philippines — open to remote opportunities
+                Based in Luzon, Philippines — open to remote opportunities
                 globally. Thrive in cross-functional teams and fast-moving environments where
                 quality and velocity both matter.
               </p>

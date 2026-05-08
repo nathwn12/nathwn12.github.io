@@ -73,7 +73,7 @@ function SkillBar({ name, level, index }: { name: string; level: number; index: 
           whileInView={{ width: `${level}%` }}
           viewport={{ once: true }}
           transition={{ delay: index * 0.05 + 0.15, duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
-          className={`h-full ${getBarColor(level)} transition-all duration-500 relative`}
+          className={`h-full ${getBarColor(level)} transition-all duration-500 relative skill-bar-shimmer`}
         >
           <motion.div
             initial={{ opacity: 0 }}
