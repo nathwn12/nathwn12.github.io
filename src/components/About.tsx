@@ -27,9 +27,12 @@ export function About() {
 
   return (
     <section id="about" className="py-24 md:py-32 px-4 lg:px-8 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.02] pointer-events-none"
+      <div className="section-ambient"
         style={{
-          background: `radial-gradient(ellipse at 20% 50%, rgba(0,255,65,0.15) 0%, transparent 60%)`,
+          background: `
+            radial-gradient(ellipse at 20% 50%, rgba(0,255,65,0.15) 0%, rgba(0,255,65,0.03) 40%, transparent 65%),
+            radial-gradient(ellipse at 80% 30%, rgba(0,255,65,0.06) 0%, transparent 50%)
+          `,
         }}
       />
       <div className="max-w-5xl mx-auto" ref={ref}>

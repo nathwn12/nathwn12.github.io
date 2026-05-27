@@ -49,9 +49,12 @@ export default function Education() {
 
   return (
     <section id="education" className="py-24 md:py-32 px-4 lg:px-8 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.015] pointer-events-none"
+      <div className="section-ambient"
         style={{
-          background: `radial-gradient(ellipse at 60% 30%, rgba(0,212,255,0.1) 0%, transparent 60%)`,
+          background: `
+            radial-gradient(ellipse at 60% 30%, rgba(0,212,255,0.12) 0%, rgba(0,212,255,0.03) 40%, transparent 65%),
+            radial-gradient(ellipse at 20% 70%, rgba(123,97,255,0.05) 0%, transparent 50%)
+          `,
         }}
       />
       <div className="max-w-5xl mx-auto">

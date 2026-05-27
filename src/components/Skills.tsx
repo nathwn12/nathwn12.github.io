@@ -105,9 +105,12 @@ function SkillBar({ name, level, index }: { name: string; level: number; index: 
 export function Skills() {
   return (
     <section id="skills" className="py-24 md:py-32 px-4 lg:px-8 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.015] pointer-events-none"
+      <div className="section-ambient"
         style={{
-          background: `radial-gradient(ellipse at 30% 60%, rgba(255,62,0,0.1) 0%, transparent 60%)`,
+          background: `
+            radial-gradient(ellipse at 30% 60%, rgba(255,62,0,0.12) 0%, rgba(255,62,0,0.03) 40%, transparent 65%),
+            radial-gradient(ellipse at 70% 20%, rgba(0,212,255,0.05) 0%, transparent 50%)
+          `,
         }}
       />
       <div className="max-w-5xl mx-auto">

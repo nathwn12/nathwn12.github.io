@@ -103,9 +103,12 @@ export default function Projects() {
 
   return (
     <section id="projects" className="py-24 md:py-32 px-4 lg:px-8 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.015] pointer-events-none"
+      <div className="section-ambient"
         style={{
-          background: `radial-gradient(ellipse at 70% 40%, rgba(123,97,255,0.1) 0%, transparent 60%)`,
+          background: `
+            radial-gradient(ellipse at 70% 40%, rgba(123,97,255,0.12) 0%, rgba(123,97,255,0.03) 40%, transparent 65%),
+            radial-gradient(ellipse at 30% 70%, rgba(0,255,65,0.04) 0%, transparent 50%)
+          `,
         }}
       />
       <div className="max-w-5xl mx-auto">

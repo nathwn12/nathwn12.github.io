@@ -124,6 +124,14 @@ export function Hero() {
 
   return (
     <section id="hero" className="relative min-h-[100dvh] flex flex-col justify-center overflow-hidden">
+      <div className="section-ambient"
+        style={{
+          background: `
+            radial-gradient(ellipse at 25% 30%, rgba(0,255,65,0.15) 0%, rgba(0,255,65,0.03) 45%, transparent 70%),
+            radial-gradient(ellipse at 75% 70%, rgba(0,255,65,0.08) 0%, transparent 50%)
+          `,
+        }}
+      />
       <div
         className="absolute inset-0 opacity-[0.04]"
         style={{

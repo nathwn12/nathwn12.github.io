@@ -31,6 +31,7 @@ export default function App() {
 
   return (
     <div className="bg-bg min-h-screen font-mono relative screen-flicker">
+      <a href="#hero" className="skip-to-content">Skip to content</a>
       <div className="scanline-overlay" />
       <div className="noise-overlay" />
       <div className="scanline-sweep" />
