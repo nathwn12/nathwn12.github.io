@@ -1,7 +1,10 @@
-import { motion } from "framer-motion";
-import { useState } from "react";
+import { motion } from "framer-motion"
+import { useState, useEffect } from "react"
+import type { Project } from "../types/models"
 
-const projects = [
+type ProjectId = string & { readonly __brand: "Project" }
+
+const projects: Project[] = [
   {
     id: "01",
     name: "PAYMENT GATEWAY API OPTIMIZATION",
@@ -54,13 +57,56 @@ const projects = [
       { label: "endpoints", value: "100+", color: "#7b61ff" },
     ],
   },
-];
+]
 
-export function Projects() {
-  const [hoveredId, setHoveredId] = useState<string | null>(null);
+const extMap: Record<string, string> = {
+  "C#": ".cs",
+  "ASP.NET CORE": ".csproj",
+  "EF CORE": ".ef",
+  "AWS": ".aws",
+  "MYSQL": ".sql",
+  "OAUTH 2.0": ".auth",
+  "JWT": ".jwt",
+  "OPENID": ".oid",
+  "SNYK": ".snyk",
+  "DOCKER": ".yml",
+  "POSTGRES": ".sql",
+  "CI/CD": ".yaml",
+  "SWAGGER": ".json",
+  "OPENAPI": ".yaml",
+  "POSTMAN": ".json",
+  "REST": ".http",
+}
+
+export default function Projects() {
+  const [selectedId, setSelectedId] = useState<ProjectId | null>("01" as ProjectId)
+  const [cdAnim, setCdAnim] = useState(false)
+
+  useEffect(() => {
+    setCdAnim(true)
+    const t = setTimeout(() => setCdAnim(false), 500)
+    return () => clearTimeout(t)
+  }, [])
+
+  const selected = projects.find((p) => p.id === selectedId)
+
+  function handleSelect(id: ProjectId) {
+    if (selectedId === id) {
+      setSelectedId(null)
+      return
+    }
+    setCdAnim(true)
+    setSelectedId(id)
+    setTimeout(() => setCdAnim(false), 400)
+  }
 
   return (
-    <section id="projects" className="py-24 md:py-32 px-4 lg:px-8 border-t border-border">
+    <section id="projects" className="py-24 md:py-32 px-4 lg:px-8 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-[0.015] pointer-events-none"
+        style={{
+          background: `radial-gradient(ellipse at 70% 40%, rgba(123,97,255,0.1) 0%, transparent 60%)`,
+        }}
+      />
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -71,115 +117,176 @@ export function Projects() {
         >
           <span className="text-accent-4 text-sm">$</span>
           <span className="text-xs tracking-[0.4em] text-text-dim">
-            ls projects/
+            ls -la projects/
           </span>
           <div className="flex-1 h-[1px] bg-border" />
         </motion.div>
 
-        <div className="grid md:grid-cols-2 gap-4">
-          {projects.map((project, i) => {
-            const isHovered = hoveredId === project.id;
-            return (
-              <motion.div
-                key={project.id}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08, duration: 0.4 }}
-                onMouseEnter={() => setHoveredId(project.id)}
-                onMouseLeave={() => setHoveredId(null)}
-                onFocus={() => setHoveredId(project.id)}
-                onBlur={() => setHoveredId(null)}
-                className="group relative border border-border hover:border-border-accent hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] transition-all duration-500"
-              >
-                <div
-                  className="h-[2px] w-full transition-opacity duration-500"
-                  style={{
-                    backgroundColor: project.color,
-                    opacity: isHovered ? 1 : 0.5,
-                  }}
-                />
-
-                <div className="p-6 md:p-8">
-                  <div className="flex items-start justify-between mb-4">
-                    <div>
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="text-[10px] text-text-muted tabular-nums">
-                          {project.id}
-                        </span>
-                        <span
-                          className="text-[10px] tracking-widest px-2 py-0.5"
-                          style={{
-                            color: project.color,
-                            border: `1px solid ${project.color}44`,
-                            backgroundColor: `${project.color}0d`,
-                          }}
-                        >
-                          {project.status}
-                        </span>
-                      </div>
-                      <h3
-                        className="text-lg md:text-xl font-bold tracking-tight transition-colors duration-300"
-                        style={{
-                          color: isHovered ? project.color : "#e0e0e0",
-                        }}
-                      >
-                        {project.name}
-                      </h3>
-                    </div>
-                  </div>
-
-                  <p className="text-sm text-text-dim leading-relaxed mb-6">
-                    {project.description}
-                  </p>
-
-                  <div className="flex items-center gap-6 mb-6">
-                    {project.stats.map((stat) => (
-                      <div key={stat.label}>
-                        <p className="text-[9px] tracking-widest text-text-muted mb-0.5 uppercase">
-                          {stat.label}
-                        </p>
-                        <p
-                          className="text-lg font-bold tabular-nums transition-colors duration-300"
-                          style={{
-                            color: isHovered ? stat.color : "#666666",
-                          }}
-                        >
-                          {stat.value}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {project.tech.map((t) => (
-                      <span
-                        key={t}
-                        className="text-[10px] tracking-wider px-2 py-1 border border-border text-text-dim hover:bg-white/5 transition-all duration-300"
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-
-                  <a
-                    href="#footprint"
-                    className="mt-6 flex items-center gap-2 text-text-dim hover:text-accent transition-colors duration-300 text-xs tracking-widest"
-                  >
-                    <span>FOOTPRINT</span>
-                    <motion.span
-                      animate={{ x: [0, 3, 0] }}
-                      transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 1 }}
-                    >
-                      ❯
-                    </motion.span>
-                  </a>
-                </div>
-              </motion.div>
-            );
-          })}
+        {/* ls -la header row */}
+        <div className="hidden md:flex items-center gap-4 px-4 py-2 text-[9px] tracking-widest text-text-muted border border-border bg-surface/50 mb-px">
+          <span className="w-28">permissions</span>
+          <span className="w-8 text-right">links</span>
+          <span className="w-20">owner</span>
+          <span className="w-16 text-right">size</span>
+          <span className="w-24">date</span>
+          <span className="flex-1">name</span>
         </div>
+
+        {/* Directory listing */}
+        <div className="hidden md:grid gap-px bg-border-accent border border-border-accent mb-6">
+          {/* Parent directory */}
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => setSelectedId(null)}
+            onKeyDown={(e) => { if (e.key === "Enter") setSelectedId(null) }}
+            className="flex items-center gap-4 px-4 py-3 bg-bg hover:bg-accent/5 transition-colors duration-300 cursor-pointer"
+          >
+            <span className="w-28 text-[10px] font-mono text-text-dim">drwxr-xr-x</span>
+            <span className="w-8 text-right text-[10px] text-text-muted">2</span>
+            <span className="w-20 text-[10px] text-text-muted">nathan</span>
+            <span className="w-16 text-right text-[10px] text-text-muted">4.0K</span>
+            <span className="w-24 text-[10px] text-text-muted">May 28 2026</span>
+            <span className="flex-1 text-[10px] font-mono text-accent-2">../</span>
+          </div>
+
+          {projects.map((project) => (
+            <div
+              key={project.id}
+              role="button"
+              tabIndex={0}
+              onClick={() => handleSelect(project.id as ProjectId)}
+              onKeyDown={(e) => { if (e.key === "Enter") handleSelect(project.id as ProjectId) }}
+              className={`flex items-center gap-4 px-4 py-3 bg-bg hover:bg-accent/5 transition-all duration-300 cursor-pointer ${
+                selectedId === project.id ? "bg-accent/5 border-l-2 border-accent" : ""
+              }`}
+            >
+              <span className="w-28 text-[10px] font-mono text-text-dim">drwxr-xr-x</span>
+              <span className="w-8 text-right text-[10px] text-text-muted">2</span>
+              <span className="w-20 text-[10px] text-text-muted">nathan</span>
+              <span className="w-16 text-right text-[10px] text-text-muted">4.0K</span>
+              <span className="w-24 text-[10px] text-text-muted">May 28 2026</span>
+              <span className="flex-1 text-[11px] font-mono hover:text-accent transition-colors" style={{ color: project.color }}>
+                {project.name.toLowerCase().replace(/\s+/g, "-")}/
+                <span className="text-[9px] text-text-muted ml-1">
+                  {project.tech.map((t) => extMap[t]).filter((v): v is string => v !== undefined).filter((v, i, a) => a.indexOf(v) === i).join(" ")}
+                </span>
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Mobile: card view */}
+        <div className="md:hidden grid gap-4 mb-6">
+          {projects.map((project, i) => (
+            <motion.div
+              key={project.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              onClick={() => handleSelect(project.id as ProjectId)}
+              className={`group relative border transition-all duration-500 p-4 ${
+                selectedId === project.id
+                  ? "border-accent bg-accent/5"
+                  : "border-border hover:border-border-accent"
+              }`}
+            >
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-[10px] text-text-muted tabular-nums">{project.id}</span>
+                <span
+                  className="text-[10px] tracking-widest px-2 py-0.5"
+                  style={{
+                    color: project.color,
+                    border: `1px solid ${project.color}44`,
+                    backgroundColor: `${project.color}0d`,
+                  }}
+                >
+                  {project.status}
+                </span>
+              </div>
+              <h3 className="text-sm font-bold tracking-tight text-white">{project.name}</h3>
+              <p className="text-xs text-text-dim mt-1">{project.description}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Selected project: cat README.md */}
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{
+            opacity: selected ? 1 : 0,
+            height: selected ? "auto" : 0,
+          }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="overflow-hidden"
+        >
+          {selected && (
+            <div className="border border-border-accent bg-surface/80 p-6 md:p-8">
+              {cdAnim && (
+                <motion.p
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-[10px] text-text-muted mb-4 font-mono"
+                >
+                  <span className="text-accent">$</span> cd {selected.name.toLowerCase().replace(/\s+/g, "-")}/
+                </motion.p>
+              )}
+
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-accent text-xs">$</span>
+                <span className="text-[10px] text-text-dim">cat README.md</span>
+                <span className="terminal-cursor text-accent text-xs font-bold">█</span>
+              </div>
+
+              <div className="mb-6">
+                <h3 className="text-lg md:text-xl font-bold tracking-tight mb-2" style={{ color: selected.color }}>
+                  {selected.name}
+                </h3>
+                <p className="text-sm text-text-dim leading-relaxed">
+                  {selected.description}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-6 mb-6">
+                {selected.stats.map((stat) => (
+                  <div key={stat.label}>
+                    <p className="text-[9px] tracking-widest text-text-muted mb-0.5 uppercase">{stat.label}</p>
+                    <p className="text-lg font-bold tabular-nums" style={{ color: stat.color }}>{stat.value}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap gap-2 mb-6">
+                {selected.tech.map((t) => (
+                  <span
+                    key={t}
+                    className="text-[10px] tracking-wider px-2 py-1 border border-border text-text-dim hover:bg-white/5 hover:border-accent/30 transition-all duration-300"
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+
+              <a
+                href="#footprint"
+                className="flex items-center gap-2 text-text-dim hover:text-accent transition-colors duration-300 text-xs tracking-widest group/link"
+              >
+                <span>FOOTPRINT ❯</span>
+              </a>
+
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                onClick={() => setSelectedId(null)}
+                className="mt-4 text-[10px] tracking-widest text-text-muted hover:text-accent transition-colors"
+              >
+                <span className="text-accent">$</span> cd ..
+              </motion.button>
+            </div>
+          )}
+        </motion.div>
       </div>
     </section>
-  );
+  )
 }

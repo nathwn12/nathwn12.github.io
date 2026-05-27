@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useScrollVelocity } from "../lib/useScrollVelocity";
 
 const navItems = [
   { label: "ABOUT", href: "#about" },
@@ -24,6 +25,7 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [activeSection, setActiveSection] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const { isScrolling } = useScrollVelocity();
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
@@ -66,10 +68,14 @@ export function Header() {
       >
         <div className="flex items-center justify-between px-4 py-1.5 border-b border-border text-[10px] tracking-widest text-text-muted uppercase">
           <span className="flex items-center gap-3">
-            <span className="inline-block w-1.5 h-1.5 bg-accent rounded-full animate-pulse" />
+            <span
+              className={`inline-block w-1.5 h-1.5 rounded-full transition-all duration-200 ${
+                isScrolling ? "bg-accent animate-pulse" : "bg-accent/60"
+              }`}
+            />
             <span>sys::resume</span>
             <span className="text-border-accent">|</span>
-            <span>v1.0.0</span>
+            <span>[nathan@portfolio ~]$</span>
           </span>
           <span className="flex items-center gap-3">
             <span>{timeStr}</span>
@@ -83,9 +89,15 @@ export function Header() {
         <div className="flex items-center justify-between px-4 lg:px-8 py-3">
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-1.5 mr-1">
-              <span className="w-2 h-2 rounded-full bg-accent-3/70" />
-              <span className="w-2 h-2 rounded-full bg-accent-2/70" />
-              <span className="w-2 h-2 rounded-full bg-accent/70" />
+              <span className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                isScrolling ? "bg-accent-3" : "bg-accent-3/70"
+              }`} />
+              <span className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                isScrolling ? "bg-accent-2" : "bg-accent-2/70"
+              }`} />
+              <span className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                isScrolling ? "bg-accent" : "bg-accent/70"
+              }`} />
             </div>
             <button
               onClick={() => scrollTo("hero")}
@@ -109,7 +121,7 @@ export function Header() {
                 }`}
               >
                 <span className="text-border-accent mr-2">
-                  {(i + 1).toString().padStart(2, "0")}
+                  ^{(i + 1).toString()}
                 </span>
                 {item.label}
                 {activeSection === item.label && (
@@ -156,7 +168,7 @@ export function Header() {
                     }`}
                   >
                     <span className="text-border-accent mr-3">
-                      {(i + 1).toString().padStart(2, "0")}
+                      ^{(i + 1)}
                     </span>
                     {item.label}
                   </button>

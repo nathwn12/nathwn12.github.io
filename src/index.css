@@ -14,6 +14,7 @@
   --color-accent-2: #00d4ff;
   --color-accent-3: #ff3e00;
   --color-accent-4: #7b61ff;
+  --color-accent-glow: rgba(0, 255, 65, 0.15);
 }
 
 * {
@@ -30,6 +31,120 @@ body {
   color: #e0e0e0;
   font-family: 'Hack', 'Cascadia Mono', 'IBM Plex Mono', monospace;
   overflow-x: hidden;
+}
+
+/* CRT curvature overlay */
+.crt-curvature {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 65%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+}
+
+/* Phosphor persistence — faint green trail */
+@keyframes phosphor-trail {
+  0% { box-shadow: 0 0 0 rgba(0, 255, 65, 0); }
+  50% { box-shadow: 0 0 12px rgba(0, 255, 65, 0.08); }
+  100% { box-shadow: 0 0 0 rgba(0, 255, 65, 0); }
+}
+.phosphor-pulse {
+  animation: phosphor-trail 0.4s ease-out;
+}
+
+/* Resolution switch simulation */
+@keyframes res-switch {
+  0% { transform: scale(1); filter: saturate(1); }
+  20% { transform: scale(1.02); filter: saturate(0.3) brightness(1.5); }
+  40% { transform: scale(0.98); filter: saturate(2) brightness(0.7); }
+  60% { transform: scale(1.01); filter: saturate(0.8); }
+  100% { transform: scale(1); filter: saturate(1); }
+}
+.res-switch {
+  animation: res-switch 0.3s ease-out;
+}
+
+/* Scrollbar as terminal scrollback */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2a2a2a #0a0a0a;
+}
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #0a0a0a; border-left: 1px solid #1a1a1a; }
+::-webkit-scrollbar-thumb {
+  background: #2a2a2a;
+  border-radius: 0;
+  border-left: 1px solid #3a3a3a;
+}
+::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+::-webkit-scrollbar-thumb:active { background: #00ff41; }
+
+/* Scroll buffer percentage ticks on track */
+::-webkit-scrollbar-track-piece:start {
+  background: linear-gradient(
+    to bottom,
+    transparent 24%,
+    #1a1a1a 24%,
+    #1a1a1a 25%,
+    transparent 25%,
+    transparent 49%,
+    #1a1a1a 49%,
+    #1a1a1a 50%,
+    transparent 50%,
+    transparent 74%,
+    #1a1a1a 74%,
+    #1a1a1a 75%,
+    transparent 75%
+  );
+}
+
+/* data-command CSS hook for terminal command styling */
+[data-command]::before {
+  content: "$ " attr(data-command);
+  display: block;
+  font-size: 0.75rem;
+  color: #666;
+  letter-spacing: 0.1em;
+  margin-bottom: 0.5rem;
+}
+
+/* Text-mode scanline accent for code-like output */
+.textmode-accent {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  color: #444;
+  text-transform: uppercase;
+}
+
+/* Interference wave — occasional horizontal band */
+@keyframes interfere {
+  0% { top: -2%; opacity: 0; }
+  10% { opacity: 0.08; }
+  90% { opacity: 0.08; }
+  100% { top: 102%; opacity: 0; }
+}
+.interference-wave {
+  position: fixed;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  z-index: 9996;
+  pointer-events: none;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    rgba(0, 255, 65, 0.04),
+    transparent
+  );
+  animation: interfere 8s ease-in-out infinite;
+}
+.interference-wave:nth-child(2) {
+  animation-delay: 4s;
+  height: 30px;
 }
 
 ::selection {
@@ -228,6 +343,117 @@ body {
 }
 .crt-boot {
   animation: crt-on 0.6s ease-out forwards;
+}
+
+/* Screen wipe transition */
+@keyframes screen-wipe-left {
+  0% { clip-path: inset(0 100% 0 0); }
+  100% { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes screen-wipe-right {
+  0% { clip-path: inset(0 0 0 100%); }
+  100% { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes screen-wipe-up {
+  0% { clip-path: inset(100% 0 0 0); }
+  100% { clip-path: inset(0 0 0 0); }
+}
+
+@keyframes screen-wipe-down {
+  0% { clip-path: inset(0 0 100% 0); }
+  100% { clip-path: inset(0 0 0 0); }
+}
+
+/* Scanline sweep */
+@keyframes scanline-sweep {
+  0% { top: -10%; }
+  100% { top: 110%; }
+}
+.scanline-sweep {
+  position: fixed;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.08), transparent);
+  z-index: 9997;
+  pointer-events: none;
+  animation: scanline-sweep 6s linear infinite;
+}
+
+/* Glitch intensify */
+@keyframes glitch-intense {
+  0%, 100% { clip-path: inset(0 0 98% 0); transform: translate(0); }
+  2% { clip-path: inset(40% 0 39% 0); transform: translate(-5px, 0) skewX(-2deg); }
+  4% { clip-path: inset(70% 0 8% 0); transform: translate(5px, 0) skewX(2deg); }
+  6% { clip-path: inset(20% 0 60% 0); transform: translate(-3px, 0); }
+  8%, 100% { clip-path: inset(0 0 100% 0); transform: translate(0); }
+}
+
+/* Data corruption flicker */
+@keyframes corrupt {
+  0%, 94%, 100% { opacity: 1; }
+  95% { opacity: 0.3; }
+  96% { opacity: 0.9; }
+  97% { opacity: 0.1; }
+  98% { opacity: 0.8; }
+}
+
+/* Hex pulse for stat numbers */
+@keyframes hex-pulse {
+  0%, 100% { text-shadow: 0 0 4px rgba(0, 255, 65, 0.2); }
+  50% { text-shadow: 0 0 12px rgba(0, 255, 65, 0.5), 0 0 24px rgba(0, 255, 65, 0.1); }
+}
+
+.hex-pulse {
+  animation: hex-pulse 3s ease-in-out infinite;
+}
+
+/* Terminal cursor text blink */
+@keyframes terminal-cursor {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.terminal-cursor {
+  animation: terminal-cursor 1s step-end infinite;
+}
+
+/* Float animation for subtle elements */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Border glow pulse */
+@keyframes border-glow {
+  0%, 100% { border-color: rgba(0, 255, 65, 0.1); }
+  50% { border-color: rgba(0, 255, 65, 0.3); }
+}
+
+.border-glow {
+  animation: border-glow 3s ease-in-out infinite;
+}
+
+/* Section separator with animated dots */
+@keyframes dot-scroll {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Noise texture intensity boost */
+@keyframes noise-shift {
+  0% { background-position: 0 0; }
+  100% { background-position: 256px 256px; }
+}
+
+.noise-overlay {
+  animation: noise-shift 0.5s steps(4) infinite;
 }
 
 
