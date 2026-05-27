@@ -1,6 +1,7 @@
 import { motion } from "framer-motion"
 import { useScrollVelocity } from "../lib/useScrollVelocity"
 import { useState, useEffect } from "react"
+import { TerminalWindow } from "./TerminalWindow"
 
 export function Footer() {
   const { isScrolling } = useScrollVelocity()
@@ -15,8 +16,9 @@ export function Footer() {
   const uptimeDays = Math.floor((Date.now() - new Date("2023-03-01").getTime()) / 86400000)
 
   return (
-    <footer className="py-10 px-4 lg:px-8 border-t border-border relative overflow-hidden">
+    <footer className="py-10 px-4 lg:px-8 border-t border-border relative overflow-hidden bg-surface">
       <div className="max-w-5xl mx-auto">
+        <TerminalWindow title="system-monitor">
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 0.2 }}
@@ -64,6 +66,14 @@ export function Footer() {
             <span className="text-border-accent">TASKS: 4</span>
             <span className="text-border-accent">|</span>
             <span className="text-border-accent">PROCS: 17</span>
+            <span className="text-border-accent">|</span>
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent("toggle-terminal"))}
+              className="text-text-dim hover:text-accent transition-colors text-[10px] tracking-wider cursor-pointer"
+              title="Toggle command terminal (Ctrl+K)"
+            >
+              &gt;_ TERMINAL
+            </button>
           </div>
           <div>
             NNL · {new Date().getFullYear()} · LUZON, PH
@@ -78,6 +88,7 @@ export function Footer() {
             </a>
           </div>
         </div>
+        </TerminalWindow>
       </div>
     </footer>
   )

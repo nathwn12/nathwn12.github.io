@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
+import { TerminalWindow } from "./TerminalWindow"
 
 const experiences = [
   {
@@ -73,6 +74,7 @@ export function Experience() {
           <div className="flex-1 h-[1px] bg-border" />
         </motion.div>
 
+        <TerminalWindow title="experience.log">
         <div className="space-y-px">
           {experiences.map((exp, i) => (
             <motion.div
@@ -166,6 +168,7 @@ export function Experience() {
             </motion.div>
           ))}
         </div>
+        </TerminalWindow>
       </div>
     </section>
   )

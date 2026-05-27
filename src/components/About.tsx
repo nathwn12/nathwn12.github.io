@@ -1,6 +1,7 @@
 import { motion } from "framer-motion"
 import { useInView } from "framer-motion"
 import { useRef } from "react"
+import { TerminalWindow } from "./TerminalWindow"
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -49,13 +50,14 @@ export function About() {
           />
         </motion.div>
 
+        <TerminalWindow title="about.md">
         <motion.div
           variants={stagger}
           initial="hidden"
           animate={isInView ? "visible" : "hidden"}
           className="grid md:grid-cols-[1fr_2fr] gap-8 md:gap-12"
         >
-          <motion.div variants={item} className="border border-border-accent bg-surface/80 p-4 md:p-6 font-mono">
+          <motion.div variants={item} className="border border-border-accent bg-bg p-4 md:p-6 font-mono">
             <div className="text-accent text-xs mb-3 flex items-center gap-2">
               <span className="inline-block w-2 h-2 bg-accent rounded-full pulse-dot" />
               $ neofetch
@@ -135,6 +137,7 @@ export function About() {
             </motion.div>
           </div>
         </motion.div>
+        </TerminalWindow>
       </div>
     </section>
   )

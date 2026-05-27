@@ -1,4 +1,5 @@
 import { motion } from "framer-motion"
+import { TerminalWindow } from "./TerminalWindow"
 
 export function Footprint() {
   return (
@@ -23,13 +24,14 @@ export function Footprint() {
           <div className="flex-1 h-[1px] bg-border" />
         </motion.div>
 
+        <TerminalWindow title="footprint/">
         <div className="grid md:grid-cols-2 gap-6">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-            className="border border-border-accent bg-surface/80 p-6 md:p-8"
+            className="bg-bg p-6 md:p-8"
           >
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -70,7 +72,7 @@ export function Footprint() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-            className="border border-border-accent bg-surface/80 p-6 md:p-8"
+            className="bg-bg p-6 md:p-8"
           >
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -111,7 +113,7 @@ export function Footprint() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.1, duration: 0.5 }}
-          className="mt-6 border border-border-accent bg-surface/80 p-6 md:p-8"
+          className="mt-6 bg-bg p-6 md:p-8"
         >
           <div className="flex items-start gap-4">
             <motion.span
@@ -141,6 +143,7 @@ export function Footprint() {
             </div>
           </div>
         </motion.div>
+        </TerminalWindow>
       </div>
     </section>
   )

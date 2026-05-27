@@ -1,5 +1,6 @@
 import { motion } from "framer-motion"
 import type { EducationItem, Certification } from "../types/models"
+import { TerminalWindow } from "./TerminalWindow"
 
 export default function Education() {
   const educationItems: EducationItem[] = [
@@ -68,7 +69,8 @@ export default function Education() {
           <div className="flex-1 h-[1px] bg-border" />
         </motion.div>
 
-        <div className="border border-border-accent bg-surface/80 p-6 md:p-8 mb-12">
+        <TerminalWindow title="education.md">
+        <div className="border border-border-accent bg-bg p-6 md:p-8 mb-12">
           <div className="flex items-center gap-3 mb-8">
             <span className="text-[10px] tracking-widest text-accent">[EDUCATION TIMELINE]</span>
             <div className="flex-1 h-[1px] bg-border" />
@@ -155,6 +157,7 @@ export default function Education() {
             </motion.a>
           ))}
         </div>
+        </TerminalWindow>
       </div>
     </section>
   )

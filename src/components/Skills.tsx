@@ -78,7 +78,7 @@ function SkillBar({ name, level, index }: { name: string; level: number; index: 
           {barVisual}
         </span>
       </div>
-      <div className="h-[3px] bg-border relative overflow-hidden rounded-full mt-1">
+      <div className="h-[3px] bg-border relative overflow-hidden mt-1">
         <motion.div
           initial={{ width: 0 }}
           whileInView={{ width: `${level}%` }}
@@ -126,9 +126,9 @@ export function Skills() {
         </motion.div>
 
         {/* htop-style frame */}
-        <div className="border border-border-accent bg-surface/80">
+        <div className="border border-border-accent bg-surface">
           {/* Title bar */}
-          <div className="flex items-center justify-between px-4 py-2 border-b border-border-accent bg-surface/50 text-[9px] tracking-widest text-text-muted">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-border-accent bg-surface text-[9px] tracking-widest text-text-muted">
             <span className="text-accent">htop — LOAD AVERAGE: {Math.floor(Math.random() * 3 + 1)}.{Math.floor(Math.random() * 99)}</span>
             <span className="text-border-accent">TASKS: 4, UPTIME: 3+ YEARS</span>
           </div>
@@ -172,7 +172,7 @@ export function Skills() {
           </div>
 
           {/* Bottom status bar */}
-          <div className="flex items-center gap-6 px-4 py-2 border-t border-border-accent bg-surface/50 text-[9px] tracking-widest text-text-muted">
+          <div className="flex items-center gap-6 px-4 py-2 border-t border-border-accent bg-surface text-[9px] tracking-widest text-text-muted">
             {["F1 Help", "F2 Setup", "F3 Search", "F4 Filter", "F5 Tree"].map((key) => (
               <span key={key} className="text-border-accent">{key}</span>
             ))}
