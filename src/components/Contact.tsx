@@ -41,9 +41,12 @@ export function Contact() {
 
   return (
     <section id="contact" className="py-24 md:py-32 px-4 lg:px-8 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.015] pointer-events-none"
+      <div className="section-ambient"
         style={{
-          background: `radial-gradient(ellipse at 50% 50%, rgba(0,255,65,0.08) 0%, transparent 60%)`,
+          background: `
+            radial-gradient(ellipse at 50% 50%, rgba(0,255,65,0.10) 0%, rgba(0,255,65,0.03) 40%, transparent 65%),
+            radial-gradient(ellipse at 80% 20%, rgba(0,212,255,0.05) 0%, transparent 50%)
+          `,
         }}
       />
       <div className="max-w-5xl mx-auto">

@@ -33,6 +33,33 @@ body {
   overflow-x: hidden;
 }
 
+h1, h2, h3, h4 {
+  text-wrap: balance;
+}
+
+:focus-visible {
+  outline: 1px solid #00ff41;
+  outline-offset: 2px;
+}
+
+.skip-to-content {
+  position: fixed;
+  top: -100%;
+  left: 0;
+  z-index: 10001;
+  padding: 0.5rem 1rem;
+  background: #0a0a0a;
+  color: #00ff41;
+  font-size: 0.75rem;
+  font-family: 'Hack', 'Cascadia Mono', 'IBM Plex Mono', monospace;
+  border: 1px solid #00ff41;
+  transition: top 0.2s;
+}
+
+.skip-to-content:focus {
+  top: 0;
+}
+
 /* CRT curvature overlay */
 .crt-curvature {
   pointer-events: none;
@@ -153,7 +180,7 @@ body {
 }
 
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-track { background: #0d0d0b; }
 ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 0; }
 ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
 
@@ -182,8 +209,8 @@ body {
   width: 100%;
   height: 100%;
   z-index: 9998;
-  opacity: 0.02;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
   background-repeat: repeat;
   background-size: 256px 256px;
 }
@@ -454,6 +481,15 @@ body {
 
 .noise-overlay {
   animation: noise-shift 0.5s steps(4) infinite;
+}
+
+/* Section mesh-gradient background utility */
+.section-ambient {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  opacity: 0.12;
+  transition: opacity 0.8s ease;
 }
 
 

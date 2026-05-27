@@ -54,9 +54,12 @@ export function Experience() {
 
   return (
     <section id="experience" className="py-24 md:py-32 px-4 lg:px-8 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-[0.015] pointer-events-none"
+      <div className="section-ambient"
         style={{
-          background: `radial-gradient(ellipse at 80% 50%, rgba(0,212,255,0.1) 0%, transparent 60%)`,
+          background: `
+            radial-gradient(ellipse at 80% 50%, rgba(0,212,255,0.12) 0%, rgba(0,212,255,0.03) 40%, transparent 65%),
+            radial-gradient(ellipse at 20% 80%, rgba(0,212,255,0.06) 0%, transparent 50%)
+          `,
         }}
       />
       <div className="max-w-5xl mx-auto">
