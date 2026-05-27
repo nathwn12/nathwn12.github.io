@@ -1,13 +1,36 @@
-import { motion } from "framer-motion";
-import { useInView } from "framer-motion";
-import { useRef } from "react";
+import { motion } from "framer-motion"
+import { useInView } from "framer-motion"
+import { useRef } from "react"
+
+const stagger = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1, delayChildren: 0.1 },
+  },
+}
+
+const item = {
+  hidden: { opacity: 0, y: 24, filter: "blur(4px)" },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const },
+  },
+}
 
 export function About() {
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: "-100px" })
 
   return (
-    <section id="about" className="py-24 md:py-32 px-4 lg:px-8">
+    <section id="about" className="py-24 md:py-32 px-4 lg:px-8 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-[0.02] pointer-events-none"
+        style={{
+          background: `radial-gradient(ellipse at 20% 50%, rgba(0,255,65,0.15) 0%, transparent 60%)`,
+        }}
+      />
       <div className="max-w-5xl mx-auto" ref={ref}>
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -19,59 +42,52 @@ export function About() {
           <span className="text-xs tracking-[0.4em] text-text-dim">
             cat about.md
           </span>
-          <div className="flex-1 h-[1px] bg-border" />
+          <motion.div
+            animate={isInView ? { flex: 1 } : { flex: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="h-[1px] bg-border"
+          />
         </motion.div>
 
-        <div className="grid md:grid-cols-[1fr_2fr] gap-8 md:gap-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ delay: 0.2, duration: 0.6 }}
-            className="border border-border-accent bg-surface p-4 md:p-6 font-mono"
-          >
-            <div className="text-accent text-xs mb-3">$ neofetch</div>
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          animate={isInView ? "visible" : "hidden"}
+          className="grid md:grid-cols-[1fr_2fr] gap-8 md:gap-12"
+        >
+          <motion.div variants={item} className="border border-border-accent bg-surface/80 p-4 md:p-6 font-mono">
+            <div className="text-accent text-xs mb-3 flex items-center gap-2">
+              <span className="inline-block w-2 h-2 bg-accent rounded-full pulse-dot" />
+              $ neofetch
+            </div>
             <div className="border-t border-border-accent pt-3 space-y-1.5">
-              <div className="flex gap-2 text-xs">
-                <span className="text-text-muted shrink-0 w-16">OS</span>
-                <span className="text-white">Windows 11 / Arch WSL</span>
-              </div>
-              <div className="flex gap-2 text-xs">
-                <span className="text-text-muted shrink-0 w-16">Kernel</span>
-                <span className="text-white">.NET 8/9 · ASP.NET Core</span>
-              </div>
-              <div className="flex gap-2 text-xs">
-                <span className="text-text-muted shrink-0 w-16">Uptime</span>
-                <span className="text-accent">3+ years active</span>
-              </div>
-              <div className="flex gap-2 text-xs">
-                <span className="text-text-muted shrink-0 w-16">Packages</span>
-                <span className="text-white">17 repos · 1,182 commits</span>
-              </div>
-              <div className="flex gap-2 text-xs">
-                <span className="text-text-muted shrink-0 w-16">Shell</span>
-                <span className="text-accent-2">C# / ASP.NET Core</span>
-              </div>
-              <div className="flex gap-2 text-xs">
-                <span className="text-text-muted shrink-0 w-16">Editor</span>
-                <span className="text-accent-3">VS Code / Neovim</span>
-              </div>
-              <div className="flex gap-2 text-xs">
-                <span className="text-text-muted shrink-0 w-16">Domain</span>
-                <span className="text-accent-4">Fintech Backend</span>
-              </div>
+              {[
+                ["OS", "Windows 11 / Arch WSL"],
+                ["Kernel", ".NET 8/9 · ASP.NET Core"],
+                ["Uptime", "3+ years active"],
+                ["Packages", "17 repos · 1,182 commits"],
+                ["Shell", "C# / ASP.NET Core"],
+                ["Editor", "VS Code / Neovim"],
+                ["Domain", "Fintech Backend"],
+              ].map(([label, value]) => (
+                <motion.div
+                  key={label}
+                  whileHover={{ x: 4 }}
+                  className="flex gap-2 text-xs group cursor-default"
+                >
+                  <span className="text-text-muted shrink-0 w-16">{label}</span>
+                  <span className="text-white group-hover:text-accent transition-colors duration-300">{value}</span>
+                </motion.div>
+              ))}
             </div>
             <div className="mt-3">
               <span className="text-accent text-xs">$ </span>
-              <span className="cursor-blink text-accent text-xs">█</span>
+              <span className="terminal-cursor text-accent text-xs font-bold">█</span>
             </div>
           </motion.div>
 
           <div className="space-y-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.3, duration: 0.6 }}
-            >
+            <motion.div variants={item}>
               <h2 className="text-2xl md:text-4xl font-bold tracking-tight mb-4">
                 Crafting reliable systems{" "}
                 <span className="text-accent glow-green">
@@ -81,12 +97,7 @@ export function About() {
               </h2>
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.4, duration: 0.6 }}
-              className="space-y-4 text-text-dim text-sm leading-relaxed"
-            >
+            <motion.div variants={item} className="space-y-4 text-text-dim text-sm leading-relaxed">
               <p>
                 Backend Developer with 3+ years building secure backend systems for fintech
                 applications. Strong in C# and ASP.NET Core, with hands-on ownership of APIs,
@@ -103,29 +114,28 @@ export function About() {
               </p>
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              className="grid grid-cols-2 gap-px bg-border-accent border border-border-accent mt-8"
-            >
+            <motion.div variants={item} className="grid grid-cols-2 gap-px bg-border-accent border border-border-accent mt-8">
               {[
                 ["DEGREE", "B.S. Information Technology"],
                 ["LANGUAGES", "EN, FIL"],
                 ["STACK", "C#, ASP.NET Core"],
                 ["EDITOR", "VS CODE / NEOVIM"],
               ].map(([label, value]) => (
-                <div key={label} className="bg-bg px-4 py-3">
+                <motion.div
+                  key={label}
+                  whileHover={{ backgroundColor: "rgba(0,255,65,0.03)" }}
+                  className="bg-bg px-4 py-3 transition-colors duration-300"
+                >
                   <span className="text-[10px] tracking-widest text-text-muted block mb-0.5">
                     {label}
                   </span>
                   <span className="text-xs text-white">{value}</span>
-                </div>
+                </motion.div>
               ))}
             </motion.div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
-  );
+  )
 }

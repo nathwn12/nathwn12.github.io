@@ -1,8 +1,13 @@
-import { motion } from "framer-motion";
+import { motion } from "framer-motion"
 
 export function Footprint() {
   return (
-    <section id="footprint" className="py-24 md:py-32 px-4 lg:px-8 border-t border-border">
+    <section id="footprint" className="py-24 md:py-32 px-4 lg:px-8 relative overflow-hidden">
+      <div className="absolute inset-0 opacity-[0.015] pointer-events-none"
+        style={{
+          background: `radial-gradient(ellipse at 50% 80%, rgba(0,212,255,0.12) 0%, transparent 60%)`,
+        }}
+      />
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -20,18 +25,18 @@ export function Footprint() {
 
         <div className="grid md:grid-cols-2 gap-6">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="border border-border-accent bg-surface p-6 md:p-8"
+            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            className="border border-border-accent bg-surface/80 p-6 md:p-8"
           >
             <div className="flex items-center justify-between mb-6">
               <div>
                 <p className="text-[10px] tracking-widest text-text-muted mb-1">2023 – 2026</p>
                 <h3 className="text-lg font-bold text-white">Delivery by year</h3>
               </div>
-              <span className="text-[10px] tracking-widest text-accent px-3 py-1 border border-accent/30">
+              <span className="text-[10px] tracking-widest text-accent px-3 py-1 border border-accent/30 hex-pulse">
                 1,182 TOTAL COMMITS
               </span>
             </div>
@@ -43,25 +48,29 @@ export function Footprint() {
                 { year: "2025", count: "412", desc: "Strong sustained delivery across payments and controls." },
                 { year: "2026", count: "30", desc: "Latest visible pushed work before portfolio handoff." },
               ].map((item) => (
-                <div key={item.year} className="flex items-center gap-4 p-3 border border-border hover:border-accent/30 transition-colors duration-300">
-                  <span className="text-2xl font-bold text-accent tabular-nums w-16 shrink-0">
+                <motion.div
+                  key={item.year}
+                  whileHover={{ x: 4, borderColor: "rgba(0,255,65,0.3)" }}
+                  className="flex items-center gap-4 p-3 border border-border hover:border-accent/30 transition-colors duration-300"
+                >
+                  <span className="text-2xl font-bold text-accent tabular-nums w-16 shrink-0 hex-pulse">
                     {item.count}
                   </span>
                   <div>
                     <span className="text-[10px] tracking-widest text-text-muted">{item.year}</span>
                     <p className="text-xs text-text-dim">{item.desc}</p>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ delay: 0.08, duration: 0.4 }}
-            className="border border-border-accent bg-surface p-6 md:p-8"
+            transition={{ delay: 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="border border-border-accent bg-surface/80 p-6 md:p-8"
           >
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -81,16 +90,17 @@ export function Footprint() {
                 { name: "Access Control Microservice", count: "48", period: "Mar 2024 – Dec 2025" },
                 { name: "Supporting Systems", count: "144", period: "Merchant integrations, compliance, reporting" },
               ].map((repo) => (
-                <div
+                <motion.div
                   key={repo.name}
-                  className="flex items-center justify-between p-3 border-b border-border last:border-0 hover:bg-accent/5 transition-colors duration-300"
+                  whileHover={{ backgroundColor: "rgba(0,212,255,0.03)" }}
+                  className="flex items-center justify-between p-3 border-b border-border last:border-0 transition-colors duration-300"
                 >
                   <div>
                     <p className="text-sm text-white">{repo.name}</p>
                     <p className="text-[10px] text-text-muted">{repo.period}</p>
                   </div>
                   <span className="text-lg font-bold text-accent-2 tabular-nums">{repo.count}</span>
-                </div>
+                </motion.div>
               ))}
             </div>
           </motion.div>
@@ -100,11 +110,17 @@ export function Footprint() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-            transition={{ delay: 0.1, duration: 0.5 }}
-            className="mt-6 border border-border-accent bg-surface p-6 md:p-8"
+          transition={{ delay: 0.1, duration: 0.5 }}
+          className="mt-6 border border-border-accent bg-surface/80 p-6 md:p-8"
         >
           <div className="flex items-start gap-4">
-            <span className="text-accent-3 text-lg shrink-0">◆</span>
+            <motion.span
+              animate={{ rotate: [0, 5, 0, -5, 0] }}
+              transition={{ duration: 4, repeat: Infinity }}
+              className="text-accent-3 text-lg shrink-0"
+            >
+              ◆
+            </motion.span>
             <div>
               <p className="text-sm font-bold text-white mb-2">Preserved evidence</p>
               <p className="text-xs text-text-dim mb-3">
@@ -113,20 +129,19 @@ export function Footprint() {
                 This shows sustained backend delivery across multiple release cycles.
               </p>
               <div className="flex flex-wrap gap-2">
-                <span className="text-[10px] px-2 py-1 border border-border-accent text-text-muted">
-                  SOURCE: xentra-nathanladero
-                </span>
-                <span className="text-[10px] px-2 py-1 border border-border-accent text-text-muted">
-                  1,182 COMMITS
-                </span>
-                <span className="text-[10px] px-2 py-1 border border-border-accent text-text-muted">
-                  17 REPOS MATCHED
-                </span>
+                {["SOURCE: xentra-nathanladero", "1,182 COMMITS", "17 REPOS MATCHED"].map((tag) => (
+                  <span
+                    key={tag}
+                    className="text-[10px] px-2 py-1 border border-border-accent text-text-muted hover:border-accent/30 transition-colors duration-300"
+                  >
+                    {tag}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
         </motion.div>
       </div>
     </section>
-  );
+  )
 }
