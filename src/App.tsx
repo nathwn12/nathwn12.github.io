@@ -13,6 +13,7 @@ import Projects from "./components/Projects"
 import Education from "./components/Education"
 import { Contact } from "./components/Contact"
 import { Footer } from "./components/Footer"
+import { CommandTerminal } from "./components/CommandTerminal"
 
 function GroupDivider({ label }: { label: string }) {
   return (
@@ -109,6 +110,7 @@ export default function App() {
             </div>
           </main>
           <Footer />
+          <CommandTerminal />
         </motion.div>
       )}
     </div>

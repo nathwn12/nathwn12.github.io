@@ -1,6 +1,7 @@
 import { motion } from "framer-motion"
 import { useState, useEffect } from "react"
 import type { Project } from "../types/models"
+import { TerminalWindow } from "./TerminalWindow"
 
 type ProjectId = string & { readonly __brand: "Project" }
 
@@ -122,8 +123,9 @@ export default function Projects() {
           <div className="flex-1 h-[1px] bg-border" />
         </motion.div>
 
+        <TerminalWindow title="projects/">
         {/* ls -la header row */}
-        <div className="hidden md:flex items-center gap-4 px-4 py-2 text-[9px] tracking-widest text-text-muted border border-border bg-surface/50 mb-px">
+        <div className="hidden md:flex items-center gap-4 px-4 py-2 text-[9px] tracking-widest text-text-muted border border-border bg-bg mb-px">
           <span className="w-28">permissions</span>
           <span className="w-8 text-right">links</span>
           <span className="w-20">owner</span>
@@ -222,7 +224,7 @@ export default function Projects() {
           className="overflow-hidden"
         >
           {selected && (
-            <div className="border border-border-accent bg-surface/80 p-6 md:p-8">
+            <div className="border border-border-accent bg-bg p-6 md:p-8">
               {cdAnim && (
                 <motion.p
                   initial={{ opacity: 0, y: -5 }}
@@ -286,6 +288,7 @@ export default function Projects() {
             </div>
           )}
         </motion.div>
+        </TerminalWindow>
       </div>
     </section>
   )

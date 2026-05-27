@@ -281,7 +281,7 @@ body {
 
 /* Terminal window chrome */
 .terminal-titlebar {
-  @apply flex items-center gap-1.5 px-3 py-2 border-b border-border-accent bg-surface/80;
+  @apply flex items-center gap-1.5 px-3 py-2 border-b border-border-accent bg-surface;
 }
 
 .terminal-dot {

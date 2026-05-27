@@ -92,7 +92,7 @@ export function Contact() {
           <div className="grid md:grid-cols-2 gap-4">
             <motion.div
               whileHover={{ borderColor: "rgba(0,255,65,0.3)" }}
-              className="border border-border-accent bg-surface/80 p-4 md:p-6 transition-colors duration-300"
+              className="border border-border-accent bg-surface p-4 md:p-6 transition-colors duration-300"
             >
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-[10px] tracking-widest text-accent">[EMAIL]</span>
@@ -107,7 +107,7 @@ export function Contact() {
 
             <motion.div
               whileHover={{ borderColor: "rgba(0,212,255,0.3)" }}
-              className="border border-border-accent bg-surface/80 p-4 md:p-6 transition-colors duration-300"
+              className="border border-border-accent bg-surface p-4 md:p-6 transition-colors duration-300"
             >
               <div className="flex items-center gap-3 mb-3">
                 <span className="text-[10px] tracking-widest text-accent-2">[SOCIAL]</span>
@@ -130,10 +130,10 @@ export function Contact() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          className="border border-border-accent bg-surface/80"
+          className="border border-border-accent bg-surface"
         >
           {/* MUA toolbar */}
-          <div className="flex items-center gap-4 px-4 py-2 border-b border-border-accent bg-surface/50 text-[9px] tracking-widest text-text-muted">
+          <div className="flex items-center gap-4 px-4 py-2 border-b border-border-accent bg-surface text-[9px] tracking-widest text-text-muted">
             <span className="text-accent">&lt;UNREAD 1&gt;</span>
             <span className="text-accent-2">&lt;COMPOSE&gt;</span>
             <span className="text-border-accent">&lt;REPLY&gt;</span>
@@ -264,7 +264,7 @@ export function Contact() {
           </div>
 
           {/* MUA status bar */}
-          <div className="flex items-center gap-4 px-4 py-2 border-t border-border-accent bg-surface/50 text-[9px] tracking-widest text-text-muted">
+          <div className="flex items-center gap-4 px-4 py-2 border-t border-border-accent bg-surface text-[9px] tracking-widest text-text-muted">
             <span>"All mail queued for delivery. Thank you."</span>
             <span className="flex-1" />
             <span className="text-border-accent">-- MUA v1.0 --</span>
@@ -276,7 +276,7 @@ export function Contact() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.5, duration: 0.5 }}
-          className="mt-6 border border-border-accent bg-surface/80 p-4 md:p-6"
+          className="mt-6 border border-border-accent bg-surface p-4 md:p-6"
         >
           <div className="flex items-center gap-2 mb-3">
             <span className="text-accent text-sm">$</span>
