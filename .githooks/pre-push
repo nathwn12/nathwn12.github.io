@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+echo "🔒 Checking lockfile is up to date..."
+pnpm install --frozen-lockfile
