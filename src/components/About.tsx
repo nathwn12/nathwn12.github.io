@@ -30,8 +30,8 @@ export function About() {
       <div className="section-ambient"
         style={{
           background: `
-            radial-gradient(ellipse at 20% 50%, rgba(0,255,65,0.15) 0%, rgba(0,255,65,0.03) 40%, transparent 65%),
-            radial-gradient(ellipse at 80% 30%, rgba(0,255,65,0.06) 0%, transparent 50%)
+            radial-gradient(ellipse at 20% 50%, rgba(34,197,94,0.15) 0%, rgba(34,197,94,0.03) 40%, transparent 65%),
+            radial-gradient(ellipse at 80% 30%, rgba(34,197,94,0.06) 0%, transparent 50%)
           `,
         }}
       />
@@ -95,7 +95,7 @@ export function About() {
             <motion.div variants={item}>
               <h2 className="text-2xl md:text-4xl font-bold tracking-tight mb-4">
                 Crafting reliable systems{" "}
-                <span className="text-accent glow-green">
+                <span className="text-accent">
                   that scale
                 </span>{" "}
                 under pressure.
@@ -128,7 +128,7 @@ export function About() {
               ].map(([label, value]) => (
                 <motion.div
                   key={label}
-                  whileHover={{ backgroundColor: "rgba(0,255,65,0.03)" }}
+                  whileHover={{ backgroundColor: "rgba(34,197,94,0.03)" }}
                   className="bg-bg px-4 py-3 transition-colors duration-300"
                 >
                   <span className="text-[10px] tracking-widest text-text-muted block mb-0.5">

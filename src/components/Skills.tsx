@@ -1,4 +1,5 @@
 import { motion } from "framer-motion"
+import { useState } from "react"
 import type { SkillCategory } from "../types/models"
 
 const skillCategories: SkillCategory[] = [
@@ -86,7 +87,7 @@ function SkillBar({ name, level, index }: { name: string; level: number; index: 
           transition={{ delay: index * 0.04 + 0.15, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className={`h-full ${level >= 90 ? "bg-accent" : level >= 80 ? "bg-accent-2" : level >= 70 ? "bg-accent-3" : "bg-accent-4"} relative overflow-hidden`}
           style={{
-            boxShadow: level >= 90 ? "0 0 8px rgba(0,255,65,0.4)" : "none",
+            boxShadow: level >= 90 ? "0 0 8px rgba(34,197,94,0.3)" : "none",
           }}
         >
           <motion.div
@@ -103,13 +104,14 @@ function SkillBar({ name, level, index }: { name: string; level: number; index: 
 }
 
 export function Skills() {
+  const [loadAvg] = useState(() => `${Math.floor(Math.random() * 3 + 1)}.${Math.floor(Math.random() * 99)}`)
   return (
     <section id="skills" className="py-24 md:py-32 px-4 lg:px-8 relative overflow-hidden">
       <div className="section-ambient"
         style={{
           background: `
-            radial-gradient(ellipse at 30% 60%, rgba(255,62,0,0.12) 0%, rgba(255,62,0,0.03) 40%, transparent 65%),
-            radial-gradient(ellipse at 70% 20%, rgba(0,212,255,0.05) 0%, transparent 50%)
+            radial-gradient(ellipse at 30% 60%, rgba(245,158,11,0.12) 0%, rgba(245,158,11,0.03) 40%, transparent 65%),
+            radial-gradient(ellipse at 70% 20%, rgba(56,189,248,0.05) 0%, transparent 50%)
           `,
         }}
       />
@@ -132,7 +134,7 @@ export function Skills() {
         <div className="border border-border-accent bg-surface">
           {/* Title bar */}
           <div className="flex items-center justify-between px-4 py-2 border-b border-border-accent bg-surface text-[9px] tracking-widest text-text-muted">
-            <span className="text-accent">htop — LOAD AVERAGE: {Math.floor(Math.random() * 3 + 1)}.{Math.floor(Math.random() * 99)}</span>
+            <span className="text-accent">htop — LOAD AVERAGE: {loadAvg}</span>
             <span className="text-border-accent">TASKS: 4, UPTIME: 3+ YEARS</span>
           </div>
 
@@ -148,13 +150,9 @@ export function Skills() {
                 className="bg-bg p-6 md:p-8"
               >
                 <div className="flex items-center gap-3 mb-6">
-                  <motion.span
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-                    className="text-[10px] text-accent-3 shrink-0"
-                  >
-                    ◉
-                  </motion.span>
+                  <span className="text-[10px] text-accent-3 shrink-0">
+                    ◆
+                  </span>
                   <span className="text-[10px] tracking-[0.3em] text-accent-3 font-bold">
                     [{cat.category}]
                   </span>

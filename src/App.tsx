@@ -15,29 +15,13 @@ import { Contact } from "./components/Contact"
 import { Footer } from "./components/Footer"
 import { CommandTerminal } from "./components/CommandTerminal"
 
-function GroupDivider({ label }: { label: string }) {
-  return (
-    <div className="flex items-center gap-3 my-2 select-none">
-      <div className="flex-1 h-[1px] bg-gradient-to-r from-border via-border-accent to-border" />
-      <span className="text-[8px] tracking-[0.5em] text-border-accent font-mono">{label}</span>
-      <div className="flex-1 h-[1px] bg-gradient-to-r from-border via-border-accent to-border" />
-    </div>
-  )
-}
-
 export default function App() {
   const [booted, setBooted] = useState(false)
   const onComplete = useCallback(() => setBooted(true), [])
 
   return (
-    <div className="bg-bg min-h-screen font-mono relative screen-flicker">
+    <div className="bg-bg min-h-screen font-mono relative bg-grid">
       <a href="#hero" className="skip-to-content">Skip to content</a>
-      <div className="scanline-overlay" />
-      <div className="noise-overlay" />
-      <div className="scanline-sweep" />
-      <div className="crt-curvature" />
-      <div className="interference-wave" />
-      <div className="interference-wave" />
 
       <BackgroundEffects />
 
@@ -53,62 +37,37 @@ export default function App() {
         >
           <Header />
           <main className="relative z-10">
-            {/* Group 1: System Splash — Hero */}
-            <div className="relative">
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-accent/5 to-transparent opacity-30" />
-              <SectionWrapper direction="scale">
-                <div id="hero"><Hero /></div>
-              </SectionWrapper>
-            </div>
+            <SectionWrapper direction="scale">
+              <div id="hero"><Hero /></div>
+            </SectionWrapper>
 
-            <GroupDivider label="╤╤╤ SYSTEM INFO ╤╤╤" />
+            <SectionWrapper direction="fade" delay={0.05} scrollThreshold={0.05}>
+              <div id="about"><About /></div>
+            </SectionWrapper>
 
-            {/* Group 2: System Info — About + Experience */}
-            <div className="relative">
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-accent/5 via-transparent to-accent/5 opacity-20" />
-              <SectionWrapper direction="phosphor-fade" delay={0.05} scrollThreshold={0.05}>
-                <div id="about"><About /></div>
-              </SectionWrapper>
-              <SectionWrapper direction="phosphor-fade" delay={0.1} scrollThreshold={0.05}>
-                <div id="experience"><Experience /></div>
-              </SectionWrapper>
-            </div>
+            <SectionWrapper direction="fade" delay={0.1} scrollThreshold={0.05}>
+              <div id="experience"><Experience /></div>
+            </SectionWrapper>
 
-            <GroupDivider label="╤╤╤ DIAGNOSTICS ╤╤╤" />
+            <SectionWrapper direction="up" delay={0.05}>
+              <div id="footprint"><Footprint /></div>
+            </SectionWrapper>
 
-            {/* Group 3: Diagnostics — Footprint + Skills */}
-            <div className="relative">
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-accent-2/5 via-transparent to-accent-3/5 opacity-20" />
-              <SectionWrapper direction="crt-wipe" delay={0.05}>
-                <div id="footprint"><Footprint /></div>
-              </SectionWrapper>
-              <SectionWrapper direction="crt-wipe" delay={0.1}>
-                <div id="skills"><Skills /></div>
-              </SectionWrapper>
-            </div>
+            <SectionWrapper direction="up" delay={0.1}>
+              <div id="skills"><Skills /></div>
+            </SectionWrapper>
 
-            <GroupDivider label="╤╤╤ FILE EXPLORER ╤╤╤" />
+            <SectionWrapper direction="up" delay={0.05}>
+              <div id="projects"><Projects /></div>
+            </SectionWrapper>
 
-            {/* Group 4: File Explorer — Projects */}
-            <div className="relative">
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-accent-4/5 via-transparent to-accent-4/5 opacity-20" />
-              <SectionWrapper direction="buffer-flip" delay={0.05}>
-                <div id="projects"><Projects /></div>
-              </SectionWrapper>
-            </div>
+            <SectionWrapper direction="fade" delay={0.05}>
+              <div id="education"><Education /></div>
+            </SectionWrapper>
 
-            <GroupDivider label="╤╤╤ HISTORY ╤╤╤" />
-
-            {/* Group 5: History + Contact — Education + Contact */}
-            <div className="relative">
-              <div className="absolute inset-0 pointer-events-none bg-gradient-to-b from-accent-2/5 via-transparent to-accent-2/5 opacity-20" />
-              <SectionWrapper direction="resolution-bump" delay={0.05}>
-                <div id="education"><Education /></div>
-              </SectionWrapper>
-              <SectionWrapper direction="buffer-flip" delay={0.1}>
-                <div id="contact"><Contact /></div>
-              </SectionWrapper>
-            </div>
+            <SectionWrapper direction="up" delay={0.1}>
+              <div id="contact"><Contact /></div>
+            </SectionWrapper>
           </main>
           <Footer />
           <CommandTerminal />

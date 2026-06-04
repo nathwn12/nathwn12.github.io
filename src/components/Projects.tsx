@@ -12,11 +12,11 @@ const projects: Project[] = [
     description: "98% latency reduction on a payment processing API by migrating from MySql.Data to MySqlConnector in AWS production.",
     tech: ["C#", "ASP.NET CORE", "EF CORE", "AWS", "MYSQL"],
     status: "PRODUCTION",
-    color: "#00ff41",
+    color: "#22c55e",
     stats: [
-      { label: "improvement", value: "98%", color: "#00ff41" },
-      { label: "latency", value: "60s→1s", color: "#00ff41" },
-      { label: "uptime", value: "99.9%", color: "#00ff41" },
+      { label: "improvement", value: "98%", color: "#22c55e" },
+      { label: "latency", value: "60s→1s", color: "#22c55e" },
+      { label: "uptime", value: "99.9%", color: "#22c55e" },
     ],
   },
   {
@@ -25,11 +25,11 @@ const projects: Project[] = [
     description: "Authentication microservice with OAuth 2.0, OpenID Connect, and JWT — zero high/critical Snyk vulnerabilities at deployment.",
     tech: ["C#", "OAUTH 2.0", "JWT", "OPENID", "SNYK"],
     status: "PRODUCTION",
-    color: "#00d4ff",
+    color: "#38bdf8",
     stats: [
-      { label: "vulns", value: "0 CRIT", color: "#00d4ff" },
-      { label: "auth flows", value: "3", color: "#00d4ff" },
-      { label: "coverage", value: "100%", color: "#00d4ff" },
+      { label: "vulns", value: "0 CRIT", color: "#38bdf8" },
+      { label: "auth flows", value: "3", color: "#38bdf8" },
+      { label: "coverage", value: "100%", color: "#38bdf8" },
     ],
   },
   {
@@ -38,11 +38,11 @@ const projects: Project[] = [
     description: "Monolith-to-microservices migration using Repository pattern and DI for independent scaling and reduced deployment coupling.",
     tech: ["ASP.NET CORE", "DOCKER", "POSTGRES", "CI/CD"],
     status: "PRODUCTION",
-    color: "#ff3e00",
+    color: "#f59e0b",
     stats: [
-      { label: "services", value: "6", color: "#ff3e00" },
-      { label: "coupling", value: "-40%", color: "#ff3e00" },
-      { label: "deploys", value: "3× FASTER", color: "#ff3e00" },
+      { label: "services", value: "6", color: "#f59e0b" },
+      { label: "coupling", value: "-40%", color: "#f59e0b" },
+      { label: "deploys", value: "3× FASTER", color: "#f59e0b" },
     ],
   },
   {
@@ -51,11 +51,11 @@ const projects: Project[] = [
     description: "Swagger/OpenAPI standards and Postman collections that reduced integration friction across QA and frontend teams.",
     tech: ["SWAGGER", "OPENAPI", "POSTMAN", "REST"],
     status: "SHIPPED",
-    color: "#7b61ff",
+    color: "#8b5cf6",
     stats: [
-      { label: "teams", value: "3", color: "#7b61ff" },
-      { label: "friction", value: "-60%", color: "#7b61ff" },
-      { label: "endpoints", value: "100+", color: "#7b61ff" },
+      { label: "teams", value: "3", color: "#8b5cf6" },
+      { label: "friction", value: "-60%", color: "#8b5cf6" },
+      { label: "endpoints", value: "100+", color: "#8b5cf6" },
     ],
   },
 ]
@@ -106,8 +106,8 @@ export default function Projects() {
       <div className="section-ambient"
         style={{
           background: `
-            radial-gradient(ellipse at 70% 40%, rgba(123,97,255,0.12) 0%, rgba(123,97,255,0.03) 40%, transparent 65%),
-            radial-gradient(ellipse at 30% 70%, rgba(0,255,65,0.04) 0%, transparent 50%)
+            radial-gradient(ellipse at 70% 40%, rgba(139,92,246,0.12) 0%, rgba(139,92,246,0.03) 40%, transparent 65%),
+            radial-gradient(ellipse at 30% 70%, rgba(34,197,94,0.04) 0%, transparent 50%)
           `,
         }}
       />

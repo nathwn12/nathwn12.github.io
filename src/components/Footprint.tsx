@@ -7,8 +7,8 @@ export function Footprint() {
       <div className="section-ambient"
         style={{
           background: `
-            radial-gradient(ellipse at 50% 80%, rgba(0,212,255,0.13) 0%, rgba(0,212,255,0.03) 40%, transparent 65%),
-            radial-gradient(ellipse at 80% 20%, rgba(0,255,65,0.05) 0%, transparent 50%)
+            radial-gradient(ellipse at 50% 80%, rgba(56,189,248,0.13) 0%, rgba(56,189,248,0.03) 40%, transparent 65%),
+            radial-gradient(ellipse at 80% 20%, rgba(34,197,94,0.05) 0%, transparent 50%)
           `,
         }}
       />
@@ -41,7 +41,7 @@ export function Footprint() {
                 <p className="text-[10px] tracking-widest text-text-muted mb-1">2023 – 2026</p>
                 <h3 className="text-lg font-bold text-white">Delivery by year</h3>
               </div>
-              <span className="text-[10px] tracking-widest text-accent px-3 py-1 border border-accent/30 hex-pulse">
+              <span className="text-[10px] tracking-widest text-accent px-3 py-1 border border-accent/30">
                 1,182 TOTAL COMMITS
               </span>
             </div>
@@ -55,10 +55,10 @@ export function Footprint() {
               ].map((item) => (
                 <motion.div
                   key={item.year}
-                  whileHover={{ x: 4, borderColor: "rgba(0,255,65,0.3)" }}
+                  whileHover={{ x: 4, borderColor: "rgba(34,197,94,0.3)" }}
                   className="flex items-center gap-4 p-3 border border-border hover:border-accent/30 transition-colors duration-300"
                 >
-                  <span className="text-2xl font-bold text-accent tabular-nums w-16 shrink-0 hex-pulse">
+                  <span className="text-2xl font-bold text-accent tabular-nums w-16 shrink-0">
                     {item.count}
                   </span>
                   <div>
@@ -97,7 +97,7 @@ export function Footprint() {
               ].map((repo) => (
                 <motion.div
                   key={repo.name}
-                  whileHover={{ backgroundColor: "rgba(0,212,255,0.03)" }}
+                  whileHover={{ backgroundColor: "rgba(56,189,248,0.03)" }}
                   className="flex items-center justify-between p-3 border-b border-border last:border-0 transition-colors duration-300"
                 >
                   <div>

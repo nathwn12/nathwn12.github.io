@@ -19,21 +19,6 @@ export function Footer() {
     <footer className="py-10 px-4 lg:px-8 border-t border-border relative overflow-hidden bg-surface">
       <div className="max-w-5xl mx-auto">
         <TerminalWindow title="system-monitor">
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 0.2 }}
-          viewport={{ once: true }}
-          className="overflow-hidden mb-6 marquee-wrap"
-        >
-          <div className="marquee-track whitespace-nowrap text-[10px] tracking-[0.3em] text-text-dim uppercase">
-            {Array(4)
-              .fill(
-                "NATHANIEL NIKOLAI LADERO — BACKEND DEVELOPER — C# ASP.NET CORE — FINTECH SYSTEMS — OPEN TO WORK — "
-              )
-              .join("")}
-          </div>
-        </motion.div>
-
         <div className="flex items-center gap-2 justify-center mb-6">
           <span className="text-accent text-xs">$</span>
           <motion.button

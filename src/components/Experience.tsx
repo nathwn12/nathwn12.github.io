@@ -57,8 +57,8 @@ export function Experience() {
       <div className="section-ambient"
         style={{
           background: `
-            radial-gradient(ellipse at 80% 50%, rgba(0,212,255,0.12) 0%, rgba(0,212,255,0.03) 40%, transparent 65%),
-            radial-gradient(ellipse at 20% 80%, rgba(0,212,255,0.06) 0%, transparent 50%)
+            radial-gradient(ellipse at 80% 50%, rgba(56,189,248,0.12) 0%, rgba(56,189,248,0.03) 40%, transparent 65%),
+            radial-gradient(ellipse at 20% 80%, rgba(56,189,248,0.06) 0%, transparent 50%)
           `,
         }}
       />
@@ -99,7 +99,7 @@ export function Experience() {
               >
                 <div className="flex items-center gap-4 md:gap-8 py-5 md:py-6 px-4 md:px-6">
                   <motion.span
-                    animate={{ color: activeExp === i ? "#00ff41" : "#444444" }}
+                    animate={{ color: activeExp === i ? "#22c55e" : "#444444" }}
                     className="text-xs font-bold tabular-nums"
                   >
                     {exp.id}
@@ -129,7 +129,7 @@ export function Experience() {
                   </div>
 
                   <motion.div
-                    animate={{ x: activeExp === i ? 6 : 0, color: activeExp === i ? "#00ff41" : "#2a2a2a" }}
+                    animate={{ x: activeExp === i ? 4 : 0, color: activeExp === i ? "#22c55e" : "#2a2a2a" }}
                     className="text-lg transition-colors"
                   >
                     {activeExp === i ? "↓" : "→"}
