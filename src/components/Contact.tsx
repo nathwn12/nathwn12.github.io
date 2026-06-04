@@ -44,8 +44,8 @@ export function Contact() {
       <div className="section-ambient"
         style={{
           background: `
-            radial-gradient(ellipse at 50% 50%, rgba(0,255,65,0.10) 0%, rgba(0,255,65,0.03) 40%, transparent 65%),
-            radial-gradient(ellipse at 80% 20%, rgba(0,212,255,0.05) 0%, transparent 50%)
+            radial-gradient(ellipse at 50% 50%, rgba(34,197,94,0.10) 0%, rgba(34,197,94,0.03) 40%, transparent 65%),
+            radial-gradient(ellipse at 80% 20%, rgba(56,189,248,0.05) 0%, transparent 50%)
           `,
         }}
       />
@@ -75,7 +75,7 @@ export function Contact() {
             <span className="text-text-dim">LET'S BUILD</span>
             <br />
             <span className="text-white">SOMETHING </span>
-            <span className="text-accent glow-green">GREAT</span>
+            <span className="text-accent">GREAT</span>
             <span className="terminal-cursor font-bold text-accent">_</span>
           </h2>
         </motion.div>
@@ -94,7 +94,7 @@ export function Contact() {
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <motion.div
-              whileHover={{ borderColor: "rgba(0,255,65,0.3)" }}
+              whileHover={{ borderColor: "rgba(34,197,94,0.3)" }}
               className="border border-border-accent bg-surface p-4 md:p-6 transition-colors duration-300"
             >
               <div className="flex items-center gap-3 mb-3">
@@ -109,7 +109,7 @@ export function Contact() {
             </motion.div>
 
             <motion.div
-              whileHover={{ borderColor: "rgba(0,212,255,0.3)" }}
+              whileHover={{ borderColor: "rgba(56,189,248,0.3)" }}
               className="border border-border-accent bg-surface p-4 md:p-6 transition-colors duration-300"
             >
               <div className="flex items-center gap-3 mb-3">

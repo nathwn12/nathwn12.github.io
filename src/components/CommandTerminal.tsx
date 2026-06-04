@@ -253,10 +253,10 @@ export function CommandTerminal() {
           addLine(
             "output",
             [
-              "  Accent     #00ff41  (primary green)",
-              "  Accent-2   #00d4ff  (cyan)",
-              "  Accent-3   #ff3e00  (orange)",
-              "  Accent-4   #7b61ff  (purple)",
+              "  Accent     #22c55e  (primary green)",
+              "  Accent-2   #38bdf8  (cyan)",
+              "  Accent-3   #f59e0b  (orange)",
+              "  Accent-4   #8b5cf6  (purple)",
               "  Text       #e0e0e0",
               "  BG         #0a0a0a",
               "  Surface    #111111",

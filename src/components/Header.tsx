@@ -35,16 +35,26 @@ export function Header() {
   useEffect(() => {
     const onScroll = () => {
       setScrolled(window.scrollY > 50);
-      for (const item of [...navItems].reverse()) {
-        const el = document.getElementById(item.href.slice(1));
-        if (el && el.getBoundingClientRect().top <= 200) {
-          setActiveSection(item.label);
-          break;
-        }
-      }
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const els = navItems.map((item) => document.getElementById(item.href.slice(1))).filter(Boolean) as HTMLElement[];
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            const matched = navItems.find((item) => item.href.slice(1) === entry.target.id);
+            if (matched) setActiveSection(matched.label);
+          }
+        }
+      },
+      { rootMargin: "-100px 0px -60% 0px", threshold: 0 }
+    );
+    els.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
   }, []);
 
   const scrollTo = useCallback((id: string) => {
@@ -62,7 +72,7 @@ export function Header() {
         transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
         className={`fixed top-0 left-0 right-0 z-50 font-mono transition-all duration-500 ${
           scrolled
-            ? "border-b border-border bg-bg"
+            ? "border-b border-border bg-bg/95 backdrop-blur-sm"
             : "border-b border-border bg-bg"
         }`}
       >
@@ -105,7 +115,7 @@ export function Header() {
             >
               <span className="text-accent text-xs group-hover:animate-pulse">$</span>
               <span className="group-hover:text-accent transition-colors duration-300">NNL</span>
-              <span className="cursor-blink text-accent text-xs">_</span>
+              <span className="animate-pulse text-accent text-xs">_</span>
             </button>
           </div>
 

@@ -9,7 +9,7 @@ export default function Education() {
       label: "STEM STRAND",
       school: "La Consolacion University Philippines",
       desc: "Science, Technology, Engineering, and Mathematics",
-      dotColor: "#7b61ff",
+      dotColor: "#8b5cf6",
       textColor: "text-accent-4",
     },
     {
@@ -17,7 +17,7 @@ export default function Education() {
       label: "B.S. INFORMATION TECHNOLOGY",
       school: "La Consolacion University Philippines",
       desc: "Bachelor of Science in Information Technology",
-      dotColor: "#00d4ff",
+      dotColor: "#38bdf8",
       textColor: "text-accent-2",
     },
     {
@@ -25,7 +25,7 @@ export default function Education() {
       label: "PROFESSIONAL DEPLOYMENT",
       school: "Xentra Infotech Solutions, Inc.",
       desc: "Backend Developer — Fintech Systems",
-      dotColor: "#00ff41",
+      dotColor: "#22c55e",
       textColor: "text-accent",
     },
   ]
@@ -52,8 +52,8 @@ export default function Education() {
       <div className="section-ambient"
         style={{
           background: `
-            radial-gradient(ellipse at 60% 30%, rgba(0,212,255,0.12) 0%, rgba(0,212,255,0.03) 40%, transparent 65%),
-            radial-gradient(ellipse at 20% 70%, rgba(123,97,255,0.05) 0%, transparent 50%)
+            radial-gradient(ellipse at 60% 30%, rgba(56,189,248,0.12) 0%, rgba(56,189,248,0.03) 40%, transparent 65%),
+            radial-gradient(ellipse at 20% 70%, rgba(139,92,246,0.05) 0%, transparent 50%)
           `,
         }}
       />
@@ -91,7 +91,7 @@ export default function Education() {
               >
                 <div className="flex flex-col items-center">
                   <motion.div
-                    whileHover={{ scale: 1.5 }}
+                    whileHover={{ scale: 1.25 }}
                     className="w-3 h-3 rounded-full z-10"
                     style={{ backgroundColor: item.dotColor }}
                   />
