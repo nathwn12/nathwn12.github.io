@@ -4,9 +4,13 @@
   "version": "1.0.0",
   "packageManager": "pnpm@10.33.2",
   "type": "module",
+  "engines": {
+    "node": ">=20.11"
+  },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node scripts/copy-404.mjs",
+    "test": "pnpm run build && vitest run",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -23,6 +27,7 @@
     "@vitejs/plugin-react": "5.1.1",
     "tailwindcss": "4.1.17",
     "typescript": "5.9.3",
-    "vite": "7.2.4"
+    "vite": "7.2.4",
+    "vitest": "4.1.8"
   }
 }

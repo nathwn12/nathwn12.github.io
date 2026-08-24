@@ -1,60 +1,110 @@
-import { motion } from "framer-motion"
-import { useState, useEffect, useRef } from "react"
+import { motion } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
+import { CONTACT_EMAIL } from "../lib/contact";
+
+type FormStatus = {
+  type: "pending" | "success" | "error";
+  message: string;
+};
+
+const STATUS_CHIP: Record<
+  FormStatus["type"] | "idle",
+  { label: string; tone: string }
+> = {
+  idle: { label: "[FORM READY]", tone: "text-accent-2" },
+  pending: { label: "[SENDING]", tone: "text-accent-2" },
+  success: { label: "[QUEUED]", tone: "text-accent" },
+  error: { label: "[ERROR]", tone: "text-accent-3" },
+};
+
+const STATUS_PANEL: Record<FormStatus["type"], string> = {
+  pending: "border-text-muted text-text-dim bg-text/5",
+  success: "border-accent text-accent bg-accent/5",
+  error: "border-accent-3 text-accent-3 bg-accent-3/5",
+};
 
 export function Contact() {
-  const [formStatus, setFormStatus] = useState<{ type: "pending" | "success" | "error"; message: string } | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const statusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [formStatus, setFormStatus] = useState<FormStatus | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const statusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    return () => { if (statusTimeoutRef.current) clearTimeout(statusTimeoutRef.current) }
-  }, [])
+    return () => {
+      if (statusTimeoutRef.current) clearTimeout(statusTimeoutRef.current);
+    };
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const form = e.currentTarget
+    e.preventDefault();
+    if (isSubmitting) return;
+    const form = e.currentTarget;
 
-    setFormStatus({ type: "pending", message: "Queuing message for delivery..." })
-    setIsSubmitting(true)
+    setFormStatus({
+      type: "pending",
+      message: "Queuing message for delivery...",
+    });
+    setIsSubmitting(true);
 
     try {
-      const data = new FormData(form)
-      const payload = Object.fromEntries(data.entries())
+      const data = new FormData(form);
+      const payload = Object.fromEntries(data.entries());
       const res = await fetch(form.action, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify(payload),
-      })
-      const result = await res.json()
-      if (!res.ok) throw new Error(result?.message || "Something went wrong.")
-      const msgId = Math.random().toString(36).substring(2, 12).toUpperCase()
-      setFormStatus({ type: "success", message: `Message queued for delivery [MSG-ID: ${msgId}]. Check your email for confirmation.` })
-      form.reset()
+      });
+      let payloadJson: { message?: string } | null = null;
+      try {
+        const body: unknown = await res.json();
+        if (typeof body === "object" && body !== null) {
+          payloadJson = body as { message?: string };
+        }
+      } catch {
+        /* Non-JSON body (e.g. proxy/gateway error page) — report a generic
+           failure instead of leaking raw response bytes to the user. */
+      }
+      if (!res.ok) {
+        throw new Error(payloadJson?.message || "Something went wrong.");
+      }
+      const msgId = Math.random().toString(36).substring(2, 12).toUpperCase();
+      setFormStatus({
+        type: "success",
+        message: `Message queued for delivery [MSG-ID: ${msgId}]. Check your email for confirmation.`,
+      });
+      form.reset();
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Something went wrong."
-      setFormStatus({ type: "error", message: msg })
+      const msg = err instanceof Error ? err.message : "Something went wrong.";
+      setFormStatus({ type: "error", message: msg });
     } finally {
-      setIsSubmitting(false)
-      statusTimeoutRef.current = setTimeout(() => setFormStatus(null), 8000)
+      setIsSubmitting(false);
+      statusTimeoutRef.current = setTimeout(() => setFormStatus(null), 8000);
     }
   }
 
+  const chip = STATUS_CHIP[formStatus?.type ?? "idle"];
+
   return (
-    <section id="contact" className="py-24 md:py-32 px-4 lg:px-8 relative overflow-hidden">
-      <div className="section-ambient"
+    <section
+      id="contact"
+      className="py-8 md:py-12 px-4 lg:px-8 relative overflow-hidden"
+    >
+      <div
+        className="section-ambient"
         style={{
           background: `
-            radial-gradient(ellipse at 50% 50%, rgba(34,197,94,0.10) 0%, rgba(34,197,94,0.03) 40%, transparent 65%),
-            radial-gradient(ellipse at 80% 20%, rgba(56,189,248,0.05) 0%, transparent 50%)
+            radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--color-accent) 7%, transparent) 0%, color-mix(in srgb, var(--color-accent) 2%, transparent) 40%, transparent 65%),
+            radial-gradient(ellipse at 80% 20%, color-mix(in srgb, var(--color-accent-2) 3%, transparent) 0%, transparent 50%)
           `,
         }}
       />
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.35 }}
           className="flex items-center gap-4 mb-12"
         >
           <span className="text-accent-2 text-sm">$</span>
@@ -66,63 +116,101 @@ export function Contact() {
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.2, duration: 0.6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.4 }}
           className="mb-16"
         >
           <h2 className="text-3xl md:text-6xl font-bold tracking-tight leading-tight">
             <span className="text-text-dim">LET'S BUILD</span>
             <br />
-            <span className="text-white">SOMETHING </span>
+            <span className="text-text">SOMETHING </span>
             <span className="text-accent">GREAT</span>
-            <span className="terminal-cursor font-bold text-accent">_</span>
+            <span className="font-bold text-accent">_</span>
           </h2>
         </motion.div>
 
         {/* Address book / contact cards */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.25, duration: 0.5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12, duration: 0.35 }}
           className="mb-6"
         >
           <div className="flex items-center gap-2 mb-4">
-            <span className="text-[10px] tracking-widest text-accent-2">[ADDRESS BOOK]</span>
+            <span className="text-[10px] tracking-widest text-accent-2">
+              [ADDRESS BOOK]
+            </span>
             <div className="flex-1 h-[1px] bg-border" />
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <motion.div
-              whileHover={{ borderColor: "rgba(34,197,94,0.3)" }}
+              whileHover={{
+                borderColor:
+                  "color-mix(in srgb, var(--color-accent) 25%, transparent)",
+              }}
               className="border border-border-accent bg-surface p-4 md:p-6 transition-colors duration-300"
             >
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-[10px] tracking-widest text-accent">[EMAIL]</span>
+                <span className="text-[10px] tracking-widest text-accent">
+                  [EMAIL]
+                </span>
               </div>
               <a
-                href="mailto:nathanielnikolai.ladero@gmail.com"
-                className="text-sm md:text-lg font-bold text-white hover:text-accent transition-colors duration-300 block break-all"
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="text-sm md:text-lg font-bold text-text hover:text-accent transition-colors duration-300 block break-all"
               >
-                nathanielnikolai.ladero@gmail.com
+                {CONTACT_EMAIL}
               </a>
             </motion.div>
 
             <motion.div
-              whileHover={{ borderColor: "rgba(56,189,248,0.3)" }}
+              whileHover={{
+                borderColor:
+                  "color-mix(in srgb, var(--color-accent-2) 25%, transparent)",
+              }}
               className="border border-border-accent bg-surface p-4 md:p-6 transition-colors duration-300"
             >
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-[10px] tracking-widest text-accent-2">[SOCIAL]</span>
+                <span className="text-[10px] tracking-widest text-accent-2">
+                  [SOCIAL]
+                </span>
               </div>
               <div className="space-y-2">
-                <a href="https://github.com/nathwn12" target="_blank" rel="noopener noreferrer" className="block text-xs text-text-dim hover:text-accent transition-colors">
+                <a
+                  href="https://github.com/nathwn12"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-xs text-text-dim hover:text-accent transition-colors"
+                >
                   github.com/nathwn12
                 </a>
-                <a href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/" target="_blank" rel="noopener noreferrer" className="block text-xs text-text-dim hover:text-accent-2 transition-colors">
+                <a
+                  href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-xs text-text-dim hover:text-accent-2 transition-colors"
+                >
                   linkedin.com/in/nathaniel-nikolai-l-184181261/
                 </a>
               </div>
+            </motion.div>
+
+            <motion.div
+              whileHover={{
+                borderColor:
+                  "color-mix(in srgb, var(--color-accent-3) 25%, transparent)",
+              }}
+              className="border border-border-accent bg-surface p-4 md:p-6 transition-colors duration-300"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-[10px] tracking-widest text-accent-3">
+                  [LOCATION]
+                </span>
+              </div>
+              <p className="text-sm md:text-lg font-bold text-text">
+                Hagonoy, Bulacan, PH
+              </p>
+              <p className="text-xs text-text-muted mt-1">UTC+8 (PHT)</p>
             </motion.div>
           </div>
         </motion.div>
@@ -130,9 +218,8 @@ export function Contact() {
         {/* MUA chrome + compose window */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3, duration: 0.5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15, duration: 0.35 }}
           className="border border-border-accent bg-surface"
         >
           {/* MUA toolbar */}
@@ -149,21 +236,33 @@ export function Contact() {
             <div className="flex items-center gap-2 mb-6">
               <span className="text-accent-2">$</span>
               <span className="text-sm text-text-dim">cat mail.sh</span>
-              <span className="terminal-cursor text-accent text-sm font-bold">█</span>
             </div>
 
             <form
               id="contactForm"
-              action="https://formsubmit.co/ajax/nathanielnikolai.ladero@gmail.com"
+              action={`https://formsubmit.co/ajax/${CONTACT_EMAIL}`}
               method="POST"
               onSubmit={handleSubmit}
             >
-              <input type="hidden" name="_subject" value="New resume site contact submission" />
-              <input type="hidden" name="_captcha" value="false" />
-              <input type="text" name="_honey" tabIndex={-1} autoComplete="off" style={{ display: "none" }} />
+              <input
+                type="hidden"
+                name="_subject"
+                value="New resume site contact submission"
+              />
+              <input type="hidden" name="_captcha" value="true" />
+              <input
+                type="text"
+                name="_honey"
+                tabIndex={-1}
+                autoComplete="off"
+                style={{ display: "none" }}
+              />
 
               <div className="space-y-1 mb-4 input-glow">
-                <label htmlFor="form-name" className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
+                <label
+                  htmlFor="form-name"
+                  className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2"
+                >
                   <span className="text-accent">$</span>
                   <span>read -p "To: " name</span>
                 </label>
@@ -173,13 +272,17 @@ export function Contact() {
                   type="text"
                   required
                   autoComplete="name"
+                  maxLength={100}
                   placeholder="Nathaniel Nikolai Ladero"
-                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-white font-mono outline-none focus:border-accent transition-all duration-300 placeholder:text-text-muted/30"
+                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-text font-mono outline-none focus:border-accent transition-colors duration-300 placeholder:text-text-muted/30"
                 />
               </div>
 
               <div className="space-y-1 mb-4 input-glow">
-                <label htmlFor="form-email" className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
+                <label
+                  htmlFor="form-email"
+                  className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2"
+                >
                   <span className="text-accent">$</span>
                   <span>read -p "From: " email</span>
                 </label>
@@ -189,13 +292,17 @@ export function Contact() {
                   type="email"
                   required
                   autoComplete="email"
+                  maxLength={254}
                   placeholder="user@example.com"
-                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-white font-mono outline-none focus:border-accent transition-all duration-300 placeholder:text-text-muted/30"
+                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-text font-mono outline-none focus:border-accent transition-colors duration-300 placeholder:text-text-muted/30"
                 />
               </div>
 
               <div className="space-y-1 mb-4 input-glow">
-                <label htmlFor="form-subject" className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
+                <label
+                  htmlFor="form-subject"
+                  className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2"
+                >
                   <span className="text-accent">$</span>
                   <span>read -p "Subject: " subject</span>
                 </label>
@@ -204,13 +311,17 @@ export function Contact() {
                   name="subject"
                   type="text"
                   required
+                  maxLength={300}
                   placeholder="What is this regarding?"
-                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-white font-mono outline-none focus:border-accent transition-all duration-300 placeholder:text-text-muted/30"
+                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-text font-mono outline-none focus:border-accent transition-colors duration-300 placeholder:text-text-muted/30"
                 />
               </div>
 
               <div className="space-y-1 mb-6 input-glow">
-                <label htmlFor="form-message" className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2">
+                <label
+                  htmlFor="form-message"
+                  className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2"
+                >
                   <span className="text-accent">$</span>
                   <span>read -p "Body: " message</span>
                 </label>
@@ -219,8 +330,9 @@ export function Contact() {
                   name="message"
                   required
                   rows={5}
+                  maxLength={5000}
                   placeholder="Your message here..."
-                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-white font-mono outline-none focus:border-accent transition-all duration-300 resize-none placeholder:text-text-muted/30"
+                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-text font-mono outline-none focus:border-accent transition-colors duration-300 resize-none placeholder:text-text-muted/30"
                 />
               </div>
 
@@ -233,22 +345,18 @@ export function Contact() {
                   whileTap={{ scale: 0.98 }}
                   className="px-6 py-3 bg-accent/10 border border-accent/30 text-accent text-xs font-bold tracking-widest hover:bg-accent/20 hover:border-accent/60 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isSubmitting ? "./send-message --sending…" : "./send-message --send"}
+                  {isSubmitting
+                    ? "./send-message --sending…"
+                    : "./send-message --send"}
                 </motion.button>
-                <span className="terminal-cursor cursor-glow text-accent text-xs font-bold">█</span>
               </div>
 
               {formStatus && (
                 <motion.div
+                  role="alert"
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`mt-4 border-l-2 pl-4 py-2 text-xs font-mono ${
-                    formStatus.type === "success"
-                      ? "border-accent text-accent bg-accent/5"
-                      : formStatus.type === "error"
-                      ? "border-accent-3 text-accent-3 bg-accent-3/5"
-                      : "border-text-muted text-text-dim bg-white/5"
-                  }`}
+                  className={`mt-4 border-l-2 pl-4 py-2 text-xs font-mono ${STATUS_PANEL[formStatus.type]}`}
                 >
                   <span className="text-text-muted mr-2">$</span>
                   {formStatus.message}
@@ -276,24 +384,46 @@ export function Contact() {
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5, duration: 0.5 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.25, duration: 0.35 }}
           className="mt-6 border border-border-accent bg-surface p-4 md:p-6"
         >
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-4">
             <span className="text-accent text-sm">$</span>
-            <span className="text-sm text-text-dim">echo "Thanks for visiting. Let's connect."</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-accent text-sm">$</span>
-            <span className="text-sm text-text-dim">
-              cat /dev/null &gt; goodbye.world
+            <span className="text-sm text-text-dim">./contact --status</span>
+            <span
+              role="status"
+              className={`text-[10px] tracking-widest md:ml-auto ${chip.tone}`}
+            >
+              {chip.label}
             </span>
-            <span className="terminal-cursor text-accent text-sm font-bold">█</span>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="border border-border-accent p-4">
+              <span className="text-[10px] tracking-widest text-accent">
+                [NEXT STEP]
+              </span>
+              <p className="text-xs text-text-dim leading-relaxed mt-3">
+                Use the compose window above to send a message. The status line
+                reports whether it was queued or if an error occurred.
+              </p>
+            </div>
+
+            <div className="border border-border-accent p-4">
+              <span className="text-[10px] tracking-widest text-accent-2">
+                [DIRECT EMAIL]
+              </span>
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="block mt-3 text-xs text-text-dim hover:text-accent transition-colors break-all"
+              >
+                {CONTACT_EMAIL}
+              </a>
+            </div>
           </div>
         </motion.div>
       </div>
     </section>
-  )
+  );
 }

@@ -1,16 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useScrollVelocity } from "../lib/useScrollVelocity";
+import { usePageScroll } from "../lib/pageScroll";
+import { ROUTES, navigate, useRoute } from "../lib/router";
+import { useTheme } from "../lib/theme";
 
-const navItems = [
-  { label: "ABOUT", href: "#about" },
-  { label: "EXP", href: "#experience" },
-  { label: "FOOTPRINT", href: "#footprint" },
-  { label: "SKILLS", href: "#skills" },
-  { label: "PROJECTS", href: "#projects" },
-  { label: "EDUCATION", href: "#education" },
-  { label: "CONTACT", href: "#contact" },
-];
+const navItems = ROUTES.filter((route) => route.path !== "/");
 
 const utcOffset = (() => {
   const offset = -new Date().getTimezoneOffset();
@@ -22,45 +16,66 @@ const utcOffset = (() => {
 
 export function Header() {
   const [time, setTime] = useState(new Date());
-  const [scrolled, setScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const { isScrolling } = useScrollVelocity();
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+  const { y, isScrolling } = usePageScroll();
+  const { route } = useRoute();
+  const [theme, applyTheme] = useTheme();
+  const scrolled = y > 50;
+  const activeSection = route.label;
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
+  const toggleThemeHandler = useCallback(() => {
+    applyTheme(theme === "dark" ? "light" : "dark");
+  }, [theme, applyTheme]);
+
+  /* F2 cycles the color scheme. Never hijack keys while typing or overlays are open. */
   useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 50);
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "F2" || e.repeat) return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      if (
+        document.querySelector("[data-terminal-panel]") ||
+        document.querySelector("[data-mobile-menu]")
+      ) {
+        return;
+      }
+      e.preventDefault();
+      toggleThemeHandler();
     };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [toggleThemeHandler]);
 
   useEffect(() => {
-    const els = navItems.map((item) => document.getElementById(item.href.slice(1))).filter(Boolean) as HTMLElement[];
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const matched = navItems.find((item) => item.href.slice(1) === entry.target.id);
-            if (matched) setActiveSection(matched.label);
-          }
-        }
-      },
-      { rootMargin: "-100px 0px -60% 0px", threshold: 0 }
-    );
-    els.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      setMenuOpen(false);
+      menuButtonRef.current?.focus();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
 
-  const scrollTo = useCallback((id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  const navigateTo = (path: string) => {
+    navigate(path);
     setMenuOpen(false);
-  }, []);
+  };
 
   const timeStr = time.toLocaleTimeString("en-US", { hour12: false });
 
@@ -69,53 +84,72 @@ export function Header() {
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className={`fixed top-0 left-0 right-0 z-50 font-mono transition-all duration-500 ${
+        transition={{ duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className={`fixed top-0 left-0 right-0 z-50 font-mono transition-colors duration-300 ${
           scrolled
             ? "border-b border-border bg-bg/95 backdrop-blur-sm"
             : "border-b border-border bg-bg"
         }`}
       >
-        <div className="flex items-center justify-between px-4 py-1.5 border-b border-border text-[10px] tracking-widest text-text-muted uppercase">
-          <span className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center justify-between gap-3 overflow-hidden px-4 py-1.5 border-b border-border text-[10px] tracking-widest text-text-muted uppercase">
+          <span className="flex min-w-0 shrink items-center gap-3 whitespace-nowrap overflow-hidden">
             <span
-              className={`inline-block w-1.5 h-1.5 rounded-full transition-all duration-200 ${
-                isScrolling ? "bg-accent animate-pulse" : "bg-accent/60"
+              className={`hidden sm:inline-block w-1.5 h-1.5 rounded-full transition-all duration-200 ${
+                isScrolling ? "bg-accent" : "bg-accent/60"
               }`}
             />
-            <span>sys::resume</span>
-            <span className="text-border-accent">|</span>
-            <span>[nathan@portfolio ~]$</span>
+            <span className="hidden sm:inline">sys::resume</span>
+            <span className="hidden sm:inline text-border-accent">|</span>
+            <span className="truncate">[nathan@portfolio ~]$</span>
           </span>
-          <span className="flex items-center gap-3">
-            <span>{timeStr}</span>
-            <span className="text-border-accent">|</span>
-            <span>{utcOffset}</span>
-            <span className="text-border-accent">|</span>
+          <span className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <span className="hidden sm:inline">{timeStr}</span>
+            <span className="hidden sm:inline text-border-accent">|</span>
+            <span className="hidden sm:inline">{utcOffset}</span>
+            <span className="hidden sm:inline text-border-accent">|</span>
             <span className="text-accent">{activeSection || "HOME"}</span>
+            <span className="text-border-accent">|</span>
+            <button
+              type="button"
+              onClick={toggleThemeHandler}
+              aria-label="Switch color scheme"
+              title="Toggle color scheme (F2)"
+              className="flex items-center gap-1.5 whitespace-nowrap uppercase transition-colors duration-300 hover:text-accent"
+            >
+              <span className="text-border-accent">[F2]</span>
+              <span>theme:{theme}</span>
+            </button>
           </span>
         </div>
 
         <div className="flex items-center justify-between px-4 lg:px-8 py-3">
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-1.5 mr-1">
-              <span className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                isScrolling ? "bg-accent-3" : "bg-accent-3/70"
-              }`} />
-              <span className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                isScrolling ? "bg-accent-2" : "bg-accent-2/70"
-              }`} />
-              <span className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                isScrolling ? "bg-accent" : "bg-accent/70"
-              }`} />
+              <span
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  isScrolling ? "bg-accent-3" : "bg-accent-3/70"
+                }`}
+              />
+              <span
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  isScrolling ? "bg-accent-2" : "bg-accent-2/70"
+                }`}
+              />
+              <span
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  isScrolling ? "bg-accent" : "bg-accent/70"
+                }`}
+              />
             </div>
             <button
-              onClick={() => scrollTo("hero")}
-              className="text-sm font-bold tracking-tighter text-white flex items-center gap-2 group"
+              onClick={() => navigateTo("/")}
+              className="text-sm font-bold tracking-tighter text-text flex items-center gap-2 group"
             >
-              <span className="text-accent text-xs group-hover:animate-pulse">$</span>
-              <span className="group-hover:text-accent transition-colors duration-300">NNL</span>
-              <span className="animate-pulse text-accent text-xs">_</span>
+              <span className="text-accent text-xs">$</span>
+              <span className="group-hover:text-accent transition-colors duration-300">
+                NNL
+              </span>
+              <span className="text-accent text-xs">_</span>
             </button>
           </div>
 
@@ -123,43 +157,44 @@ export function Header() {
             {navItems.map((item, i) => (
               <button
                 key={item.label}
-                onClick={() => scrollTo(item.href.slice(1))}
+                onClick={() => navigateTo(item.path)}
                 className={`relative px-4 py-2 text-xs tracking-widest transition-all duration-300 border-l border-border ${
                   activeSection === item.label
                     ? "text-accent bg-accent/5"
-                    : "text-text-dim hover:text-white hover:bg-white/5"
+                    : "text-text-dim hover:text-text hover:bg-text/5"
                 }`}
               >
-                <span className="text-border-accent mr-2">
-                  ^{(i + 1).toString()}
-                </span>
+                <span className="text-border-accent mr-2">^{i + 1}</span>
                 {item.label}
-                {activeSection === item.label && (
-                  <motion.div
-                    layoutId="activeNav"
-                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent"
-                    transition={{ duration: 0.3 }}
-                  />
-                )}
               </button>
             ))}
           </nav>
 
           <button
+            ref={menuButtonRef}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle navigation menu"
             aria-expanded={menuOpen}
+            aria-controls="mobile-nav"
             className="md:hidden flex flex-col gap-1.5 p-2 group"
           >
-            <span className={`block w-5 h-[2px] bg-text-dim transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-[7px]" : ""}`} />
-            <span className={`block w-5 h-[2px] bg-text-dim transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
-            <span className={`block w-5 h-[2px] bg-text-dim transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-[7px]" : ""}`} />
+            <span
+              className={`block w-5 h-[2px] bg-text-dim transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-[7px]" : ""}`}
+            />
+            <span
+              className={`block w-5 h-[2px] bg-text-dim transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`}
+            />
+            <span
+              className={`block w-5 h-[2px] bg-text-dim transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-[7px]" : ""}`}
+            />
           </button>
         </div>
 
         <AnimatePresence>
           {menuOpen && (
             <motion.nav
+              id="mobile-nav"
+              data-mobile-menu
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
@@ -170,16 +205,14 @@ export function Header() {
                 {navItems.map((item, i) => (
                   <button
                     key={item.label}
-                    onClick={() => scrollTo(item.href.slice(1))}
+                    onClick={() => navigateTo(item.path)}
                     className={`px-4 py-3 text-xs tracking-widest border-b border-border transition-all duration-300 text-left ${
                       activeSection === item.label
                         ? "text-accent bg-accent/5"
-                        : "text-text-dim hover:text-white hover:bg-white/5"
+                        : "text-text-dim hover:text-text hover:bg-text/5"
                     }`}
                   >
-                    <span className="text-border-accent mr-3">
-                      ^{(i + 1)}
-                    </span>
+                    <span className="text-border-accent mr-3">^{i + 1}</span>
                     {item.label}
                   </button>
                 ))}
@@ -188,7 +221,6 @@ export function Header() {
           )}
         </AnimatePresence>
       </motion.header>
-      <div className="transition-all duration-300" style={{ height: menuOpen ? 88 + navItems.length * 44 : 88 }} />
     </>
   );
 }
