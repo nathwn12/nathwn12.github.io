@@ -77,6 +77,15 @@ h1, h2, h3, h4 {
   outline-offset: 2px;
 }
 
+/* #main is focused programmatically on page mount (PageShell) to announce the
+   new page to screen readers. It is a container, not an interactive element,
+   so it must never paint the focus ring — the :focus-visible rule above would
+   otherwise draw a 1px full-width accent line along its top edge (y≈85, right
+   under the header) on every first load. */
+#main:focus {
+  outline: none;
+}
+
 .skip-to-content {
   position: fixed;
   top: -100%;

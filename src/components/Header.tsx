@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageScroll } from "../lib/pageScroll";
 import { ROUTES, navigate, useRoute } from "../lib/router";
@@ -17,6 +17,7 @@ const utcOffset = (() => {
 export function Header() {
   const [time, setTime] = useState(new Date());
   const [menuOpen, setMenuOpen] = useState(false);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const { y, isScrolling } = usePageScroll();
   const { route } = useRoute();
   const [theme, applyTheme] = useTheme();
@@ -59,6 +60,18 @@ export function Header() {
     return () => window.removeEventListener("keydown", onKey);
   }, [toggleThemeHandler]);
 
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      e.preventDefault();
+      setMenuOpen(false);
+      menuButtonRef.current?.focus();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [menuOpen]);
+
   const navigateTo = (path: string) => {
     navigate(path);
     setMenuOpen(false);
@@ -78,22 +91,22 @@ export function Header() {
             : "border-b border-border bg-bg"
         }`}
       >
-        <div className="flex items-center justify-between px-4 py-1.5 border-b border-border text-[10px] tracking-widest text-text-muted uppercase">
-          <span className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center justify-between gap-3 overflow-hidden px-4 py-1.5 border-b border-border text-[10px] tracking-widest text-text-muted uppercase">
+          <span className="flex min-w-0 shrink items-center gap-3 whitespace-nowrap overflow-hidden">
             <span
-              className={`inline-block w-1.5 h-1.5 rounded-full transition-all duration-200 ${
+              className={`hidden sm:inline-block w-1.5 h-1.5 rounded-full transition-all duration-200 ${
                 isScrolling ? "bg-accent" : "bg-accent/60"
               }`}
             />
-            <span>sys::resume</span>
-            <span className="text-border-accent">|</span>
-            <span>[nathan@portfolio ~]$</span>
+            <span className="hidden sm:inline">sys::resume</span>
+            <span className="hidden sm:inline text-border-accent">|</span>
+            <span className="truncate">[nathan@portfolio ~]$</span>
           </span>
-          <span className="flex items-center gap-3">
-            <span>{timeStr}</span>
-            <span className="text-border-accent">|</span>
-            <span>{utcOffset}</span>
-            <span className="text-border-accent">|</span>
+          <span className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <span className="hidden sm:inline">{timeStr}</span>
+            <span className="hidden sm:inline text-border-accent">|</span>
+            <span className="hidden sm:inline">{utcOffset}</span>
+            <span className="hidden sm:inline text-border-accent">|</span>
             <span className="text-accent">{activeSection || "HOME"}</span>
             <span className="text-border-accent">|</span>
             <button
@@ -151,22 +164,14 @@ export function Header() {
                     : "text-text-dim hover:text-text hover:bg-text/5"
                 }`}
               >
-                <span className="text-border-accent mr-2">
-                  ^{(i + 1).toString()}
-                </span>
+                <span className="text-border-accent mr-2">^{i + 1}</span>
                 {item.label}
-                {activeSection === item.label && (
-                  <motion.div
-                    layoutId="activeNav"
-                    className="absolute bottom-0 left-0 right-0 h-[2px] bg-accent"
-                    transition={{ duration: 0.3 }}
-                  />
-                )}
               </button>
             ))}
           </nav>
 
           <button
+            ref={menuButtonRef}
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle navigation menu"
             aria-expanded={menuOpen}

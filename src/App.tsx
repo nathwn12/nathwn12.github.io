@@ -5,7 +5,6 @@ import { BackgroundEffects } from "./components/BackgroundEffects";
 import { PageShell } from "./components/PageShell";
 import { Header } from "./components/Header";
 import { Hero } from "./components/Hero";
-import { About } from "./components/About";
 import { Experience } from "./components/Experience";
 import { Footprint } from "./components/Footprint";
 import { Skills } from "./components/Skills";
@@ -19,7 +18,6 @@ import { useRoute, useAdjacentNavigation } from "./lib/router";
 /** route.id → section component — one "page" per route. */
 const PAGES: Record<string, ComponentType> = {
   hero: Hero,
-  about: About,
   experience: Experience,
   footprint: Footprint,
   skills: Skills,
@@ -98,7 +96,7 @@ export default function App() {
               <main
                 id="main"
                 tabIndex={-1}
-                className="relative z-10 outline-none flex-1"
+                className="relative z-10 outline-none flex-1 flex flex-col justify-center"
               >
                 <Content />
               </main>

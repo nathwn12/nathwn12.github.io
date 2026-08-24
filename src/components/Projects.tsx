@@ -54,8 +54,8 @@ const projects: ProjectLore[] = [
     name: "Fintech Service Platform",
     dir: "fintech-service-platform",
     description:
-      "1,100+ commits across 17 repositories: ASP.NET Core Web APIs, gRPC endpoints, SignalR hubs, RabbitMQ messaging, and Serilog structured logging — products spanning payments, cash management, and access control.",
-    tech: ["C#", "ASP.NET Core", "gRPC", "SignalR", "RabbitMQ", "Serilog"],
+      "1,100+ commits across 17 repositories: ASP.NET Web APIs, gRPC endpoints, SignalR hubs, RabbitMQ messaging, and Serilog for centralized structured logging across environments — products spanning payments, cash management, and access control.",
+    tech: ["C#", "ASP.NET Web APIs", "gRPC", "SignalR", "RabbitMQ", "Serilog"],
     token: "accent-2",
     stats: [
       { label: "commits", value: "1,100+", token: "accent-2" },
@@ -68,7 +68,7 @@ const projects: ProjectLore[] = [
     name: "Auth Hardening",
     dir: "auth-hardening",
     description:
-      "JWT, OAuth 2.0, and OpenID Connect with RBAC + ABAC authorization; proactive Snyk scanning and secure code review — zero high/critical findings maintained in production.",
+      "Implemented JWT, OAuth 2.0, and OpenID Connect with RBAC + ABAC authorization; maintained zero high or critical Snyk findings on production deployments through proactive dependency scanning and secure code review.",
     tech: ["JWT", "OAuth 2.0", "OpenID Connect", "RBAC", "ABAC", "Snyk"],
     token: "accent-3",
     stats: [
@@ -86,7 +86,7 @@ const projects: ProjectLore[] = [
     name: "Read Cache Data Layer",
     dir: "read-cache-data-layer",
     description:
-      "EF Core + Dapper data layers for high-throughput transactions; SQL index tuning with Redis caching on hot reference data — 40%+ read latency reduction.",
+      "Designed EF Core + Dapper data layers for high-throughput financial transactions; tuned SQL indexes and integrated Redis caching on frequently accessed reference data, reducing read latency by over 40%.",
     tech: ["C#", "EF Core", "Dapper", "SQL", "Redis"],
     token: "accent-4",
     stats: [
@@ -102,7 +102,7 @@ const extMap: Record<string, string> = {
   MySqlConnector: ".mysql",
   AWS: ".aws",
   "SQL tuning": ".sql",
-  "ASP.NET Core": ".csproj",
+  "ASP.NET Web APIs": ".csproj",
   gRPC: ".proto",
   SignalR: ".hub",
   RabbitMQ: ".mq",

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { navigate } from "../lib/router";
+import { navigate, ROUTES } from "../lib/router";
 import { setTheme, useTheme, type TerminalTheme } from "../lib/theme";
 
 interface Line {
@@ -9,43 +9,46 @@ interface Line {
   content: string;
 }
 
-const SECTIONS = [
-  { id: "hero", path: "/", name: "whoami", desc: "Identity & access" },
-  { id: "about", path: "/about", name: "about.md", desc: "System information" },
-  {
-    id: "experience",
-    path: "/experience",
-    name: "experience.log",
-    desc: "Service journal",
-  },
-  {
-    id: "footprint",
-    path: "/footprint",
-    name: "footprint/",
-    desc: "Delivery stats",
-  },
-  { id: "skills", path: "/skills", name: "pacman", desc: "Installed packages" },
-  {
-    id: "projects",
-    path: "/projects",
-    name: "projects/",
-    desc: "Production highlights",
-  },
-  {
-    id: "education",
-    path: "/education",
-    name: "education.md",
-    desc: "Education history",
-  },
-  { id: "contact", path: "/contact", name: "inbox", desc: "Mail user agent" },
-] as const;
+const SECTION_NAMES: Readonly<Record<string, string>> = {
+  hero: "whoami",
+  experience: "experience.log",
+  footprint: "footprint/",
+  skills: "pacman",
+  projects: "projects/",
+  education: "education.md",
+  contact: "inbox",
+};
+
+export const SECTIONS = ROUTES.map((route) => ({
+  id: route.id,
+  path: route.path,
+  name: SECTION_NAMES[route.id] ?? route.command,
+  desc: route.description,
+}));
+
+const SECTION_COUNT = SECTIONS.length;
+
+function normalizeSectionName(value: string): string {
+  return value.replace(/\.|\//g, "");
+}
+
+export function resolveTerminalSection(input: string) {
+  const normalized = normalizeSectionName(input);
+  return SECTIONS.find(
+    (section) =>
+      section.id === input ||
+      normalizeSectionName(section.name) === normalized ||
+      (section.id === "hero" &&
+        (normalized === "about" || normalized === "aboutmd")),
+  );
+}
 
 const HELP = [
   "╔══════════════════════════════════════════════╗",
   "║ COMMAND         DESCRIPTION                  ║",
   "╠══════════════════════════════════════════════╣",
   "║ help            Show this help message       ║",
-  "║ ls              List all sections            ║",
+  `║ ls              List ${SECTION_COUNT} sections              ║`,
   "║ cd <section>    Navigate to a section        ║",
   "║ ←/→ keys         Previous / next page        ║",
   "║ whoami          Identity information         ║",
@@ -116,6 +119,7 @@ export function CommandTerminal() {
   }, [visible, welcomed, addLine]);
 
   useEffect(() => {
+    activeRef.current = true;
     return () => {
       activeRef.current = false;
       timers.current.forEach(clearTimeout);
@@ -189,11 +193,7 @@ export function CommandTerminal() {
             );
             break;
           }
-          const target = SECTIONS.find(
-            (s) =>
-              s.id === args[0] ||
-              s.name.replace(/\.|\//g, "") === args[0].replace(/\.|\//g, ""),
-          );
+          const target = resolveTerminalSection(args[0]);
           if (!target) {
             addLine("output", `cd: no such directory: ${args[0]}`);
             break;
@@ -225,13 +225,13 @@ export function CommandTerminal() {
 
         case "neofetch": {
           const info = [
-            "  OS        Windows 11 + Arch WSL",
-            "  Kernel    .NET 8/9",
-            "  Uptime    3+ years",
-            "  Shell     C# ASP.NET Core",
-            "  Editor    VS Code + Neovim",
+            "  OS        Ubuntu/Linux Servers + Docker",
+            "  Kernel    .NET 6/7/8/9 / C#",
+            "  Experience 3 years production fintech",
+            "  Shell     Bash + PowerShell",
+            "  AI Tools  LM Studio + OpenCode + Codex",
             "  Domain    Fintech Backend",
-            "  Location  Luzon, PH",
+            "  Location  Hagonoy, Bulacan, Philippines",
           ];
           info.forEach((line, i) => {
             const t = setTimeout(() => {
@@ -258,7 +258,7 @@ export function CommandTerminal() {
           );
           addLine("output", `  Uptime: ${days} days`);
           addLine("output", "  Status:  ONLINE");
-          addLine("output", "  Load:    8 sections, 0 failures");
+          addLine("output", `  Load:    ${SECTION_COUNT} sections, 0 failures`);
           break;
         }
 

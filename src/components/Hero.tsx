@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { navigate } from "../lib/router";
+import { TerminalWindow } from "./TerminalWindow";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -20,6 +21,15 @@ const childVariants = {
     transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] as const },
   },
 };
+
+const systemFacts = [
+  ["OS", "Ubuntu/Linux Servers / Docker"],
+  ["Kernel", ".NET 6/7/8/9 / C#"],
+  ["Packages", "17 repos · 1,100+ commits"],
+  ["Shell", "Bash / PowerShell"],
+  ["AI Tools", "LM Studio / OpenCode / Codex"],
+  ["Certs", "Google IT Support · IT Automation with Python"],
+] as const;
 
 export function Hero() {
   return (
@@ -90,10 +100,13 @@ export function Hero() {
             variants={childVariants}
             className="text-sm md:text-base text-text-dim leading-relaxed max-w-2xl mb-10"
           >
-            Builds C# and ASP.NET Core APIs, manages Linux servers and Docker
-            containers, and automates deployments through GitHub Actions —
-            treating infrastructure as part of the codebase, backed by an
-            AI-assisted workflow.
+            Backend Developer with 3 years of production fintech experience and
+            extensive hands-on DevOps experience. Builds C# and ASP.NET APIs,
+            manages Ubuntu/Linux servers and Docker containers, configures Nginx
+            reverse proxies, and automates CI/CD deployments through GitHub
+            Actions with Bash and PowerShell. Uses a practical AI-assisted
+            workflow, backed by Google IT Support and IT Automation with Python
+            certifications.
           </motion.p>
 
           {/* Stats grid — terminal window */}
@@ -135,6 +148,74 @@ export function Hero() {
             </div>
           </motion.div>
 
+          {/* System dossier — the non-duplicated profile detail */}
+          <motion.div variants={childVariants} className="mt-10">
+            <TerminalWindow title="system.md">
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="grid md:grid-cols-[1fr_2fr] gap-8 md:gap-12 p-4 md:p-6"
+              >
+                <motion.div
+                  variants={childVariants}
+                  className="border border-border-accent bg-bg p-4 md:p-6 font-mono"
+                >
+                  <div className="text-accent text-xs mb-3 flex items-center gap-2">
+                    <span className="inline-block w-2 h-2 bg-accent rounded-full" />
+                    $ neofetch
+                  </div>
+                  <div className="border-t border-border-accent pt-3 space-y-1.5">
+                    {systemFacts.map(([label, value]) => (
+                      <motion.div
+                        key={label}
+                        whileHover={{ x: 4 }}
+                        className="flex gap-2 text-xs group cursor-default"
+                      >
+                        <span className="text-text-muted shrink-0 w-16">
+                          {label}
+                        </span>
+                        <span className="text-text group-hover:text-accent transition-colors duration-300">
+                          {value}
+                        </span>
+                      </motion.div>
+                    ))}
+                  </div>
+                  <div className="mt-3">
+                    <span className="text-accent text-xs">$ </span>
+                  </div>
+                </motion.div>
+
+                <div className="space-y-6">
+                  <motion.div variants={childVariants}>
+                    <h2 className="text-2xl md:text-4xl font-bold tracking-tight mb-4">
+                      Crafting reliable systems{" "}
+                      <span className="text-accent">that scale</span> under
+                      pressure.
+                    </h2>
+                  </motion.div>
+
+                  <motion.div
+                    variants={childVariants}
+                    className="space-y-4 text-text-dim text-sm leading-relaxed"
+                  >
+                    <p>
+                      Treats infrastructure as part of the codebase: Nginx
+                      configs, Bash scripts, and CI/CD pipelines receive the
+                      same rigor as application code.
+                    </p>
+                    <p>
+                      Daily AI tooling: LM Studio, OpenCode, and Codex, with
+                      preferred local models Qwen 3.8, DeepSeek V4 Flash, and
+                      Qwen 3.5 (9B, 27B). English (professional), Filipino
+                      (native).
+                    </p>
+                  </motion.div>
+                </div>
+              </motion.div>
+            </TerminalWindow>
+          </motion.div>
+
           {/* Resume download */}
           <motion.div
             variants={childVariants}
@@ -167,7 +248,7 @@ export function Hero() {
             </button>
             <button
               type="button"
-              onClick={() => navigate("/about")}
+              onClick={() => navigate("/experience")}
               className="flex items-center gap-2 text-[9px] tracking-[0.3em] hover:text-accent transition-colors duration-300 cursor-pointer"
             >
               <span>NEXT</span>
