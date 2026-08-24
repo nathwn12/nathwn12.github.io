@@ -126,6 +126,7 @@ export function Header() {
             onClick={() => setMenuOpen(!menuOpen)}
             aria-label="Toggle navigation menu"
             aria-expanded={menuOpen}
+            aria-controls="mobile-nav"
             className="md:hidden flex flex-col gap-1.5 p-2 group"
           >
             <span
@@ -143,6 +144,8 @@ export function Header() {
         <AnimatePresence>
           {menuOpen && (
             <motion.nav
+              id="mobile-nav"
+              data-mobile-menu
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}

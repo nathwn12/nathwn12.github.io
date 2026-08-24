@@ -171,9 +171,10 @@ export interface RouterState {
   direction: RouteDirection;
 }
 
-/** Navigate to a route path. No-op when already there. */
+/** Navigate to a route path. No-op when already there or path is unknown. */
 export function navigate(to: string): void {
   const path = normalizePath(to);
+  if (!routeByPath(path)) return; // unknown path — ignore
   if (path === currentPath) return;
   const dir: RouteDirection =
     routeIndex(path) < routeIndex(currentPath) ? "back" : "forward";

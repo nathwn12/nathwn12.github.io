@@ -338,6 +338,7 @@ export function CommandTerminal() {
     <AnimatePresence>
       {visible && (
         <motion.div
+          data-terminal-panel
           initial={{ y: "100%" }}
           animate={{ y: 0 }}
           exit={{ y: "100%" }}
