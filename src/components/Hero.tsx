@@ -1,4 +1,5 @@
-import { motion } from "framer-motion"
+import { motion } from "framer-motion";
+import { navigate } from "../lib/router";
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -9,27 +10,30 @@ const containerVariants = {
       delayChildren: 0.1,
     },
   },
-}
+};
 
 const childVariants = {
-  hidden: { opacity: 0, y: 30, filter: "blur(4px)" },
+  hidden: { opacity: 0, y: 30 },
   visible: {
     opacity: 1,
     y: 0,
-    filter: "blur(0px)",
     transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const },
   },
-}
+};
 
 export function Hero() {
   return (
-    <section id="hero" className="relative min-h-[100dvh] flex flex-col justify-center overflow-hidden">
+    <section
+      id="hero"
+      className="relative min-h-full flex flex-col justify-center overflow-hidden"
+    >
       {/* Ambient green gradient */}
-      <div className="section-ambient"
+      <div
+        className="section-ambient"
         style={{
           background: `
-            radial-gradient(ellipse at 25% 30%, rgba(34,197,94,0.12) 0%, rgba(34,197,94,0.02) 45%, transparent 70%),
-            radial-gradient(ellipse at 75% 70%, rgba(34,197,94,0.06) 0%, transparent 50%)
+            radial-gradient(ellipse at 25% 30%, rgba(115,210,22,0.08) 0%, rgba(115,210,22,0.01) 45%, transparent 70%),
+            radial-gradient(ellipse at 75% 70%, rgba(115,210,22,0.04) 0%, transparent 50%)
           `,
         }}
       />
@@ -38,8 +42,8 @@ export function Hero() {
         className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(34,197,94,0.06) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(34,197,94,0.06) 1px, transparent 1px)
+            linear-gradient(rgba(115,210,22,0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(115,210,22,0.04) 1px, transparent 1px)
           `,
           backgroundSize: "40px 40px",
         }}
@@ -53,10 +57,15 @@ export function Hero() {
       >
         <div className="max-w-5xl w-full">
           {/* $ whoami prompt */}
-          <motion.div variants={childVariants} className="mb-6 flex items-center gap-2">
+          <motion.div
+            variants={childVariants}
+            className="mb-6 flex items-center gap-2"
+          >
             <span className="text-accent text-sm">$</span>
             <span className="text-text-muted text-sm">whoami</span>
-            <span className="terminal-cursor text-accent text-sm font-bold">█</span>
+            <span className="terminal-cursor text-accent text-sm font-bold">
+              █
+            </span>
           </motion.div>
 
           {/* Name — clean, no glitch */}
@@ -77,12 +86,17 @@ export function Hero() {
           </motion.p>
 
           {/* Stats grid — terminal window */}
-          <motion.div variants={childVariants} className="border border-border-accent">
+          <motion.div
+            variants={childVariants}
+            className="border border-border-accent"
+          >
             <div className="terminal-titlebar">
               <span className="terminal-dot bg-accent-3" />
               <span className="terminal-dot bg-accent-2" />
               <span className="terminal-dot bg-accent" />
-              <span className="text-[9px] tracking-[0.3em] text-text-muted ml-2 uppercase">profile</span>
+              <span className="text-[9px] tracking-[0.3em] text-text-muted ml-2 uppercase">
+                profile
+              </span>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border-accent">
               {[
@@ -93,7 +107,7 @@ export function Hero() {
               ].map((stat) => (
                 <motion.div
                   key={stat.label}
-                  whileHover={{ backgroundColor: "rgba(34,197,94,0.05)" }}
+                  whileHover={{ backgroundColor: "rgba(115,210,22,0.05)" }}
                   className="bg-bg p-4 md:p-6 group transition-colors duration-500"
                 >
                   <p className="text-[10px] tracking-[0.2em] text-text-muted mb-1">
@@ -122,16 +136,29 @@ export function Hero() {
               wget ./resume.pdf
             </motion.a>
             <span className="text-accent">↓</span>
-            <span className="terminal-cursor text-accent text-sm font-bold">█</span>
           </motion.div>
 
-          {/* Scroll indicator — simplified */}
+          {/* Page navigation hints */}
           <motion.div
             variants={childVariants}
-            className="mt-16 flex flex-col items-center gap-2 text-text-muted text-xs tracking-widest"
+            className="mt-16 flex items-center justify-center gap-8 text-text-muted"
           >
-            <div className="w-[1px] h-10 bg-accent/30" />
-            <span className="text-[9px] tracking-[0.4em]">SCROLL</span>
+            <button
+              type="button"
+              disabled
+              className="flex items-center gap-2 text-[9px] tracking-[0.3em] opacity-40 cursor-not-allowed"
+            >
+              <span className="text-xs">←</span>
+              <span>PREV</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/about")}
+              className="flex items-center gap-2 text-[9px] tracking-[0.3em] hover:text-accent transition-colors duration-300 cursor-pointer"
+            >
+              <span>NEXT</span>
+              <span className="text-xs">→</span>
+            </button>
           </motion.div>
 
           {/* Vertical sidebar */}
@@ -145,5 +172,5 @@ export function Hero() {
         </div>
       </motion.div>
     </section>
-  )
+  );
 }
