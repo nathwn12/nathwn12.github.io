@@ -1,87 +1,122 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
-import type { Project } from "../types/models";
+import { cn } from "../lib/cn";
 import { RouteLink } from "../lib/router";
 import { TerminalWindow } from "./TerminalWindow";
 
 type ProjectId = string & { readonly __brand: "Project" };
+type Token = "accent" | "accent-2" | "accent-3" | "accent-4";
 
-const projects: Project[] = [
+interface ProjectLore {
+  id: string;
+  /** README title shown in the expanded `cat` view */
+  name: string;
+  /** Directory name in the `ls -la` listing */
+  dir: string;
+  description: string;
+  tech: string[];
+  token: Token;
+  stats: { label: string; value: string; token: Token }[];
+}
+
+const textClass: Record<Token, string> = {
+  accent: "text-accent",
+  "accent-2": "text-accent-2",
+  "accent-3": "text-accent-3",
+  "accent-4": "text-accent-4",
+};
+
+const badgeClass: Record<Token, string> = {
+  accent: "text-accent border-accent/30 bg-accent/5",
+  "accent-2": "text-accent-2 border-accent-2/30 bg-accent-2/5",
+  "accent-3": "text-accent-3 border-accent-3/30 bg-accent-3/5",
+  "accent-4": "text-accent-4 border-accent-4/30 bg-accent-4/5",
+};
+
+// Selected production work from the résumé record.
+const projects: ProjectLore[] = [
   {
     id: "01",
-    name: "PAYMENT GATEWAY API OPTIMIZATION",
+    name: "Payments Latency Migration",
+    dir: "payments-latency-migration",
     description:
-      "98% latency reduction on a payment processing API by migrating from MySql.Data to MySqlConnector in AWS production.",
-    tech: ["C#", "ASP.NET CORE", "EF CORE", "AWS", "MYSQL"],
-    status: "PRODUCTION",
-    color: "#73d216",
+      "Migrated MySql.Data → MySqlConnector on AWS; profiled slow queries and tuned indexes across payment services — worst-case query time cut from ~60s to under 1s (98% reduction).",
+    tech: ["C#", "MySqlConnector", "AWS", "SQL tuning"],
+    token: "accent",
     stats: [
-      { label: "improvement", value: "98%", color: "#73d216" },
-      { label: "latency", value: "60s→1s", color: "#73d216" },
-      { label: "uptime", value: "99.9%", color: "#73d216" },
+      { label: "latency cut", value: "98%", token: "accent" },
+      { label: "worst-case query", value: "60s → <1s", token: "accent" },
+      { label: "scope", value: "payment svcs", token: "accent" },
     ],
   },
   {
     id: "02",
-    name: "IDENTITY & ACCESS MANAGEMENT",
+    name: "Fintech Service Platform",
+    dir: "fintech-service-platform",
     description:
-      "Authentication microservice with OAuth 2.0, OpenID Connect, and JWT — zero high/critical Snyk vulnerabilities at deployment.",
-    tech: ["C#", "OAUTH 2.0", "JWT", "OPENID", "SNYK"],
-    status: "PRODUCTION",
-    color: "#2aa198",
+      "1,100+ commits across 17 repositories: ASP.NET Core Web APIs, gRPC endpoints, SignalR hubs, RabbitMQ messaging, and Serilog structured logging — products spanning payments, cash management, and access control.",
+    tech: ["C#", "ASP.NET Core", "gRPC", "SignalR", "RabbitMQ", "Serilog"],
+    token: "accent-2",
     stats: [
-      { label: "vulns", value: "0 CRIT", color: "#2aa198" },
-      { label: "auth flows", value: "3", color: "#2aa198" },
-      { label: "coverage", value: "100%", color: "#2aa198" },
+      { label: "commits", value: "1,100+", token: "accent-2" },
+      { label: "repositories", value: "17", token: "accent-2" },
+      { label: "product domains", value: "3", token: "accent-2" },
     ],
   },
   {
     id: "03",
-    name: "MICROSERVICES PLATFORM",
+    name: "Auth Hardening",
+    dir: "auth-hardening",
     description:
-      "Monolith-to-microservices migration using Repository pattern and DI for independent scaling and reduced deployment coupling.",
-    tech: ["ASP.NET CORE", "DOCKER", "POSTGRES", "CI/CD"],
-    status: "PRODUCTION",
-    color: "#cb4b16",
+      "JWT, OAuth 2.0, and OpenID Connect with RBAC + ABAC authorization; proactive Snyk scanning and secure code review — zero high/critical findings maintained in production.",
+    tech: ["JWT", "OAuth 2.0", "OpenID Connect", "RBAC", "ABAC", "Snyk"],
+    token: "accent-3",
     stats: [
-      { label: "services", value: "6", color: "#cb4b16" },
-      { label: "coupling", value: "-40%", color: "#cb4b16" },
-      { label: "deploys", value: "3× FASTER", color: "#cb4b16" },
+      { label: "high/critical", value: "0", token: "accent-3" },
+      {
+        label: "auth protocols",
+        value: "JWT · OAuth2 · OIDC",
+        token: "accent-3",
+      },
+      { label: "access models", value: "RBAC + ABAC", token: "accent-3" },
     ],
   },
   {
     id: "04",
-    name: "DEVEX & API STANDARDS",
+    name: "Read Cache Data Layer",
+    dir: "read-cache-data-layer",
     description:
-      "Swagger/OpenAPI standards and Postman collections that reduced integration friction across QA and frontend teams.",
-    tech: ["SWAGGER", "OPENAPI", "POSTMAN", "REST"],
-    status: "SHIPPED",
-    color: "#6c71c4",
+      "EF Core + Dapper data layers for high-throughput transactions; SQL index tuning with Redis caching on hot reference data — 40%+ read latency reduction.",
+    tech: ["C#", "EF Core", "Dapper", "SQL", "Redis"],
+    token: "accent-4",
     stats: [
-      { label: "teams", value: "3", color: "#6c71c4" },
-      { label: "friction", value: "-60%", color: "#6c71c4" },
-      { label: "endpoints", value: "100+", color: "#6c71c4" },
+      { label: "read latency gain", value: "40%+", token: "accent-4" },
+      { label: "hot data cache", value: "Redis", token: "accent-4" },
+      { label: "data layers", value: "EF Core + Dapper", token: "accent-4" },
     ],
   },
 ];
 
 const extMap: Record<string, string> = {
   "C#": ".cs",
-  "ASP.NET CORE": ".csproj",
-  "EF CORE": ".ef",
+  MySqlConnector: ".mysql",
   AWS: ".aws",
-  MYSQL: ".sql",
-  "OAUTH 2.0": ".auth",
+  "SQL tuning": ".sql",
+  "ASP.NET Core": ".csproj",
+  gRPC: ".proto",
+  SignalR: ".hub",
+  RabbitMQ: ".mq",
+  Serilog: ".log",
   JWT: ".jwt",
-  OPENID: ".oid",
-  SNYK: ".snyk",
-  DOCKER: ".yml",
-  POSTGRES: ".sql",
-  "CI/CD": ".yaml",
-  SWAGGER: ".json",
-  OPENAPI: ".yaml",
-  POSTMAN: ".json",
-  REST: ".http",
+  "OAuth 2.0": ".oauth",
+  "OpenID Connect": ".oid",
+  RBAC: ".rbac",
+  ABAC: ".abac",
+  Snyk: ".snyk",
+  "EF Core": ".ef",
+  Dapper: ".dapper",
+  SQL: ".sql",
+  Redis: ".redis",
 };
 
 export default function Projects() {
@@ -117,8 +152,8 @@ export default function Projects() {
         className="section-ambient"
         style={{
           background: `
-            radial-gradient(ellipse at 70% 40%, rgba(108,113,196,0.08) 0%, rgba(108,113,196,0.02) 40%, transparent 65%),
-            radial-gradient(ellipse at 30% 70%, rgba(115,210,22,0.03) 0%, transparent 50%)
+            radial-gradient(ellipse at 70% 40%, color-mix(in srgb, var(--color-accent-4) 8%, transparent) 0%, color-mix(in srgb, var(--color-accent-4) 2%, transparent) 40%, transparent 65%),
+            radial-gradient(ellipse at 30% 70%, color-mix(in srgb, var(--color-accent) 3%, transparent) 0%, transparent 50%)
           `,
         }}
       />
@@ -126,7 +161,7 @@ export default function Projects() {
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.35 }}
           className="flex items-center gap-4 mb-12"
         >
           <span className="text-accent-4 text-sm">$</span>
@@ -137,6 +172,10 @@ export default function Projects() {
         </motion.div>
 
         <TerminalWindow title="projects/">
+          <p className="px-4 mb-3 text-[10px] font-mono text-text-muted">
+            # delivered @ Xentra Infotech Solutions Inc. 2023–2026
+          </p>
+
           {/* ls -la header row */}
           <div className="hidden md:flex items-center gap-4 px-4 py-2 text-[9px] tracking-widest text-text-muted border border-border bg-bg mb-px">
             <span className="w-28">permissions</span>
@@ -206,10 +245,12 @@ export default function Projects() {
                   May 28 2026
                 </span>
                 <span
-                  className="flex-1 text-[11px] font-mono hover:text-accent transition-colors"
-                  style={{ color: project.color }}
+                  className={cn(
+                    "flex-1 text-[11px] font-mono hover:text-accent transition-colors",
+                    textClass[project.token],
+                  )}
                 >
-                  {project.name.toLowerCase().replace(/\s+/g, "-")}/
+                  {project.dir}/
                   <span className="text-[9px] text-text-muted ml-1">
                     {project.tech
                       .map((t) => extMap[t])
@@ -231,7 +272,7 @@ export default function Projects() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{
                   delay: i * 0.08,
-                  duration: 0.5,
+                  duration: 0.35,
                   ease: [0.16, 1, 0.3, 1],
                 }}
                 onClick={() => handleSelect(project.id as ProjectId)}
@@ -246,17 +287,15 @@ export default function Projects() {
                     {project.id}
                   </span>
                   <span
-                    className="text-[10px] tracking-widest px-2 py-0.5"
-                    style={{
-                      color: project.color,
-                      border: `1px solid ${project.color}44`,
-                      backgroundColor: `${project.color}0d`,
-                    }}
+                    className={cn(
+                      "text-[10px] tracking-widest px-2 py-0.5 border",
+                      badgeClass[project.token],
+                    )}
                   >
-                    {project.status}
+                    PRODUCTION
                   </span>
                 </div>
-                <h3 className="text-sm font-bold tracking-tight text-white">
+                <h3 className="text-sm font-bold tracking-tight text-text">
                   {project.name}
                 </h3>
                 <p className="text-xs text-text-dim mt-1">
@@ -273,7 +312,7 @@ export default function Projects() {
               opacity: selected ? 1 : 0,
               height: selected ? "auto" : 0,
             }}
-            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
             className="overflow-hidden"
           >
             {selected && (
@@ -284,8 +323,7 @@ export default function Projects() {
                     animate={{ opacity: 1, y: 0 }}
                     className="text-[10px] text-text-muted mb-4 font-mono"
                   >
-                    <span className="text-accent">$</span> cd{" "}
-                    {selected.name.toLowerCase().replace(/\s+/g, "-")}/
+                    <span className="text-accent">$</span> cd {selected.dir}/
                   </motion.p>
                 )}
 
@@ -298,8 +336,10 @@ export default function Projects() {
 
                 <div className="mb-6">
                   <h3
-                    className="text-lg md:text-xl font-bold tracking-tight mb-2"
-                    style={{ color: selected.color }}
+                    className={cn(
+                      "text-lg md:text-xl font-bold tracking-tight mb-2",
+                      textClass[selected.token],
+                    )}
                   >
                     {selected.name}
                   </h3>
@@ -315,8 +355,10 @@ export default function Projects() {
                         {stat.label}
                       </p>
                       <p
-                        className="text-lg font-bold tabular-nums"
-                        style={{ color: stat.color }}
+                        className={cn(
+                          "text-lg font-bold tabular-nums",
+                          textClass[stat.token],
+                        )}
                       >
                         {stat.value}
                       </p>
@@ -328,7 +370,7 @@ export default function Projects() {
                   {selected.tech.map((t) => (
                     <span
                       key={t}
-                      className="text-[10px] tracking-wider px-2 py-1 border border-border text-text-dim hover:bg-white/5 hover:border-accent/30 transition-all duration-300"
+                      className="text-[10px] tracking-wider px-2 py-1 border border-border text-text-dim hover:bg-text/5 hover:border-accent/30 transition-all duration-300"
                     >
                       {t}
                     </span>

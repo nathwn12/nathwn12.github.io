@@ -2,8 +2,13 @@ import { motion } from "framer-motion";
 import { usePageScroll } from "../lib/pageScroll";
 import { navigate } from "../lib/router";
 import { useState, useEffect } from "react";
-import { TerminalWindow } from "./TerminalWindow";
 
+/**
+ * tmux-style persistent status bar - always pinned to the bottom of the
+ * viewport (never scrolls with page content), like the canonical real
+ * terminal bottom bar. Carries the system-monitor flavor: session name,
+ * idle state, uptime, load stats, and quick actions.
+ */
 export function Footer() {
   const { isScrolling } = usePageScroll();
   const [idle, setIdle] = useState(true);
@@ -19,73 +24,83 @@ export function Footer() {
   );
 
   return (
-    <footer className="py-10 px-4 lg:px-8 border-t border-border relative overflow-hidden bg-surface">
-      <div className="max-w-5xl mx-auto">
-        <TerminalWindow title="system-monitor">
-          <div className="flex items-center gap-2 justify-center mb-6">
-            <span className="text-accent text-xs">$</span>
-            <motion.button
-              onClick={() => navigate("/")}
-              whileHover={{ x: 4 }}
-              whileTap={{ scale: 0.95 }}
-              className="text-xs tracking-widest text-text-dim hover:text-accent transition-colors duration-300"
-            >
-              cd ~/home
-            </motion.button>
-          </div>
+    <footer className="fixed bottom-0 left-0 right-0 z-50 h-8 border-t border-border-accent bg-surface/95 backdrop-blur-sm font-mono text-[10px] tracking-wider text-text-dim select-none">
+      <div className="h-full max-w-7xl mx-auto px-3 flex items-center justify-between gap-4 overflow-hidden">
+        <div className="flex items-center gap-3 shrink-0">
+          <span aria-hidden="true" className="text-accent">
+            [0]
+          </span>
+          <span className="text-text-muted hidden sm:inline">~/nathwn12</span>
+          <span
+            aria-hidden="true"
+            className="text-border-accent hidden sm:inline"
+          >
+            |
+          </span>
+          <motion.button
+            onClick={() => navigate("/")}
+            whileHover={{ x: 3 }}
+            whileTap={{ scale: 0.95 }}
+            className="text-text-dim hover:text-accent transition-colors cursor-pointer"
+          >
+            $ cd ~/home
+          </motion.button>
+        </div>
 
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-text-dim">
-            <div className="flex items-center gap-4">
-              <span
-                className={`w-2 h-2 rounded-full inline-block transition-colors duration-300 ${
-                  idle ? "bg-accent" : "bg-accent-3"
-                }`}
-              />
-              <span>{idle ? "SYSTEM IDLE" : "SYSTEM ACTIVE"}</span>
-              <span className="hidden sm:inline text-border-accent">|</span>
-              <span className="hidden sm:inline text-border-accent">
-                UPTIME: {uptimeDays} DAYS
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-border-accent">MEM: 45%</span>
-              <span className="text-border-accent">|</span>
-              <span className="text-border-accent">TASKS: 4</span>
-              <span className="text-border-accent">|</span>
-              <span className="text-border-accent">PROCS: 17</span>
-              <span className="text-border-accent">|</span>
-              <button
-                onClick={() =>
-                  window.dispatchEvent(new CustomEvent("toggle-terminal"))
-                }
-                className="text-text-dim hover:text-accent transition-colors text-[10px] tracking-wider cursor-pointer"
-                title="Toggle command terminal (Ctrl+K)"
-              >
-                &gt;_ TERMINAL
-              </button>
-            </div>
-            <div>NNL · {new Date().getFullYear()} · LUZON, PH</div>
-            <div className="font-mono text-text-dim/50">
-              <a
-                href="https://github.com/nathwn12"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-accent transition-colors"
-              >
-                github/nathwn12
-              </a>
-              <span className="mx-2">·</span>
-              <a
-                href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-accent-2 transition-colors"
-              >
-                linkedin
-              </a>
-            </div>
+        <div className="items-center gap-3 hidden md:flex shrink-0">
+          <span
+            className={`w-1.5 h-1.5 rounded-full inline-block transition-colors duration-300 ${
+              idle ? "bg-accent" : "bg-accent-3"
+            }`}
+          />
+          <span>{idle ? "SYSTEM IDLE" : "SYSTEM ACTIVE"}</span>
+          <span className="text-border-accent">UPTIME: {uptimeDays} DAYS</span>
+          <span className="text-border-accent hidden lg:inline">
+            MEM: 45% | TASKS: 4 | PROCS: 17
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3 shrink-0">
+          <button
+            onClick={() =>
+              window.dispatchEvent(new CustomEvent("toggle-terminal"))
+            }
+            className="text-text-dim hover:text-accent transition-colors cursor-pointer"
+            title="Toggle command terminal (Ctrl+K)"
+          >
+            &gt;_ TERMINAL
+          </button>
+          <span
+            aria-hidden="true"
+            className="text-border-accent hidden sm:inline"
+          >
+            |
+          </span>
+          <div className="items-center gap-3 hidden sm:flex">
+            <a
+              href="https://github.com/nathwn12"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-accent transition-colors"
+            >
+              github
+            </a>
+            <a
+              href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden lg:inline hover:text-accent-2 transition-colors"
+            >
+              linkedin
+            </a>
+            <a
+              href="mailto:nathanielnikolai.ladero@gmail.com"
+              className="hidden xl:inline hover:text-accent-2 transition-colors"
+            >
+              email
+            </a>
           </div>
-        </TerminalWindow>
+        </div>
       </div>
     </footer>
   );

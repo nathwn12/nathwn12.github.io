@@ -2,50 +2,98 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { TerminalWindow } from "./TerminalWindow";
 
-const experiences = [
+const employer = {
+  unit: "career.service",
+  role: "Backend Developer",
+  company: "Xentra Infotech Solutions Inc.",
+  location: "Remote",
+  period: "Mar 2023 – May 2026",
+};
+
+const logEntries = [
   {
     id: "01",
-    role: "BACKEND DEVELOPER",
-    company: "XENTRA INFOTECH SOLUTIONS, INC.",
-    period: "Mar 2023 – May 2026",
-    location: "PHILIPPINES",
+    unit: "career.service",
+    timestamp: "2023-04-11 09:12:05",
+    status: "OK",
+    summary: "1,100+ commits shipped across 17 repositories",
     description:
-      "Built and maintained ASP.NET Core Web APIs for fintech platforms, handling full lifecycle from data modeling through deployment and post-release support. Maintained consistent delivery velocity across 17 repositories with 1,182 commits spanning payment processing, cash management, access control, and integrations.",
-    tech: ["C#", "ASP.NET CORE", "MYSQL", "AWS", "JWT", "EF CORE"],
-    highlight: true,
+      "Built ASP.NET Core Web APIs, gRPC endpoints, SignalR hubs, and RabbitMQ messaging for fintech products spanning payments, cash management, and access control. Configured Serilog centralized structured logging.",
+    tech: ["ASP.NET CORE", "GRPC", "SIGNALR", "RABBITMQ", "SERILOG"],
   },
   {
     id: "02",
-    role: "PERFORMANCE OPTIMIZATION",
-    company: "PAYMENT GATEWAY API",
-    period: "2024 – 2025",
-    location: "XENTRA INFOTECH",
+    unit: "payments-api.service",
+    timestamp: "2024-08-14 14:37:42",
+    status: "OK",
+    summary: "Cut API latency by 98% — MySql.Data → MySqlConnector on AWS",
     description:
-      "Achieved ~98% latency improvement (from 60s+ to under 1s) by migrating database connectivity from MySql.Data to MySqlConnector in AWS-hosted services. Optimized EF Core queries and SQL stored procedures for production workloads.",
-    tech: ["C#", "MYSQLCONNECTOR", "EF CORE", "AWS", "SQL"],
-    highlight: false,
+      "Migrated payment services from MySql.Data to MySqlConnector on AWS — worst-case query times ~60s → under 1s. Profiled slow queries, tuned indexes on high-frequency access patterns to eliminate a critical production bottleneck.",
+    tech: [
+      "C#",
+      "MYSQLCONNECTOR",
+      "AWS",
+      "MYSQL",
+      "INDEX TUNING",
+      "SQL PROFILING",
+    ],
   },
   {
     id: "03",
-    role: "SECURITY & COMPLIANCE",
-    company: "IDENTITY & ACCESS MANAGEMENT",
-    period: "2023 – 2025",
-    location: "XENTRA INFOTECH",
+    unit: "auth.service",
+    timestamp: "2024-11-02 16:05:19",
+    status: "OK",
+    summary: "Hardened service security — zero high/critical Snyk findings",
     description:
-      "Implemented JWT-based authentication, OAuth 2.0, OpenID Connect, and RBAC/ABAC patterns. Drove Snyk remediation achieving zero high/critical vulnerabilities in production-bound services.",
-    tech: ["JWT", "OAUTH 2.0", "OPENID", "SNYK", "RBAC"],
-    highlight: false,
+      "JWT, OAuth 2.0, OpenID Connect with RBAC and ABAC authorization. Zero high/critical Snyk findings on production deployments via proactive dependency scanning and secure code review.",
+    tech: ["JWT", "OAUTH 2.0", "OPENID CONNECT", "RBAC", "ABAC", "SNYK"],
   },
   {
     id: "04",
-    role: "MICROSERVICES ARCHITECTURE",
-    company: "PLATFORM MODERNIZATION",
-    period: "2023 – 2025",
-    location: "XENTRA INFOTECH",
+    unit: "data-access.service",
+    timestamp: "2025-03-19 11:48:33",
+    status: "OK",
+    summary: "Slashed read latency by 40%+ — EF Core, Dapper, Redis",
     description:
-      "Designed and implemented modular microservice-based backend components with Repository and Dependency Injection patterns, improving maintainability and integration flow across the product suite.",
-    tech: ["ASP.NET CORE", "DOCKER", "POSTGRES", "CI/CD"],
-    highlight: false,
+      "Designed EF Core and Dapper data layers for high-throughput financial transactions. Tuned SQL indexes, integrated Redis caching on frequently accessed reference data.",
+    tech: ["EF CORE", "DAPPER", "SQL", "REDIS", "INDEX TUNING"],
+  },
+  {
+    id: "05",
+    unit: "infra.service",
+    timestamp: "2025-09-27 07:22:58",
+    status: "OK",
+    summary: "Owned infrastructure end-to-end — Ubuntu, Nginx, Docker, CI/CD",
+    description:
+      "Owned infrastructure and deployment end-to-end: Ubuntu servers, Nginx reverse proxies with Let's Encrypt SSL and UFW firewall. Docker multi-stage builds; CI/CD via GitHub Actions. Bash and PowerShell scripts for backups, log rotation, environment bootstrapping.",
+    tech: [
+      "UBUNTU",
+      "NGINX",
+      "LET'S ENCRYPT",
+      "UFW",
+      "DOCKER",
+      "GITHUB ACTIONS",
+      "BASH",
+      "POWERSHELL",
+    ],
+  },
+  {
+    id: "06",
+    unit: "ai-workflow.service",
+    timestamp: "2026-02-10 13:59:47",
+    status: "OK",
+    summary: "Integrated AI across the development lifecycle",
+    description:
+      "Copilot inline completions; Claude Code and OpenCode for refactoring/investigative coding; ChatGPT and DeepSeek for architectural decisions; local LLMs (Llama 3, Mistral, Qwen) via Ollama and LM Studio for offline experimentation and prompt engineering.",
+    tech: [
+      "COPILOT",
+      "CLAUDE CODE",
+      "OPENCODE",
+      "CHATGPT",
+      "DEEPSEEK",
+      "OLLAMA",
+      "LM STUDIO",
+    ],
   },
 ];
 
@@ -61,8 +109,8 @@ export function Experience() {
         className="section-ambient"
         style={{
           background: `
-            radial-gradient(ellipse at 80% 50%, rgba(42,161,152,0.08) 0%, rgba(42,161,152,0.02) 40%, transparent 65%),
-            radial-gradient(ellipse at 20% 80%, rgba(42,161,152,0.04) 0%, transparent 50%)
+            radial-gradient(ellipse at 80% 50%, color-mix(in srgb, var(--color-accent-2) 8%, transparent) 0%, color-mix(in srgb, var(--color-accent-2) 2%, transparent) 40%, transparent 65%),
+            radial-gradient(ellipse at 20% 80%, color-mix(in srgb, var(--color-accent-2) 4%, transparent) 0%, transparent 50%)
           `,
         }}
       />
@@ -70,26 +118,40 @@ export function Experience() {
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.35 }}
           className="flex items-center gap-4 mb-12"
         >
           <span className="text-accent text-sm">$</span>
           <span className="text-xs tracking-[0.4em] text-text-dim">
-            tail -f experience.log
+            journalctl -u career.service --no-pager
           </span>
           <div className="flex-1 h-[1px] bg-border" />
         </motion.div>
 
-        <TerminalWindow title="experience.log">
+        <TerminalWindow title="career.service">
+          {/* Service header — single employer era */}
+          <div className="px-4 md:px-6 py-3 border-b border-border bg-text/[0.01]">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+              <span className="text-accent font-bold">{employer.unit}</span>
+              <span className="text-text font-bold">{employer.role}</span>
+              <span className="text-text-dim">{employer.company}</span>
+              <span className="text-text-muted">({employer.location})</span>
+              <span className="flex-1" />
+              <span className="text-text-muted whitespace-nowrap">
+                {employer.period}
+              </span>
+            </div>
+          </div>
+
           <div className="space-y-px">
-            {experiences.map((exp, i) => (
+            {logEntries.map((exp, i) => (
               <motion.div
                 key={exp.id}
                 initial={{ opacity: 0, x: -40 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{
                   delay: i * 0.08,
-                  duration: 0.5,
+                  duration: 0.35,
                   ease: [0.16, 1, 0.3, 1],
                 }}
               >
@@ -100,7 +162,7 @@ export function Experience() {
                   className={`group cursor-pointer transition-all duration-500 border border-border hover:border-accent/20 ${
                     activeExp === i
                       ? "bg-accent/[0.02] border-accent/30"
-                      : "hover:bg-white/[0.01]"
+                      : "hover:bg-text/[0.01]"
                   }`}
                   onClick={() =>
                     setActiveExp((prev) => (prev === i ? null : i))
@@ -112,37 +174,31 @@ export function Experience() {
                 >
                   <div className="flex items-center gap-4 md:gap-8 py-5 md:py-6 px-4 md:px-6">
                     <motion.span
-                      animate={{
-                        color: activeExp === i ? "#73d216" : "#555753",
-                      }}
-                      className="text-xs font-bold tabular-nums"
+                      className={`text-xs font-bold tabular-nums transition-colors duration-300 ${
+                        activeExp === i ? "text-accent" : "text-text-dim"
+                      }`}
                     >
                       {exp.id}
                     </motion.span>
+
+                    <span className="text-xs font-bold text-accent">[OK]</span>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-1 md:gap-4">
                         <h3
                           className={`text-sm md:text-base font-bold tracking-tight transition-colors duration-300 ${
-                            activeExp === i ? "text-white" : "text-text-dim"
+                            activeExp === i ? "text-text" : "text-text-dim"
                           }`}
                         >
-                          {exp.role}
+                          {exp.unit}
                         </h3>
-                        <span className="text-[10px] tracking-widest text-text-muted whitespace-nowrap">
-                          {exp.period}
+                        <span className="text-[10px] tracking-widest text-text-muted whitespace-nowrap tabular-nums">
+                          {exp.timestamp}
                         </span>
                       </div>
                       <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 mt-1">
-                        <span
-                          className={`text-xs transition-colors duration-300 ${
-                            activeExp === i ? "text-accent" : "text-text-dim"
-                          }`}
-                        >
-                          {exp.company}
-                        </span>
-                        <span className="text-[10px] text-text-muted">
-                          {exp.location}
+                        <span className="text-xs text-text-dim">
+                          {exp.summary}
                         </span>
                       </div>
                     </div>
@@ -150,9 +206,10 @@ export function Experience() {
                     <motion.div
                       animate={{
                         x: activeExp === i ? 4 : 0,
-                        color: activeExp === i ? "#73d216" : "#2a2a2a",
                       }}
-                      className="text-lg transition-colors"
+                      className={`text-lg transition-colors duration-300 ${
+                        activeExp === i ? "text-accent" : "text-text-muted"
+                      }`}
                     >
                       {activeExp === i ? "↓" : "→"}
                     </motion.div>
@@ -164,7 +221,7 @@ export function Experience() {
                       height: activeExp === i ? "auto" : 0,
                       opacity: activeExp === i ? 1 : 0,
                     }}
-                    transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                     className="overflow-hidden"
                   >
                     <div className="p-4 md:p-6 space-y-4 border-t border-accent/10">
@@ -181,12 +238,10 @@ export function Experience() {
                           </span>
                         ))}
                       </div>
-                      {exp.highlight && (
-                        <div className="inline-flex items-center gap-2 text-[10px] tracking-widest text-accent mt-2">
-                          <span className="inline-block w-1.5 h-1.5 bg-accent rounded-full" />
-                          PRIMARY ROLE
-                        </div>
-                      )}
+                      <div className="inline-flex items-center gap-2 text-[10px] tracking-widest text-accent mt-2">
+                        <span className="inline-block w-1.5 h-1.5 bg-accent rounded-full" />
+                        {exp.status}
+                      </div>
                     </div>
                   </motion.div>
                 </div>

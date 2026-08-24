@@ -1,19 +1,19 @@
-import { useEffect, useRef } from "react"
-import { motion } from "framer-motion"
+import { useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 
 export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
-  const activeRef = useRef(true)
+  const activeRef = useRef(true);
 
   useEffect(() => {
-    activeRef.current = true
+    activeRef.current = true;
     const timer = setTimeout(() => {
-      if (activeRef.current) onComplete()
-    }, 2000)
+      if (activeRef.current) onComplete();
+    }, 2000);
     return () => {
-      activeRef.current = false
-      clearTimeout(timer)
-    }
-  }, [onComplete])
+      activeRef.current = false;
+      clearTimeout(timer);
+    };
+  }, [onComplete]);
 
   return (
     <motion.div
@@ -29,11 +29,11 @@ export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
           <motion.div
             initial={{ width: "0%" }}
             animate={{ width: "100%" }}
-            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
             className="h-full bg-accent"
           />
         </div>
       </div>
     </motion.div>
-  )
+  );
 }

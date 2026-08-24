@@ -5,7 +5,7 @@ const stagger = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.1 },
+    transition: { staggerChildren: 0.06, delayChildren: 0.05 },
   },
 };
 
@@ -14,7 +14,7 @@ const item = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] as const },
+    transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] as const },
   },
 };
 
@@ -28,8 +28,8 @@ export function About() {
         className="section-ambient"
         style={{
           background: `
-            radial-gradient(ellipse at 20% 50%, rgba(115,210,22,0.10) 0%, rgba(115,210,22,0.02) 40%, transparent 65%),
-            radial-gradient(ellipse at 80% 30%, rgba(115,210,22,0.04) 0%, transparent 50%)
+            radial-gradient(ellipse at 20% 50%, color-mix(in srgb, var(--color-accent) 10%, transparent) 0%, color-mix(in srgb, var(--color-accent) 2%, transparent) 40%, transparent 65%),
+            radial-gradient(ellipse at 80% 30%, color-mix(in srgb, var(--color-accent) 4%, transparent) 0%, transparent 50%)
           `,
         }}
       />
@@ -37,7 +37,7 @@ export function About() {
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.35 }}
           className="flex items-center gap-4 mb-12"
         >
           <span className="text-accent text-sm">$</span>
@@ -47,7 +47,7 @@ export function About() {
           <motion.div
             initial={{ flex: 0 }}
             animate={{ flex: 1 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="h-[1px] bg-border"
           />
         </motion.div>
@@ -69,12 +69,13 @@ export function About() {
               </div>
               <div className="border-t border-border-accent pt-3 space-y-1.5">
                 {[
-                  ["OS", "Windows 11 / Arch WSL"],
-                  ["Kernel", ".NET 8/9 · ASP.NET Core"],
-                  ["Uptime", "3+ years active"],
-                  ["Packages", "17 repos · 1,182 commits"],
-                  ["Shell", "C# / ASP.NET Core"],
-                  ["Editor", "VS Code / Neovim"],
+                  ["OS", "Ubuntu Servers / Docker"],
+                  ["Kernel", "ASP.NET Core / C#"],
+                  ["Uptime", "3 yrs production fintech"],
+                  ["Packages", "17 repos · 1,100+ commits"],
+                  ["Shell", "Bash / PowerShell"],
+                  ["Editor", "Copilot / Claude Code"],
+                  ["Certs", "Google IT · Python Automation"],
                   ["Domain", "Fintech Backend"],
                 ].map(([label, value]) => (
                   <motion.div
@@ -85,7 +86,7 @@ export function About() {
                     <span className="text-text-muted shrink-0 w-16">
                       {label}
                     </span>
-                    <span className="text-white group-hover:text-accent transition-colors duration-300">
+                    <span className="text-text group-hover:text-accent transition-colors duration-300">
                       {value}
                     </span>
                   </motion.div>
@@ -110,20 +111,22 @@ export function About() {
                 className="space-y-4 text-text-dim text-sm leading-relaxed"
               >
                 <p>
-                  Backend Developer with 3+ years building secure backend
-                  systems for fintech applications. Strong in C# and ASP.NET
-                  Core, with hands-on ownership of APIs, databases,
-                  microservices, AWS-hosted services, and production releases.
+                  Backend Developer with 3 years of production fintech
+                  experience — building C# and ASP.NET Core APIs, managing Linux
+                  servers and Docker containers, and automating deployments
+                  through GitHub Actions.
                 </p>
                 <p>
-                  Strongest when owning backend delivery end to end: technical
-                  design, data modeling, implementation, API documentation,
-                  deployment support, and production issue resolution.
+                  Treats infrastructure as part of the codebase: Nginx configs,
+                  Bash scripts, and CI/CD pipelines receive the same rigor as
+                  application code. Backed by Google IT Support and IT
+                  Automation with Python certifications.
                 </p>
                 <p>
-                  Based in Luzon, Philippines — open to remote opportunities
-                  globally. Thrive in cross-functional teams and fast-moving
-                  environments where quality and velocity both matter.
+                  Daily AI tooling: Copilot, Claude Code, OpenCode, ChatGPT,
+                  DeepSeek, and local LLMs (Llama 3, Mistral, Qwen) via Ollama
+                  and LM Studio. Based in Hagonoy, Bulacan, Philippines —
+                  English (professional), Filipino (native).
                 </p>
               </motion.div>
 
@@ -132,20 +135,23 @@ export function About() {
                 className="grid grid-cols-2 gap-px bg-border-accent border border-border-accent mt-8"
               >
                 {[
-                  ["DEGREE", "B.S. Information Technology"],
-                  ["LANGUAGES", "EN, FIL"],
-                  ["STACK", "C#, ASP.NET Core"],
-                  ["EDITOR", "VS CODE / NEOVIM"],
+                  ["CERTIFICATIONS", "GOOGLE IT SUPPORT · IT AUTOMATION"],
+                  ["LANGUAGES", "EN, FIL (NATIVE)"],
+                  ["STACK", "C#, ASP.NET CORE"],
+                  ["REPOS", "17 · 1,100+ COMMITS"],
                 ].map(([label, value]) => (
                   <motion.div
                     key={label}
-                    whileHover={{ backgroundColor: "rgba(115,210,22,0.03)" }}
+                    whileHover={{
+                      backgroundColor:
+                        "color-mix(in srgb, var(--color-accent) 3%, transparent)",
+                    }}
                     className="bg-bg px-4 py-3 transition-colors duration-300"
                   >
                     <span className="text-[10px] tracking-widest text-text-muted block mb-0.5">
                       {label}
                     </span>
-                    <span className="text-xs text-white">{value}</span>
+                    <span className="text-xs text-text">{value}</span>
                   </motion.div>
                 ))}
               </motion.div>
