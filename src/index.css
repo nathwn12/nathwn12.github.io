@@ -2,35 +2,70 @@
 
 @theme {
   --font-mono: 'Hack', 'Cascadia Mono', 'IBM Plex Mono', monospace;
-  --color-bg: #0a0a0a;
-  --color-surface: #111111;
-  --color-surface-2: #18181b;
-  --color-border: #1a1a1a;
-  --color-border-accent: #2a2a2a;
-  --color-text: #e0e0e0;
-  --color-text-dim: #666666;
-  --color-text-muted: #444444;
-  --color-accent: #22c55e;
-  --color-accent-2: #38bdf8;
-  --color-accent-3: #f59e0b;
-  --color-accent-4: #8b5cf6;
-  --color-accent-glow: rgba(34, 197, 94, 0.08);
+
+  /* DARK (default) — Ubuntu GNOME Terminal palette */
+  --color-bg: #300a24;
+  --color-surface: #37102b;
+  --color-surface-2: #421733;
+  --color-border: #47203a;
+  --color-border-accent: #5d3350;
+  --color-text: #ffffff;
+  --color-text-dim: #c9bfca;
+  --color-text-muted: #8d7f88;
+  --color-accent: #8ae234;
+  --color-accent-2: #729fcf;
+  --color-accent-3: #f57900;
+  --color-accent-4: #ad7fa8;
+  --color-accent-glow: rgba(138, 226, 52, 0.06);
+
+  /* Theme-dependent decorative values (consumed via var() below) */
+  --color-grid-line: rgba(255, 255, 255, 0.02);
+  --color-shimmer: rgba(255, 255, 255, 0.06);
+  --color-selection: rgba(138, 226, 52, 0.25);
+}
+
+/* LIGHT — Tango Light (GNOME / Windows Terminal) */
+html[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #ffffff;
+  --color-surface: #f6f5f4;
+  --color-surface-2: #ededec;
+  --color-border: #dedede;
+  --color-border-accent: #c8c7c4;
+  --color-text: #1a1a1a;
+  --color-text-dim: #5e5c64;
+  --color-text-muted: #9a9996;
+  --color-accent: #4e9a06;
+  --color-accent-2: #06989a;
+  --color-accent-3: #ce5c00;
+  --color-accent-4: #75507b;
+  --color-accent-glow: rgba(78, 154, 6, 0.05);
+  --color-grid-line: rgba(0, 0, 0, 0.04);
+  --color-shimmer: rgba(0, 0, 0, 0.05);
+  --color-selection: rgba(78, 154, 6, 0.22);
+}
+
+html {
+  height: 100%;
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Hack', 'Cascadia Mono', 'IBM Plex Mono', monospace;
+  overflow: hidden;
+  height: 100%;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #2a2a2a #0a0a0a;
+  scrollbar-color: var(--color-border-accent) var(--color-bg);
 }
 
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  background-color: #0a0a0a;
-  color: #e0e0e0;
-  font-family: 'Hack', 'Cascadia Mono', 'IBM Plex Mono', monospace;
-  overflow-x: hidden;
+.page-scroll {
+  scroll-behavior: auto;
+  overscroll-behavior: contain;
 }
 
 h1, h2, h3, h4 {
@@ -38,8 +73,17 @@ h1, h2, h3, h4 {
 }
 
 :focus-visible {
-  outline: 1px solid #22c55e;
+  outline: 1px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+/* #main is focused programmatically on page mount (PageShell) to announce the
+   new page to screen readers. It is a container, not an interactive element,
+   so it must never paint the focus ring — the :focus-visible rule above would
+   otherwise draw a 1px full-width accent line along its top edge (y≈85, right
+   under the header) on every first load. */
+#main:focus {
+  outline: none;
 }
 
 .skip-to-content {
@@ -48,11 +92,11 @@ h1, h2, h3, h4 {
   left: 0;
   z-index: 10001;
   padding: 0.5rem 1rem;
-  background: #0a0a0a;
-  color: #22c55e;
+  background: var(--color-bg);
+  color: var(--color-accent);
   font-size: 0.75rem;
   font-family: 'Hack', 'Cascadia Mono', 'IBM Plex Mono', monospace;
-  border: 1px solid #22c55e;
+  border: 1px solid var(--color-accent);
   transition: top 0.2s;
 }
 
@@ -62,21 +106,21 @@ h1, h2, h3, h4 {
 
 .bg-grid {
   background-image:
-    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+    linear-gradient(var(--color-grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-grid-line) 1px, transparent 1px);
   background-size: 24px 24px;
 }
 
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #0a0a0a; }
-::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 0; }
-::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb { background: var(--color-border-accent); border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--color-border-accent) 75%, white); }
 
 [data-command]::before {
   content: "$ " attr(data-command);
   display: block;
   font-size: 0.75rem;
-  color: #666;
+  color: var(--color-text-muted);
   letter-spacing: 0.1em;
   margin-bottom: 0.5rem;
 }
@@ -84,40 +128,23 @@ h1, h2, h3, h4 {
 .textmode-accent {
   font-size: 10px;
   letter-spacing: 0.2em;
-  color: #444;
+  color: var(--color-text-dim);
   text-transform: uppercase;
 }
 
 ::selection {
-  background: rgba(34, 197, 94, 0.2);
-  color: #22c55e;
+  background: var(--color-selection);
+  color: var(--color-accent);
 }
 
-.cursor-blink {
-  animation: blink 1s step-end infinite;
-}
-
-@keyframes blink {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
-}
-
-@keyframes pulse-dot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.8); }
-}
-
-.pulse-dot {
-  animation: pulse-dot 2s ease-in-out infinite;
-}
-
-@keyframes cursor-glow {
-  0%, 100% { text-shadow: 0 0 4px rgba(34, 197, 94, 0.4); }
-  50% { text-shadow: 0 0 12px rgba(34, 197, 94, 0.8), 0 0 24px rgba(34, 197, 94, 0.2); }
-}
-
-.cursor-glow {
-  animation: cursor-glow 1.5s ease-in-out infinite;
+/* Theme flips must be atomic: while the `theme-flip` guard is on <html>,
+   no element may transition colors — otherwise some elements lag behind
+   the instant variable swap and the page looks half-dark/half-light. */
+.theme-flip,
+.theme-flip *,
+.theme-flip *::before,
+.theme-flip *::after {
+  transition: none !important;
 }
 
 @keyframes terminal-cursor {
@@ -146,12 +173,12 @@ h1, h2, h3, h4 {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+  background: linear-gradient(90deg, transparent, var(--color-shimmer), transparent);
   animation: shimmer 2.5s ease-in-out infinite;
 }
 
 .input-glow:focus-within {
-  box-shadow: 0 0 12px rgba(34, 197, 94, 0.08), 0 0 30px rgba(34, 197, 94, 0.03);
+  box-shadow: 0 0 8px var(--color-accent-glow), 0 0 20px color-mix(in srgb, var(--color-accent-glow) 30%, transparent);
 }
 
 @keyframes float {
@@ -163,20 +190,11 @@ h1, h2, h3, h4 {
   animation: float 4s ease-in-out infinite;
 }
 
-@keyframes border-glow {
-  0%, 100% { border-color: rgba(34, 197, 94, 0.1); }
-  50% { border-color: rgba(34, 197, 94, 0.3); }
-}
-
-.border-glow {
-  animation: border-glow 3s ease-in-out infinite;
-}
-
 .section-ambient {
   pointer-events: none;
   position: absolute;
   inset: 0;
-  opacity: 0.12;
+  opacity: 0.07;
   transition: opacity 0.8s ease;
 }
 
@@ -203,4 +221,16 @@ h1, h2, h3, h4 {
 
 .marquee-wrap:hover .marquee-track {
   animation-play-state: paused;
+}
+
+/* Honor reduced-motion: kill decorative loops and soften the body theme
+   transition. Framer Motion separately drops transform/layout animation via
+   MotionConfig reducedMotion="user" in App.tsx. */
+@media (prefers-reduced-motion: reduce) {
+  .terminal-cursor,
+  .float,
+  .marquee-track,
+  .skill-bar-shimmer::after {
+    animation: none !important;
+  }
 }
