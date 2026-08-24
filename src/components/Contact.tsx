@@ -62,8 +62,8 @@ export function Contact() {
         className="section-ambient"
         style={{
           background: `
-            radial-gradient(ellipse at 50% 50%, rgba(115,210,22,0.07) 0%, rgba(115,210,22,0.02) 40%, transparent 65%),
-            radial-gradient(ellipse at 80% 20%, rgba(42,161,152,0.03) 0%, transparent 50%)
+            radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--color-accent) 7%, transparent) 0%, color-mix(in srgb, var(--color-accent) 2%, transparent) 40%, transparent 65%),
+            radial-gradient(ellipse at 80% 20%, color-mix(in srgb, var(--color-accent-2) 3%, transparent) 0%, transparent 50%)
           `,
         }}
       />
@@ -71,7 +71,7 @@ export function Contact() {
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.35 }}
           className="flex items-center gap-4 mb-12"
         >
           <span className="text-accent-2 text-sm">$</span>
@@ -84,13 +84,13 @@ export function Contact() {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.6 }}
+          transition={{ delay: 0.1, duration: 0.4 }}
           className="mb-16"
         >
           <h2 className="text-3xl md:text-6xl font-bold tracking-tight leading-tight">
             <span className="text-text-dim">LET'S BUILD</span>
             <br />
-            <span className="text-white">SOMETHING </span>
+            <span className="text-text">SOMETHING </span>
             <span className="text-accent">GREAT</span>
             <span className="font-bold text-accent">_</span>
           </h2>
@@ -100,7 +100,7 @@ export function Contact() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25, duration: 0.5 }}
+          transition={{ delay: 0.12, duration: 0.35 }}
           className="mb-6"
         >
           <div className="flex items-center gap-2 mb-4">
@@ -111,7 +111,10 @@ export function Contact() {
           </div>
           <div className="grid md:grid-cols-2 gap-4">
             <motion.div
-              whileHover={{ borderColor: "rgba(115,210,22,0.25)" }}
+              whileHover={{
+                borderColor:
+                  "color-mix(in srgb, var(--color-accent) 25%, transparent)",
+              }}
               className="border border-border-accent bg-surface p-4 md:p-6 transition-colors duration-300"
             >
               <div className="flex items-center gap-3 mb-3">
@@ -121,14 +124,17 @@ export function Contact() {
               </div>
               <a
                 href="mailto:nathanielnikolai.ladero@gmail.com"
-                className="text-sm md:text-lg font-bold text-white hover:text-accent transition-colors duration-300 block break-all"
+                className="text-sm md:text-lg font-bold text-text hover:text-accent transition-colors duration-300 block break-all"
               >
                 nathanielnikolai.ladero@gmail.com
               </a>
             </motion.div>
 
             <motion.div
-              whileHover={{ borderColor: "rgba(42,161,152,0.25)" }}
+              whileHover={{
+                borderColor:
+                  "color-mix(in srgb, var(--color-accent-2) 25%, transparent)",
+              }}
               className="border border-border-accent bg-surface p-4 md:p-6 transition-colors duration-300"
             >
               <div className="flex items-center gap-3 mb-3">
@@ -155,6 +161,24 @@ export function Contact() {
                 </a>
               </div>
             </motion.div>
+
+            <motion.div
+              whileHover={{
+                borderColor:
+                  "color-mix(in srgb, var(--color-accent-3) 25%, transparent)",
+              }}
+              className="border border-border-accent bg-surface p-4 md:p-6 transition-colors duration-300"
+            >
+              <div className="flex items-center gap-3 mb-3">
+                <span className="text-[10px] tracking-widest text-accent-3">
+                  [LOCATION]
+                </span>
+              </div>
+              <p className="text-sm md:text-lg font-bold text-text">
+                Hagonoy, Bulacan, PH
+              </p>
+              <p className="text-xs text-text-muted mt-1">UTC+8 (PHT)</p>
+            </motion.div>
           </div>
         </motion.div>
 
@@ -162,7 +186,7 @@ export function Contact() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
+          transition={{ delay: 0.15, duration: 0.35 }}
           className="border border-border-accent bg-surface"
         >
           {/* MUA toolbar */}
@@ -216,7 +240,7 @@ export function Contact() {
                   required
                   autoComplete="name"
                   placeholder="Nathaniel Nikolai Ladero"
-                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-white font-mono outline-none focus:border-accent transition-all duration-300 placeholder:text-text-muted/30"
+                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-text font-mono outline-none focus:border-accent transition-colors duration-300 placeholder:text-text-muted/30"
                 />
               </div>
 
@@ -235,7 +259,7 @@ export function Contact() {
                   required
                   autoComplete="email"
                   placeholder="user@example.com"
-                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-white font-mono outline-none focus:border-accent transition-all duration-300 placeholder:text-text-muted/30"
+                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-text font-mono outline-none focus:border-accent transition-colors duration-300 placeholder:text-text-muted/30"
                 />
               </div>
 
@@ -253,7 +277,7 @@ export function Contact() {
                   type="text"
                   required
                   placeholder="What is this regarding?"
-                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-white font-mono outline-none focus:border-accent transition-all duration-300 placeholder:text-text-muted/30"
+                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-text font-mono outline-none focus:border-accent transition-colors duration-300 placeholder:text-text-muted/30"
                 />
               </div>
 
@@ -271,7 +295,7 @@ export function Contact() {
                   required
                   rows={5}
                   placeholder="Your message here..."
-                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-white font-mono outline-none focus:border-accent transition-all duration-300 resize-none placeholder:text-text-muted/30"
+                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-text font-mono outline-none focus:border-accent transition-colors duration-300 resize-none placeholder:text-text-muted/30"
                 />
               </div>
 
@@ -299,7 +323,7 @@ export function Contact() {
                       ? "border-accent text-accent bg-accent/5"
                       : formStatus.type === "error"
                         ? "border-accent-3 text-accent-3 bg-accent-3/5"
-                        : "border-text-muted text-text-dim bg-white/5"
+                        : "border-text-muted text-text-dim bg-text/5"
                   }`}
                 >
                   <span className="text-text-muted mr-2">$</span>
@@ -329,7 +353,7 @@ export function Contact() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.5 }}
+          transition={{ delay: 0.25, duration: 0.35 }}
           className="mt-6 border border-border-accent bg-surface p-4 md:p-6"
         >
           <div className="flex items-center gap-2 mb-3">

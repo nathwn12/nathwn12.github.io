@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageScroll } from "../lib/pageScroll";
 import { ROUTES, navigate, useRoute } from "../lib/router";
+import { useTheme } from "../lib/theme";
 
 const navItems = ROUTES.filter((route) => route.path !== "/");
 
@@ -18,6 +19,7 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const { y, isScrolling } = usePageScroll();
   const { route } = useRoute();
+  const [theme, applyTheme] = useTheme();
   const scrolled = y > 50;
   const activeSection = route.label;
 
@@ -25,6 +27,37 @@ export function Header() {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  const toggleThemeHandler = useCallback(() => {
+    applyTheme(theme === "dark" ? "light" : "dark");
+  }, [theme, applyTheme]);
+
+  /* F2 cycles the color scheme. Never hijack keys while typing or overlays are open. */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "F2" || e.repeat) return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.tagName === "SELECT" ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+      if (
+        document.querySelector("[data-terminal-panel]") ||
+        document.querySelector("[data-mobile-menu]")
+      ) {
+        return;
+      }
+      e.preventDefault();
+      toggleThemeHandler();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [toggleThemeHandler]);
 
   const navigateTo = (path: string) => {
     navigate(path);
@@ -38,8 +71,8 @@ export function Header() {
       <motion.header
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className={`fixed top-0 left-0 right-0 z-50 font-mono transition-all duration-500 ${
+        transition={{ duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }}
+        className={`fixed top-0 left-0 right-0 z-50 font-mono transition-colors duration-300 ${
           scrolled
             ? "border-b border-border bg-bg/95 backdrop-blur-sm"
             : "border-b border-border bg-bg"
@@ -62,6 +95,17 @@ export function Header() {
             <span>{utcOffset}</span>
             <span className="text-border-accent">|</span>
             <span className="text-accent">{activeSection || "HOME"}</span>
+            <span className="text-border-accent">|</span>
+            <button
+              type="button"
+              onClick={toggleThemeHandler}
+              aria-label="Switch color scheme"
+              title="Toggle color scheme (F2)"
+              className="flex items-center gap-1.5 whitespace-nowrap uppercase transition-colors duration-300 hover:text-accent"
+            >
+              <span className="text-border-accent">[F2]</span>
+              <span>theme:{theme}</span>
+            </button>
           </span>
         </div>
 
@@ -86,7 +130,7 @@ export function Header() {
             </div>
             <button
               onClick={() => navigateTo("/")}
-              className="text-sm font-bold tracking-tighter text-white flex items-center gap-2 group"
+              className="text-sm font-bold tracking-tighter text-text flex items-center gap-2 group"
             >
               <span className="text-accent text-xs">$</span>
               <span className="group-hover:text-accent transition-colors duration-300">
@@ -104,7 +148,7 @@ export function Header() {
                 className={`relative px-4 py-2 text-xs tracking-widest transition-all duration-300 border-l border-border ${
                   activeSection === item.label
                     ? "text-accent bg-accent/5"
-                    : "text-text-dim hover:text-white hover:bg-white/5"
+                    : "text-text-dim hover:text-text hover:bg-text/5"
                 }`}
               >
                 <span className="text-border-accent mr-2">
@@ -160,7 +204,7 @@ export function Header() {
                     className={`px-4 py-3 text-xs tracking-widest border-b border-border transition-all duration-300 text-left ${
                       activeSection === item.label
                         ? "text-accent bg-accent/5"
-                        : "text-text-dim hover:text-white hover:bg-white/5"
+                        : "text-text-dim hover:text-text hover:bg-text/5"
                     }`}
                   >
                     <span className="text-border-accent mr-3">^{i + 1}</span>

@@ -6,8 +6,8 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.12,
-      delayChildren: 0.1,
+      staggerChildren: 0.07,
+      delayChildren: 0.05,
     },
   },
 };
@@ -17,7 +17,7 @@ const childVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const },
+    transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] as const },
   },
 };
 
@@ -32,8 +32,8 @@ export function Hero() {
         className="section-ambient"
         style={{
           background: `
-            radial-gradient(ellipse at 25% 30%, rgba(115,210,22,0.08) 0%, rgba(115,210,22,0.01) 45%, transparent 70%),
-            radial-gradient(ellipse at 75% 70%, rgba(115,210,22,0.04) 0%, transparent 50%)
+            radial-gradient(ellipse at 25% 30%, color-mix(in srgb, var(--color-accent) 8%, transparent) 0%, color-mix(in srgb, var(--color-accent) 1%, transparent) 45%, transparent 70%),
+            radial-gradient(ellipse at 75% 70%, color-mix(in srgb, var(--color-accent) 4%, transparent) 0%, transparent 50%)
           `,
         }}
       />
@@ -42,8 +42,8 @@ export function Hero() {
         className="absolute inset-0 opacity-[0.03]"
         style={{
           backgroundImage: `
-            linear-gradient(rgba(115,210,22,0.04) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(115,210,22,0.04) 1px, transparent 1px)
+            linear-gradient(color-mix(in srgb, var(--color-accent) 4%, transparent) 1px, transparent 1px),
+            linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 4%, transparent) 1px, transparent 1px)
           `,
           backgroundSize: "40px 40px",
         }}
@@ -73,16 +73,27 @@ export function Hero() {
             variants={childVariants}
             className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold tracking-tighter leading-[0.85] mb-6"
           >
-            <span className="block text-white">NATHANIEL</span>
+            <span className="block text-text">NATHANIEL</span>
             <span className="block text-accent">NIKOLAI LADERO</span>
           </motion.h1>
 
           {/* Role — static, no typewriter */}
           <motion.p
             variants={childVariants}
-            className="text-xs md:text-sm tracking-[0.3em] text-text-dim mb-10"
+            className="text-xs md:text-sm tracking-[0.3em] text-text-dim mb-6"
           >
-            BACKEND DEVELOPER · API ARCHITECT · FINTECH ENGINEER
+            BACKEND DEVELOPER — 3 YRS PRODUCTION FINTECH
+          </motion.p>
+
+          {/* Summary — drawn from resume */}
+          <motion.p
+            variants={childVariants}
+            className="text-sm md:text-base text-text-dim leading-relaxed max-w-2xl mb-10"
+          >
+            Builds C# and ASP.NET Core APIs, manages Linux servers and Docker
+            containers, and automates deployments through GitHub Actions —
+            treating infrastructure as part of the codebase, backed by an
+            AI-assisted workflow.
           </motion.p>
 
           {/* Stats grid — terminal window */}
@@ -100,20 +111,23 @@ export function Hero() {
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border-accent">
               {[
-                { label: "LOCATION", value: "LUZON, PHILIPPINES" },
-                { label: "EXPERIENCE", value: "3+ YEARS" },
-                { label: "ROLE", value: "BACKEND DEV" },
+                { label: "LOCATION", value: "HAGONOY, BULACAN, PH" },
+                { label: "EXPERIENCE", value: "3 YEARS" },
+                { label: "ROLE", value: "BACKEND DEVELOPER" },
                 { label: "STATUS", value: "OPEN TO WORK" },
               ].map((stat) => (
                 <motion.div
                   key={stat.label}
-                  whileHover={{ backgroundColor: "rgba(115,210,22,0.05)" }}
+                  whileHover={{
+                    backgroundColor:
+                      "color-mix(in srgb, var(--color-accent) 5%, transparent)",
+                  }}
                   className="bg-bg p-4 md:p-6 group transition-colors duration-500"
                 >
                   <p className="text-[10px] tracking-[0.2em] text-text-muted mb-1">
                     {stat.label}
                   </p>
-                  <p className="text-sm md:text-base font-bold text-white group-hover:text-accent transition-colors duration-300">
+                  <p className="text-sm md:text-base font-bold text-text group-hover:text-accent transition-colors duration-300">
                     {stat.value}
                   </p>
                 </motion.div>

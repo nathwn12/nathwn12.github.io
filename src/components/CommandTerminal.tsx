@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { navigate } from "../lib/router";
+import { setTheme, useTheme, type TerminalTheme } from "../lib/theme";
 
 interface Line {
   id: number;
@@ -23,12 +24,12 @@ const SECTIONS = [
     name: "footprint/",
     desc: "Delivery stats",
   },
-  { id: "skills", path: "/skills", name: "htop", desc: "Resource monitor" },
+  { id: "skills", path: "/skills", name: "pacman", desc: "Installed packages" },
   {
     id: "projects",
     path: "/projects",
     name: "projects/",
-    desc: "Project directory",
+    desc: "Production highlights",
   },
   {
     id: "education",
@@ -74,6 +75,10 @@ const TRY_SUDO = [
   "  Hint: you're already root on your own machine.",
 ];
 
+function isValidTheme(value: string): value is TerminalTheme {
+  return value === "dark" || value === "light";
+}
+
 export function CommandTerminal() {
   const [visible, setVisible] = useState(false);
   const [lines, setLines] = useState<Line[]>([]);
@@ -81,6 +86,7 @@ export function CommandTerminal() {
   const [history, setHistory] = useState<string[]>([]);
   const [historyIdx, setHistoryIdx] = useState(-1);
   const [welcomed, setWelcomed] = useState(false);
+  const [termTheme] = useTheme();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -273,18 +279,18 @@ export function CommandTerminal() {
         }
 
         case "theme": {
-          addLine(
-            "output",
-            [
-              "  Accent     #73d216  (primary green)",
-              "  Accent-2   #2aa198  (cyan)",
-              "  Accent-3   #cb4b16  (orange)",
-              "  Accent-4   #6c71c4  (purple)",
-              "  Text       #d3d7cf",
-              "  BG         #0a0a0a",
-              "  Surface    #111111",
-            ].join("\n"),
-          );
+          if (!args[0]) {
+            addLine("output", `  TERM_THEME=${termTheme}`);
+            addLine("output", "  usage: theme <dark|light>");
+            break;
+          }
+          if (!isValidTheme(args[0])) {
+            addLine("output", `  unknown theme: ${args[0]}`);
+            addLine("output", "  usage: theme <dark|light>");
+            break;
+          }
+          setTheme(args[0]);
+          addLine("output", `  TERM_THEME=${args[0]} applied`);
           break;
         }
 
@@ -303,7 +309,7 @@ export function CommandTerminal() {
         }
       }
     },
-    [addLine, history],
+    [addLine, history, termTheme],
   );
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -343,7 +349,7 @@ export function CommandTerminal() {
           animate={{ y: 0 }}
           exit={{ y: "100%" }}
           transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed bottom-0 left-0 right-0 z-[9999] h-[45dvh] md:h-[40dvh] bg-[#0a0a0a] border-t border-border-accent shadow-2xl font-mono flex flex-col"
+          className="fixed bottom-0 left-0 right-0 z-[9999] h-[45dvh] md:h-[40dvh] bg-bg border-t border-border-accent shadow-2xl font-mono flex flex-col"
         >
           <div className="flex items-center justify-between px-4 py-1 border-b border-border shrink-0 bg-surface/80">
             <div className="flex items-center gap-2">
@@ -359,7 +365,7 @@ export function CommandTerminal() {
                 visibleRef.current = false;
                 setVisible(false);
               }}
-              className="text-text-dim hover:text-white transition-colors text-xs tracking-widest cursor-pointer"
+              className="text-text-dim hover:text-text transition-colors text-xs tracking-widest cursor-pointer"
               aria-label="Close terminal"
             >
               [×]
@@ -395,7 +401,7 @@ export function CommandTerminal() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="type 'help'..."
-              className="flex-1 bg-transparent text-xs text-white outline-none placeholder-text-muted/50"
+              className="flex-1 bg-transparent text-xs text-text outline-none placeholder-text-muted/50"
               spellCheck={false}
               autoComplete="off"
             />

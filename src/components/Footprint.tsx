@@ -11,8 +11,8 @@ export function Footprint() {
         className="section-ambient"
         style={{
           background: `
-            radial-gradient(ellipse at 50% 80%, rgba(42,161,152,0.08) 0%, rgba(42,161,152,0.02) 40%, transparent 65%),
-            radial-gradient(ellipse at 80% 20%, rgba(115,210,22,0.03) 0%, transparent 50%)
+            radial-gradient(ellipse at 50% 80%, color-mix(in srgb, var(--color-accent-2) 8%, transparent) 0%, color-mix(in srgb, var(--color-accent-2) 2%, transparent) 40%, transparent 65%),
+            radial-gradient(ellipse at 80% 20%, color-mix(in srgb, var(--color-accent) 3%, transparent) 0%, transparent 50%)
           `,
         }}
       />
@@ -20,7 +20,7 @@ export function Footprint() {
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.35 }}
           className="flex items-center gap-4 mb-12"
         >
           <span className="text-accent-2 text-sm">$</span>
@@ -35,7 +35,7 @@ export function Footprint() {
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               className="bg-bg p-6 md:p-8"
             >
               <div className="flex items-center justify-between mb-6">
@@ -43,7 +43,7 @@ export function Footprint() {
                   <p className="text-[10px] tracking-widest text-text-muted mb-1">
                     2023 – 2026
                   </p>
-                  <h3 className="text-lg font-bold text-white">
+                  <h3 className="text-lg font-bold text-text">
                     Delivery by year
                   </h3>
                 </div>
@@ -77,7 +77,11 @@ export function Footprint() {
                 ].map((item) => (
                   <motion.div
                     key={item.year}
-                    whileHover={{ x: 4, borderColor: "rgba(115,210,22,0.25)" }}
+                    whileHover={{
+                      x: 4,
+                      borderColor:
+                        "color-mix(in srgb, var(--color-accent) 25%, transparent)",
+                    }}
                     className="flex items-center gap-4 p-3 border border-border hover:border-accent/30 transition-colors duration-300"
                   >
                     <span className="text-2xl font-bold text-accent tabular-nums w-16 shrink-0">
@@ -98,8 +102,8 @@ export function Footprint() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{
-                delay: 0.08,
-                duration: 0.5,
+                delay: 0.05,
+                duration: 0.35,
                 ease: [0.16, 1, 0.3, 1],
               }}
               className="bg-bg p-6 md:p-8"
@@ -109,7 +113,7 @@ export function Footprint() {
                   <p className="text-[10px] tracking-widest text-text-muted mb-1">
                     CORE SYSTEMS
                   </p>
-                  <h3 className="text-lg font-bold text-white">
+                  <h3 className="text-lg font-bold text-text">
                     Where most delivery landed
                   </h3>
                 </div>
@@ -148,11 +152,14 @@ export function Footprint() {
                 ].map((repo) => (
                   <motion.div
                     key={repo.name}
-                    whileHover={{ backgroundColor: "rgba(42,161,152,0.03)" }}
+                    whileHover={{
+                      backgroundColor:
+                        "color-mix(in srgb, var(--color-accent-2) 3%, transparent)",
+                    }}
                     className="flex items-center justify-between p-3 border-b border-border last:border-0 transition-colors duration-300"
                   >
                     <div>
-                      <p className="text-sm text-white">{repo.name}</p>
+                      <p className="text-sm text-text">{repo.name}</p>
                       <p className="text-[10px] text-text-muted">
                         {repo.period}
                       </p>
@@ -169,7 +176,7 @@ export function Footprint() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.5 }}
+            transition={{ delay: 0.06, duration: 0.35 }}
             className="mt-6 bg-bg p-6 md:p-8"
           >
             <div className="flex items-start gap-4">
@@ -181,7 +188,7 @@ export function Footprint() {
                 ◆
               </motion.span>
               <div>
-                <p className="text-sm font-bold text-white mb-2">
+                <p className="text-sm font-bold text-text mb-2">
                   Preserved evidence
                 </p>
                 <p className="text-xs text-text-dim mb-3">

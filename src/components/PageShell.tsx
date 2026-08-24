@@ -74,20 +74,20 @@ export function PageShell({ route, direction, children }: PageShellProps) {
   const variants: Variants = {
     enter: (dir: RouteDirection) => ({
       opacity: 0,
-      y: dir === "back" ? -36 : 36,
+      y: dir === "back" ? -28 : 28,
     }),
     center: {
       opacity: [0, 1, 0.35, 1],
       y: 0,
       transition: {
-        opacity: { duration: 0.55, times: [0, 0.25, 0.5, 1], ease: "easeOut" },
-        y: { duration: 0.55, ease: [0.16, 1, 0.3, 1] },
+        opacity: { duration: 0.38, times: [0, 0.25, 0.5, 1], ease: "easeOut" },
+        y: { duration: 0.38, ease: [0.16, 1, 0.3, 1] },
       },
     },
     exit: {
       opacity: 0,
-      y: -48,
-      transition: { duration: 0.35, ease: "easeIn" },
+      y: -36,
+      transition: { duration: 0.22, ease: "easeIn" },
     },
   };
 
@@ -102,13 +102,13 @@ export function PageShell({ route, direction, children }: PageShellProps) {
       animate="center"
       exit="exit"
       onScroll={handleScroll}
-      className="page-scroll relative h-[100dvh] overflow-y-auto overflow-x-hidden pt-[88px] bg-transparent"
+      className="page-scroll relative h-[100dvh] overflow-y-auto overflow-x-hidden pt-[88px] pb-8 bg-transparent"
     >
       {/* Cursor-typed destination line, drawn while the page boots in */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: [0, 1, 1, 0] }}
-        transition={{ opacity: { duration: 1.1, times: [0, 0.1, 0.75, 1] } }}
+        transition={{ opacity: { duration: 0.7, times: [0, 0.1, 0.75, 1] } }}
         className="pointer-events-none select-none absolute top-[104px] left-4 lg:left-8 z-20 flex items-center gap-2 text-xs font-mono"
         aria-hidden="true"
       >
@@ -118,7 +118,7 @@ export function PageShell({ route, direction, children }: PageShellProps) {
             className="inline-block whitespace-nowrap overflow-hidden align-bottom"
             initial={{ width: 0 }}
             animate={{ width: "100%" }}
-            transition={{ duration: 0.3, delay: 0.05, ease: "linear" }}
+            transition={{ duration: 0.22, delay: 0.03, ease: "linear" }}
           >
             cd {cdPath}
           </motion.span>
@@ -130,11 +130,11 @@ export function PageShell({ route, direction, children }: PageShellProps) {
       <motion.div
         initial={{ top: "-18%" }}
         animate={{ top: "112%" }}
-        transition={{ duration: 0.45, delay: 0.03, ease: "linear" }}
+        transition={{ duration: 0.3, delay: 0.02, ease: "linear" }}
         className="pointer-events-none absolute inset-x-0 h-20 z-10 opacity-40"
         style={{
           background:
-            "linear-gradient(to bottom, transparent, rgba(224,224,224,0.05) 40%, rgba(224,224,224,0.12) 50%, rgba(224,224,224,0.05) 60%, transparent)",
+            "linear-gradient(to bottom, transparent, color-mix(in srgb, var(--color-text) 5%, transparent) 40%, color-mix(in srgb, var(--color-text) 12%, transparent) 50%, color-mix(in srgb, var(--color-text) 5%, transparent) 60%, transparent)",
         }}
         aria-hidden="true"
       />

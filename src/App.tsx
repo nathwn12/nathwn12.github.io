@@ -1,5 +1,5 @@
 import { useEffect, useCallback, useState, type ComponentType } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, MotionConfig } from "framer-motion";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { BackgroundEffects } from "./components/BackgroundEffects";
 import { PageShell } from "./components/PageShell";
@@ -71,42 +71,44 @@ export default function App() {
 
   return (
     <div className="bg-bg min-h-screen font-mono relative bg-grid">
-      <a
-        href="#main"
-        className="skip-to-content"
-        onClick={(e) => {
-          e.preventDefault();
-          document.getElementById("main")?.focus({ preventScroll: true });
-          document.querySelector(".page-scroll")?.scrollTo(0, 0);
-        }}
-      >
-        Skip to content
-      </a>
+      <MotionConfig reducedMotion="user">
+        <a
+          href="#main"
+          className="skip-to-content"
+          onClick={(e) => {
+            e.preventDefault();
+            document.getElementById("main")?.focus({ preventScroll: true });
+            document.querySelector(".page-scroll")?.scrollTo(0, 0);
+          }}
+        >
+          Skip to content
+        </a>
 
-      <BackgroundEffects />
+        <BackgroundEffects />
 
-      <AnimatePresence>
-        {!booted && <LoadingScreen onComplete={onComplete} />}
-      </AnimatePresence>
+        <AnimatePresence>
+          {!booted && <LoadingScreen onComplete={onComplete} />}
+        </AnimatePresence>
 
-      {booted && <Header />}
+        {booted && <Header />}
 
-      <AnimatePresence mode="wait" initial={false}>
-        {booted && (
-          <PageShell key={route.path} route={route} direction={direction}>
-            <main
-              id="main"
-              tabIndex={-1}
-              className="relative z-10 outline-none flex-1"
-            >
-              <Content />
-            </main>
-            <Footer />
-          </PageShell>
-        )}
-      </AnimatePresence>
+        <AnimatePresence mode="wait" initial={false}>
+          {booted && (
+            <PageShell key={route.path} route={route} direction={direction}>
+              <main
+                id="main"
+                tabIndex={-1}
+                className="relative z-10 outline-none flex-1"
+              >
+                <Content />
+              </main>
+            </PageShell>
+          )}
+        </AnimatePresence>
 
-      {booted && <CommandTerminal />}
+        {booted && <CommandTerminal />}
+        {booted && <Footer />}
+      </MotionConfig>
     </div>
   );
 }
