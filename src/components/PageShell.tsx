@@ -26,11 +26,14 @@ export function PageShell({ route, direction, children }: PageShellProps) {
   const lastTime = useRef(0);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  /* Keyed remount — always start the page at its top. */
+  /* Keyed remount — always start the page at its top. Runs when the NEW
+     page is actually mounted (AnimatePresence mode="wait"), so this is also
+     the correct moment to move focus to the fresh #main. */
   useEffect(() => {
     window.scrollTo(0, 0);
     scrollRef.current?.scrollTo(0, 0);
     lastY.current = 0;
+    document.getElementById("main")?.focus({ preventScroll: true });
   }, [route.path]);
 
   useEffect(() => {

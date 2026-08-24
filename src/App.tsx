@@ -48,6 +48,13 @@ export default function App() {
       ) {
         return;
       }
+      /* Don't page-navigate while the terminal overlay or mobile menu is open. */
+      if (
+        document.querySelector("[data-terminal-panel]") ||
+        document.querySelector("[data-mobile-menu]")
+      ) {
+        return;
+      }
       if (e.key === "ArrowRight") {
         e.preventDefault();
         goNext();
@@ -60,18 +67,19 @@ export default function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, [booted, goNext, goPrev]);
 
-  /* Move focus to the page container on navigation (SPA a11y). */
-  useEffect(() => {
-    if (!booted) return;
-    const main = document.getElementById("main");
-    main?.focus({ preventScroll: true });
-  }, [route.path, booted]);
-
   const Content = PAGES[route.id] ?? Hero;
 
   return (
     <div className="bg-bg min-h-screen font-mono relative bg-grid">
-      <a href="#main" className="skip-to-content">
+      <a
+        href="#main"
+        className="skip-to-content"
+        onClick={(e) => {
+          e.preventDefault();
+          document.getElementById("main")?.focus({ preventScroll: true });
+          document.querySelector(".page-scroll")?.scrollTo(0, 0);
+        }}
+      >
         Skip to content
       </a>
 
