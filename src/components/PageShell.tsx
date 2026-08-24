@@ -102,7 +102,7 @@ export function PageShell({ route, direction, children }: PageShellProps) {
       animate="center"
       exit="exit"
       onScroll={handleScroll}
-      className="page-scroll relative h-[100dvh] overflow-y-auto overflow-x-hidden pt-[88px] pb-8 bg-transparent"
+      className="page-scroll relative h-screen h-[100dvh] overflow-y-auto overflow-x-hidden pt-[88px] pb-8 bg-transparent"
     >
       {/* Cursor-typed destination line, drawn while the page boots in */}
       <motion.div

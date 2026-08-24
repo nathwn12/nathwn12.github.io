@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { usePageScroll } from "../lib/pageScroll";
 import { navigate } from "../lib/router";
+import { CONTACT_EMAIL } from "../lib/contact";
 import { useState, useEffect } from "react";
 
 /**
@@ -94,7 +95,7 @@ export function Footer() {
               linkedin
             </a>
             <a
-              href="mailto:nathanielnikolai.ladero@gmail.com"
+              href={`mailto:${CONTACT_EMAIL}`}
               className="hidden xl:inline hover:text-accent-2 transition-colors"
             >
               email

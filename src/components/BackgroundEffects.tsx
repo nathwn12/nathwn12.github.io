@@ -6,9 +6,11 @@ const INTERVAL = 1000 / FPS;
 const GLYPH_SIZE = 18;
 /* Rain glyphs never render inside these bands from the canvas edges, so no
    full-width "glyph rows" appear as stray lines at the top of the viewport
-   or just above the fixed status bar. */
-const RAIN_TOP_MARGIN = 28;
-const RAIN_BOTTOM_MARGIN = 48;
+   or just above the fixed status bar. The top band must clear the fixed
+   header (85px) — the page content is padded there, so a rain row would
+   read as a solid green line under the nav. */
+const RAIN_TOP_MARGIN = 112;
+const RAIN_BOTTOM_MARGIN = 56;
 
 const CHARS =
   "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン0123456789ABCDEF<>/{}[]|&^%$#@!";

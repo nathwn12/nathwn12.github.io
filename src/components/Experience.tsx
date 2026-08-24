@@ -16,10 +16,10 @@ const logEntries = [
     unit: "career.service",
     timestamp: "2023-04-11 09:12:05",
     status: "OK",
-    summary: "1,100+ commits shipped across 17 repositories",
+    summary: "Shipped 1,100+ commits across 17 repositories",
     description:
-      "Built ASP.NET Core Web APIs, gRPC endpoints, SignalR hubs, and RabbitMQ messaging for fintech products spanning payments, cash management, and access control. Configured Serilog centralized structured logging.",
-    tech: ["ASP.NET CORE", "GRPC", "SIGNALR", "RABBITMQ", "SERILOG"],
+      "Built ASP.NET Web APIs, gRPC endpoints, SignalR hubs, and RabbitMQ messaging for fintech products spanning payments, cash management, and access control. Configured Serilog for centralized structured logging across environments.",
+    tech: ["ASP.NET WEB APIS", "GRPC", "SIGNALR", "RABBITMQ", "SERILOG"],
   },
   {
     id: "02",
@@ -55,7 +55,7 @@ const logEntries = [
     status: "OK",
     summary: "Slashed read latency by 40%+ — EF Core, Dapper, Redis",
     description:
-      "Designed EF Core and Dapper data layers for high-throughput financial transactions. Tuned SQL indexes, integrated Redis caching on frequently accessed reference data.",
+      "Designed EF Core and Dapper data layers for high-throughput financial transactions. Tuned SQL indexes and integrated Redis caching on frequently accessed reference data, reducing read latency by over 40%.",
     tech: ["EF CORE", "DAPPER", "SQL", "REDIS", "INDEX TUNING"],
   },
   {
@@ -63,9 +63,10 @@ const logEntries = [
     unit: "infra.service",
     timestamp: "2025-09-27 07:22:58",
     status: "OK",
-    summary: "Owned infrastructure end-to-end — Ubuntu, Nginx, Docker, CI/CD",
+    summary:
+      "Managed DevOps infrastructure and deployment — Ubuntu/Linux, Nginx, Docker, CI/CD",
     description:
-      "Owned infrastructure and deployment end-to-end: Ubuntu servers, Nginx reverse proxies with Let's Encrypt SSL and UFW firewall. Docker multi-stage builds; CI/CD via GitHub Actions. Bash and PowerShell scripts for backups, log rotation, environment bootstrapping.",
+      "Managed Ubuntu/Linux servers; configured Nginx reverse proxies, Let's Encrypt SSL, and UFW firewall rules. Built Docker images with multi-stage builds and automated CI/CD deployments through GitHub Actions. Wrote Bash and PowerShell automation scripts for backups, log rotation, and environment bootstrapping.",
     tech: [
       "UBUNTU",
       "NGINX",
@@ -84,15 +85,14 @@ const logEntries = [
     status: "OK",
     summary: "Integrated AI across the development lifecycle",
     description:
-      "Copilot inline completions; Claude Code and OpenCode for refactoring/investigative coding; ChatGPT and DeepSeek for architectural decisions; local LLMs (Llama 3, Mistral, Qwen) via Ollama and LM Studio for offline experimentation and prompt engineering.",
+      "Uses LM Studio, OpenCode, and Codex daily for coding, refactoring, investigative development, and prompt engineering. Works with preferred local models including Qwen 3.8, DeepSeek V4 Flash, and Qwen 3.5 (9B, 27B) for local LLM workflows.",
     tech: [
-      "COPILOT",
-      "CLAUDE CODE",
-      "OPENCODE",
-      "CHATGPT",
-      "DEEPSEEK",
-      "OLLAMA",
       "LM STUDIO",
+      "OPENCODE",
+      "CODEX",
+      "QWEN 3.8",
+      "DEEPSEEK V4 FLASH",
+      "QWEN 3.5 (9B/27B)",
     ],
   },
 ];

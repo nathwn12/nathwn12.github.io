@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { cn } from "@/lib/cn";
 import { TerminalWindow } from "./TerminalWindow";
 
@@ -49,7 +50,7 @@ const repos: RepoGroup[] = [
         tier: "DAILY",
       },
       {
-        name: "ASP.NET Core",
+        name: "ASP.NET",
         slug: "aspnet-core",
         version: "9.0",
         description: "web framework",
@@ -207,7 +208,7 @@ const repos: RepoGroup[] = [
   {
     fork: "extra",
     repo: "extra/devops",
-    label: "Cloud & DevOps",
+    label: "Cloud/DevOps",
     packages: [
       {
         name: "AWS EC2",
@@ -266,7 +267,7 @@ const repos: RepoGroup[] = [
         tier: "PROD",
       },
       {
-        name: "Linux Ubuntu",
+        name: "Linux (Ubuntu)",
         slug: "linux-ubuntu",
         version: "22.04",
         description: "server os",
@@ -354,22 +355,8 @@ const repos: RepoGroup[] = [
   {
     fork: "community",
     repo: "community/ai",
-    label: "AI & Local LLMs",
+    label: "AI-Assisted Development",
     packages: [
-      {
-        name: "GitHub Copilot",
-        slug: "github-copilot",
-        version: "-",
-        description: "pair programmer",
-        tier: "DAILY",
-      },
-      {
-        name: "Claude Code",
-        slug: "claude-code",
-        version: "-",
-        description: "agentic coding",
-        tier: "DAILY",
-      },
       {
         name: "OpenCode",
         slug: "opencode",
@@ -378,24 +365,10 @@ const repos: RepoGroup[] = [
         tier: "DAILY",
       },
       {
-        name: "ChatGPT",
-        slug: "chatgpt",
+        name: "Codex",
+        slug: "codex",
         version: "-",
-        description: "general assistant",
-        tier: "DAILY",
-      },
-      {
-        name: "DeepSeek",
-        slug: "deepseek",
-        version: "r1",
-        description: "reasoning model",
-        tier: "DAILY",
-      },
-      {
-        name: "Ollama",
-        slug: "ollama",
-        version: "0.5",
-        description: "local model runner",
+        description: "coding agent",
         tier: "DAILY",
       },
       {
@@ -406,31 +379,66 @@ const repos: RepoGroup[] = [
         tier: "DAILY",
       },
       {
-        name: "Llama 3",
-        slug: "llama3",
-        version: "3.1",
+        name: "Qwen 3.8",
+        slug: "qwen-3.8",
+        version: "-",
         description: "open-weights model",
         tier: "WORKING",
       },
       {
-        name: "Mistral",
-        slug: "mistral",
-        version: "2",
+        name: "DeepSeek V4 Flash",
+        slug: "deepseek-v4-flash",
+        version: "-",
+        description: "reasoning model",
+        tier: "DAILY",
+      },
+      {
+        name: "Qwen 3.5 (9B, 27B)",
+        slug: "qwen-3.5-9b-27b",
+        version: "-",
         description: "open-weights model",
         tier: "WORKING",
       },
       {
-        name: "Qwen",
-        slug: "qwen",
-        version: "2.5",
-        description: "open-weights model",
-        tier: "WORKING",
+        name: "Local LLM Workflows",
+        slug: "local-llm-workflows",
+        version: "-",
+        description: "local model workflows",
+        tier: "DAILY",
       },
       {
         name: "Prompt Engineering",
         slug: "prompt-engineering",
         version: "-",
         description: "llm ergonomics",
+        tier: "DAILY",
+      },
+      {
+        name: "Code Generation",
+        slug: "code-generation",
+        version: "-",
+        description: "assisted code generation",
+        tier: "DAILY",
+      },
+      {
+        name: "Refactoring",
+        slug: "refactoring",
+        version: "-",
+        description: "assisted refactoring",
+        tier: "DAILY",
+      },
+      {
+        name: "Investigative Coding",
+        slug: "investigative-coding",
+        version: "-",
+        description: "investigative development",
+        tier: "DAILY",
+      },
+      {
+        name: "Developer Productivity",
+        slug: "developer-productivity",
+        version: "-",
+        description: "development workflow support",
         tier: "DAILY",
       },
     ],
@@ -500,88 +508,123 @@ const repos: RepoGroup[] = [
   },
 ];
 
-const marqueeTechs: string[] = [
-  "C#",
-  "ASP.NET Core",
-  "EF Core",
-  "Dapper",
-  "gRPC",
-  "SignalR",
-  "REST",
-  "MySQL",
-  "Redis",
-  "RabbitMQ",
-  "Serilog",
-  "SQL Server",
-  "PostgreSQL",
-  "MongoDB",
-  "MariaDB",
-  "AWS EC2",
-  "AWS RDS",
-  "AWS S3",
-  "Docker",
-  "GitHub Actions",
-  "Nginx",
-  "Ubuntu",
-  "Bash",
-  "PowerShell",
-  "JWT",
-  "OAuth 2.0",
-  "OIDC",
-  "RBAC",
-  "ABAC",
-  "Snyk",
-  "OWASP Top 10",
-  "SSL/TLS",
-  "GitHub Copilot",
-  "Claude Code",
-  "OpenCode",
-  "Ollama",
-  "LM Studio",
-  "Llama 3",
-  "Mistral",
-  "Qwen",
-  "xUnit",
-  "Moq",
-  "Git",
-  "Postman",
-  "Swagger",
-];
+type CapabilityId = "api" | "data" | "delivery" | "security" | "ai" | "tooling";
+type UnitAccent = "accent" | "accent-2" | "accent-3" | "accent-4";
 
-function PackageRow({ row, index }: { row: PackageInfo; index: number }) {
-  const tier = TIER_STYLES[row.tier];
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.02, duration: 0.28 }}
-      className="grid grid-cols-[2rem_minmax(0,1fr)_4rem_auto] md:grid-cols-[2.75rem_11rem_5rem_1fr_5.5rem] gap-x-3 md:gap-x-4 items-baseline px-1 py-1 border-b border-border last:border-b-0 hover:bg-surface transition-colors duration-300"
-    >
-      <span className="text-[9px] tracking-widest text-text-muted">ii</span>
-      <span className="text-xs text-accent truncate min-w-0" title={row.name}>
-        {row.slug}
-      </span>
-      <span className="text-xs text-text-dim tabular-nums">{row.version}</span>
-      <span className="hidden md:block text-[11px] text-text-muted truncate min-w-0">
-        {row.description}
-      </span>
-      <span
-        className={cn(
-          "text-[9px] tracking-widest font-bold text-right",
-          tier.color,
-        )}
-      >
-        [{row.tier}]
-      </span>
-    </motion.div>
-  );
+interface CapabilityUnit {
+  id: CapabilityId;
+  name: string;
+  repo: RepoGroup;
+  role: string;
+  accent: UnitAccent;
 }
 
+const capabilityUnits: CapabilityUnit[] = [
+  {
+    id: "api",
+    name: "API",
+    repo: repos[0],
+    role: "Service contracts, transports, and backend runtime.",
+    accent: "accent",
+  },
+  {
+    id: "data",
+    name: "data",
+    repo: repos[1],
+    role: "Persistence, caching, messaging, and query performance.",
+    accent: "accent-2",
+  },
+  {
+    id: "delivery",
+    name: "delivery",
+    repo: repos[2],
+    role: "Cloud infrastructure, containers, and release automation.",
+    accent: "accent-3",
+  },
+  {
+    id: "security",
+    name: "security",
+    repo: repos[3],
+    role: "Identity, access policy, dependency safety, and transport security.",
+    accent: "accent-4",
+  },
+  {
+    id: "ai",
+    name: "AI",
+    repo: repos[4],
+    role: "AI-assisted development and local open-weight model workflows.",
+    accent: "accent",
+  },
+  {
+    id: "tooling",
+    name: "tooling",
+    repo: repos[5],
+    role: "Testing, documentation, version control, and operational review.",
+    accent: "accent-2",
+  },
+];
+
+const UNIT_ACCENTS: Record<
+  UnitAccent,
+  { text: string; border: string; background: string }
+> = {
+  accent: {
+    text: "text-accent",
+    border: "border-l-accent",
+    background: "bg-accent/5",
+  },
+  "accent-2": {
+    text: "text-accent-2",
+    border: "border-l-accent-2",
+    background: "bg-accent-2/5",
+  },
+  "accent-3": {
+    text: "text-accent-3",
+    border: "border-l-accent-3",
+    background: "bg-accent-3/5",
+  },
+  "accent-4": {
+    text: "text-accent-4",
+    border: "border-l-accent-4",
+    background: "bg-accent-4/5",
+  },
+};
+
 export function Skills() {
+  const [selectedId, setSelectedId] = useState<CapabilityId>("api");
   const totalPackages = repos.reduce(
     (sum, repo) => sum + repo.packages.length,
     0,
   );
+  const unitViews = capabilityUnits.map((unit) => {
+    const counts = {
+      DAILY: unit.repo.packages.filter(({ tier }) => tier === "DAILY").length,
+      PROD: unit.repo.packages.filter(({ tier }) => tier === "PROD").length,
+      WORKING: unit.repo.packages.filter(({ tier }) => tier === "WORKING")
+        .length,
+    } satisfies Record<Tier, number>;
+    const status =
+      counts.DAILY > 0 ? "RUNNING" : counts.PROD > 0 ? "PROD" : "WORKING";
+    const statusColor =
+      status === "RUNNING"
+        ? TIER_STYLES.DAILY.color
+        : status === "PROD"
+          ? TIER_STYLES.PROD.color
+          : TIER_STYLES.WORKING.color;
+
+    return {
+      unit,
+      counts,
+      status,
+      statusColor,
+      tierSummary: `${counts.DAILY}D / ${counts.PROD}P / ${counts.WORKING}W`,
+      load: `${unit.repo.packages.length} pkgs / ${counts.DAILY} daily`,
+    };
+  });
+  const selectedView =
+    unitViews.find(({ unit }) => unit.id === selectedId) ?? unitViews[0];
+
+  if (!selectedView) return null;
 
   return (
     <section
@@ -593,82 +636,307 @@ export function Skills() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.35 }}
-          className="flex items-center gap-4 mb-12"
+          className="flex items-center gap-4 mb-8 md:mb-10"
         >
           <span className="text-accent-3 text-sm">$</span>
-          <span className="text-xs tracking-[0.4em] text-text-dim">
-            pacman -Qqe
+          <span className="text-xs tracking-[0.25em] text-text-dim">
+            systemctl --type=service --state=running
           </span>
           <div className="flex-1 h-[1px] bg-border" />
         </motion.div>
 
-        <TerminalWindow title="installed-packages">
-          {/* pacman -Qqe output meta */}
-          <div className="flex flex-wrap gap-x-6 gap-y-1 px-4 md:px-6 py-2 border-b border-border-accent bg-bg text-[10px] tracking-widest text-text-dim">
+        <TerminalWindow title="capability-control-room">
+          <div className="flex flex-wrap gap-x-5 gap-y-1 px-4 md:px-6 py-2 border-b border-border-accent bg-bg text-[10px] tracking-widest text-text-dim">
             <span>
               <span className="text-accent font-bold">{totalPackages}</span>{" "}
-              packages
+              package records
             </span>
             <span>
-              <span className="text-accent-2 font-bold">{repos.length}</span>{" "}
-              repos
+              <span className="text-accent-2 font-bold">
+                {capabilityUnits.length}
+              </span>{" "}
+              running units
             </span>
             <span>
-              last sync <span className="text-text">2026-05</span>
+              selected{" "}
+              <span className="text-text">{selectedView.unit.name}</span>
             </span>
           </div>
 
-          {/* Repo blocks — each category is one pacman repository */}
-          <div className="bg-bg">
-            {repos.map((repo, repoIdx) => {
-              const rowBase = repos
-                .slice(0, repoIdx)
-                .reduce((sum, r) => sum + r.packages.length, 0);
-              return (
-                <motion.div
-                  key={repo.repo}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: repoIdx * 0.06, duration: 0.35 }}
-                  className={cn(
-                    "px-4 md:px-6 py-5",
-                    repoIdx !== repos.length - 1 && "border-b border-border",
-                  )}
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="text-[10px] text-accent-3 shrink-0">
-                      ◆
+          <div className="grid min-w-0 lg:grid-cols-[minmax(0,1.18fr)_minmax(18rem,0.82fr)]">
+            <section
+              aria-labelledby="skills-board-heading"
+              className="min-w-0 bg-bg p-4 md:p-6"
+            >
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div className="min-w-0">
+                  <h2
+                    id="skills-board-heading"
+                    className="text-[10px] tracking-[0.3em] text-accent-3 font-bold uppercase"
+                  >
+                    process board
+                  </h2>
+                  <p className="mt-1 text-[10px] leading-relaxed text-text-muted">
+                    select a unit to inspect its package records
+                  </p>
+                </div>
+                <span className="shrink-0 text-[9px] tracking-widest text-text-muted">
+                  {capabilityUnits.length} services
+                </span>
+              </div>
+
+              <div
+                role="group"
+                aria-label="Capability units"
+                className="grid min-w-0 grid-cols-1 sm:grid-cols-2 gap-px bg-border-accent border border-border-accent"
+              >
+                {unitViews.map((view, index) => {
+                  const tone = UNIT_ACCENTS[view.unit.accent];
+                  const selected = view.unit.id === selectedId;
+                  return (
+                    <motion.button
+                      key={view.unit.id}
+                      type="button"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        delay: index * 0.035,
+                        duration: 0.24,
+                      }}
+                      aria-label={`Inspect ${view.unit.name} capability unit`}
+                      aria-pressed={selected}
+                      aria-controls="skills-inspector"
+                      onClick={() => setSelectedId(view.unit.id)}
+                      className={cn(
+                        "group min-w-0 w-full text-left border-l-2 bg-bg px-4 py-4 transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent focus-visible:outline-offset-[-2px]",
+                        selected
+                          ? cn(tone.border, tone.background)
+                          : "border-l-transparent hover:bg-surface hover:border-l-border-accent",
+                      )}
+                    >
+                      <span className="flex min-w-0 items-start justify-between gap-3">
+                        <span className="flex min-w-0 items-center gap-2">
+                          <span className="shrink-0 text-[9px] tabular-nums text-text-muted">
+                            {String(index + 1).padStart(2, "0")}
+                          </span>
+                          <span
+                            className={cn(
+                              "truncate text-sm font-bold tracking-tight",
+                              tone.text,
+                            )}
+                          >
+                            {view.unit.name}
+                          </span>
+                        </span>
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            "shrink-0 text-[9px] tracking-widest",
+                            selected ? tone.text : "text-text-muted",
+                          )}
+                        >
+                          {selected ? "[selected]" : "[inspect]"}
+                        </span>
+                      </span>
+                      <span className="mt-1 block min-w-0 break-words text-[10px] text-text-muted">
+                        {view.unit.repo.repo}
+                      </span>
+                      <span className="mt-3 grid min-w-0 grid-cols-3 gap-2 border-t border-border pt-3">
+                        <span className="min-w-0">
+                          <span className="block text-[8px] tracking-widest text-text-muted uppercase">
+                            status
+                          </span>
+                          <span
+                            className={cn(
+                              "block break-words text-[10px] font-bold",
+                              view.statusColor,
+                            )}
+                          >
+                            {view.status}
+                          </span>
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block text-[8px] tracking-widest text-text-muted uppercase">
+                            tier mix
+                          </span>
+                          <span className="block break-words text-[10px] text-text-dim tabular-nums">
+                            {view.tierSummary}
+                          </span>
+                        </span>
+                        <span className="min-w-0">
+                          <span className="block text-[8px] tracking-widest text-text-muted uppercase">
+                            load
+                          </span>
+                          <span className="block break-words text-[10px] text-text-dim tabular-nums">
+                            {view.load}
+                          </span>
+                        </span>
+                      </span>
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section
+              id="skills-inspector"
+              aria-labelledby="skills-inspector-heading"
+              aria-live="polite"
+              className="min-w-0 border-t border-border-accent bg-bg p-4 md:p-6 lg:border-l lg:border-t-0"
+            >
+              <div className="mb-4 flex items-center gap-2 text-[10px] text-text-dim">
+                <span className="text-accent">$</span>
+                <span className="min-w-0 break-words">
+                  systemctl status {selectedView.unit.id}.service
+                </span>
+              </div>
+
+              <motion.div
+                key={selectedView.unit.id}
+                initial={{ opacity: 0, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.2 }}
+                className="min-w-0"
+              >
+                <div className="border border-border-accent bg-surface p-4 md:p-5">
+                  <div className="flex min-w-0 items-start justify-between gap-4">
+                    <div className="min-w-0">
+                      <p className="text-[9px] tracking-widest text-text-muted uppercase">
+                        selected capability unit
+                      </p>
+                      <h3
+                        id="skills-inspector-heading"
+                        className={cn(
+                          "mt-1 break-words text-lg font-bold tracking-tight",
+                          UNIT_ACCENTS[selectedView.unit.accent].text,
+                        )}
+                      >
+                        {selectedView.unit.name}
+                      </h3>
+                    </div>
+                    <span
+                      className={cn(
+                        "shrink-0 text-[9px] tracking-widest font-bold",
+                        selectedView.statusColor,
+                      )}
+                    >
+                      [{selectedView.status}]
                     </span>
-                    <span className="text-[10px] tracking-[0.3em] text-accent-3 font-bold">
-                      [{repo.fork}]
+                  </div>
+                  <p className="mt-3 break-words text-xs leading-relaxed text-text-dim">
+                    {selectedView.unit.role}
+                  </p>
+
+                  <dl className="mt-5 grid min-w-0 grid-cols-3 gap-2 border-t border-border pt-4">
+                    <div className="min-w-0">
+                      <dt className="text-[8px] tracking-widest text-text-muted uppercase">
+                        status
+                      </dt>
+                      <dd
+                        className={cn(
+                          "mt-1 break-words text-[10px] font-bold",
+                          selectedView.statusColor,
+                        )}
+                      >
+                        {selectedView.status}
+                      </dd>
+                    </div>
+                    <div className="min-w-0">
+                      <dt className="text-[8px] tracking-widest text-text-muted uppercase">
+                        tier mix
+                      </dt>
+                      <dd className="mt-1 break-words text-[10px] text-text-dim tabular-nums">
+                        {selectedView.tierSummary}
+                      </dd>
+                    </div>
+                    <div className="min-w-0">
+                      <dt className="text-[8px] tracking-widest text-text-muted uppercase">
+                        load
+                      </dt>
+                      <dd className="mt-1 break-words text-[10px] text-text-dim tabular-nums">
+                        {selectedView.load}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <div className="mt-5 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[10px]">
+                    <span className="text-accent-3">
+                      [{selectedView.unit.repo.fork}]
                     </span>
-                    <span className="text-[10px] tracking-[0.2em] text-text-dim">
-                      {repo.label}
+                    <span className="break-words text-text-dim">
+                      {selectedView.unit.repo.repo}
                     </span>
-                    <div className="flex-1 h-[1px] bg-border" />
+                    <span className="break-words text-text-muted">
+                      / {selectedView.unit.repo.label}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="mt-6 min-w-0">
+                  <div className="mb-2 flex min-w-0 items-center gap-2 text-[10px] text-text-dim">
+                    <span className="text-accent">$</span>
+                    <span className="min-w-0 break-words">
+                      ls {selectedView.unit.repo.repo}/
+                    </span>
                   </div>
 
-                  {/* Column labels — dpkg -l style, desktop only */}
-                  <div className="hidden md:grid grid-cols-[2.75rem_11rem_5rem_1fr_5.5rem] gap-x-4 px-1 pb-2 text-[9px] tracking-widest text-text-muted uppercase">
-                    <span>status</span>
-                    <span>package</span>
-                    <span>version</span>
-                    <span>description</span>
-                    <span>flag</span>
+                  <div
+                    role="list"
+                    aria-label={`${selectedView.unit.name} packages`}
+                    className="min-w-0 border border-border-accent"
+                  >
+                    <div className="hidden grid-cols-[minmax(0,1.1fr)_4rem_minmax(0,1fr)_auto] gap-x-3 border-b border-border-accent px-3 py-2 text-[8px] tracking-widest text-text-muted uppercase md:grid">
+                      <span>package</span>
+                      <span>version</span>
+                      <span>description</span>
+                      <span>tier</span>
+                    </div>
+                    {selectedView.unit.repo.packages.map((row, index) => (
+                      <motion.div
+                        key={row.slug}
+                        role="listitem"
+                        initial={{ opacity: 0, x: -4 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{
+                          delay: index * 0.015,
+                          duration: 0.18,
+                        }}
+                        aria-label={`${row.name}, version ${row.version}, ${row.tier}, ${row.description}`}
+                        className="grid min-w-0 grid-cols-[minmax(0,1fr)_4rem_auto] items-start gap-x-3 border-b border-border px-3 py-2 last:border-b-0 hover:bg-surface transition-colors duration-200 md:grid-cols-[minmax(0,1.1fr)_4rem_minmax(0,1fr)_auto]"
+                      >
+                        <span className="min-w-0 break-words">
+                          <span className="block break-words text-[11px] text-accent">
+                            {row.name}
+                          </span>
+                          <span className="block break-words text-[9px] leading-relaxed text-text-muted md:hidden">
+                            {row.slug} / {row.description}
+                          </span>
+                        </span>
+                        <span className="break-words text-[10px] text-text-dim tabular-nums">
+                          {row.version}
+                        </span>
+                        <span className="hidden min-w-0 break-words text-[10px] leading-relaxed text-text-muted md:block">
+                          {row.description}
+                        </span>
+                        <span
+                          className={cn(
+                            "break-words text-right text-[9px] tracking-widest font-bold",
+                            TIER_STYLES[row.tier].color,
+                          )}
+                        >
+                          [{row.tier}]
+                        </span>
+                      </motion.div>
+                    ))}
                   </div>
-
-                  {repo.packages.map((row, i) => (
-                    <PackageRow key={row.slug} row={row} index={rowBase + i} />
-                  ))}
-                </motion.div>
-              );
-            })}
+                </div>
+              </motion.div>
+            </section>
           </div>
 
-          {/* Usage-tier legend — flags, not scores */}
-          <div className="flex flex-wrap gap-x-6 gap-y-1 px-4 md:px-6 py-3 border-t border-border-accent bg-bg text-[9px] tracking-widest text-text-muted">
+          <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-border-accent bg-bg px-4 py-3 text-[9px] tracking-widest text-text-muted md:px-6">
             {(["DAILY", "PROD", "WORKING"] as Tier[]).map((tier) => (
-              <span key={tier}>
+              <span key={tier} className="min-w-0">
                 <span className={cn("font-bold", TIER_STYLES[tier].color)}>
                   [{tier}]
                 </span>{" "}
@@ -677,35 +945,6 @@ export function Skills() {
             ))}
           </div>
         </TerminalWindow>
-
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.35 }}
-          className="mt-6 overflow-hidden border-y border-border py-4 marquee-wrap"
-        >
-          <div className="flex whitespace-nowrap marquee-track text-[9px] tracking-widest text-text-muted">
-            {Array.from({ length: 2 }).map((_, i) => (
-              <div
-                key={i}
-                aria-hidden={i === 1}
-                className="flex items-center gap-3 px-4"
-              >
-                {marqueeTechs.map((tech) => (
-                  <span
-                    key={`${i}-${tech}`}
-                    className="hover:text-accent transition-colors duration-300 cursor-pointer"
-                  >
-                    {tech}
-                    <span className="text-border mx-2 pointer-events-none">
-                      ◆
-                    </span>
-                  </span>
-                ))}
-              </div>
-            ))}
-          </div>
-        </motion.div>
       </div>
     </section>
   );

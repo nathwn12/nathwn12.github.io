@@ -9,7 +9,7 @@ import {
 /**
  * Minimal History-API router for the page-per-viewport portfolio.
  *
- * Each section is a real path (`/`, `/about`, `/experience`, …) so URLs are
+ * Each section is a real path (`/`, `/experience`, …) so URLs are
  * shareable, the browser back/forward buttons work, and a refresh on any
  * route lands the visitor back on that page (GitHub Pages serves the SPA via
  * the `404.html` fallback produced by the build; see scripts/copy-404.mjs).
@@ -40,18 +40,9 @@ export const ROUTES: readonly RouteDef[] = [
     id: "hero",
     label: "HOME",
     command: "whoami",
-    description: "Identity & access",
+    description: "Identity & system profile",
     accent: "accent",
     title: "NNL — Backend Developer",
-  },
-  {
-    path: "/about",
-    id: "about",
-    label: "ABOUT",
-    command: "cat about.md",
-    description: "System information",
-    accent: "accent",
-    title: "about — NNL",
   },
   {
     path: "/experience",
@@ -109,7 +100,7 @@ export const ROUTES: readonly RouteDef[] = [
   },
 ] as const;
 
-/** Tolerant path normalization: "/" for root, lowercase, no trailing slash. */
+/** Tolerant path normalization: "/" for root, no trailing slash. */
 export function normalizePath(pathname: string): string {
   let p = pathname.split("?")[0] ?? "/";
   try {
@@ -121,12 +112,21 @@ export function normalizePath(pathname: string): string {
   return p === "" ? "/" : p;
 }
 
+const LEGACY_PATHS: Readonly<Record<string, string>> = {
+  "/about": "/",
+};
+
+function canonicalPath(path: string): string {
+  const normalized = normalizePath(path);
+  return LEGACY_PATHS[normalized] ?? normalized;
+}
+
 export function routeByPath(path: string): RouteDef | undefined {
-  return ROUTES.find((r) => r.path === normalizePath(path));
+  return ROUTES.find((r) => r.path === canonicalPath(path));
 }
 
 export function routeIndex(path: string): number {
-  const i = ROUTES.findIndex((r) => r.path === normalizePath(path));
+  const i = ROUTES.findIndex((r) => r.path === canonicalPath(path));
   return i === -1 ? 0 : i;
 }
 
@@ -137,7 +137,13 @@ export function routeAtOffset(fromPath: string, offset: number): RouteDef {
 }
 
 /** Navigation history stack — used to infer back vs forward on popstate. */
-const historyStack: string[] = [normalizePath(window.location.pathname)];
+const initialPath = normalizePath(window.location.pathname);
+const canonicalInitialPath = canonicalPath(initialPath);
+if (canonicalInitialPath !== initialPath) {
+  window.history.replaceState(null, "", canonicalInitialPath);
+}
+
+const historyStack: string[] = [canonicalInitialPath];
 let currentPath = historyStack[0];
 let currentDirection: RouteDirection = "none";
 
@@ -150,7 +156,13 @@ function setState(path: string, direction: RouteDirection) {
 }
 
 function onPopState() {
-  const path = normalizePath(window.location.pathname);
+  const initialPath = normalizePath(window.location.pathname);
+  const path = canonicalPath(initialPath);
+  if (path !== initialPath) {
+    window.history.replaceState(null, "", path);
+  }
+  if (path === currentPath) return;
+
   const idx = historyStack.lastIndexOf(path);
   if (idx === -1) {
     // Unknown entry (fresh deep link) — treat as a forward visit.
@@ -173,11 +185,18 @@ export interface RouterState {
 
 /** Navigate to a route path. No-op when already there or path is unknown. */
 export function navigate(to: string): void {
-  const path = normalizePath(to);
+  const path = canonicalPath(to);
   if (!routeByPath(path)) return; // unknown path — ignore
   if (path === currentPath) return;
   const dir: RouteDirection =
     routeIndex(path) < routeIndex(currentPath) ? "back" : "forward";
+
+  if (historyStack[historyStack.length - 1] === path) {
+    history.replaceState(null, "", path);
+    setState(path, dir);
+    return;
+  }
+
   historyStack.push(path);
   history.pushState(null, "", path);
   setState(path, dir);
@@ -213,11 +232,11 @@ export function useAdjacentNavigation() {
   const { path } = useRoute();
   const goNext = useCallback(() => {
     const next = routeAtOffset(path, 1);
-    if (next.path !== normalizePath(path)) navigate(next.path);
+    if (next.path !== canonicalPath(path)) navigate(next.path);
   }, [path]);
   const goPrev = useCallback(() => {
     const prev = routeAtOffset(path, -1);
-    if (prev.path !== normalizePath(path)) navigate(prev.path);
+    if (prev.path !== canonicalPath(path)) navigate(prev.path);
   }, [path]);
   return { goNext, goPrev };
 }

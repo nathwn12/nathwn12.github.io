@@ -1,11 +1,30 @@
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
+import { CONTACT_EMAIL } from "../lib/contact";
+
+type FormStatus = {
+  type: "pending" | "success" | "error";
+  message: string;
+};
+
+const STATUS_CHIP: Record<
+  FormStatus["type"] | "idle",
+  { label: string; tone: string }
+> = {
+  idle: { label: "[FORM READY]", tone: "text-accent-2" },
+  pending: { label: "[SENDING]", tone: "text-accent-2" },
+  success: { label: "[QUEUED]", tone: "text-accent" },
+  error: { label: "[ERROR]", tone: "text-accent-3" },
+};
+
+const STATUS_PANEL: Record<FormStatus["type"], string> = {
+  pending: "border-text-muted text-text-dim bg-text/5",
+  success: "border-accent text-accent bg-accent/5",
+  error: "border-accent-3 text-accent-3 bg-accent-3/5",
+};
 
 export function Contact() {
-  const [formStatus, setFormStatus] = useState<{
-    type: "pending" | "success" | "error";
-    message: string;
-  } | null>(null);
+  const [formStatus, setFormStatus] = useState<FormStatus | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const statusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -17,6 +36,7 @@ export function Contact() {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (isSubmitting) return;
     const form = e.currentTarget;
 
     setFormStatus({
@@ -36,8 +56,19 @@ export function Contact() {
         },
         body: JSON.stringify(payload),
       });
-      const result = await res.json();
-      if (!res.ok) throw new Error(result?.message || "Something went wrong.");
+      let payloadJson: { message?: string } | null = null;
+      try {
+        const body: unknown = await res.json();
+        if (typeof body === "object" && body !== null) {
+          payloadJson = body as { message?: string };
+        }
+      } catch {
+        /* Non-JSON body (e.g. proxy/gateway error page) — report a generic
+           failure instead of leaking raw response bytes to the user. */
+      }
+      if (!res.ok) {
+        throw new Error(payloadJson?.message || "Something went wrong.");
+      }
       const msgId = Math.random().toString(36).substring(2, 12).toUpperCase();
       setFormStatus({
         type: "success",
@@ -52,6 +83,8 @@ export function Contact() {
       statusTimeoutRef.current = setTimeout(() => setFormStatus(null), 8000);
     }
   }
+
+  const chip = STATUS_CHIP[formStatus?.type ?? "idle"];
 
   return (
     <section
@@ -123,10 +156,10 @@ export function Contact() {
                 </span>
               </div>
               <a
-                href="mailto:nathanielnikolai.ladero@gmail.com"
+                href={`mailto:${CONTACT_EMAIL}`}
                 className="text-sm md:text-lg font-bold text-text hover:text-accent transition-colors duration-300 block break-all"
               >
-                nathanielnikolai.ladero@gmail.com
+                {CONTACT_EMAIL}
               </a>
             </motion.div>
 
@@ -207,7 +240,7 @@ export function Contact() {
 
             <form
               id="contactForm"
-              action="https://formsubmit.co/ajax/nathanielnikolai.ladero@gmail.com"
+              action={`https://formsubmit.co/ajax/${CONTACT_EMAIL}`}
               method="POST"
               onSubmit={handleSubmit}
             >
@@ -216,7 +249,7 @@ export function Contact() {
                 name="_subject"
                 value="New resume site contact submission"
               />
-              <input type="hidden" name="_captcha" value="false" />
+              <input type="hidden" name="_captcha" value="true" />
               <input
                 type="text"
                 name="_honey"
@@ -239,6 +272,7 @@ export function Contact() {
                   type="text"
                   required
                   autoComplete="name"
+                  maxLength={100}
                   placeholder="Nathaniel Nikolai Ladero"
                   className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-text font-mono outline-none focus:border-accent transition-colors duration-300 placeholder:text-text-muted/30"
                 />
@@ -258,6 +292,7 @@ export function Contact() {
                   type="email"
                   required
                   autoComplete="email"
+                  maxLength={254}
                   placeholder="user@example.com"
                   className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-text font-mono outline-none focus:border-accent transition-colors duration-300 placeholder:text-text-muted/30"
                 />
@@ -276,6 +311,7 @@ export function Contact() {
                   name="subject"
                   type="text"
                   required
+                  maxLength={300}
                   placeholder="What is this regarding?"
                   className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-text font-mono outline-none focus:border-accent transition-colors duration-300 placeholder:text-text-muted/30"
                 />
@@ -294,6 +330,7 @@ export function Contact() {
                   name="message"
                   required
                   rows={5}
+                  maxLength={5000}
                   placeholder="Your message here..."
                   className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-text font-mono outline-none focus:border-accent transition-colors duration-300 resize-none placeholder:text-text-muted/30"
                 />
@@ -316,15 +353,10 @@ export function Contact() {
 
               {formStatus && (
                 <motion.div
+                  role="alert"
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`mt-4 border-l-2 pl-4 py-2 text-xs font-mono ${
-                    formStatus.type === "success"
-                      ? "border-accent text-accent bg-accent/5"
-                      : formStatus.type === "error"
-                        ? "border-accent-3 text-accent-3 bg-accent-3/5"
-                        : "border-text-muted text-text-dim bg-text/5"
-                  }`}
+                  className={`mt-4 border-l-2 pl-4 py-2 text-xs font-mono ${STATUS_PANEL[formStatus.type]}`}
                 >
                   <span className="text-text-muted mr-2">$</span>
                   {formStatus.message}
@@ -356,17 +388,39 @@ export function Contact() {
           transition={{ delay: 0.25, duration: 0.35 }}
           className="mt-6 border border-border-accent bg-surface p-4 md:p-6"
         >
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-4">
             <span className="text-accent text-sm">$</span>
-            <span className="text-sm text-text-dim">
-              echo "Thanks for visiting. Let's connect."
+            <span className="text-sm text-text-dim">./contact --status</span>
+            <span
+              role="status"
+              className={`text-[10px] tracking-widest md:ml-auto ${chip.tone}`}
+            >
+              {chip.label}
             </span>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="text-accent text-sm">$</span>
-            <span className="text-sm text-text-dim">
-              cat /dev/null &gt; goodbye.world
-            </span>
+
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="border border-border-accent p-4">
+              <span className="text-[10px] tracking-widest text-accent">
+                [NEXT STEP]
+              </span>
+              <p className="text-xs text-text-dim leading-relaxed mt-3">
+                Use the compose window above to send a message. The status line
+                reports whether it was queued or if an error occurred.
+              </p>
+            </div>
+
+            <div className="border border-border-accent p-4">
+              <span className="text-[10px] tracking-widest text-accent-2">
+                [DIRECT EMAIL]
+              </span>
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="block mt-3 text-xs text-text-dim hover:text-accent transition-colors break-all"
+              >
+                {CONTACT_EMAIL}
+              </a>
+            </div>
           </div>
         </motion.div>
       </div>

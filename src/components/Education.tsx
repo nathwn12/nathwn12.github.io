@@ -68,6 +68,9 @@ const certifications: Certification[] = [
   },
 ];
 
+const milestoneCount = timeline.length;
+const credentialCount = certifications.length;
+
 export default function Education() {
   return (
     <section
@@ -88,7 +91,7 @@ export default function Education() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.35 }}
-          className="flex items-center gap-4 mb-12"
+          className="flex items-center gap-4 mb-8 md:mb-10"
         >
           <span className="text-accent-2 text-sm">$</span>
           <span className="text-xs tracking-[0.4em] text-text-dim">
@@ -98,107 +101,138 @@ export default function Education() {
         </motion.div>
 
         <TerminalWindow title="education.md">
-          <div className="border border-border-accent bg-bg p-6 md:p-8 mb-12">
-            <div className="flex items-center gap-3 mb-8">
+          <div className="border border-border-accent bg-bg">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 md:px-6 py-3 border-b border-border-accent">
               <span className="text-[10px] tracking-widest text-accent">
-                [EDUCATION TIMELINE]
+                [EDUCATION.MD]
               </span>
-              <div className="flex-1 h-[1px] bg-border" />
+              <span className="text-[10px] text-text-muted">
+                chronological record / 2017 - 2023
+              </span>
+              <span className="text-[10px] text-text-muted md:ml-auto">
+                {milestoneCount} milestones / {credentialCount} credentials
+              </span>
             </div>
 
-            <div className="space-y-0">
-              {timeline.map((item, i) => (
-                <motion.div
-                  key={item.year}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{
-                    delay: i * 0.1,
-                    duration: 0.35,
-                    ease: [0.16, 1, 0.3, 1],
-                  }}
-                  className="relative flex gap-4 md:gap-6 pb-6 last:pb-0"
-                >
-                  <div className="flex flex-col items-center">
-                    <motion.div
-                      whileHover={{ scale: 1.25 }}
-                      className={cn("w-3 h-3 rounded-full z-10", item.dotClass)}
-                    />
-                    {i < timeline.length - 1 && (
-                      <div className="flex-1 w-[1px] bg-border-accent mt-1" />
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0 -mt-1">
-                    <div className="flex items-center gap-3 mb-1">
-                      <span
-                        className={cn(
-                          "text-xs font-bold tracking-wider",
-                          item.textClass,
-                        )}
+            <div className="grid lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+              <div className="p-5 md:p-7 lg:border-r lg:border-border-accent">
+                <div className="flex items-center gap-3 mb-7">
+                  <span className="text-[10px] tracking-widest text-accent-2">
+                    [TIMELINE]
+                  </span>
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-[9px] text-text-muted">
+                    {milestoneCount} EVENTS
+                  </span>
+                </div>
+
+                <div className="relative">
+                  <div
+                    aria-hidden="true"
+                    className="absolute left-[0.3rem] top-2 bottom-2 w-px bg-border-accent"
+                  />
+                  <div className="space-y-7">
+                    {timeline.map((item, i) => (
+                      <motion.article
+                        key={item.year}
+                        initial={{ opacity: 0, x: -16 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{
+                          delay: i * 0.08,
+                          duration: 0.35,
+                          ease: [0.16, 1, 0.3, 1],
+                        }}
+                        className="relative grid grid-cols-[0.75rem_minmax(0,1fr)] gap-4"
                       >
-                        {item.year}
-                      </span>
-                      <span className="text-xs font-bold text-text">
-                        {item.label}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-text-dim mb-1">
-                      {item.school}
-                    </p>
-                    <p className="text-[10px] text-text-muted">{item.desc}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.35 }}
-            className="flex items-center gap-4 mb-8"
-          >
-            <span className="text-accent-4 text-sm">$</span>
-            <span className="text-xs tracking-[0.4em] text-text-dim">
-              ls certs/
-            </span>
-            <div className="flex-1 h-[1px] bg-border" />
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 gap-px bg-border-accent border border-border-accent">
-            {certifications.map((cert, i) => (
-              <motion.a
-                key={cert.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05, duration: 0.35 }}
-                href={cert.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-bg p-6 md:p-8 group hover:bg-accent/5 transition-all duration-300"
-              >
-                <div className="flex items-center gap-4">
-                  <motion.span
-                    whileHover={{ scale: 1.2, rotate: 90 }}
-                    className="text-accent-3 text-lg font-mono leading-none"
-                  >
-                    #
-                  </motion.span>
-                  <div>
-                    <p className="text-sm font-bold text-text group-hover:text-accent transition-colors duration-300">
-                      {cert.title}
-                    </p>
-                    <p className="text-[10px] text-text-muted">
-                      {cert.issuer}
-                      {cert.date ? ` · ${cert.date}` : ""}
-                    </p>
-                    <p className="text-[9px] font-mono text-text-muted/70 mt-1">
-                      {cert.id}
-                    </p>
+                        <span
+                          aria-hidden="true"
+                          className={cn(
+                            "mt-1.5 h-2.5 w-2.5 rounded-full z-10",
+                            item.dotClass,
+                          )}
+                        />
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-1">
+                            <span
+                              className={cn(
+                                "text-xs font-bold tracking-wider",
+                                item.textClass,
+                              )}
+                            >
+                              {item.year}
+                            </span>
+                            <h3 className="text-xs font-bold text-text">
+                              {item.label}
+                            </h3>
+                          </div>
+                          <p className="text-[11px] text-text-dim mb-1">
+                            {item.school}
+                          </p>
+                          <p className="text-[10px] leading-relaxed text-text-muted">
+                            {item.desc}
+                          </p>
+                        </div>
+                      </motion.article>
+                    ))}
                   </div>
                 </div>
-              </motion.a>
-            ))}
+              </div>
+
+              <div className="p-5 md:p-7 bg-surface/40">
+                <div className="flex items-center gap-3 mb-7">
+                  <span className="text-[10px] tracking-widest text-accent-4">
+                    [CREDENTIALS]
+                  </span>
+                  <div className="flex-1 h-px bg-border" />
+                  <span className="text-[9px] text-text-muted">
+                    {credentialCount} LINKS
+                  </span>
+                </div>
+
+                <div className="border-y border-border-accent">
+                  {certifications.map((cert, i) => (
+                    <motion.a
+                      key={cert.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05, duration: 0.3 }}
+                      href={cert.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`Verify ${cert.title}`}
+                      className="group flex items-start gap-3 border-b border-border last:border-0 px-3 py-4 md:px-4 md:py-5 hover:bg-accent-4/[0.03] transition-colors duration-300"
+                    >
+                      <span className="pt-0.5 text-[10px] font-bold tabular-nums text-accent-3">
+                        {String(i + 1).padStart(2, "0")}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="text-sm font-bold leading-snug text-text break-words group-hover:text-accent transition-colors duration-300">
+                          {cert.title}
+                        </h3>
+                        <p className="mt-1 text-[10px] text-text-muted">
+                          {cert.issuer}
+                          {cert.date ? ` · ${cert.date}` : ""}
+                        </p>
+                        <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1">
+                          <span className="text-[9px] font-mono text-text-muted/70 break-all">
+                            {cert.id}
+                          </span>
+                          <span className="text-[9px] tracking-wider text-accent-2">
+                            [VERIFY LINK]
+                          </span>
+                        </div>
+                      </div>
+                      <span
+                        aria-hidden="true"
+                        className="pt-0.5 text-xs text-text-muted transition-colors duration-300 group-hover:text-accent"
+                      >
+                        -&gt;
+                      </span>
+                    </motion.a>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </TerminalWindow>
       </div>
