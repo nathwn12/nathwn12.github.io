@@ -1,16 +1,9 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useScrollVelocity } from "../lib/useScrollVelocity";
+import { usePageScroll } from "../lib/pageScroll";
+import { ROUTES, navigate, useRoute } from "../lib/router";
 
-const navItems = [
-  { label: "ABOUT", href: "#about" },
-  { label: "EXP", href: "#experience" },
-  { label: "FOOTPRINT", href: "#footprint" },
-  { label: "SKILLS", href: "#skills" },
-  { label: "PROJECTS", href: "#projects" },
-  { label: "EDUCATION", href: "#education" },
-  { label: "CONTACT", href: "#contact" },
-];
+const navItems = ROUTES.filter((route) => route.path !== "/");
 
 const utcOffset = (() => {
   const offset = -new Date().getTimezoneOffset();
@@ -22,45 +15,21 @@ const utcOffset = (() => {
 
 export function Header() {
   const [time, setTime] = useState(new Date());
-  const [scrolled, setScrolled] = useState(false);
-  const [activeSection, setActiveSection] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
-  const { isScrolling } = useScrollVelocity();
+  const { y, isScrolling } = usePageScroll();
+  const { route } = useRoute();
+  const scrolled = y > 50;
+  const activeSection = route.label;
 
   useEffect(() => {
     const timer = setInterval(() => setTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  useEffect(() => {
-    const onScroll = () => {
-      setScrolled(window.scrollY > 50);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    const els = navItems.map((item) => document.getElementById(item.href.slice(1))).filter(Boolean) as HTMLElement[];
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            const matched = navItems.find((item) => item.href.slice(1) === entry.target.id);
-            if (matched) setActiveSection(matched.label);
-          }
-        }
-      },
-      { rootMargin: "-100px 0px -60% 0px", threshold: 0 }
-    );
-    els.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-
-  const scrollTo = useCallback((id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+  const navigateTo = (path: string) => {
+    navigate(path);
     setMenuOpen(false);
-  }, []);
+  };
 
   const timeStr = time.toLocaleTimeString("en-US", { hour12: false });
 
@@ -80,7 +49,7 @@ export function Header() {
           <span className="flex items-center gap-3">
             <span
               className={`inline-block w-1.5 h-1.5 rounded-full transition-all duration-200 ${
-                isScrolling ? "bg-accent animate-pulse" : "bg-accent/60"
+                isScrolling ? "bg-accent" : "bg-accent/60"
               }`}
             />
             <span>sys::resume</span>
@@ -99,23 +68,31 @@ export function Header() {
         <div className="flex items-center justify-between px-4 lg:px-8 py-3">
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-1.5 mr-1">
-              <span className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                isScrolling ? "bg-accent-3" : "bg-accent-3/70"
-              }`} />
-              <span className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                isScrolling ? "bg-accent-2" : "bg-accent-2/70"
-              }`} />
-              <span className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                isScrolling ? "bg-accent" : "bg-accent/70"
-              }`} />
+              <span
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  isScrolling ? "bg-accent-3" : "bg-accent-3/70"
+                }`}
+              />
+              <span
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  isScrolling ? "bg-accent-2" : "bg-accent-2/70"
+                }`}
+              />
+              <span
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  isScrolling ? "bg-accent" : "bg-accent/70"
+                }`}
+              />
             </div>
             <button
-              onClick={() => scrollTo("hero")}
+              onClick={() => navigateTo("/")}
               className="text-sm font-bold tracking-tighter text-white flex items-center gap-2 group"
             >
-              <span className="text-accent text-xs group-hover:animate-pulse">$</span>
-              <span className="group-hover:text-accent transition-colors duration-300">NNL</span>
-              <span className="animate-pulse text-accent text-xs">_</span>
+              <span className="text-accent text-xs">$</span>
+              <span className="group-hover:text-accent transition-colors duration-300">
+                NNL
+              </span>
+              <span className="text-accent text-xs">_</span>
             </button>
           </div>
 
@@ -123,7 +100,7 @@ export function Header() {
             {navItems.map((item, i) => (
               <button
                 key={item.label}
-                onClick={() => scrollTo(item.href.slice(1))}
+                onClick={() => navigateTo(item.path)}
                 className={`relative px-4 py-2 text-xs tracking-widest transition-all duration-300 border-l border-border ${
                   activeSection === item.label
                     ? "text-accent bg-accent/5"
@@ -151,9 +128,15 @@ export function Header() {
             aria-expanded={menuOpen}
             className="md:hidden flex flex-col gap-1.5 p-2 group"
           >
-            <span className={`block w-5 h-[2px] bg-text-dim transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-[7px]" : ""}`} />
-            <span className={`block w-5 h-[2px] bg-text-dim transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`} />
-            <span className={`block w-5 h-[2px] bg-text-dim transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-[7px]" : ""}`} />
+            <span
+              className={`block w-5 h-[2px] bg-text-dim transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-[7px]" : ""}`}
+            />
+            <span
+              className={`block w-5 h-[2px] bg-text-dim transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`}
+            />
+            <span
+              className={`block w-5 h-[2px] bg-text-dim transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-[7px]" : ""}`}
+            />
           </button>
         </div>
 
@@ -170,16 +153,14 @@ export function Header() {
                 {navItems.map((item, i) => (
                   <button
                     key={item.label}
-                    onClick={() => scrollTo(item.href.slice(1))}
+                    onClick={() => navigateTo(item.path)}
                     className={`px-4 py-3 text-xs tracking-widest border-b border-border transition-all duration-300 text-left ${
                       activeSection === item.label
                         ? "text-accent bg-accent/5"
                         : "text-text-dim hover:text-white hover:bg-white/5"
                     }`}
                   >
-                    <span className="text-border-accent mr-3">
-                      ^{(i + 1)}
-                    </span>
+                    <span className="text-border-accent mr-3">^{i + 1}</span>
                     {item.label}
                   </button>
                 ))}
@@ -188,7 +169,6 @@ export function Header() {
           )}
         </AnimatePresence>
       </motion.header>
-      <div className="transition-all duration-300" style={{ height: menuOpen ? 88 + navItems.length * 44 : 88 }} />
     </>
   );
 }

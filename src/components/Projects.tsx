@@ -1,121 +1,131 @@
-import { motion } from "framer-motion"
-import { useState, useEffect } from "react"
-import type { Project } from "../types/models"
-import { TerminalWindow } from "./TerminalWindow"
+import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import type { Project } from "../types/models";
+import { RouteLink } from "../lib/router";
+import { TerminalWindow } from "./TerminalWindow";
 
-type ProjectId = string & { readonly __brand: "Project" }
+type ProjectId = string & { readonly __brand: "Project" };
 
 const projects: Project[] = [
   {
     id: "01",
     name: "PAYMENT GATEWAY API OPTIMIZATION",
-    description: "98% latency reduction on a payment processing API by migrating from MySql.Data to MySqlConnector in AWS production.",
+    description:
+      "98% latency reduction on a payment processing API by migrating from MySql.Data to MySqlConnector in AWS production.",
     tech: ["C#", "ASP.NET CORE", "EF CORE", "AWS", "MYSQL"],
     status: "PRODUCTION",
-    color: "#22c55e",
+    color: "#73d216",
     stats: [
-      { label: "improvement", value: "98%", color: "#22c55e" },
-      { label: "latency", value: "60s→1s", color: "#22c55e" },
-      { label: "uptime", value: "99.9%", color: "#22c55e" },
+      { label: "improvement", value: "98%", color: "#73d216" },
+      { label: "latency", value: "60s→1s", color: "#73d216" },
+      { label: "uptime", value: "99.9%", color: "#73d216" },
     ],
   },
   {
     id: "02",
     name: "IDENTITY & ACCESS MANAGEMENT",
-    description: "Authentication microservice with OAuth 2.0, OpenID Connect, and JWT — zero high/critical Snyk vulnerabilities at deployment.",
+    description:
+      "Authentication microservice with OAuth 2.0, OpenID Connect, and JWT — zero high/critical Snyk vulnerabilities at deployment.",
     tech: ["C#", "OAUTH 2.0", "JWT", "OPENID", "SNYK"],
     status: "PRODUCTION",
-    color: "#38bdf8",
+    color: "#2aa198",
     stats: [
-      { label: "vulns", value: "0 CRIT", color: "#38bdf8" },
-      { label: "auth flows", value: "3", color: "#38bdf8" },
-      { label: "coverage", value: "100%", color: "#38bdf8" },
+      { label: "vulns", value: "0 CRIT", color: "#2aa198" },
+      { label: "auth flows", value: "3", color: "#2aa198" },
+      { label: "coverage", value: "100%", color: "#2aa198" },
     ],
   },
   {
     id: "03",
     name: "MICROSERVICES PLATFORM",
-    description: "Monolith-to-microservices migration using Repository pattern and DI for independent scaling and reduced deployment coupling.",
+    description:
+      "Monolith-to-microservices migration using Repository pattern and DI for independent scaling and reduced deployment coupling.",
     tech: ["ASP.NET CORE", "DOCKER", "POSTGRES", "CI/CD"],
     status: "PRODUCTION",
-    color: "#f59e0b",
+    color: "#cb4b16",
     stats: [
-      { label: "services", value: "6", color: "#f59e0b" },
-      { label: "coupling", value: "-40%", color: "#f59e0b" },
-      { label: "deploys", value: "3× FASTER", color: "#f59e0b" },
+      { label: "services", value: "6", color: "#cb4b16" },
+      { label: "coupling", value: "-40%", color: "#cb4b16" },
+      { label: "deploys", value: "3× FASTER", color: "#cb4b16" },
     ],
   },
   {
     id: "04",
     name: "DEVEX & API STANDARDS",
-    description: "Swagger/OpenAPI standards and Postman collections that reduced integration friction across QA and frontend teams.",
+    description:
+      "Swagger/OpenAPI standards and Postman collections that reduced integration friction across QA and frontend teams.",
     tech: ["SWAGGER", "OPENAPI", "POSTMAN", "REST"],
     status: "SHIPPED",
-    color: "#8b5cf6",
+    color: "#6c71c4",
     stats: [
-      { label: "teams", value: "3", color: "#8b5cf6" },
-      { label: "friction", value: "-60%", color: "#8b5cf6" },
-      { label: "endpoints", value: "100+", color: "#8b5cf6" },
+      { label: "teams", value: "3", color: "#6c71c4" },
+      { label: "friction", value: "-60%", color: "#6c71c4" },
+      { label: "endpoints", value: "100+", color: "#6c71c4" },
     ],
   },
-]
+];
 
 const extMap: Record<string, string> = {
   "C#": ".cs",
   "ASP.NET CORE": ".csproj",
   "EF CORE": ".ef",
-  "AWS": ".aws",
-  "MYSQL": ".sql",
+  AWS: ".aws",
+  MYSQL: ".sql",
   "OAUTH 2.0": ".auth",
-  "JWT": ".jwt",
-  "OPENID": ".oid",
-  "SNYK": ".snyk",
-  "DOCKER": ".yml",
-  "POSTGRES": ".sql",
+  JWT: ".jwt",
+  OPENID: ".oid",
+  SNYK: ".snyk",
+  DOCKER: ".yml",
+  POSTGRES: ".sql",
   "CI/CD": ".yaml",
-  "SWAGGER": ".json",
-  "OPENAPI": ".yaml",
-  "POSTMAN": ".json",
-  "REST": ".http",
-}
+  SWAGGER: ".json",
+  OPENAPI: ".yaml",
+  POSTMAN: ".json",
+  REST: ".http",
+};
 
 export default function Projects() {
-  const [selectedId, setSelectedId] = useState<ProjectId | null>("01" as ProjectId)
-  const [cdAnim, setCdAnim] = useState(false)
+  const [selectedId, setSelectedId] = useState<ProjectId | null>(
+    "01" as ProjectId,
+  );
+  const [cdAnim, setCdAnim] = useState(false);
 
   useEffect(() => {
-    setCdAnim(true)
-    const t = setTimeout(() => setCdAnim(false), 500)
-    return () => clearTimeout(t)
-  }, [])
+    setCdAnim(true);
+    const t = setTimeout(() => setCdAnim(false), 500);
+    return () => clearTimeout(t);
+  }, []);
 
-  const selected = projects.find((p) => p.id === selectedId)
+  const selected = projects.find((p) => p.id === selectedId);
 
   function handleSelect(id: ProjectId) {
     if (selectedId === id) {
-      setSelectedId(null)
-      return
+      setSelectedId(null);
+      return;
     }
-    setCdAnim(true)
-    setSelectedId(id)
-    setTimeout(() => setCdAnim(false), 400)
+    setCdAnim(true);
+    setSelectedId(id);
+    setTimeout(() => setCdAnim(false), 400);
   }
 
   return (
-    <section id="projects" className="py-24 md:py-32 px-4 lg:px-8 relative overflow-hidden">
-      <div className="section-ambient"
+    <section
+      id="projects"
+      className="py-8 md:py-12 px-4 lg:px-8 relative overflow-hidden"
+    >
+      <div
+        className="section-ambient"
         style={{
           background: `
-            radial-gradient(ellipse at 70% 40%, rgba(139,92,246,0.12) 0%, rgba(139,92,246,0.03) 40%, transparent 65%),
-            radial-gradient(ellipse at 30% 70%, rgba(34,197,94,0.04) 0%, transparent 50%)
+            radial-gradient(ellipse at 70% 40%, rgba(108,113,196,0.08) 0%, rgba(108,113,196,0.02) 40%, transparent 65%),
+            radial-gradient(ellipse at 30% 70%, rgba(115,210,22,0.03) 0%, transparent 50%)
           `,
         }}
       />
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
           className="flex items-center gap-4 mb-12"
         >
@@ -127,172 +137,224 @@ export default function Projects() {
         </motion.div>
 
         <TerminalWindow title="projects/">
-        {/* ls -la header row */}
-        <div className="hidden md:flex items-center gap-4 px-4 py-2 text-[9px] tracking-widest text-text-muted border border-border bg-bg mb-px">
-          <span className="w-28">permissions</span>
-          <span className="w-8 text-right">links</span>
-          <span className="w-20">owner</span>
-          <span className="w-16 text-right">size</span>
-          <span className="w-24">date</span>
-          <span className="flex-1">name</span>
-        </div>
-
-        {/* Directory listing */}
-        <div className="hidden md:grid gap-px bg-border-accent border border-border-accent mb-6">
-          {/* Parent directory */}
-          <div
-            role="button"
-            tabIndex={0}
-            onClick={() => setSelectedId(null)}
-            onKeyDown={(e) => { if (e.key === "Enter") setSelectedId(null) }}
-            className="flex items-center gap-4 px-4 py-3 bg-bg hover:bg-accent/5 transition-colors duration-300 cursor-pointer"
-          >
-            <span className="w-28 text-[10px] font-mono text-text-dim">drwxr-xr-x</span>
-            <span className="w-8 text-right text-[10px] text-text-muted">2</span>
-            <span className="w-20 text-[10px] text-text-muted">nathan</span>
-            <span className="w-16 text-right text-[10px] text-text-muted">4.0K</span>
-            <span className="w-24 text-[10px] text-text-muted">May 28 2026</span>
-            <span className="flex-1 text-[10px] font-mono text-accent-2">../</span>
+          {/* ls -la header row */}
+          <div className="hidden md:flex items-center gap-4 px-4 py-2 text-[9px] tracking-widest text-text-muted border border-border bg-bg mb-px">
+            <span className="w-28">permissions</span>
+            <span className="w-8 text-right">links</span>
+            <span className="w-20">owner</span>
+            <span className="w-16 text-right">size</span>
+            <span className="w-24">date</span>
+            <span className="flex-1">name</span>
           </div>
 
-          {projects.map((project) => (
+          {/* Directory listing */}
+          <div className="hidden md:grid gap-px bg-border-accent border border-border-accent mb-6">
+            {/* Parent directory */}
             <div
-              key={project.id}
               role="button"
               tabIndex={0}
-              onClick={() => handleSelect(project.id as ProjectId)}
-              onKeyDown={(e) => { if (e.key === "Enter") handleSelect(project.id as ProjectId) }}
-              className={`flex items-center gap-4 px-4 py-3 bg-bg hover:bg-accent/5 transition-all duration-300 cursor-pointer ${
-                selectedId === project.id ? "bg-accent/5 border-l-2 border-accent" : ""
-              }`}
+              onClick={() => setSelectedId(null)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") setSelectedId(null);
+              }}
+              className="flex items-center gap-4 px-4 py-3 bg-bg hover:bg-accent/5 transition-colors duration-300 cursor-pointer"
             >
-              <span className="w-28 text-[10px] font-mono text-text-dim">drwxr-xr-x</span>
-              <span className="w-8 text-right text-[10px] text-text-muted">2</span>
+              <span className="w-28 text-[10px] font-mono text-text-dim">
+                drwxr-xr-x
+              </span>
+              <span className="w-8 text-right text-[10px] text-text-muted">
+                2
+              </span>
               <span className="w-20 text-[10px] text-text-muted">nathan</span>
-              <span className="w-16 text-right text-[10px] text-text-muted">4.0K</span>
-              <span className="w-24 text-[10px] text-text-muted">May 28 2026</span>
-              <span className="flex-1 text-[11px] font-mono hover:text-accent transition-colors" style={{ color: project.color }}>
-                {project.name.toLowerCase().replace(/\s+/g, "-")}/
-                <span className="text-[9px] text-text-muted ml-1">
-                  {project.tech.map((t) => extMap[t]).filter((v): v is string => v !== undefined).filter((v, i, a) => a.indexOf(v) === i).join(" ")}
-                </span>
+              <span className="w-16 text-right text-[10px] text-text-muted">
+                4.0K
+              </span>
+              <span className="w-24 text-[10px] text-text-muted">
+                May 28 2026
+              </span>
+              <span className="flex-1 text-[10px] font-mono text-accent-2">
+                ../
               </span>
             </div>
-          ))}
-        </div>
 
-        {/* Mobile: card view */}
-        <div className="md:hidden grid gap-4 mb-6">
-          {projects.map((project, i) => (
-            <motion.div
-              key={project.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              onClick={() => handleSelect(project.id as ProjectId)}
-              className={`group relative border transition-all duration-500 p-4 ${
-                selectedId === project.id
-                  ? "border-accent bg-accent/5"
-                  : "border-border hover:border-border-accent"
-              }`}
-            >
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-[10px] text-text-muted tabular-nums">{project.id}</span>
+            {projects.map((project) => (
+              <div
+                key={project.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => handleSelect(project.id as ProjectId)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSelect(project.id as ProjectId);
+                }}
+                className={`flex items-center gap-4 px-4 py-3 bg-bg hover:bg-accent/5 transition-all duration-300 cursor-pointer ${
+                  selectedId === project.id
+                    ? "bg-accent/5 border-l-2 border-accent"
+                    : ""
+                }`}
+              >
+                <span className="w-28 text-[10px] font-mono text-text-dim">
+                  drwxr-xr-x
+                </span>
+                <span className="w-8 text-right text-[10px] text-text-muted">
+                  2
+                </span>
+                <span className="w-20 text-[10px] text-text-muted">nathan</span>
+                <span className="w-16 text-right text-[10px] text-text-muted">
+                  4.0K
+                </span>
+                <span className="w-24 text-[10px] text-text-muted">
+                  May 28 2026
+                </span>
                 <span
-                  className="text-[10px] tracking-widest px-2 py-0.5"
-                  style={{
-                    color: project.color,
-                    border: `1px solid ${project.color}44`,
-                    backgroundColor: `${project.color}0d`,
-                  }}
+                  className="flex-1 text-[11px] font-mono hover:text-accent transition-colors"
+                  style={{ color: project.color }}
                 >
-                  {project.status}
+                  {project.name.toLowerCase().replace(/\s+/g, "-")}/
+                  <span className="text-[9px] text-text-muted ml-1">
+                    {project.tech
+                      .map((t) => extMap[t])
+                      .filter((v): v is string => v !== undefined)
+                      .filter((v, i, a) => a.indexOf(v) === i)
+                      .join(" ")}
+                  </span>
                 </span>
               </div>
-              <h3 className="text-sm font-bold tracking-tight text-white">{project.name}</h3>
-              <p className="text-xs text-text-dim mt-1">{project.description}</p>
-            </motion.div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        {/* Selected project: cat README.md */}
-        <motion.div
-          initial={{ opacity: 0, height: 0 }}
-          animate={{
-            opacity: selected ? 1 : 0,
-            height: selected ? "auto" : 0,
-          }}
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className="overflow-hidden"
-        >
-          {selected && (
-            <div className="border border-border-accent bg-bg p-6 md:p-8">
-              {cdAnim && (
-                <motion.p
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-[10px] text-text-muted mb-4 font-mono"
-                >
-                  <span className="text-accent">$</span> cd {selected.name.toLowerCase().replace(/\s+/g, "-")}/
-                </motion.p>
-              )}
-
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-accent text-xs">$</span>
-                <span className="text-[10px] text-text-dim">cat README.md</span>
-                <span className="terminal-cursor text-accent text-xs font-bold">█</span>
-              </div>
-
-              <div className="mb-6">
-                <h3 className="text-lg md:text-xl font-bold tracking-tight mb-2" style={{ color: selected.color }}>
-                  {selected.name}
-                </h3>
-                <p className="text-sm text-text-dim leading-relaxed">
-                  {selected.description}
-                </p>
-              </div>
-
-              <div className="flex items-center gap-6 mb-6">
-                {selected.stats.map((stat) => (
-                  <div key={stat.label}>
-                    <p className="text-[9px] tracking-widest text-text-muted mb-0.5 uppercase">{stat.label}</p>
-                    <p className="text-lg font-bold tabular-nums" style={{ color: stat.color }}>{stat.value}</p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex flex-wrap gap-2 mb-6">
-                {selected.tech.map((t) => (
-                  <span
-                    key={t}
-                    className="text-[10px] tracking-wider px-2 py-1 border border-border text-text-dim hover:bg-white/5 hover:border-accent/30 transition-all duration-300"
-                  >
-                    {t}
+          {/* Mobile: card view */}
+          <div className="md:hidden grid gap-4 mb-6">
+            {projects.map((project, i) => (
+              <motion.div
+                key={project.id}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  delay: i * 0.08,
+                  duration: 0.5,
+                  ease: [0.16, 1, 0.3, 1],
+                }}
+                onClick={() => handleSelect(project.id as ProjectId)}
+                className={`group relative border transition-all duration-500 p-4 ${
+                  selectedId === project.id
+                    ? "border-accent bg-accent/5"
+                    : "border-border hover:border-border-accent"
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2">
+                  <span className="text-[10px] text-text-muted tabular-nums">
+                    {project.id}
                   </span>
-                ))}
+                  <span
+                    className="text-[10px] tracking-widest px-2 py-0.5"
+                    style={{
+                      color: project.color,
+                      border: `1px solid ${project.color}44`,
+                      backgroundColor: `${project.color}0d`,
+                    }}
+                  >
+                    {project.status}
+                  </span>
+                </div>
+                <h3 className="text-sm font-bold tracking-tight text-white">
+                  {project.name}
+                </h3>
+                <p className="text-xs text-text-dim mt-1">
+                  {project.description}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Selected project: cat README.md */}
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{
+              opacity: selected ? 1 : 0,
+              height: selected ? "auto" : 0,
+            }}
+            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden"
+          >
+            {selected && (
+              <div className="border border-border-accent bg-bg p-6 md:p-8">
+                {cdAnim && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-[10px] text-text-muted mb-4 font-mono"
+                  >
+                    <span className="text-accent">$</span> cd{" "}
+                    {selected.name.toLowerCase().replace(/\s+/g, "-")}/
+                  </motion.p>
+                )}
+
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-accent text-xs">$</span>
+                  <span className="text-[10px] text-text-dim">
+                    cat README.md
+                  </span>
+                </div>
+
+                <div className="mb-6">
+                  <h3
+                    className="text-lg md:text-xl font-bold tracking-tight mb-2"
+                    style={{ color: selected.color }}
+                  >
+                    {selected.name}
+                  </h3>
+                  <p className="text-sm text-text-dim leading-relaxed">
+                    {selected.description}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-6 mb-6">
+                  {selected.stats.map((stat) => (
+                    <div key={stat.label}>
+                      <p className="text-[9px] tracking-widest text-text-muted mb-0.5 uppercase">
+                        {stat.label}
+                      </p>
+                      <p
+                        className="text-lg font-bold tabular-nums"
+                        style={{ color: stat.color }}
+                      >
+                        {stat.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex flex-wrap gap-2 mb-6">
+                  {selected.tech.map((t) => (
+                    <span
+                      key={t}
+                      className="text-[10px] tracking-wider px-2 py-1 border border-border text-text-dim hover:bg-white/5 hover:border-accent/30 transition-all duration-300"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+
+                <RouteLink
+                  href="/footprint"
+                  className="flex items-center gap-2 text-text-dim hover:text-accent transition-colors duration-300 text-xs tracking-widest group/link"
+                >
+                  <span>FOOTPRINT ❯</span>
+                </RouteLink>
+
+                <motion.button
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  onClick={() => setSelectedId(null)}
+                  className="mt-4 text-[10px] tracking-widest text-text-muted hover:text-accent transition-colors"
+                >
+                  <span className="text-accent">$</span> cd ..
+                </motion.button>
               </div>
-
-              <a
-                href="#footprint"
-                className="flex items-center gap-2 text-text-dim hover:text-accent transition-colors duration-300 text-xs tracking-widest group/link"
-              >
-                <span>FOOTPRINT ❯</span>
-              </a>
-
-              <motion.button
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                onClick={() => setSelectedId(null)}
-                className="mt-4 text-[10px] tracking-widest text-text-muted hover:text-accent transition-colors"
-              >
-                <span className="text-accent">$</span> cd ..
-              </motion.button>
-            </div>
-          )}
-        </motion.div>
+            )}
+          </motion.div>
         </TerminalWindow>
       </div>
     </section>
-  )
+  );
 }

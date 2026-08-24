@@ -1,6 +1,6 @@
-import { motion } from "framer-motion"
-import { useState } from "react"
-import type { SkillCategory } from "../types/models"
+import { motion } from "framer-motion";
+import { useState } from "react";
+import type { SkillCategory } from "../types/models";
 
 const skillCategories: SkillCategory[] = [
   {
@@ -43,26 +43,34 @@ const skillCategories: SkillCategory[] = [
       { name: "OPENAPI", level: 88 },
     ],
   },
-]
+];
 
-function SkillBar({ name, level, index }: { name: string; level: number; index: number }) {
-  const blocks = "▇▇▇▇▇▇▇▇▇▇"
-  const fillCount = Math.round(level / 10)
-  const emptyCount = 10 - fillCount
-  const barVisual = blocks.slice(0, fillCount) + "░░░░░░░░░░".slice(0, emptyCount)
+function SkillBar({
+  name,
+  level,
+  index,
+}: {
+  name: string;
+  level: number;
+  index: number;
+}) {
+  const blocks = "▇▇▇▇▇▇▇▇▇▇";
+  const fillCount = Math.round(level / 10);
+  const emptyCount = 10 - fillCount;
+  const barVisual =
+    blocks.slice(0, fillCount) + "░░░░░░░░░░".slice(0, emptyCount);
 
   const getBarColor = (lvl: number) => {
-    if (lvl >= 90) return "text-accent"
-    if (lvl >= 80) return "text-accent-2"
-    if (lvl >= 70) return "text-accent-3"
-    return "text-accent-4"
-  }
+    if (lvl >= 90) return "text-accent";
+    if (lvl >= 80) return "text-accent-2";
+    if (lvl >= 70) return "text-accent-3";
+    return "text-accent-4";
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, x: -10 }}
-      whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.04, duration: 0.4 }}
       className="group"
     >
@@ -72,7 +80,9 @@ function SkillBar({ name, level, index }: { name: string; level: number; index: 
         </span>
       </div>
       <div className="flex items-center gap-3">
-        <span className={`text-xs tracking-wider ${getBarColor(level)} font-bold tabular-nums w-9 shrink-0`}>
+        <span
+          className={`text-xs tracking-wider ${getBarColor(level)} font-bold tabular-nums w-9 shrink-0`}
+        >
           {level}%
         </span>
         <span className="font-mono text-xs tracking-wider text-text-dim">
@@ -82,51 +92,60 @@ function SkillBar({ name, level, index }: { name: string; level: number; index: 
       <div className="h-[3px] bg-border relative overflow-hidden mt-1">
         <motion.div
           initial={{ width: 0 }}
-          whileInView={{ width: `${level}%` }}
-          viewport={{ once: true }}
-          transition={{ delay: index * 0.04 + 0.15, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className={`h-full ${level >= 90 ? "bg-accent" : level >= 80 ? "bg-accent-2" : level >= 70 ? "bg-accent-3" : "bg-accent-4"} relative overflow-hidden`}
-          style={{
-            boxShadow: level >= 90 ? "0 0 8px rgba(34,197,94,0.3)" : "none",
+          animate={{ width: `${level}%` }}
+          transition={{
+            delay: index * 0.04 + 0.15,
+            duration: 0.8,
+            ease: [0.16, 1, 0.3, 1],
           }}
+          className={`h-full ${level >= 90 ? "bg-accent" : level >= 80 ? "bg-accent-2" : level >= 70 ? "bg-accent-3" : "bg-accent-4"} relative overflow-hidden`}
+          style={{ boxShadow: "none" }}
         >
           <motion.div
             initial={{ x: "-100%" }}
-            whileInView={{ x: "200%" }}
-            viewport={{ once: true }}
-            transition={{ delay: index * 0.04 + 0.5, duration: 1.5, repeat: Infinity, repeatDelay: 2 }}
+            animate={{ x: "200%" }}
+            transition={{
+              delay: index * 0.04 + 0.5,
+              duration: 1.5,
+              repeat: Infinity,
+              repeatDelay: 2,
+            }}
             className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent"
           />
         </motion.div>
       </div>
     </motion.div>
-  )
+  );
 }
 
 export function Skills() {
-  const [loadAvg] = useState(() => `${Math.floor(Math.random() * 3 + 1)}.${Math.floor(Math.random() * 99)}`)
+  const [loadAvg] = useState(
+    () =>
+      `${Math.floor(Math.random() * 3 + 1)}.${Math.floor(Math.random() * 99)}`,
+  );
   return (
-    <section id="skills" className="py-24 md:py-32 px-4 lg:px-8 relative overflow-hidden">
-      <div className="section-ambient"
+    <section
+      id="skills"
+      className="py-8 md:py-12 px-4 lg:px-8 relative overflow-hidden"
+    >
+      <div
+        className="section-ambient"
         style={{
           background: `
-            radial-gradient(ellipse at 30% 60%, rgba(245,158,11,0.12) 0%, rgba(245,158,11,0.03) 40%, transparent 65%),
-            radial-gradient(ellipse at 70% 20%, rgba(56,189,248,0.05) 0%, transparent 50%)
+            radial-gradient(ellipse at 30% 60%, rgba(203,75,22,0.08) 0%, rgba(203,75,22,0.02) 40%, transparent 65%),
+            radial-gradient(ellipse at 70% 20%, rgba(42,161,152,0.03) 0%, transparent 50%)
           `,
         }}
       />
       <div className="max-w-5xl mx-auto">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
           className="flex items-center gap-4 mb-12"
         >
           <span className="text-accent-3 text-sm">$</span>
-          <span className="text-xs tracking-[0.4em] text-text-dim">
-            htop
-          </span>
+          <span className="text-xs tracking-[0.4em] text-text-dim">htop</span>
           <div className="flex-1 h-[1px] bg-border" />
         </motion.div>
 
@@ -135,7 +154,9 @@ export function Skills() {
           {/* Title bar */}
           <div className="flex items-center justify-between px-4 py-2 border-b border-border-accent bg-surface text-[9px] tracking-widest text-text-muted">
             <span className="text-accent">htop — LOAD AVERAGE: {loadAvg}</span>
-            <span className="text-border-accent">TASKS: 4, UPTIME: 3+ YEARS</span>
+            <span className="text-border-accent">
+              TASKS: 4, UPTIME: 3+ YEARS
+            </span>
           </div>
 
           {/* Content */}
@@ -144,15 +165,12 @@ export function Skills() {
               <motion.div
                 key={cat.category}
                 initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: catIdx * 0.08, duration: 0.5 }}
                 className="bg-bg p-6 md:p-8"
               >
                 <div className="flex items-center gap-3 mb-6">
-                  <span className="text-[10px] text-accent-3 shrink-0">
-                    ◆
-                  </span>
+                  <span className="text-[10px] text-accent-3 shrink-0">◆</span>
                   <span className="text-[10px] tracking-[0.3em] text-accent-3 font-bold">
                     [{cat.category}]
                   </span>
@@ -174,16 +192,19 @@ export function Skills() {
 
           {/* Bottom status bar */}
           <div className="flex items-center gap-6 px-4 py-2 border-t border-border-accent bg-surface text-[9px] tracking-widest text-text-muted">
-            {["F1 Help", "F2 Setup", "F3 Search", "F4 Filter", "F5 Tree"].map((key) => (
-              <span key={key} className="text-border-accent">{key}</span>
-            ))}
+            {["F1 Help", "F2 Setup", "F3 Search", "F4 Filter", "F5 Tree"].map(
+              (key) => (
+                <span key={key} className="text-border-accent">
+                  {key}
+                </span>
+              ),
+            )}
           </div>
         </div>
 
         <motion.div
           initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
+          animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.5 }}
           className="mt-6 overflow-hidden border-y border-border py-4 marquee-wrap"
         >
@@ -192,18 +213,31 @@ export function Skills() {
               <div key={i} className="flex items-center gap-3 px-4">
                 <span className="text-accent-3">PID 1 —</span>
                 {[
-                  "C#", "ASP.NET CORE", "MYSQL", "AWS", "DOCKER",
-                  "JWT", "EF CORE", "POSTGRES", "REDIS", "GIT",
-                  "LINUX", "OAUTH", "SNYK", "REST", "SWAGGER",
+                  "C#",
+                  "ASP.NET CORE",
+                  "MYSQL",
+                  "AWS",
+                  "DOCKER",
+                  "JWT",
+                  "EF CORE",
+                  "POSTGRES",
+                  "REDIS",
+                  "GIT",
+                  "LINUX",
+                  "OAUTH",
+                  "SNYK",
+                  "REST",
+                  "SWAGGER",
                 ].map((tech) => (
-                  <a
+                  <span
                     key={`${i}-${tech}`}
-                    href="#skills"
-                    className="hover:text-accent transition-colors duration-300"
+                    className="hover:text-accent transition-colors duration-300 cursor-pointer"
                   >
                     {tech}
-                    <span className="text-border mx-2 pointer-events-none">◆</span>
-                  </a>
+                    <span className="text-border mx-2 pointer-events-none">
+                      ◆
+                    </span>
+                  </span>
                 ))}
               </div>
             ))}
@@ -211,5 +245,5 @@ export function Skills() {
         </motion.div>
       </div>
     </section>
-  )
+  );
 }
