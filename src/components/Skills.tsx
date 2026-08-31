@@ -2,511 +2,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { cn } from "@/lib/cn";
 import { TerminalWindow } from "./TerminalWindow";
-
-type Tier = "DAILY" | "PROD" | "WORKING";
-
-interface PackageInfo {
-  /** Human-readable name, e.g. "ASP.NET Core" */
-  name: string;
-  /** Lowercase-hyphenated package slug, e.g. "aspnet-core" */
-  slug: string;
-  /** Real technology version from the resume-era ecosystem, or "-" when unversioned */
-  version: string;
-  /** Short dim one-liner */
-  description: string;
-  tier: Tier;
-}
-
-interface RepoGroup {
-  /** pacman repo fork, e.g. "core" */
-  fork: string;
-  /** Full repo tag, e.g. "core/backend" */
-  repo: string;
-  /** Human-readable category name */
-  label: string;
-  packages: PackageInfo[];
-}
-
-const TIER_STYLES: Record<Tier, { color: string; note: string }> = {
-  DAILY: { color: "text-accent", note: "used daily in production work" },
-  PROD: { color: "text-accent-2", note: "shipped in production systems" },
-  WORKING: {
-    color: "text-accent-4",
-    note: "competent, not a daily driver",
-  },
-};
-
-const repos: RepoGroup[] = [
-  {
-    fork: "core",
-    repo: "core/backend",
-    label: "Backend & Languages",
-    packages: [
-      {
-        name: "C#",
-        slug: "csharp",
-        version: "12.0",
-        description: "primary language",
-        tier: "DAILY",
-      },
-      {
-        name: "ASP.NET",
-        slug: "aspnet-core",
-        version: "9.0",
-        description: "web framework",
-        tier: "DAILY",
-      },
-      {
-        name: ".NET 6/7/8/9",
-        slug: "dotnet",
-        version: "9.0",
-        description: "runtime & sdk",
-        tier: "DAILY",
-      },
-      {
-        name: "EF Core",
-        slug: "ef-core",
-        version: "9.0",
-        description: "orm / migrations",
-        tier: "DAILY",
-      },
-      {
-        name: "Dapper",
-        slug: "dapper",
-        version: "2.1",
-        description: "micro-orm",
-        tier: "DAILY",
-      },
-      {
-        name: "REST",
-        slug: "rest",
-        version: "-",
-        description: "api design",
-        tier: "DAILY",
-      },
-      {
-        name: "gRPC",
-        slug: "grpc",
-        version: "2.6x",
-        description: "rpc framework",
-        tier: "PROD",
-      },
-      {
-        name: "SignalR",
-        slug: "signalr",
-        version: "9.0",
-        description: "realtime transport",
-        tier: "PROD",
-      },
-      {
-        name: "Microservices",
-        slug: "microservices",
-        version: "-",
-        description: "architecture pattern",
-        tier: "PROD",
-      },
-      {
-        name: "JavaScript",
-        slug: "javascript",
-        version: "ES2024",
-        description: "client language",
-        tier: "WORKING",
-      },
-      {
-        name: "TypeScript",
-        slug: "typescript",
-        version: "5.x",
-        description: "typed javascript",
-        tier: "WORKING",
-      },
-      {
-        name: "Python",
-        slug: "python",
-        version: "3.12",
-        description: "scripting language",
-        tier: "WORKING",
-      },
-      {
-        name: "PHP",
-        slug: "php",
-        version: "8.3",
-        description: "server language",
-        tier: "WORKING",
-      },
-    ],
-  },
-  {
-    fork: "extra",
-    repo: "extra/data",
-    label: "Data & Messaging",
-    packages: [
-      {
-        name: "MySQL",
-        slug: "mysql",
-        version: "8.0",
-        description: "primary relational db",
-        tier: "DAILY",
-      },
-      {
-        name: "MariaDB",
-        slug: "mariadb",
-        version: "11.x",
-        description: "mysql-compatible db",
-        tier: "WORKING",
-      },
-      {
-        name: "PostgreSQL",
-        slug: "postgresql",
-        version: "16.x",
-        description: "relational db",
-        tier: "WORKING",
-      },
-      {
-        name: "SQL Server",
-        slug: "sql-server",
-        version: "2022",
-        description: "managed relational db",
-        tier: "PROD",
-      },
-      {
-        name: "MongoDB",
-        slug: "mongodb",
-        version: "7.0",
-        description: "document db",
-        tier: "WORKING",
-      },
-      {
-        name: "Redis",
-        slug: "redis",
-        version: "7.x",
-        description: "cache & queue",
-        tier: "DAILY",
-      },
-      {
-        name: "RabbitMQ",
-        slug: "rabbitmq",
-        version: "3.13",
-        description: "message broker",
-        tier: "PROD",
-      },
-      {
-        name: "Serilog",
-        slug: "serilog",
-        version: "4.x",
-        description: "structured logging",
-        tier: "PROD",
-      },
-      {
-        name: "Query Optimization",
-        slug: "query-optimization",
-        version: "-",
-        description: "indexing & plans",
-        tier: "DAILY",
-      },
-    ],
-  },
-  {
-    fork: "extra",
-    repo: "extra/devops",
-    label: "Cloud/DevOps",
-    packages: [
-      {
-        name: "AWS EC2",
-        slug: "aws-ec2",
-        version: "-",
-        description: "virtual machines",
-        tier: "PROD",
-      },
-      {
-        name: "AWS RDS",
-        slug: "aws-rds",
-        version: "-",
-        description: "managed databases",
-        tier: "PROD",
-      },
-      {
-        name: "AWS S3",
-        slug: "aws-s3",
-        version: "-",
-        description: "object storage",
-        tier: "PROD",
-      },
-      {
-        name: "Docker",
-        slug: "docker",
-        version: "26.x",
-        description: "containerization",
-        tier: "DAILY",
-      },
-      {
-        name: "GitHub Actions",
-        slug: "github-actions",
-        version: "-",
-        description: "ci automation",
-        tier: "DAILY",
-      },
-      {
-        name: "CI/CD",
-        slug: "ci-cd",
-        version: "-",
-        description: "delivery pipeline",
-        tier: "DAILY",
-      },
-      {
-        name: "Nginx",
-        slug: "nginx",
-        version: "1.26",
-        description: "reverse proxy",
-        tier: "DAILY",
-      },
-      {
-        name: "Let's Encrypt",
-        slug: "lets-encrypt",
-        version: "-",
-        description: "free tls certs",
-        tier: "PROD",
-      },
-      {
-        name: "Linux (Ubuntu)",
-        slug: "linux-ubuntu",
-        version: "22.04",
-        description: "server os",
-        tier: "DAILY",
-      },
-      {
-        name: "Bash",
-        slug: "bash",
-        version: "5.2",
-        description: "shell scripting",
-        tier: "DAILY",
-      },
-      {
-        name: "PowerShell",
-        slug: "powershell",
-        version: "7.4",
-        description: "windows automation",
-        tier: "PROD",
-      },
-    ],
-  },
-  {
-    fork: "extra",
-    repo: "extra/security",
-    label: "Security & Auth",
-    packages: [
-      {
-        name: "JWT",
-        slug: "jwt",
-        version: "-",
-        description: "token authentication",
-        tier: "PROD",
-      },
-      {
-        name: "OAuth 2.0",
-        slug: "oauth2",
-        version: "2.0",
-        description: "authorization framework",
-        tier: "PROD",
-      },
-      {
-        name: "OIDC",
-        slug: "oidc",
-        version: "1.0",
-        description: "identity layer",
-        tier: "PROD",
-      },
-      {
-        name: "RBAC",
-        slug: "rbac",
-        version: "-",
-        description: "role-based access",
-        tier: "PROD",
-      },
-      {
-        name: "ABAC",
-        slug: "abac",
-        version: "-",
-        description: "attribute-based access",
-        tier: "PROD",
-      },
-      {
-        name: "Snyk",
-        slug: "snyk",
-        version: "-",
-        description: "dependency scanning",
-        tier: "PROD",
-      },
-      {
-        name: "OWASP Top 10",
-        slug: "owasp-top10",
-        version: "2021",
-        description: "appsec checklist",
-        tier: "PROD",
-      },
-      {
-        name: "SSL/TLS",
-        slug: "ssl-tls",
-        version: "1.3",
-        description: "transport security",
-        tier: "PROD",
-      },
-    ],
-  },
-  {
-    fork: "community",
-    repo: "community/ai",
-    label: "AI-Assisted Development",
-    packages: [
-      {
-        name: "OpenCode",
-        slug: "opencode",
-        version: "-",
-        description: "terminal agent",
-        tier: "DAILY",
-      },
-      {
-        name: "Codex",
-        slug: "codex",
-        version: "-",
-        description: "coding agent",
-        tier: "DAILY",
-      },
-      {
-        name: "LM Studio",
-        slug: "lm-studio",
-        version: "0.3",
-        description: "local chat gui",
-        tier: "DAILY",
-      },
-      {
-        name: "Qwen 3.8",
-        slug: "qwen-3.8",
-        version: "-",
-        description: "open-weights model",
-        tier: "WORKING",
-      },
-      {
-        name: "DeepSeek V4 Flash",
-        slug: "deepseek-v4-flash",
-        version: "-",
-        description: "reasoning model",
-        tier: "DAILY",
-      },
-      {
-        name: "Qwen 3.5 (9B, 27B)",
-        slug: "qwen-3.5-9b-27b",
-        version: "-",
-        description: "open-weights model",
-        tier: "WORKING",
-      },
-      {
-        name: "Local LLM Workflows",
-        slug: "local-llm-workflows",
-        version: "-",
-        description: "local model workflows",
-        tier: "DAILY",
-      },
-      {
-        name: "Prompt Engineering",
-        slug: "prompt-engineering",
-        version: "-",
-        description: "llm ergonomics",
-        tier: "DAILY",
-      },
-      {
-        name: "Code Generation",
-        slug: "code-generation",
-        version: "-",
-        description: "assisted code generation",
-        tier: "DAILY",
-      },
-      {
-        name: "Refactoring",
-        slug: "refactoring",
-        version: "-",
-        description: "assisted refactoring",
-        tier: "DAILY",
-      },
-      {
-        name: "Investigative Coding",
-        slug: "investigative-coding",
-        version: "-",
-        description: "investigative development",
-        tier: "DAILY",
-      },
-      {
-        name: "Developer Productivity",
-        slug: "developer-productivity",
-        version: "-",
-        description: "development workflow support",
-        tier: "DAILY",
-      },
-    ],
-  },
-  {
-    fork: "community",
-    repo: "community/tooling",
-    label: "Testing & Tools",
-    packages: [
-      {
-        name: "xUnit",
-        slug: "xunit",
-        version: "2.9",
-        description: "unit testing",
-        tier: "PROD",
-      },
-      {
-        name: "Moq",
-        slug: "moq",
-        version: "4.20",
-        description: "mocking library",
-        tier: "PROD",
-      },
-      {
-        name: "Git",
-        slug: "git",
-        version: "2.44",
-        description: "version control",
-        tier: "DAILY",
-      },
-      {
-        name: "GitHub",
-        slug: "github",
-        version: "-",
-        description: "code hosting",
-        tier: "DAILY",
-      },
-      {
-        name: "Postman",
-        slug: "postman",
-        version: "11",
-        description: "api testing",
-        tier: "DAILY",
-      },
-      {
-        name: "Swagger/OpenAPI",
-        slug: "swagger",
-        version: "3.0",
-        description: "api documentation",
-        tier: "PROD",
-      },
-      {
-        name: "Code Review",
-        slug: "code-review",
-        version: "-",
-        description: "peer review",
-        tier: "DAILY",
-      },
-      {
-        name: "Runbooks",
-        slug: "runbooks",
-        version: "-",
-        description: "ops playbooks",
-        tier: "PROD",
-      },
-    ],
-  },
-];
+import { repos, TIER_STYLES, type RepoGroup, type Tier } from "../content/skills";
 
 type CapabilityId = "api" | "data" | "delivery" | "security" | "ai" | "tooling";
 type UnitAccent = "accent" | "accent-2" | "accent-3" | "accent-4";
@@ -680,7 +176,7 @@ export function Skills() {
                     select a unit to inspect its package records
                   </p>
                 </div>
-                <span className="shrink-0 text-[9px] tracking-widest text-text-muted">
+                <span className="shrink-0 text-[10px] tracking-widest text-text-muted">
                   {capabilityUnits.length} services
                 </span>
               </div>
@@ -716,7 +212,7 @@ export function Skills() {
                     >
                       <span className="flex min-w-0 items-start justify-between gap-3">
                         <span className="flex min-w-0 items-center gap-2">
-                          <span className="shrink-0 text-[9px] tabular-nums text-text-muted">
+                          <span className="shrink-0 text-[10px] tabular-nums text-text-muted">
                             {String(index + 1).padStart(2, "0")}
                           </span>
                           <span
@@ -731,7 +227,7 @@ export function Skills() {
                         <span
                           aria-hidden="true"
                           className={cn(
-                            "shrink-0 text-[9px] tracking-widest",
+                            "shrink-0 text-[10px] tracking-widest",
                             selected ? tone.text : "text-text-muted",
                           )}
                         >
@@ -743,7 +239,7 @@ export function Skills() {
                       </span>
                       <span className="mt-3 grid min-w-0 grid-cols-3 gap-2 border-t border-border pt-3">
                         <span className="min-w-0">
-                          <span className="block text-[8px] tracking-widest text-text-muted uppercase">
+                          <span className="block text-[10px] tracking-widest text-text-muted uppercase">
                             status
                           </span>
                           <span
@@ -756,7 +252,7 @@ export function Skills() {
                           </span>
                         </span>
                         <span className="min-w-0">
-                          <span className="block text-[8px] tracking-widest text-text-muted uppercase">
+                          <span className="block text-[10px] tracking-widest text-text-muted uppercase">
                             tier mix
                           </span>
                           <span className="block break-words text-[10px] text-text-dim tabular-nums">
@@ -764,7 +260,7 @@ export function Skills() {
                           </span>
                         </span>
                         <span className="min-w-0">
-                          <span className="block text-[8px] tracking-widest text-text-muted uppercase">
+                          <span className="block text-[10px] tracking-widest text-text-muted uppercase">
                             load
                           </span>
                           <span className="block break-words text-[10px] text-text-dim tabular-nums">
@@ -801,7 +297,7 @@ export function Skills() {
                 <div className="border border-border-accent bg-surface p-4 md:p-5">
                   <div className="flex min-w-0 items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <p className="text-[9px] tracking-widest text-text-muted uppercase">
+                      <p className="text-[10px] tracking-widest text-text-muted uppercase">
                         selected capability unit
                       </p>
                       <h3
@@ -816,7 +312,7 @@ export function Skills() {
                     </div>
                     <span
                       className={cn(
-                        "shrink-0 text-[9px] tracking-widest font-bold",
+                        "shrink-0 text-[10px] tracking-widest font-bold",
                         selectedView.statusColor,
                       )}
                     >
@@ -829,7 +325,7 @@ export function Skills() {
 
                   <dl className="mt-5 grid min-w-0 grid-cols-3 gap-2 border-t border-border pt-4">
                     <div className="min-w-0">
-                      <dt className="text-[8px] tracking-widest text-text-muted uppercase">
+                      <dt className="text-[10px] tracking-widest text-text-muted uppercase">
                         status
                       </dt>
                       <dd
@@ -842,7 +338,7 @@ export function Skills() {
                       </dd>
                     </div>
                     <div className="min-w-0">
-                      <dt className="text-[8px] tracking-widest text-text-muted uppercase">
+                      <dt className="text-[10px] tracking-widest text-text-muted uppercase">
                         tier mix
                       </dt>
                       <dd className="mt-1 break-words text-[10px] text-text-dim tabular-nums">
@@ -850,7 +346,7 @@ export function Skills() {
                       </dd>
                     </div>
                     <div className="min-w-0">
-                      <dt className="text-[8px] tracking-widest text-text-muted uppercase">
+                      <dt className="text-[10px] tracking-widest text-text-muted uppercase">
                         load
                       </dt>
                       <dd className="mt-1 break-words text-[10px] text-text-dim tabular-nums">
@@ -885,7 +381,7 @@ export function Skills() {
                     aria-label={`${selectedView.unit.name} packages`}
                     className="min-w-0 border border-border-accent"
                   >
-                    <div className="hidden grid-cols-[minmax(0,1.1fr)_4rem_minmax(0,1fr)_auto] gap-x-3 border-b border-border-accent px-3 py-2 text-[8px] tracking-widest text-text-muted uppercase md:grid">
+                    <div className="hidden grid-cols-[minmax(0,1.1fr)_4rem_minmax(0,1fr)_auto] gap-x-3 border-b border-border-accent px-3 py-2 text-[10px] tracking-widest text-text-muted uppercase md:grid">
                       <span>package</span>
                       <span>version</span>
                       <span>description</span>
@@ -908,7 +404,7 @@ export function Skills() {
                           <span className="block break-words text-[11px] text-accent">
                             {row.name}
                           </span>
-                          <span className="block break-words text-[9px] leading-relaxed text-text-muted md:hidden">
+                          <span className="block break-words text-[10px] leading-relaxed text-text-muted md:hidden">
                             {row.slug} / {row.description}
                           </span>
                         </span>
@@ -920,7 +416,7 @@ export function Skills() {
                         </span>
                         <span
                           className={cn(
-                            "break-words text-right text-[9px] tracking-widest font-bold",
+                            "break-words text-right text-[10px] tracking-widest font-bold",
                             TIER_STYLES[row.tier].color,
                           )}
                         >
@@ -934,7 +430,7 @@ export function Skills() {
             </section>
           </div>
 
-          <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-border-accent bg-bg px-4 py-3 text-[9px] tracking-widest text-text-muted md:px-6">
+          <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-border-accent bg-bg px-4 py-3 text-[10px] tracking-widest text-text-muted md:px-6">
             {(["DAILY", "PROD", "WORKING"] as Tier[]).map((tier) => (
               <span key={tier} className="min-w-0">
                 <span className={cn("font-bold", TIER_STYLES[tier].color)}>

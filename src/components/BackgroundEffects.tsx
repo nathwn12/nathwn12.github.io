@@ -3,6 +3,11 @@ import { THEME_CHANGE_EVENT } from "../lib/theme";
 
 const FPS = 15;
 const INTERVAL = 1000 / FPS;
+/* Small viewports: tighter throttle + halved rain streak count. The 15fps
+   desktop cap stays; mobile drops to ~9fps. */
+const MOBILE_FPS = 9;
+const MOBILE_INTERVAL = 1000 / MOBILE_FPS;
+const MOBILE_BREAKPOINT = 768;
 const GLYPH_SIZE = 18;
 /* Rain glyphs never render inside these bands from the canvas edges, so no
    full-width "glyph rows" appear as stray lines at the top of the viewport
@@ -29,10 +34,16 @@ interface ThemeColors {
   gridLine: string;
 }
 
-function createDrops(width: number, height: number): Drop[] {
+function createDrops(
+  width: number,
+  height: number,
+  mobile: boolean,
+): Drop[] {
   const cols = Math.floor(width / GLYPH_SIZE);
-  return Array.from({ length: cols }, (_, i) => ({
-    x: i * GLYPH_SIZE,
+  const count = mobile ? Math.max(1, Math.ceil(cols / 2)) : cols;
+  const stride = mobile ? GLYPH_SIZE * 2 : GLYPH_SIZE;
+  return Array.from({ length: count }, (_, i) => ({
+    x: i * stride,
     y: Math.random() * height * -1,
     speed: 0.3 + Math.random() * 1.8,
     len: 8 + Math.floor(Math.random() * 22),
@@ -69,6 +80,10 @@ export function BackgroundEffects() {
   const visibleRef = useRef(true);
   const colorsRef = useRef<ThemeColors | null>(null);
   const needsClearRef = useRef(true);
+  /* Re-evaluated on every render + resize; cheap boolean read per frame. */
+  const mobileRef = useRef(
+    typeof window !== "undefined" && window.innerWidth <= MOBILE_BREAKPOINT,
+  );
 
   useEffect(() => {
     colorsRef.current = readThemeColors();
@@ -118,7 +133,12 @@ export function BackgroundEffects() {
 
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    dropsRef.current = createDrops(canvas.width, canvas.height);
+    mobileRef.current = window.innerWidth <= MOBILE_BREAKPOINT;
+    dropsRef.current = createDrops(
+      canvas.width,
+      canvas.height,
+      mobileRef.current,
+    );
 
     let animId = 0;
     let lastTime = 0;
@@ -128,17 +148,23 @@ export function BackgroundEffects() {
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      dropsRef.current = createDrops(canvas.width, canvas.height);
+      mobileRef.current = window.innerWidth <= MOBILE_BREAKPOINT;
+      dropsRef.current = createDrops(
+        canvas.width,
+        canvas.height,
+        mobileRef.current,
+      );
     };
     window.addEventListener("resize", resize);
 
     const tick = (time: number) => {
+      const interval = mobileRef.current ? MOBILE_INTERVAL : INTERVAL;
       const delta = time - lastTime;
-      if (delta < INTERVAL) {
+      if (delta < interval) {
         animId = requestAnimationFrame(tick);
         return;
       }
-      lastTime = time - (delta % INTERVAL);
+      lastTime = time - (delta % interval);
 
       if (!visibleRef.current) {
         animId = requestAnimationFrame(tick);

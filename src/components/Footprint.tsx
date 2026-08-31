@@ -159,7 +159,7 @@ export function Footprint() {
                     [YEARLY COMMITS]
                   </span>
                   <div className="flex-1 h-px bg-border" />
-                  <span className="text-[9px] text-text-muted">
+                  <span className="text-[10px] text-text-muted">
                     MAX {formatCount(largestYearCommitCount)}
                   </span>
                 </div>
@@ -216,7 +216,7 @@ export function Footprint() {
                     [REPOSITORY LEDGER]
                   </span>
                   <div className="flex-1 h-px bg-border" />
-                  <span className="text-[9px] text-text-muted">
+                  <span className="text-[10px] text-text-muted">
                     MAX {formatCount(largestRepositoryCommitCount)}
                   </span>
                 </div>
@@ -275,7 +275,7 @@ export function Footprint() {
                   <p className="text-[10px] tracking-widest text-accent-3">
                     [SOURCE LEDGER]
                   </p>
-                  <span className="text-[9px] text-text-muted">
+                  <span className="text-[10px] text-text-muted">
                     cross-checked snapshot
                   </span>
                 </div>

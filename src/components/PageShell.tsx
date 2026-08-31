@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, type ReactNode } from "react";
 import { motion, type Variants } from "framer-motion";
 import { emitPageScroll, type PageScrollState } from "../lib/pageScroll";
-import type { RouteDef, RouteDirection } from "../lib/router";
+import { applyRouteMeta, type RouteDef, type RouteDirection } from "../lib/router";
 
 interface PageShellProps {
   route: RouteDef;
@@ -36,9 +36,14 @@ export function PageShell({ route, direction, children }: PageShellProps) {
     document.getElementById("main")?.focus({ preventScroll: true });
   }, [route.path]);
 
+  /* Keyed remount — the new page's DOM exists here (`AnimatePresence
+     mode="wait"`), so this is the correct moment for document.title + the
+     per-route SE/OG meta (home keeps the index.html defaults; see
+     applyRouteMeta). Runs on every route change. */
   useEffect(() => {
     document.title = route.title;
-  }, [route.title]);
+    applyRouteMeta(route);
+  }, [route.path, route.title]);
 
   /* Feed the internal scroll position to chrome (Header, Footer). */
   const handleScroll = useCallback(() => {
@@ -80,14 +85,14 @@ export function PageShell({ route, direction, children }: PageShellProps) {
       opacity: [0, 1, 0.35, 1],
       y: 0,
       transition: {
-        opacity: { duration: 0.38, times: [0, 0.25, 0.5, 1], ease: "easeOut" },
-        y: { duration: 0.38, ease: [0.16, 1, 0.3, 1] },
+        opacity: { duration: 0.3, times: [0, 0.25, 0.5, 1], ease: "easeOut" },
+        y: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
       },
     },
     exit: {
       opacity: 0,
       y: -36,
-      transition: { duration: 0.22, ease: "easeIn" },
+      transition: { duration: 0.18, ease: "easeIn" },
     },
   };
 
@@ -108,7 +113,7 @@ export function PageShell({ route, direction, children }: PageShellProps) {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: [0, 1, 1, 0] }}
-        transition={{ opacity: { duration: 0.7, times: [0, 0.1, 0.75, 1] } }}
+        transition={{ opacity: { duration: 0.55, times: [0, 0.1, 0.75, 1] } }}
         className="pointer-events-none select-none absolute top-[104px] left-4 lg:left-8 z-20 flex items-center gap-2 text-xs font-mono"
         aria-hidden="true"
       >
@@ -130,7 +135,7 @@ export function PageShell({ route, direction, children }: PageShellProps) {
       <motion.div
         initial={{ top: "-18%" }}
         animate={{ top: "112%" }}
-        transition={{ duration: 0.3, delay: 0.02, ease: "linear" }}
+        transition={{ duration: 0.26, delay: 0.02, ease: "linear" }}
         className="pointer-events-none absolute inset-x-0 h-20 z-10 opacity-40"
         style={{
           background:

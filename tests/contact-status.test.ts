@@ -63,7 +63,7 @@ describe("contact status chip regressions", () => {
       /export const CONTACT_EMAIL = "nathanielnikolai\.ladero@gmail\.com"/,
     );
     expect(contact).toMatch(
-      /import \{ CONTACT_EMAIL \} from "\.\.\/lib\/contact"/,
+      /import \{[^}]*CONTACT_EMAIL[^}]*\} from "\.\.\/lib\/contact"/,
     );
     expect(footer).toMatch(
       /import \{ CONTACT_EMAIL \} from "\.\.\/lib\/contact"/,

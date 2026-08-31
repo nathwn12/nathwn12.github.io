@@ -26,13 +26,23 @@ export interface RouteDef {
   label: string;
   /** Terminal command displayed as the page's "section header" */
   command: string;
-  /** Short description used in `ls` listing */
+  /** Short description used in `ls` listing (CommandTerminal) — visible copy */
   description: string;
+  /** Recruiter-facing 1-2 sentence description for per-route SEO meta */
+  metaDescription: string;
   /** Tailwind accent token for bordered chrome, e.g. "accent-2" */
   accent: string;
   /** document.title when this page is active */
   title: string;
 }
+
+/** index.html default meta content — kept verbatim for home-route parity.
+   Keep in sync with index.html's <head> if either is edited. */
+export const HOME_META_DESCRIPTION =
+  "Terminal-themed portfolio of Nathaniel Nikolai Ladero — Backend Developer specializing in C#, ASP.NET Core, and fintech systems.";
+export const HOME_OG_TITLE = "Nathaniel Nikolai Ladero | Backend Developer";
+export const HOME_OG_DESCRIPTION =
+  "Backend Developer with 3 years building secure fintech systems in C# and ASP.NET Core. APIs, microservices, and production delivery.";
 
 export const ROUTES: readonly RouteDef[] = [
   {
@@ -41,6 +51,7 @@ export const ROUTES: readonly RouteDef[] = [
     label: "HOME",
     command: "whoami",
     description: "Identity & system profile",
+    metaDescription: HOME_META_DESCRIPTION,
     accent: "accent",
     title: "NNL — Backend Developer",
   },
@@ -50,6 +61,8 @@ export const ROUTES: readonly RouteDef[] = [
     label: "EXP",
     command: "journalctl -u career.service --no-pager",
     description: "Service journal",
+    metaDescription:
+      "Production backend engineering at Xentra Infotech Solutions Inc. — ASP.NET Web APIs, gRPC, SignalR, and RabbitMQ, including a 98% payment-query latency cut.",
     accent: "accent",
     title: "experience — NNL",
   },
@@ -59,6 +72,8 @@ export const ROUTES: readonly RouteDef[] = [
     label: "FOOTPRINT",
     command: "du -sh footprint/",
     description: "Delivery stats",
+    metaDescription:
+      "Delivery footprint — 1,182 commits across 17 repositories from 2023–2026, led by a payment processing API and cash management services in production.",
     accent: "accent-2",
     title: "footprint — NNL",
   },
@@ -66,8 +81,10 @@ export const ROUTES: readonly RouteDef[] = [
     path: "/skills",
     id: "skills",
     label: "SKILLS",
-    command: "pacman -Qqe",
+    command: "systemctl --type=service --state=running",
     description: "Installed packages",
+    metaDescription:
+      "Backend and DevOps skill set — C#, ASP.NET Core, .NET, MySQL/Redis/RabbitMQ, AWS, Docker, GitHub Actions, security and auth, plus AI-assisted development workflow.",
     accent: "accent-3",
     title: "skills — NNL",
   },
@@ -77,6 +94,8 @@ export const ROUTES: readonly RouteDef[] = [
     label: "PROJECTS",
     command: "ls -la projects/",
     description: "Production highlights",
+    metaDescription:
+      "Production projects — payments latency migration (98% cut), fintech service platform, auth hardening with zero high/critical Snyk findings, and a Redis-backed read cache layer.",
     accent: "accent-4",
     title: "projects — NNL",
   },
@@ -86,6 +105,8 @@ export const ROUTES: readonly RouteDef[] = [
     label: "EDUCATION",
     command: "cat education.md",
     description: "Education history",
+    metaDescription:
+      "Education and certifications — STEM and BS Information Technology at La Consolacion University Philippines, Google IT Automation with Python, Google IT Support, and API security credentials.",
     accent: "accent-2",
     title: "education — NNL",
   },
@@ -95,6 +116,8 @@ export const ROUTES: readonly RouteDef[] = [
     label: "CONTACT",
     command: "mutt -f inbox",
     description: "Mail user agent",
+    metaDescription:
+      "Contact Nathaniel Nikolai Ladero — Backend Developer open to work. Message through the site form, direct email, GitHub, or LinkedIn.",
     accent: "accent-2",
     title: "contact — NNL",
   },
@@ -262,4 +285,35 @@ export function RouteLink({ href, onClick, ...rest }: RouteLinkProps) {
     onClick?.(e);
   };
   return <a href={href} onClick={handleClick} {...rest} />;
+}
+
+function setMeta(attr: "name" | "property", key: string, content: string) {
+  const selector = `meta[${attr}="${key}"]`;
+  let el = document.head.querySelector<HTMLMetaElement>(selector);
+  if (!el) {
+    el = document.createElement("meta");
+    el.setAttribute(attr, key);
+    document.head.appendChild(el);
+  }
+  el.setAttribute("content", content);
+}
+
+/**
+ * Apply the active route's document.title + per-route SEO meta
+ * (description / og:title / og:description). The home route keeps the
+ * index.html defaults verbatim for single-source parity; every other route
+ * uses its recruiter-facing `metaDescription`. Called from PageShell's keyed
+ * mount effect — the only moment the new page's DOM exists (`mode="wait"`).
+ */
+export function applyRouteMeta(route: RouteDef): void {
+  document.title = route.title;
+  if (route.path === "/") {
+    setMeta("name", "description", HOME_META_DESCRIPTION);
+    setMeta("property", "og:title", HOME_OG_TITLE);
+    setMeta("property", "og:description", HOME_OG_DESCRIPTION);
+    return;
+  }
+  setMeta("name", "description", route.metaDescription);
+  setMeta("property", "og:title", `${route.label} — ${HOME_OG_TITLE}`);
+  setMeta("property", "og:description", route.metaDescription);
 }

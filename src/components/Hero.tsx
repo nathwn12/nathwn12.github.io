@@ -110,19 +110,9 @@ export function Hero() {
           </motion.p>
 
           {/* Stats grid — terminal window */}
-          <motion.div
-            variants={childVariants}
-            className="border border-border-accent"
-          >
-            <div className="terminal-titlebar">
-              <span className="terminal-dot bg-accent-3" />
-              <span className="terminal-dot bg-accent-2" />
-              <span className="terminal-dot bg-accent" />
-              <span className="text-[9px] tracking-[0.3em] text-text-muted ml-2 uppercase">
-                profile
-              </span>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border-accent">
+          <motion.div variants={childVariants}>
+            <TerminalWindow title="profile">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border-accent">
               {[
                 { label: "LOCATION", value: "HAGONOY, BULACAN, PH" },
                 { label: "EXPERIENCE", value: "3 YEARS" },
@@ -145,7 +135,8 @@ export function Hero() {
                   </p>
                 </motion.div>
               ))}
-            </div>
+              </div>
+            </TerminalWindow>
           </motion.div>
 
           {/* System dossier — the non-duplicated profile detail */}
@@ -241,7 +232,7 @@ export function Hero() {
             <button
               type="button"
               disabled
-              className="flex items-center gap-2 text-[9px] tracking-[0.3em] opacity-40 cursor-not-allowed"
+              className="flex items-center gap-2 text-[10px] tracking-[0.3em] opacity-40 cursor-not-allowed"
             >
               <span className="text-xs">←</span>
               <span>PREV</span>
@@ -249,7 +240,7 @@ export function Hero() {
             <button
               type="button"
               onClick={() => navigate("/experience")}
-              className="flex items-center gap-2 text-[9px] tracking-[0.3em] hover:text-accent transition-colors duration-300 cursor-pointer"
+              className="flex items-center gap-2 text-[10px] tracking-[0.3em] hover:text-accent transition-all duration-300 cursor-pointer hover:translate-x-[4px]"
             >
               <span>NEXT</span>
               <span className="text-xs">→</span>

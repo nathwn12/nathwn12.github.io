@@ -19,13 +19,13 @@ export function TerminalWindow({ title, children, statusBar }: TerminalWindowPro
         {dots.map((dot) => (
           <span key={dot.label} className={`terminal-dot ${dot.color}`} />
         ))}
-        <span className="text-[9px] tracking-[0.3em] text-text-muted ml-2 uppercase">
+        <span className="text-[10px] tracking-[0.3em] text-text-muted ml-2 uppercase">
           {title}
         </span>
       </div>
       {children}
       {statusBar && (
-        <div className="flex items-center gap-4 px-4 py-2 border-t border-border-accent bg-surface text-[9px] tracking-widest text-text-muted">
+        <div className="flex items-center gap-4 px-4 py-2 border-t border-border-accent bg-surface text-[10px] tracking-widest text-text-muted">
           {statusBar}
         </div>
       )}

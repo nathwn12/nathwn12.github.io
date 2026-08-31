@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
-import { CONTACT_EMAIL } from "../lib/contact";
+import { CONTACT_EMAIL, validateContact } from "../lib/contact";
 
 type FormStatus = {
   type: "pending" | "success" | "error";
@@ -34,10 +34,44 @@ export function Contact() {
     };
   }, []);
 
+  /** Shared success marker for both the honeypot branch and the real
+      FormSubmit success path (sanctioned blink lives on the pending state). */
+  function markQueued(form: HTMLFormElement) {
+    const msgId = Math.random().toString(36).substring(2, 12).toUpperCase();
+    setFormStatus({
+      type: "success",
+      message: `Message queued for delivery [MSG-ID: ${msgId}]. Check your email for confirmation.`,
+    });
+    form.reset();
+  }
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (isSubmitting) return;
     const form = e.currentTarget;
+    const data = new FormData(form);
+
+    /* Honeypot guard — bots fill the hidden _honey field. Accept silently
+       without POSTing so they get no signal; FormSubmit's convention is to
+       ignore it on their side as well. */
+    if (String(data.get("_honey") ?? "").length > 0) {
+      markQueued(form);
+      return;
+    }
+
+    /* Pre-submit zod validation — mirror of the HTML5 constraints, rejected
+       in the terminal UI language before any network call. */
+    const validation = validateContact({
+      name: data.get("name"),
+      email: data.get("email"),
+      subject: data.get("subject"),
+      message: data.get("message"),
+    });
+    if (!validation.ok) {
+      setFormStatus({ type: "error", message: validation.error });
+      statusTimeoutRef.current = setTimeout(() => setFormStatus(null), 8000);
+      return;
+    }
 
     setFormStatus({
       type: "pending",
@@ -46,7 +80,6 @@ export function Contact() {
     setIsSubmitting(true);
 
     try {
-      const data = new FormData(form);
       const payload = Object.fromEntries(data.entries());
       const res = await fetch(form.action, {
         method: "POST",
@@ -69,12 +102,7 @@ export function Contact() {
       if (!res.ok) {
         throw new Error(payloadJson?.message || "Something went wrong.");
       }
-      const msgId = Math.random().toString(36).substring(2, 12).toUpperCase();
-      setFormStatus({
-        type: "success",
-        message: `Message queued for delivery [MSG-ID: ${msgId}]. Check your email for confirmation.`,
-      });
-      form.reset();
+      markQueued(form);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "Something went wrong.";
       setFormStatus({ type: "error", message: msg });
@@ -223,7 +251,7 @@ export function Contact() {
           className="border border-border-accent bg-surface"
         >
           {/* MUA toolbar */}
-          <div className="flex items-center gap-4 px-4 py-2 border-b border-border-accent bg-surface text-[9px] tracking-widest text-text-muted">
+          <div className="flex items-center gap-4 px-4 py-2 border-b border-border-accent bg-surface text-[10px] tracking-widest text-text-muted">
             <span className="text-accent">&lt;UNREAD 1&gt;</span>
             <span className="text-accent-2">&lt;COMPOSE&gt;</span>
             <span className="text-border-accent">&lt;REPLY&gt;</span>
@@ -375,7 +403,7 @@ export function Contact() {
           </div>
 
           {/* MUA status bar */}
-          <div className="flex items-center gap-4 px-4 py-2 border-t border-border-accent bg-surface text-[9px] tracking-widest text-text-muted">
+          <div className="flex items-center gap-4 px-4 py-2 border-t border-border-accent bg-surface text-[10px] tracking-widest text-text-muted">
             <span>"All mail queued for delivery. Thank you."</span>
             <span className="flex-1" />
             <span className="text-border-accent">-- MUA v1.0 --</span>

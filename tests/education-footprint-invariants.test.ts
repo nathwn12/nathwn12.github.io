@@ -4,6 +4,12 @@ import { resolve } from "node:path";
 import { describe, expect, test } from "vitest";
 
 const root = resolve(import.meta.dirname, "..");
+// Facts + derivation consts moved to the content module (Q2); the component
+// keeps the JSX strings that render them.
+const educationContent = readFileSync(
+  resolve(root, "src", "content", "education.ts"),
+  "utf8",
+);
 const education = readFileSync(
   resolve(root, "src", "components", "Education.tsx"),
   "utf8",
@@ -58,25 +64,29 @@ describe("education and footprint invariants", () => {
     ];
 
     for (const fact of timelineFacts) {
-      expect(education).toContain(fact);
+      expect(educationContent).toContain(fact);
     }
     for (const [title, issuerOrId, idOrDate, url] of certificationFacts) {
-      expect(education).toContain(`title: "${title}"`);
+      expect(educationContent).toContain(`title: "${title}"`);
       if (title.startsWith("API") || title.startsWith("OWASP")) {
-        expect(education).toContain(`id: "${issuerOrId}"`);
-        expect(education).toContain(`date: "${idOrDate}"`);
-        expect(education).toContain(`url: "${url}"`);
+        expect(educationContent).toContain(`id: "${issuerOrId}"`);
+        expect(educationContent).toContain(`date: "${idOrDate}"`);
+        expect(educationContent).toContain(`url: "${url}"`);
       } else {
-        expect(education).toContain(`issuer: "${issuerOrId}"`);
-        expect(education).toContain(`id: "${idOrDate}"`);
-        expect(education).toContain(`url: "${url}"`);
+        expect(educationContent).toContain(`issuer: "${issuerOrId}"`);
+        expect(educationContent).toContain(`id: "${idOrDate}"`);
+        expect(educationContent).toContain(`url: "${url}"`);
       }
     }
   });
 
   test("derives education aggregate labels from their arrays", () => {
-    expect(education).toMatch(/const milestoneCount = timeline\.length/);
-    expect(education).toMatch(/const credentialCount = certifications\.length/);
+    expect(educationContent).toMatch(
+      /const milestoneCount = timeline\.length/,
+    );
+    expect(educationContent).toMatch(
+      /const credentialCount = certifications\.length/,
+    );
     expect(education).toMatch(
       /\{milestoneCount\} milestones \/ \{credentialCount\} credentials/,
     );
