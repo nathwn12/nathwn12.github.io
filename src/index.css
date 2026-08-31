@@ -11,7 +11,9 @@
   --color-border-accent: #5d3350;
   --color-text: #ffffff;
   --color-text-dim: #c9bfca;
-  --color-text-muted: #8d7f88;
+  /* A4 AA fix: #9a8c95 lifts text-muted ≥ 4.5:1 on bg (5.49), surface (5.16),
+     and surface-2 (4.68); hue family (purple-grey) preserved. */
+  --color-text-muted: #9a8c95;
   --color-accent: #8ae234;
   --color-accent-2: #729fcf;
   --color-accent-3: #f57900;
@@ -34,7 +36,9 @@ html[data-theme="light"] {
   --color-border-accent: #c8c7c4;
   --color-text: #1a1a1a;
   --color-text-dim: #5e5c64;
-  --color-text-muted: #9a9996;
+  /* A4 AA fix: #67656a lifts text-muted ≥ 4.5:1 on white (5.76), surface
+     (5.29), and surface-2 (4.92); matches the #5e5c64 dim hue family. */
+  --color-text-muted: #67656a;
   --color-accent: #4e9a06;
   --color-accent-2: #06989a;
   --color-accent-3: #ce5c00;

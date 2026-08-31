@@ -41,11 +41,11 @@ export const projects: ProjectLore[] = [
     name: "Fintech Service Platform",
     dir: "fintech-service-platform",
     description:
-      "1,100+ commits across 17 repositories: ASP.NET Web APIs, gRPC endpoints, SignalR hubs, RabbitMQ messaging, and Serilog for centralized structured logging across environments — products spanning payments, cash management, and access control.",
+      "1,182 commits across 17 repositories: ASP.NET Web APIs, gRPC endpoints, SignalR hubs, RabbitMQ messaging, and Serilog for centralized structured logging across environments — products spanning payments, cash management, and access control.",
     tech: ["C#", "ASP.NET Web APIs", "gRPC", "SignalR", "RabbitMQ", "Serilog"],
     token: "accent-2",
     stats: [
-      { label: "commits", value: "1,100+", token: "accent-2" },
+      { label: "commits", value: "1,182", token: "accent-2" },
       { label: "repositories", value: "17", token: "accent-2" },
       { label: "product domains", value: "3", token: "accent-2" },
     ],

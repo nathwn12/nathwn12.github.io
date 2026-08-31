@@ -1,8 +1,6 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import { cn } from "../lib/cn";
-import { RouteLink } from "../lib/router";
-import { TerminalWindow } from "./TerminalWindow";
 import { projects, type Token } from "../content/projects";
 
 type ProjectId = string & { readonly __brand: "Project" };
@@ -95,13 +93,13 @@ export default function Projects() {
           <div className="flex-1 h-[1px] bg-border" />
         </motion.div>
 
-        <TerminalWindow title="projects/">
-          <p className="px-4 mb-3 text-[10px] font-mono text-text-muted">
+        <div className="border-y border-border-accent">
+          <p className="px-4 md:px-6 py-3 text-[10px] font-mono text-text-muted border-b border-border">
             # delivered @ Xentra Infotech Solutions Inc. 2023–2026
           </p>
 
           {/* ls -la header row */}
-          <div className="hidden md:flex items-center gap-4 px-4 py-2 text-[10px] tracking-widest text-text-muted border border-border bg-bg mb-px">
+          <div className="hidden md:flex items-center gap-4 px-4 md:px-6 py-2 text-[10px] tracking-widest text-text-muted border-b border-border bg-bg">
             <span className="w-28">permissions</span>
             <span className="w-8 text-right">links</span>
             <span className="w-20">owner</span>
@@ -111,7 +109,7 @@ export default function Projects() {
           </div>
 
           {/* Directory listing */}
-          <div className="hidden md:grid gap-px bg-border-accent border border-border-accent mb-6">
+          <div className="hidden md:grid gap-px bg-border-accent">
             {/* Parent directory */}
             <div
               role="button"
@@ -199,7 +197,12 @@ export default function Projects() {
                   duration: 0.35,
                   ease: [0.16, 1, 0.3, 1],
                 }}
+                role="button"
+                tabIndex={0}
                 onClick={() => handleSelect(project.id as ProjectId)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleSelect(project.id as ProjectId);
+                }}
                 className={`group relative border transition-all duration-500 p-4 ${
                   selectedId === project.id
                     ? "border-accent bg-accent/5"
@@ -301,13 +304,6 @@ export default function Projects() {
                   ))}
                 </div>
 
-                <RouteLink
-                  href="/footprint"
-                  className="flex items-center gap-2 text-text-dim hover:text-accent transition-colors duration-300 text-xs tracking-widest group/link"
-                >
-                  <span>FOOTPRINT ❯</span>
-                </RouteLink>
-
                 <motion.button
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -319,7 +315,7 @@ export default function Projects() {
               </div>
             )}
           </motion.div>
-        </TerminalWindow>
+        </div>
       </div>
     </section>
   );
