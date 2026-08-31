@@ -10,7 +10,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/copy-404.mjs",
+    "typecheck": "tsc -b",
     "test": "pnpm run build && vitest run",
+    "check": "pnpm run typecheck && pnpm run test",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -25,6 +27,8 @@
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "5.1.1",
+    "jsdom": "^30.0.1",
+    "sharp": "^0.35.4",
     "tailwindcss": "4.1.17",
     "typescript": "5.9.3",
     "vite": "7.2.4",

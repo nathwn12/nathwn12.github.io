@@ -40,7 +40,7 @@ export function Footer() {
           </span>
           <motion.button
             onClick={() => navigate("/")}
-            whileHover={{ x: 3 }}
+            whileHover={{ x: 4 }}
             whileTap={{ scale: 0.95 }}
             className="text-text-dim hover:text-accent transition-colors cursor-pointer"
           >
@@ -66,7 +66,7 @@ export function Footer() {
             onClick={() =>
               window.dispatchEvent(new CustomEvent("toggle-terminal"))
             }
-            className="text-text-dim hover:text-accent transition-colors cursor-pointer"
+            className="text-text-dim hover:text-accent transition-all duration-300 cursor-pointer hover:translate-x-[4px]"
             title="Toggle command terminal (Ctrl+K)"
           >
             &gt;_ TERMINAL
@@ -82,7 +82,7 @@ export function Footer() {
               href="https://github.com/nathwn12"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-accent transition-colors"
+              className="hover:text-accent transition-all duration-300 hover:translate-x-[4px]"
             >
               github
             </a>
@@ -90,13 +90,13 @@ export function Footer() {
               href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden lg:inline hover:text-accent-2 transition-colors"
+              className="hidden lg:inline hover:text-accent-2 transition-all duration-300 hover:translate-x-[4px]"
             >
               linkedin
             </a>
             <a
               href={`mailto:${CONTACT_EMAIL}`}
-              className="hidden xl:inline hover:text-accent-2 transition-colors"
+              className="hidden xl:inline hover:text-accent-2 transition-all duration-300 hover:translate-x-[4px]"
             >
               email
             </a>

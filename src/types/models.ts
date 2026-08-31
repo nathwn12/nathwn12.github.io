@@ -65,7 +65,9 @@ export const CertificationSchema = z.object({
   title: z.string(),
   issuer: z.string(),
   date: z.string().optional(),
-  id: z.string().uuid(),
+  /* Relaxed from z.string().uuid(): real credential ids are platform share
+     codes, not UUIDs (e.g. "RFS2G5ZT9GPK", "FA69CEB39205E003"). */
+  id: z.string().min(1),
   url: z.string().url(),
 });
 export type Certification = z.infer<typeof CertificationSchema>;
@@ -99,15 +101,6 @@ export function isSkillCategory(data: unknown): data is SkillCategory {
 // ============================================
 // PHASE 2.5: Runtime Validation with Zod (API Boundaries)
 // ============================================
-
-/** Fetch and validate Experience from API */
-export async function fetchExperiences(): Promise<Experience[]> {
-  const response = await fetch("/api/experiences");
-  if (!response.ok) {
-    throw new Error(`fetch experiences failed: ${response.status}`);
-  }
-  return ExperienceSchema.array().parse(await response.json());
-}
 
 /** Safe parse user input for skill level */
 export function parseSkillLevel(input: string): Skill | null {

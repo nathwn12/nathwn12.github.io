@@ -161,7 +161,7 @@ export function Header() {
                 className={`relative px-4 py-2 text-xs tracking-widest transition-all duration-300 border-l border-border ${
                   activeSection === item.label
                     ? "text-accent bg-accent/5"
-                    : "text-text-dim hover:text-text hover:bg-text/5"
+                    : "text-text-dim hover:text-text hover:bg-text/5 hover:translate-x-[4px]"
                 }`}
               >
                 <span className="text-border-accent mr-2">^{i + 1}</span>
@@ -209,7 +209,7 @@ export function Header() {
                     className={`px-4 py-3 text-xs tracking-widest border-b border-border transition-all duration-300 text-left ${
                       activeSection === item.label
                         ? "text-accent bg-accent/5"
-                        : "text-text-dim hover:text-text hover:bg-text/5"
+                        : "text-text-dim hover:text-text hover:bg-text/5 hover:translate-x-[4px]"
                     }`}
                   >
                     <span className="text-border-accent mr-3">^{i + 1}</span>

@@ -13,7 +13,7 @@ const SECTION_NAMES: Readonly<Record<string, string>> = {
   hero: "whoami",
   experience: "experience.log",
   footprint: "footprint/",
-  skills: "pacman",
+  skills: "systemctl",
   projects: "projects/",
   education: "education.md",
   contact: "inbox",

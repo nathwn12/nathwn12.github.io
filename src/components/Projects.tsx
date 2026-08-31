@@ -3,21 +3,9 @@ import { useState, useEffect } from "react";
 import { cn } from "../lib/cn";
 import { RouteLink } from "../lib/router";
 import { TerminalWindow } from "./TerminalWindow";
+import { projects, type Token } from "../content/projects";
 
 type ProjectId = string & { readonly __brand: "Project" };
-type Token = "accent" | "accent-2" | "accent-3" | "accent-4";
-
-interface ProjectLore {
-  id: string;
-  /** README title shown in the expanded `cat` view */
-  name: string;
-  /** Directory name in the `ls -la` listing */
-  dir: string;
-  description: string;
-  tech: string[];
-  token: Token;
-  stats: { label: string; value: string; token: Token }[];
-}
 
 const textClass: Record<Token, string> = {
   accent: "text-accent",
@@ -32,70 +20,6 @@ const badgeClass: Record<Token, string> = {
   "accent-3": "text-accent-3 border-accent-3/30 bg-accent-3/5",
   "accent-4": "text-accent-4 border-accent-4/30 bg-accent-4/5",
 };
-
-// Selected production work from the résumé record.
-const projects: ProjectLore[] = [
-  {
-    id: "01",
-    name: "Payments Latency Migration",
-    dir: "payments-latency-migration",
-    description:
-      "Migrated MySql.Data → MySqlConnector on AWS; profiled slow queries and tuned indexes across payment services — worst-case query time cut from ~60s to under 1s (98% reduction).",
-    tech: ["C#", "MySqlConnector", "AWS", "SQL tuning"],
-    token: "accent",
-    stats: [
-      { label: "latency cut", value: "98%", token: "accent" },
-      { label: "worst-case query", value: "60s → <1s", token: "accent" },
-      { label: "scope", value: "payment svcs", token: "accent" },
-    ],
-  },
-  {
-    id: "02",
-    name: "Fintech Service Platform",
-    dir: "fintech-service-platform",
-    description:
-      "1,100+ commits across 17 repositories: ASP.NET Web APIs, gRPC endpoints, SignalR hubs, RabbitMQ messaging, and Serilog for centralized structured logging across environments — products spanning payments, cash management, and access control.",
-    tech: ["C#", "ASP.NET Web APIs", "gRPC", "SignalR", "RabbitMQ", "Serilog"],
-    token: "accent-2",
-    stats: [
-      { label: "commits", value: "1,100+", token: "accent-2" },
-      { label: "repositories", value: "17", token: "accent-2" },
-      { label: "product domains", value: "3", token: "accent-2" },
-    ],
-  },
-  {
-    id: "03",
-    name: "Auth Hardening",
-    dir: "auth-hardening",
-    description:
-      "Implemented JWT, OAuth 2.0, and OpenID Connect with RBAC + ABAC authorization; maintained zero high or critical Snyk findings on production deployments through proactive dependency scanning and secure code review.",
-    tech: ["JWT", "OAuth 2.0", "OpenID Connect", "RBAC", "ABAC", "Snyk"],
-    token: "accent-3",
-    stats: [
-      { label: "high/critical", value: "0", token: "accent-3" },
-      {
-        label: "auth protocols",
-        value: "JWT · OAuth2 · OIDC",
-        token: "accent-3",
-      },
-      { label: "access models", value: "RBAC + ABAC", token: "accent-3" },
-    ],
-  },
-  {
-    id: "04",
-    name: "Read Cache Data Layer",
-    dir: "read-cache-data-layer",
-    description:
-      "Designed EF Core + Dapper data layers for high-throughput financial transactions; tuned SQL indexes and integrated Redis caching on frequently accessed reference data, reducing read latency by over 40%.",
-    tech: ["C#", "EF Core", "Dapper", "SQL", "Redis"],
-    token: "accent-4",
-    stats: [
-      { label: "read latency gain", value: "40%+", token: "accent-4" },
-      { label: "hot data cache", value: "Redis", token: "accent-4" },
-      { label: "data layers", value: "EF Core + Dapper", token: "accent-4" },
-    ],
-  },
-];
 
 const extMap: Record<string, string> = {
   "C#": ".cs",
@@ -177,7 +101,7 @@ export default function Projects() {
           </p>
 
           {/* ls -la header row */}
-          <div className="hidden md:flex items-center gap-4 px-4 py-2 text-[9px] tracking-widest text-text-muted border border-border bg-bg mb-px">
+          <div className="hidden md:flex items-center gap-4 px-4 py-2 text-[10px] tracking-widest text-text-muted border border-border bg-bg mb-px">
             <span className="w-28">permissions</span>
             <span className="w-8 text-right">links</span>
             <span className="w-20">owner</span>
@@ -251,7 +175,7 @@ export default function Projects() {
                   )}
                 >
                   {project.dir}/
-                  <span className="text-[9px] text-text-muted ml-1">
+                  <span className="text-[10px] text-text-muted ml-1">
                     {project.tech
                       .map((t) => extMap[t])
                       .filter((v): v is string => v !== undefined)
@@ -351,7 +275,7 @@ export default function Projects() {
                 <div className="flex items-center gap-6 mb-6">
                   {selected.stats.map((stat) => (
                     <div key={stat.label}>
-                      <p className="text-[9px] tracking-widest text-text-muted mb-0.5 uppercase">
+                      <p className="text-[10px] tracking-widest text-text-muted mb-0.5 uppercase">
                         {stat.label}
                       </p>
                       <p
