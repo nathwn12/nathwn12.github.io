@@ -85,17 +85,23 @@ afterEach(() => {
 });
 
 describe("home dossier route merge", () => {
-  test.each(["/about", "/about/", "/about?x"])(
-    "canonicalizes an initial legacy path %s",
-    async (pathname) => {
-      const { browser, router } = await loadRouter(pathname);
+  test.each([
+    "/about",
+    "/about/",
+    "/about?x",
+    "/education",
+    "/education/",
+    "/education?x",
+    "/footprint",
+    "/footprint?x",
+  ])("canonicalizes an initial legacy path %s", async (pathname) => {
+    const { browser, router } = await loadRouter(pathname);
 
-      expect(browser.replaceCalls).toEqual(["/"]);
-      expect(browser.location.pathname).toBe("/");
-      expect(router.routeByPath(pathname)?.path).toBe("/");
-      expect(readRouteState(router)).toMatchObject({ path: "/" });
-    },
-  );
+    expect(browser.replaceCalls).toEqual(["/"]);
+    expect(browser.location.pathname).toBe("/");
+    expect(router.routeByPath(pathname)?.path).toBe("/");
+    expect(readRouteState(router)).toMatchObject({ path: "/" });
+  });
 
   test("keeps only the surviving routes in navigation order", async () => {
     const { router } = await loadRouter("/");
@@ -103,13 +109,11 @@ describe("home dossier route merge", () => {
     expect(router.ROUTES.map((route) => route.path)).toEqual([
       "/",
       "/experience",
-      "/footprint",
       "/skills",
       "/projects",
-      "/education",
       "/contact",
     ]);
-    expect(router.ROUTES).toHaveLength(7);
+    expect(router.ROUTES).toHaveLength(5);
   });
 
   test("normalizes query strings and trailing slashes", async () => {
@@ -136,6 +140,8 @@ describe("home dossier route merge", () => {
     router.navigate("/about");
     router.navigate("/about/");
     router.navigate("/about?x=1");
+    router.navigate("/education");
+    router.navigate("/footprint");
     router.navigate("/not-a-route");
 
     expect(browser.pushCalls).toEqual([]);
@@ -199,7 +205,7 @@ describe("home dossier route merge", () => {
     });
   });
 
-  test("keeps seven terminal sections coherent with routes and aliases about", async () => {
+  test("keeps five terminal sections coherent with routes and aliases about", async () => {
     const { router } = await loadRouter("/");
     vi.resetModules();
     const terminal = await import("../src/components/CommandTerminal");
@@ -207,8 +213,10 @@ describe("home dossier route merge", () => {
     expect(terminal.SECTIONS.map((section) => section.path)).toEqual(
       router.ROUTES.map((route) => route.path),
     );
-    expect(terminal.SECTIONS).toHaveLength(7);
+    expect(terminal.SECTIONS).toHaveLength(5);
     expect(terminal.resolveTerminalSection("about")?.path).toBe("/");
     expect(terminal.resolveTerminalSection("about.md")?.path).toBe("/");
+    expect(terminal.resolveTerminalSection("education")).toBeUndefined();
+    expect(terminal.resolveTerminalSection("footprint")).toBeUndefined();
   });
 });

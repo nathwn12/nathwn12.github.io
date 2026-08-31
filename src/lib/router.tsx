@@ -14,7 +14,7 @@ import {
  * route lands the visitor back on that page (GitHub Pages serves the SPA via
  * the `404.html` fallback produced by the build; see scripts/copy-404.mjs).
  *
- * No dependency — ~10 route defs, pushState, and a popstate listener.
+ * No dependency — 5 route defs, pushState, and a popstate listener.
  */
 
 export type RouteDirection = "forward" | "back" | "none";
@@ -67,17 +67,6 @@ export const ROUTES: readonly RouteDef[] = [
     title: "experience — NNL",
   },
   {
-    path: "/footprint",
-    id: "footprint",
-    label: "FOOTPRINT",
-    command: "du -sh footprint/",
-    description: "Delivery stats",
-    metaDescription:
-      "Delivery footprint — 1,182 commits across 17 repositories from 2023–2026, led by a payment processing API and cash management services in production.",
-    accent: "accent-2",
-    title: "footprint — NNL",
-  },
-  {
     path: "/skills",
     id: "skills",
     label: "SKILLS",
@@ -98,17 +87,6 @@ export const ROUTES: readonly RouteDef[] = [
       "Production projects — payments latency migration (98% cut), fintech service platform, auth hardening with zero high/critical Snyk findings, and a Redis-backed read cache layer.",
     accent: "accent-4",
     title: "projects — NNL",
-  },
-  {
-    path: "/education",
-    id: "education",
-    label: "EDUCATION",
-    command: "cat education.md",
-    description: "Education history",
-    metaDescription:
-      "Education and certifications — STEM and BS Information Technology at La Consolacion University Philippines, Google IT Automation with Python, Google IT Support, and API security credentials.",
-    accent: "accent-2",
-    title: "education — NNL",
   },
   {
     path: "/contact",
@@ -137,6 +115,12 @@ export function normalizePath(pathname: string): string {
 
 const LEGACY_PATHS: Readonly<Record<string, string>> = {
   "/about": "/",
+  /* Deleted pages (phase-2): deep links, inbound shares, and cached SEO
+     entries for /education + /footprint canonicalize to the live home route
+     at load (history.replaceState below) instead of 404-ing into the hero.
+     See sitemap.xml — those URLs were dropped from the 6-URL sitemap. */
+  "/education": "/",
+  "/footprint": "/",
 };
 
 function canonicalPath(path: string): string {

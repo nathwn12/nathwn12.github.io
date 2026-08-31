@@ -1,28 +1,25 @@
 import { useEffect, useCallback, useState, type ComponentType } from "react";
-import { AnimatePresence, MotionConfig } from "framer-motion";
+import { AnimatePresence, MotionConfig, useReducedMotion } from "framer-motion";
 import { LoadingScreen } from "./components/LoadingScreen";
 import { BackgroundEffects } from "./components/BackgroundEffects";
 import { PageShell } from "./components/PageShell";
 import { Header } from "./components/Header";
 import { Hero } from "./components/Hero";
 import { Experience } from "./components/Experience";
-import { Footprint } from "./components/Footprint";
 import { Skills } from "./components/Skills";
 import Projects from "./components/Projects";
-import Education from "./components/Education";
 import { Contact } from "./components/Contact";
 import { Footer } from "./components/Footer";
 import { CommandTerminal } from "./components/CommandTerminal";
 import { useRoute, useAdjacentNavigation } from "./lib/router";
+import { createPageNavHandler } from "./lib/keyboardNav";
 
 /** route.id → section component — one "page" per route. */
 const PAGES: Record<string, ComponentType> = {
   hero: Hero,
   experience: Experience,
-  footprint: Footprint,
   skills: Skills,
   projects: Projects,
-  education: Education,
   contact: Contact,
 };
 
@@ -31,39 +28,22 @@ export default function App() {
   const onComplete = useCallback(() => setBooted(true), []);
   const { route, direction } = useRoute();
   const { goNext, goPrev } = useAdjacentNavigation();
+  const reduceMotion = useReducedMotion();
 
-  /* ←/→ navigates between pages. Never hijack keys while typing. */
+  /* ←/→ navigates between pages; ↑/↓ + Home/End scroll the internal page
+     container (80vH section step). Never hijack keys while typing or while
+     the terminal overlay / mobile menu is open (guard in keyboardNav.ts;
+     CommandTerminal keeps its own ↑/↓ history on its input). */
   useEffect(() => {
     if (!booted) return;
-    const onKey = (e: KeyboardEvent) => {
-      const t = e.target as HTMLElement | null;
-      if (
-        t &&
-        (t.tagName === "INPUT" ||
-          t.tagName === "TEXTAREA" ||
-          t.tagName === "SELECT" ||
-          t.isContentEditable)
-      ) {
-        return;
-      }
-      /* Don't page-navigate while the terminal overlay or mobile menu is open. */
-      if (
-        document.querySelector("[data-terminal-panel]") ||
-        document.querySelector("[data-mobile-menu]")
-      ) {
-        return;
-      }
-      if (e.key === "ArrowRight") {
-        e.preventDefault();
-        goNext();
-      } else if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        goPrev();
-      }
-    };
+    const onKey = createPageNavHandler({
+      goNext,
+      goPrev,
+      reduceMotion: reduceMotion ?? false,
+    });
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [booted, goNext, goPrev]);
+  }, [booted, goNext, goPrev, reduceMotion]);
 
   const Content = PAGES[route.id] ?? Hero;
 

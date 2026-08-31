@@ -12,10 +12,8 @@ interface Line {
 const SECTION_NAMES: Readonly<Record<string, string>> = {
   hero: "whoami",
   experience: "experience.log",
-  footprint: "footprint/",
   skills: "systemctl",
   projects: "projects/",
-  education: "education.md",
   contact: "inbox",
 };
 
@@ -51,15 +49,17 @@ const HELP = [
   `║ ls              List ${SECTION_COUNT} sections              ║`,
   "║ cd <section>    Navigate to a section        ║",
   "║ ←/→ keys         Previous / next page        ║",
+  "║ ↑/↓ keys         Scroll within section       ║",
+  "║ Home/End         Top / bottom of section     ║", 
   "║ whoami          Identity information         ║",
   "║ neofetch        System information           ║",
   "║ clear           Clear terminal               ║",
-  "║ date            Current date & time           ║",
+  "║ date            Current date & time          ║",
   "║ uptime          System uptime                ║",
   "║ ping            Network test                 ║",
-  "║ sudo            Elevate privileges            ║",
-  "║ theme           Display color scheme          ║",
-  "║ history         Command history               ║",
+  "║ sudo            Elevate privileges           ║",
+  "║ theme           Display color scheme         ║",
+  "║ history         Command history              ║",
   "║ Ctrl+L          Clear screen                 ║",
   "╚══════════════════════════════════════════════╝",
 ];
@@ -73,7 +73,7 @@ const WELCOME = [
 
 const TRY_SUDO = [
   "",
-  "  ⚠️  Nice try. You don't have sudo on this system.",
+  "  Nice try. You don't have sudo on this system.",
   "  ─────────────────────────────────────────────",
   "  Hint: you're already root on your own machine.",
 ];
@@ -401,7 +401,7 @@ export function CommandTerminal() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="type 'help'..."
-              className="flex-1 bg-transparent text-xs text-text outline-none placeholder-text-muted/50"
+              className="flex-1 bg-transparent text-xs text-text outline-none placeholder-text-muted"
               spellCheck={false}
               autoComplete="off"
             />

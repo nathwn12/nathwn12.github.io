@@ -25,7 +25,7 @@ const childVariants = {
 const systemFacts = [
   ["OS", "Ubuntu/Linux Servers / Docker"],
   ["Kernel", ".NET 6/7/8/9 / C#"],
-  ["Packages", "17 repos · 1,100+ commits"],
+  ["Packages", "17 repos · 1,182 commits"],
   ["Shell", "Bash / PowerShell"],
   ["AI Tools", "LM Studio / OpenCode / Codex"],
   ["Certs", "Google IT Support · IT Automation with Python"],
@@ -245,15 +245,6 @@ export function Hero() {
               <span>NEXT</span>
               <span className="text-xs">→</span>
             </button>
-          </motion.div>
-
-          {/* Vertical sidebar */}
-          <motion.div
-            variants={childVariants}
-            className="hidden lg:block absolute right-0 top-1/2 -translate-y-1/2 text-[10px] tracking-[0.5em] text-border-accent"
-            style={{ writingMode: "vertical-rl" }}
-          >
-            BACKEND.DEVELOPER.RESUME — BUILD 2026 — C# .NET FINTECH
           </motion.div>
         </div>
       </motion.div>

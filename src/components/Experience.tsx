@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { TerminalWindow } from "./TerminalWindow";
 import { employer, logEntries } from "../content/experience";
 
 export function Experience() {
@@ -34,7 +33,7 @@ export function Experience() {
           <div className="flex-1 h-[1px] bg-border" />
         </motion.div>
 
-        <TerminalWindow title="career.service">
+        <div className="border border-border-accent bg-bg">
           {/* Service header — single employer era */}
           <div className="px-4 md:px-6 py-3 border-b border-border bg-text/[0.01]">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
@@ -49,7 +48,7 @@ export function Experience() {
             </div>
           </div>
 
-          <div className="space-y-px">
+          <div className="divide-y divide-border">
             {logEntries.map((exp, i) => (
               <motion.div
                 key={exp.id}
@@ -65,10 +64,10 @@ export function Experience() {
                   role="button"
                   tabIndex={0}
                   aria-expanded={activeExp === i}
-                  className={`group cursor-pointer transition-all duration-500 border border-border hover:border-accent/20 ${
+                  className={`group cursor-pointer transition-all duration-500 border-l-2 ${
                     activeExp === i
-                      ? "bg-accent/[0.02] border-accent/30"
-                      : "hover:bg-text/[0.01]"
+                      ? "border-l-accent bg-accent/[0.03]"
+                      : "border-l-transparent hover:bg-text/[0.01]"
                   }`}
                   onClick={() =>
                     setActiveExp((prev) => (prev === i ? null : i))
@@ -154,7 +153,16 @@ export function Experience() {
               </motion.div>
             ))}
           </div>
-        </TerminalWindow>
+
+          {/* Provenance footnote — the only surviving footprint-ledger
+              detail, kept as a plain log footer row (D3 survivor rule). */}
+          <div className="px-4 md:px-6 py-3 border-t border-border bg-text/[0.01]">
+            <p className="text-[10px] leading-relaxed text-text-dim">
+              commit ledger recovered from 21 scanned internal repositories
+              after Xentra closed May 2026 · 1,182 commits / 17 repos 2023–2026
+            </p>
+          </div>
+        </div>
       </div>
     </section>
   );

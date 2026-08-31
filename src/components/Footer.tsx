@@ -13,6 +13,7 @@ import { useState, useEffect } from "react";
 export function Footer() {
   const { isScrolling } = usePageScroll();
   const [idle, setIdle] = useState(true);
+  const [now, setNow] = useState(new Date());
 
   useEffect(() => {
     if (isScrolling) setIdle(false);
@@ -20,9 +21,16 @@ export function Footer() {
     return () => clearTimeout(t);
   }, [isScrolling]);
 
+  /* K2: live local clock — 1s tick, cleaned up on unmount. */
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+
   const uptimeDays = Math.floor(
     (Date.now() - new Date("2023-03-01").getTime()) / 86400000,
   );
+  const clockStr = now.toLocaleTimeString("en-US", { hour12: false });
 
   return (
     <footer className="fixed bottom-0 left-0 right-0 z-50 h-8 border-t border-border-accent bg-surface/95 backdrop-blur-sm font-mono text-[10px] tracking-wider text-text-dim select-none">
@@ -57,7 +65,7 @@ export function Footer() {
           <span>{idle ? "SYSTEM IDLE" : "SYSTEM ACTIVE"}</span>
           <span className="text-border-accent">UPTIME: {uptimeDays} DAYS</span>
           <span className="text-border-accent hidden lg:inline">
-            MEM: 45% | TASKS: 4 | PROCS: 17
+            {"[<- -> PAGE] [UP/DOWN SECTION]"}
           </span>
         </div>
 
@@ -78,6 +86,13 @@ export function Footer() {
             |
           </span>
           <div className="items-center gap-3 hidden sm:flex">
+            <span className="tabular-nums">{clockStr}</span>
+            <span
+              aria-hidden="true"
+              className="terminal-cursor text-accent select-none"
+            >
+              █
+            </span>
             <a
               href="https://github.com/nathwn12"
               target="_blank"

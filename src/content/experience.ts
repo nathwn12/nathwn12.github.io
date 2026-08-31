@@ -31,7 +31,7 @@ export const logEntries: LogEntry[] = [
     unit: "career.service",
     timestamp: "2023-04-11 09:12:05",
     status: "OK",
-    summary: "Shipped 1,100+ commits across 17 repositories",
+    summary: "Shipped 1,182 commits across 17 repositories",
     description:
       "Built ASP.NET Web APIs, gRPC endpoints, SignalR hubs, and RabbitMQ messaging for fintech products spanning payments, cash management, and access control. Configured Serilog for centralized structured logging across environments.",
     tech: ["ASP.NET WEB APIS", "GRPC", "SIGNALR", "RABBITMQ", "SERILOG"],
