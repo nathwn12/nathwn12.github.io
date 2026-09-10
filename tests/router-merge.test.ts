@@ -148,6 +148,24 @@ describe("home dossier route merge", () => {
     expect(browser.location.pathname).toBe("/");
   });
 
+  test("resolves unknown paths to the 404 route while keeping the requested path", async () => {
+    const { router } = await loadRouter("/definitely-not-a-page");
+
+    // routeByPath stays strict — navigate() keeps no-opping on unknown paths.
+    expect(router.routeByPath("/definitely-not-a-page")).toBeUndefined();
+
+    const resolved = router.resolveRoute("/definitely-not-a-page");
+    expect(resolved.id).toBe("notfound");
+    expect(resolved.path).toBe("/definitely-not-a-page");
+    expect(resolved.title).toContain("404");
+
+    // Known paths still resolve to themselves via the same helper.
+    expect(router.resolveRoute("/skills").id).toBe("skills");
+    expect(readRouteState(router)).toMatchObject({
+      path: "/definitely-not-a-page",
+    });
+  });
+
   test("deduplicates a stale /about history entry at canonical home", async () => {
     const { browser, router } = await loadRouter("/experience");
 

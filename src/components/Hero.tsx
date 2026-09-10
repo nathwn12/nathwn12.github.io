@@ -71,9 +71,9 @@ export function Hero() {
             variants={childVariants}
             className="mb-6 flex items-center gap-2"
           >
-            <span className="text-accent text-sm">$</span>
+            <span className="text-accent-text text-sm">$</span>
             <span className="text-text-muted text-sm">whoami</span>
-            <span className="terminal-cursor text-accent text-sm font-bold">
+            <span className="terminal-cursor text-accent-text text-sm font-bold">
               █
             </span>
           </motion.div>
@@ -84,7 +84,7 @@ export function Hero() {
             className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold tracking-tighter leading-[0.85] mb-6"
           >
             <span className="block text-text">NATHANIEL</span>
-            <span className="block text-accent">NIKOLAI LADERO</span>
+            <span className="block text-accent-text">NIKOLAI LADERO</span>
           </motion.h1>
 
           {/* Role — static, no typewriter */}
@@ -95,18 +95,14 @@ export function Hero() {
             BACKEND DEVELOPER — 3 YRS PRODUCTION FINTECH
           </motion.p>
 
-          {/* Summary — drawn from resume */}
+          {/* Lead — the one-line pitch; detail lives in system.md below */}
           <motion.p
             variants={childVariants}
-            className="text-sm md:text-base text-text-dim leading-relaxed max-w-2xl mb-10"
+            className="text-sm md:text-base text-text-dim leading-relaxed max-w-2xl mb-8"
           >
-            Backend Developer with 3 years of production fintech experience and
-            extensive hands-on DevOps experience. Builds C# and ASP.NET APIs,
-            manages Ubuntu/Linux servers and Docker containers, configures Nginx
-            reverse proxies, and automates CI/CD deployments through GitHub
-            Actions with Bash and PowerShell. Uses a practical AI-assisted
-            workflow, backed by Google IT Support and IT Automation with Python
-            certifications.
+            Backend Developer with 3 years of production fintech experience.
+            Builds C# and ASP.NET Core APIs, manages Ubuntu/Linux servers and
+            Docker containers, and automates CI/CD with GitHub Actions.
           </motion.p>
 
           {/* Stats grid — terminal window */}
@@ -130,7 +126,7 @@ export function Hero() {
                   <p className="text-[10px] tracking-[0.2em] text-text-muted mb-1">
                     {stat.label}
                   </p>
-                  <p className="text-sm md:text-base font-bold text-text group-hover:text-accent transition-colors duration-300">
+                  <p className="text-sm md:text-base font-bold text-text group-hover:text-accent-text transition-colors duration-300">
                     {stat.value}
                   </p>
                 </motion.div>
@@ -140,7 +136,7 @@ export function Hero() {
           </motion.div>
 
           {/* System dossier — the non-duplicated profile detail */}
-          <motion.div variants={childVariants} className="mt-10">
+          <motion.div variants={childVariants} className="mt-8">
             <TerminalWindow title="system.md">
               <motion.div
                 variants={containerVariants}
@@ -152,7 +148,7 @@ export function Hero() {
                   variants={childVariants}
                   className="border border-border-accent bg-bg p-4 md:p-6 font-mono"
                 >
-                  <div className="text-accent text-xs mb-3 flex items-center gap-2">
+                  <div className="text-accent-text text-xs mb-3 flex items-center gap-2">
                     <span className="inline-block w-2 h-2 bg-accent rounded-full" />
                     $ neofetch
                   </div>
@@ -166,14 +162,14 @@ export function Hero() {
                         <span className="text-text-muted shrink-0 w-16">
                           {label}
                         </span>
-                        <span className="text-text group-hover:text-accent transition-colors duration-300">
+                        <span className="text-text group-hover:text-accent-text transition-colors duration-300">
                           {value}
                         </span>
                       </motion.div>
                     ))}
                   </div>
                   <div className="mt-3">
-                    <span className="text-accent text-xs">$ </span>
+                    <span className="text-accent-text text-xs">$ </span>
                   </div>
                 </motion.div>
 
@@ -181,7 +177,7 @@ export function Hero() {
                   <motion.div variants={childVariants}>
                     <h2 className="text-2xl md:text-4xl font-bold tracking-tight mb-4">
                       Crafting reliable systems{" "}
-                      <span className="text-accent">that scale</span> under
+                      <span className="text-accent-text">that scale</span> under
                       pressure.
                     </h2>
                   </motion.div>
@@ -210,24 +206,24 @@ export function Hero() {
           {/* Resume download */}
           <motion.div
             variants={childVariants}
-            className="mt-12 flex items-center gap-3 text-xs tracking-widest group"
+            className="mt-10 flex items-center gap-3 text-xs tracking-widest group"
           >
-            <span className="text-accent text-sm">$</span>
+            <span className="text-accent-text text-sm">$</span>
             <motion.a
               href="Nathaniel-Nikolai-Ladero-Resume.pdf"
               download="Nathaniel-Nikolai-Ladero-Resume.pdf"
               whileHover={{ x: 4 }}
-              className="text-text-dim hover:text-accent transition-colors duration-300 cursor-pointer"
+              className="text-text-dim hover:text-accent-text transition-colors duration-300 cursor-pointer"
             >
               wget ./resume.pdf
             </motion.a>
-            <span className="text-accent">↓</span>
+            <span className="text-accent-text">↓</span>
           </motion.div>
 
           {/* Page navigation hints */}
           <motion.div
             variants={childVariants}
-            className="mt-16 flex items-center justify-center gap-8 text-text-muted"
+            className="mt-12 flex items-center justify-center gap-8 text-text-muted"
           >
             <button
               type="button"
@@ -240,7 +236,7 @@ export function Hero() {
             <button
               type="button"
               onClick={() => navigate("/experience")}
-              className="flex items-center gap-2 text-[10px] tracking-[0.3em] hover:text-accent transition-all duration-300 cursor-pointer hover:translate-x-[4px]"
+              className="flex items-center gap-2 text-[10px] tracking-[0.3em] hover:text-accent-text transition-all duration-300 cursor-pointer hover:translate-x-[4px] active:translate-x-[2px]"
             >
               <span>NEXT</span>
               <span className="text-xs">→</span>

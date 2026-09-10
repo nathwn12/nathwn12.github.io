@@ -113,6 +113,25 @@ export function normalizePath(pathname: string): string {
   return p === "" ? "/" : p;
 }
 
+/**
+ * Synthesized route for URLs that match no registered path. It is NOT part of
+ * ROUTES: `navigate()` still refuses unknown paths (routeByPath is the
+ * validator) and `routeIndex` keeps clamping navigation to the five real
+ * routes. `resolveRoute` only shapes what the shell renders, carrying the
+ * requested path so the typed `cd` overlay and the 404 body echo the exact URL.
+ */
+export const NOT_FOUND_ROUTE: RouteDef = {
+  path: "/not-found",
+  id: "notfound",
+  label: "404",
+  command: "cd <unknown>",
+  description: "No such file or directory",
+  metaDescription:
+    "This path doesn't exist on nathwn12.github.io — return to the portfolio home for the index of pages.",
+  accent: "accent-3",
+  title: "404 — No such file or directory — NNL",
+};
+
 const LEGACY_PATHS: Readonly<Record<string, string>> = {
   "/about": "/",
   /* Deleted pages (phase-2): deep links, inbound shares, and cached SEO
@@ -130,6 +149,22 @@ function canonicalPath(path: string): string {
 
 export function routeByPath(path: string): RouteDef | undefined {
   return ROUTES.find((r) => r.path === canonicalPath(path));
+}
+
+/**
+ * Route resolution for rendering: the matching route when the path is known,
+ * otherwise the synthesized 404 route carrying the requested (canonical) path.
+ * `routeByPath` stays strict so `navigate()` keeps its documented no-op on
+ * unknown paths.
+ */
+export function resolveRoute(path: string): RouteDef {
+  const canonical = canonicalPath(path);
+  return (
+    ROUTES.find((r) => r.path === canonical) ?? {
+      ...NOT_FOUND_ROUTE,
+      path: canonical,
+    }
+  );
 }
 
 export function routeIndex(path: string): number {
@@ -213,7 +248,7 @@ export function navigate(to: string): void {
 export function useRoute(): RouterState {
   const [state, setLocal] = useState<RouterState>({
     path: currentPath,
-    route: routeByPath(currentPath) ?? ROUTES[0],
+    route: resolveRoute(currentPath),
     direction: currentDirection,
   });
 
@@ -221,7 +256,7 @@ export function useRoute(): RouterState {
     const update = () => {
       setLocal({
         path: currentPath,
-        route: routeByPath(currentPath) ?? ROUTES[0],
+        route: resolveRoute(currentPath),
         direction: currentDirection,
       });
     };

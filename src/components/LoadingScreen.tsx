@@ -33,6 +33,23 @@ export function LoadingScreen({ onComplete }: { onComplete: () => void }) {
             className="h-full bg-accent"
           />
         </div>
+        <div className="mt-3">
+          {[
+            "mount /home",
+            "load profile.md",
+            "init whoami",
+          ].map((msg, i) => (
+            <motion.p
+              key={msg}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: [0.35, 0.5, 0.65][i] }}
+              className="mt-2 text-[10px] tracking-widest text-text-muted"
+            >
+              <span className="text-accent-text">[ ok ]</span> {msg}
+            </motion.p>
+          ))}
+        </div>
       </div>
     </motion.div>
   );
