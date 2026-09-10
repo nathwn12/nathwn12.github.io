@@ -41,27 +41,32 @@ export function resolveTerminalSection(input: string) {
   );
 }
 
+const HELP_ROWS: ReadonlyArray<readonly [string, string]> = [
+  ["help", "Show this help message"],
+  ["ls", `List ${SECTION_COUNT} sections`],
+  ["cd <section>", "Navigate to a section"],
+  ["←/→ keys", "Previous / next page"],
+  ["↑/↓ keys", "Scroll within section"],
+  ["Home/End", "Top / bottom of section"],
+  ["whoami", "Identity information"],
+  ["neofetch", "System information"],
+  ["clear", "Clear terminal"],
+  ["date", "Current date & time"],
+  ["uptime", "System uptime"],
+  ["ping", "Network test"],
+  ["sudo", "Elevate privileges"],
+  ["theme", "Display color scheme"],
+  ["history", "Command history"],
+  ["Ctrl+L", "Clear screen"],
+];
+
+// Every row: "║ " + 15 + " " + 28 + " ║" = 48 chars. Borders: 1 + 46 + 1 = 48.
 const HELP = [
-  "╔══════════════════════════════════════════════╗",
-  "║ COMMAND         DESCRIPTION                  ║",
-  "╠══════════════════════════════════════════════╣",
-  "║ help            Show this help message       ║",
-  `║ ls              List ${SECTION_COUNT} sections              ║`,
-  "║ cd <section>    Navigate to a section        ║",
-  "║ ←/→ keys         Previous / next page        ║",
-  "║ ↑/↓ keys         Scroll within section       ║",
-  "║ Home/End         Top / bottom of section     ║", 
-  "║ whoami          Identity information         ║",
-  "║ neofetch        System information           ║",
-  "║ clear           Clear terminal               ║",
-  "║ date            Current date & time          ║",
-  "║ uptime          System uptime                ║",
-  "║ ping            Network test                 ║",
-  "║ sudo            Elevate privileges           ║",
-  "║ theme           Display color scheme         ║",
-  "║ history         Command history              ║",
-  "║ Ctrl+L          Clear screen                 ║",
-  "╚══════════════════════════════════════════════╝",
+  `╔${"═".repeat(46)}╗`,
+  `║ ${"COMMAND".padEnd(15)} ${"DESCRIPTION".padEnd(28)} ║`,
+  `╠${"═".repeat(46)}╣`,
+  ...HELP_ROWS.map(([cmd, desc]) => `║ ${cmd.padEnd(15)} ${desc.padEnd(28)} ║`),
+  `╚${"═".repeat(46)}╝`,
 ];
 
 const WELCOME = [
@@ -345,6 +350,8 @@ export function CommandTerminal() {
       {visible && (
         <motion.div
           data-terminal-panel
+          role="complementary"
+          aria-label="Command terminal"
           initial={{ y: "100%" }}
           animate={{ y: 0 }}
           exit={{ y: "100%" }}
@@ -374,6 +381,8 @@ export function CommandTerminal() {
 
           <div
             ref={containerRef}
+            tabIndex={0}
+            aria-label="Terminal output"
             className="flex-1 overflow-y-auto px-4 py-2 text-xs leading-relaxed"
           >
             {lines.map((line) => (
@@ -381,7 +390,7 @@ export function CommandTerminal() {
                 key={line.id}
                 className={`whitespace-pre-wrap ${
                   line.type === "input"
-                    ? "text-accent"
+                    ? "text-accent-text"
                     : line.type === "system"
                       ? "text-text-muted"
                       : "text-text"
@@ -393,7 +402,7 @@ export function CommandTerminal() {
           </div>
 
           <div className="px-4 py-2 border-t border-border shrink-0 bg-surface/80 flex items-center gap-2">
-            <span className="text-accent text-xs shrink-0 select-none">$</span>
+            <span className="text-accent-text text-xs shrink-0 select-none">$</span>
             <input
               ref={inputRef}
               type="text"
@@ -405,7 +414,7 @@ export function CommandTerminal() {
               spellCheck={false}
               autoComplete="off"
             />
-            <span className="text-accent text-xs animate-pulse select-none">
+            <span className="text-accent-text text-xs animate-pulse select-none">
               █
             </span>
           </div>

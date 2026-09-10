@@ -65,22 +65,22 @@ const UNIT_ACCENTS: Record<
   { text: string; border: string; background: string }
 > = {
   accent: {
-    text: "text-accent",
+    text: "text-accent-text",
     border: "border-l-accent",
     background: "bg-accent/5",
   },
   "accent-2": {
-    text: "text-accent-2",
+    text: "text-accent-2-text",
     border: "border-l-accent-2",
     background: "bg-accent-2/5",
   },
   "accent-3": {
-    text: "text-accent-3",
+    text: "text-accent-3-text",
     border: "border-l-accent-3",
     background: "bg-accent-3/5",
   },
   "accent-4": {
-    text: "text-accent-4",
+    text: "text-accent-4-text",
     border: "border-l-accent-4",
     background: "bg-accent-4/5",
   },
@@ -134,7 +134,7 @@ export function Skills() {
           transition={{ duration: 0.35 }}
           className="flex items-center gap-4 mb-8 md:mb-10"
         >
-          <span className="text-accent-3 text-sm">$</span>
+          <span className="text-accent-3-text text-sm">$</span>
           <span className="text-xs tracking-[0.25em] text-text-dim">
             systemctl --type=service --state=running
           </span>
@@ -144,11 +144,11 @@ export function Skills() {
         <TerminalWindow title="capability-control-room">
           <div className="flex flex-wrap gap-x-5 gap-y-1 px-4 md:px-6 py-2 border-b border-border-accent bg-bg text-[10px] tracking-widest text-text-dim">
             <span>
-              <span className="text-accent font-bold">{totalPackages}</span>{" "}
+              <span className="text-accent-text font-bold">{totalPackages}</span>{" "}
               package records
             </span>
             <span>
-              <span className="text-accent-2 font-bold">
+              <span className="text-accent-2-text font-bold">
                 {capabilityUnits.length}
               </span>{" "}
               running units
@@ -168,7 +168,7 @@ export function Skills() {
                 <div className="min-w-0">
                   <h2
                     id="skills-board-heading"
-                    className="text-[10px] tracking-[0.3em] text-accent-3 font-bold uppercase"
+                    className="text-[10px] tracking-[0.3em] text-accent-3-text font-bold uppercase"
                   >
                     process board
                   </h2>
@@ -281,7 +281,7 @@ export function Skills() {
               className="min-w-0 border-t border-border-accent bg-bg p-4 md:p-6 lg:border-l lg:border-t-0"
             >
               <div className="mb-4 flex items-center gap-2 text-[10px] text-text-dim">
-                <span className="text-accent">$</span>
+                <span className="text-accent-text">$</span>
                 <span className="min-w-0 break-words">
                   systemctl status {selectedView.unit.id}.service
                 </span>
@@ -356,7 +356,7 @@ export function Skills() {
                   </dl>
 
                   <div className="mt-5 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[10px]">
-                    <span className="text-accent-3">
+                    <span className="text-accent-3-text">
                       [{selectedView.unit.repo.fork}]
                     </span>
                     <span className="break-words text-text-dim">
@@ -370,7 +370,7 @@ export function Skills() {
 
                 <div className="mt-6 min-w-0">
                   <div className="mb-2 flex min-w-0 items-center gap-2 text-[10px] text-text-dim">
-                    <span className="text-accent">$</span>
+                    <span className="text-accent-text">$</span>
                     <span className="min-w-0 break-words">
                       ls {selectedView.unit.repo.repo}/
                     </span>
@@ -401,7 +401,7 @@ export function Skills() {
                         className="grid min-w-0 grid-cols-[minmax(0,1fr)_4rem_auto] items-start gap-x-3 border-b border-border px-3 py-2 last:border-b-0 hover:bg-surface transition-colors duration-200 md:grid-cols-[minmax(0,1.1fr)_4rem_minmax(0,1fr)_auto]"
                       >
                         <span className="min-w-0 break-words">
-                          <span className="block break-words text-[11px] text-accent">
+                          <span className="block break-words text-[11px] text-accent-text">
                             {row.name}
                           </span>
                           <span className="block break-words text-[10px] leading-relaxed text-text-muted md:hidden">

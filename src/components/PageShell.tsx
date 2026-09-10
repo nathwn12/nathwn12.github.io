@@ -117,7 +117,7 @@ export function PageShell({ route, direction, children }: PageShellProps) {
         className="pointer-events-none select-none absolute top-[104px] left-4 lg:left-8 z-20 flex items-center gap-2 text-xs font-mono"
         aria-hidden="true"
       >
-        <span className="text-accent">$</span>
+        <span className="text-accent-text">$</span>
         <span className="overflow-hidden whitespace-nowrap text-text-dim">
           <motion.span
             className="inline-block whitespace-nowrap overflow-hidden align-bottom"
@@ -128,7 +128,7 @@ export function PageShell({ route, direction, children }: PageShellProps) {
             cd {cdPath}
           </motion.span>
         </span>
-        <span className="terminal-cursor text-accent font-bold">█</span>
+        <span className="terminal-cursor text-accent-text font-bold">█</span>
       </motion.div>
 
       {/* CRT scanline sweep on entry */}

@@ -99,24 +99,24 @@ export function Header() {
               }`}
             />
             <span className="hidden sm:inline">sys::resume</span>
-            <span className="hidden sm:inline text-border-accent">|</span>
+            <span className="hidden sm:inline text-text-muted">|</span>
             <span className="truncate">[nathan@portfolio ~]$</span>
           </span>
           <span className="flex shrink-0 items-center gap-2 sm:gap-3">
             <span className="hidden sm:inline">{timeStr}</span>
-            <span className="hidden sm:inline text-border-accent">|</span>
+            <span className="hidden sm:inline text-text-muted">|</span>
             <span className="hidden sm:inline">{utcOffset}</span>
-            <span className="hidden sm:inline text-border-accent">|</span>
-            <span className="text-accent">{activeSection || "HOME"}</span>
-            <span className="text-border-accent">|</span>
+            <span className="hidden sm:inline text-text-muted">|</span>
+            <span className="text-accent-text">{activeSection || "HOME"}</span>
+            <span className="text-text-muted">|</span>
             <button
               type="button"
               onClick={toggleThemeHandler}
               aria-label="Switch color scheme"
               title="Toggle color scheme (F2)"
-              className="flex items-center gap-1.5 whitespace-nowrap uppercase transition-colors duration-300 hover:text-accent"
+              className="flex items-center gap-1.5 whitespace-nowrap uppercase transition-colors duration-300 hover:text-accent-text active:text-accent-text"
             >
-              <span className="text-border-accent">[F2]</span>
+              <span className="text-text-muted">[F2]</span>
               <span>theme:{theme}</span>
             </button>
           </span>
@@ -143,13 +143,13 @@ export function Header() {
             </div>
             <button
               onClick={() => navigateTo("/")}
-              className="text-sm font-bold tracking-tighter text-text flex items-center gap-2 group"
+              className="text-sm font-bold tracking-tighter text-text flex items-center gap-2 group active:text-accent-text"
             >
-              <span className="text-accent text-xs">$</span>
-              <span className="group-hover:text-accent transition-colors duration-300">
+              <span className="text-accent-text text-xs">$</span>
+              <span className="group-hover:text-accent-text transition-colors duration-300">
                 NNL
               </span>
-              <span className="text-accent text-xs">_</span>
+              <span className="text-accent-text text-xs">_</span>
             </button>
           </div>
 
@@ -160,11 +160,11 @@ export function Header() {
                 onClick={() => navigateTo(item.path)}
                 className={`relative px-4 py-2 text-xs tracking-widest transition-all duration-300 border-l border-border ${
                   activeSection === item.label
-                    ? "text-accent bg-accent/5"
-                    : "text-text-dim hover:text-text hover:bg-text/5 hover:translate-x-[4px]"
+                    ? "text-accent-text bg-accent/5 active:bg-accent/10"
+                    : "text-text-dim hover:text-text hover:bg-text/5 hover:translate-x-[4px] active:bg-accent/10"
                 }`}
               >
-                <span className="text-border-accent mr-2">^{i + 1}</span>
+                <span className="text-text-muted mr-2">^{i + 1}</span>
                 {item.label}
               </button>
             ))}
@@ -208,11 +208,11 @@ export function Header() {
                     onClick={() => navigateTo(item.path)}
                     className={`px-4 py-3 text-xs tracking-widest border-b border-border transition-all duration-300 text-left ${
                       activeSection === item.label
-                        ? "text-accent bg-accent/5"
-                        : "text-text-dim hover:text-text hover:bg-text/5 hover:translate-x-[4px]"
+                        ? "text-accent-text bg-accent/5 active:bg-accent/10"
+                        : "text-text-dim hover:text-text hover:bg-text/5 hover:translate-x-[4px] active:bg-accent/10"
                     }`}
                   >
-                    <span className="text-border-accent mr-3">^{i + 1}</span>
+                    <span className="text-text-muted mr-3">^{i + 1}</span>
                     {item.label}
                   </button>
                 ))}

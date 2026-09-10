@@ -6,17 +6,17 @@ import { projects, type Token } from "../content/projects";
 type ProjectId = string & { readonly __brand: "Project" };
 
 const textClass: Record<Token, string> = {
-  accent: "text-accent",
-  "accent-2": "text-accent-2",
-  "accent-3": "text-accent-3",
-  "accent-4": "text-accent-4",
+  accent: "text-accent-text",
+  "accent-2": "text-accent-2-text",
+  "accent-3": "text-accent-3-text",
+  "accent-4": "text-accent-4-text",
 };
 
 const badgeClass: Record<Token, string> = {
-  accent: "text-accent border-accent/30 bg-accent/5",
-  "accent-2": "text-accent-2 border-accent-2/30 bg-accent-2/5",
-  "accent-3": "text-accent-3 border-accent-3/30 bg-accent-3/5",
-  "accent-4": "text-accent-4 border-accent-4/30 bg-accent-4/5",
+  accent: "text-accent-text border-accent/30 bg-accent/5",
+  "accent-2": "text-accent-2-text border-accent-2/30 bg-accent-2/5",
+  "accent-3": "text-accent-3-text border-accent-3/30 bg-accent-3/5",
+  "accent-4": "text-accent-4-text border-accent-4/30 bg-accent-4/5",
 };
 
 const extMap: Record<string, string> = {
@@ -86,7 +86,7 @@ export default function Projects() {
           transition={{ duration: 0.35 }}
           className="flex items-center gap-4 mb-12"
         >
-          <span className="text-accent-4 text-sm">$</span>
+          <span className="text-accent-4-text text-sm">$</span>
           <span className="text-xs tracking-[0.4em] text-text-dim">
             ls -la projects/
           </span>
@@ -118,7 +118,7 @@ export default function Projects() {
               onKeyDown={(e) => {
                 if (e.key === "Enter") setSelectedId(null);
               }}
-              className="flex items-center gap-4 px-4 py-3 bg-bg hover:bg-accent/5 transition-colors duration-300 cursor-pointer"
+              className="flex items-center gap-4 px-4 py-3 bg-bg hover:bg-accent/5 active:bg-accent/10 transition-colors duration-300 cursor-pointer"
             >
               <span className="w-28 text-[10px] font-mono text-text-dim">
                 drwxr-xr-x
@@ -133,7 +133,7 @@ export default function Projects() {
               <span className="w-24 text-[10px] text-text-muted">
                 May 28 2026
               </span>
-              <span className="flex-1 text-[10px] font-mono text-accent-2">
+              <span className="flex-1 text-[10px] font-mono text-accent-2-text">
                 ../
               </span>
             </div>
@@ -147,7 +147,7 @@ export default function Projects() {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleSelect(project.id as ProjectId);
                 }}
-                className={`flex items-center gap-4 px-4 py-3 bg-bg hover:bg-accent/5 transition-all duration-300 cursor-pointer ${
+                className={`flex items-center gap-4 px-4 py-3 bg-bg hover:bg-accent/5 active:bg-accent/10 transition-all duration-300 cursor-pointer ${
                   selectedId === project.id
                     ? "bg-accent/5 border-l-2 border-accent"
                     : ""
@@ -168,7 +168,7 @@ export default function Projects() {
                 </span>
                 <span
                   className={cn(
-                    "flex-1 text-[11px] font-mono hover:text-accent transition-colors",
+                    "flex-1 text-[11px] font-mono hover:text-accent-text transition-colors",
                     textClass[project.token],
                   )}
                 >
@@ -203,7 +203,7 @@ export default function Projects() {
                 onKeyDown={(e) => {
                   if (e.key === "Enter") handleSelect(project.id as ProjectId);
                 }}
-                className={`group relative border transition-all duration-500 p-4 ${
+                className={`group relative border transition-all duration-500 p-4 active:border-accent ${
                   selectedId === project.id
                     ? "border-accent bg-accent/5"
                     : "border-border hover:border-border-accent"
@@ -250,12 +250,12 @@ export default function Projects() {
                     animate={{ opacity: 1, y: 0 }}
                     className="text-[10px] text-text-muted mb-4 font-mono"
                   >
-                    <span className="text-accent">$</span> cd {selected.dir}/
+                    <span className="text-accent-text">$</span> cd {selected.dir}/
                   </motion.p>
                 )}
 
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-accent text-xs">$</span>
+                  <span className="text-accent-text text-xs">$</span>
                   <span className="text-[10px] text-text-dim">
                     cat README.md
                   </span>
@@ -308,9 +308,9 @@ export default function Projects() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   onClick={() => setSelectedId(null)}
-                  className="mt-4 text-[10px] tracking-widest text-text-muted hover:text-accent transition-colors"
+                  className="mt-4 text-[10px] tracking-widest text-text-muted hover:text-accent-text active:text-accent-text transition-colors"
                 >
-                  <span className="text-accent">$</span> cd ..
+                  <span className="text-accent-text">$</span> cd ..
                 </motion.button>
               </div>
             )}

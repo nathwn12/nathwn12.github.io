@@ -11,7 +11,8 @@ import Projects from "./components/Projects";
 import { Contact } from "./components/Contact";
 import { Footer } from "./components/Footer";
 import { CommandTerminal } from "./components/CommandTerminal";
-import { useRoute, useAdjacentNavigation } from "./lib/router";
+import { NotFound } from "./components/NotFound";
+import { useRoute, useAdjacentNavigation, routeByPath } from "./lib/router";
 import { createPageNavHandler } from "./lib/keyboardNav";
 
 /** route.id → section component — one "page" per route. */
@@ -45,7 +46,7 @@ export default function App() {
     return () => window.removeEventListener("keydown", onKey);
   }, [booted, goNext, goPrev, reduceMotion]);
 
-  const Content = PAGES[route.id] ?? Hero;
+  const Content = routeByPath(route.path) ? (PAGES[route.id] ?? Hero) : NotFound;
 
   return (
     <div className="bg-bg min-h-screen font-mono relative bg-grid">

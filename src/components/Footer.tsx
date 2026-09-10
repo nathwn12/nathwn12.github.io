@@ -7,8 +7,8 @@ import { useState, useEffect } from "react";
 /**
  * tmux-style persistent status bar - always pinned to the bottom of the
  * viewport (never scrolls with page content), like the canonical real
- * terminal bottom bar. Carries the system-monitor flavor: session name,
- * idle state, uptime, load stats, and quick actions.
+ * terminal bottom bar. Carries the tmux status flavor: session name,
+ * idle state, uptime, key hints, and quick actions.
  */
 export function Footer() {
   const { isScrolling } = usePageScroll();
@@ -36,13 +36,13 @@ export function Footer() {
     <footer className="fixed bottom-0 left-0 right-0 z-50 h-8 border-t border-border-accent bg-surface/95 backdrop-blur-sm font-mono text-[10px] tracking-wider text-text-dim select-none">
       <div className="h-full max-w-7xl mx-auto px-3 flex items-center justify-between gap-4 overflow-hidden">
         <div className="flex items-center gap-3 shrink-0">
-          <span aria-hidden="true" className="text-accent">
+          <span aria-hidden="true" className="text-accent-text">
             [0]
           </span>
           <span className="text-text-muted hidden sm:inline">~/nathwn12</span>
           <span
             aria-hidden="true"
-            className="text-border-accent hidden sm:inline"
+            className="text-text-muted hidden sm:inline"
           >
             |
           </span>
@@ -50,7 +50,7 @@ export function Footer() {
             onClick={() => navigate("/")}
             whileHover={{ x: 4 }}
             whileTap={{ scale: 0.95 }}
-            className="text-text-dim hover:text-accent transition-colors cursor-pointer"
+            className="text-text-dim hover:text-accent-text transition-colors cursor-pointer"
           >
             $ cd ~/home
           </motion.button>
@@ -63,8 +63,8 @@ export function Footer() {
             }`}
           />
           <span>{idle ? "SYSTEM IDLE" : "SYSTEM ACTIVE"}</span>
-          <span className="text-border-accent">UPTIME: {uptimeDays} DAYS</span>
-          <span className="text-border-accent hidden lg:inline">
+          <span className="text-text-muted">UPTIME: {uptimeDays} DAYS</span>
+          <span className="text-text-muted hidden lg:inline">
             {"[<- -> PAGE] [UP/DOWN SECTION]"}
           </span>
         </div>
@@ -74,14 +74,14 @@ export function Footer() {
             onClick={() =>
               window.dispatchEvent(new CustomEvent("toggle-terminal"))
             }
-            className="text-text-dim hover:text-accent transition-all duration-300 cursor-pointer hover:translate-x-[4px]"
+            className="text-text-dim hover:text-accent-text transition-all duration-300 cursor-pointer hover:translate-x-[4px] active:translate-y-px"
             title="Toggle command terminal (Ctrl+K)"
           >
             &gt;_ TERMINAL
           </button>
           <span
             aria-hidden="true"
-            className="text-border-accent hidden sm:inline"
+            className="text-text-muted hidden sm:inline"
           >
             |
           </span>
@@ -89,7 +89,7 @@ export function Footer() {
             <span className="tabular-nums">{clockStr}</span>
             <span
               aria-hidden="true"
-              className="terminal-cursor text-accent select-none"
+              className="terminal-cursor text-accent-text select-none"
             >
               █
             </span>
@@ -97,7 +97,7 @@ export function Footer() {
               href="https://github.com/nathwn12"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-accent transition-all duration-300 hover:translate-x-[4px]"
+              className="hover:text-accent-text transition-all duration-300 hover:translate-x-[4px] active:translate-x-[2px]"
             >
               github
             </a>
@@ -105,13 +105,13 @@ export function Footer() {
               href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden lg:inline hover:text-accent-2 transition-all duration-300 hover:translate-x-[4px]"
+              className="hidden lg:inline hover:text-accent-2-text transition-all duration-300 hover:translate-x-[4px] active:translate-x-[2px]"
             >
               linkedin
             </a>
             <a
               href={`mailto:${CONTACT_EMAIL}`}
-              className="hidden xl:inline hover:text-accent-2 transition-all duration-300 hover:translate-x-[4px]"
+              className="hidden xl:inline hover:text-accent-2-text transition-all duration-300 hover:translate-x-[4px] active:translate-x-[2px]"
             >
               email
             </a>

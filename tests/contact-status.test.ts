@@ -27,10 +27,10 @@ function lineWith(source: string, needle: string): string {
 describe("contact status chip regressions", () => {
   test("maps every status label to its tone in the typed lookup", () => {
     const pairs: Array<[label: string, tone: string]> = [
-      ["[FORM READY]", "text-accent-2"],
-      ["[SENDING]", "text-accent-2"],
-      ["[QUEUED]", "text-accent"],
-      ["[ERROR]", "text-accent-3"],
+      ["[FORM READY]", "text-accent-2-text"],
+      ["[SENDING]", "text-accent-2-text"],
+      ["[QUEUED]", "text-accent-text"],
+      ["[ERROR]", "text-accent-3-text"],
     ];
     for (const [label, tone] of pairs) {
       expect(lineWith(contact, `label: "${label}"`)).toContain(
@@ -47,8 +47,8 @@ describe("contact status chip regressions", () => {
 
   test("derives status message panel styles from the typed lookup, not nested ternaries", () => {
     for (const tone of [
-      "border-accent text-accent bg-accent/5",
-      "border-accent-3 text-accent-3 bg-accent-3/5",
+      "border-accent text-accent-text bg-accent/5",
+      "border-accent-3 text-accent-3-text bg-accent-3/5",
       "border-text-muted text-text-dim bg-text/5",
     ]) {
       expect(contact).toContain(tone);

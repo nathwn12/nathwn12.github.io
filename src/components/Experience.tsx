@@ -26,7 +26,7 @@ export function Experience() {
           transition={{ duration: 0.35 }}
           className="flex items-center gap-4 mb-12"
         >
-          <span className="text-accent text-sm">$</span>
+          <span className="text-accent-text text-sm">$</span>
           <span className="text-xs tracking-[0.4em] text-text-dim">
             journalctl -u career.service --no-pager
           </span>
@@ -37,7 +37,7 @@ export function Experience() {
           {/* Service header — single employer era */}
           <div className="px-4 md:px-6 py-3 border-b border-border bg-text/[0.01]">
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-              <span className="text-accent font-bold">{employer.unit}</span>
+              <span className="text-accent-text font-bold">{employer.unit}</span>
               <span className="text-text font-bold">{employer.role}</span>
               <span className="text-text-dim">{employer.company}</span>
               <span className="text-text-muted">({employer.location})</span>
@@ -64,7 +64,7 @@ export function Experience() {
                   role="button"
                   tabIndex={0}
                   aria-expanded={activeExp === i}
-                  className={`group cursor-pointer transition-all duration-500 border-l-2 ${
+                  className={`group cursor-pointer transition-all duration-500 border-l-2 active:bg-text/[0.02] ${
                     activeExp === i
                       ? "border-l-accent bg-accent/[0.03]"
                       : "border-l-transparent hover:bg-text/[0.01]"
@@ -80,13 +80,13 @@ export function Experience() {
                   <div className="flex items-center gap-4 md:gap-8 py-5 md:py-6 px-4 md:px-6">
                     <motion.span
                       className={`text-xs font-bold tabular-nums transition-colors duration-300 ${
-                        activeExp === i ? "text-accent" : "text-text-dim"
+                        activeExp === i ? "text-accent-text" : "text-text-dim"
                       }`}
                     >
                       {exp.id}
                     </motion.span>
 
-                    <span className="text-xs font-bold text-accent">[OK]</span>
+                    <span className="text-xs font-bold text-accent-text">[OK]</span>
 
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-1 md:gap-4">
@@ -113,7 +113,7 @@ export function Experience() {
                         x: activeExp === i ? 4 : 0,
                       }}
                       className={`text-lg transition-colors duration-300 ${
-                        activeExp === i ? "text-accent" : "text-text-muted"
+                        activeExp === i ? "text-accent-text" : "text-text-muted"
                       }`}
                     >
                       {activeExp === i ? "↓" : "→"}
@@ -137,13 +137,13 @@ export function Experience() {
                         {exp.tech.map((t) => (
                           <span
                             key={t}
-                            className="text-[10px] tracking-wider px-2 py-1 border border-border-accent text-text-dim hover:border-accent/30 hover:text-accent transition-colors duration-300"
+                            className="text-[10px] tracking-wider px-2 py-1 border border-border-accent text-text-dim hover:border-accent/30 hover:text-accent-text transition-colors duration-300"
                           >
                             {t}
                           </span>
                         ))}
                       </div>
-                      <div className="inline-flex items-center gap-2 text-[10px] tracking-widest text-accent mt-2">
+                      <div className="inline-flex items-center gap-2 text-[10px] tracking-widest text-accent-text mt-2">
                         <span className="inline-block w-1.5 h-1.5 bg-accent rounded-full" />
                         {exp.status}
                       </div>

@@ -12,16 +12,16 @@ const STATUS_CHIP: Record<
   FormStatus["type"] | "idle",
   { label: string; tone: string }
 > = {
-  idle: { label: "[FORM READY]", tone: "text-accent-2" },
-  pending: { label: "[SENDING]", tone: "text-accent-2" },
-  success: { label: "[QUEUED]", tone: "text-accent" },
-  error: { label: "[ERROR]", tone: "text-accent-3" },
+  idle: { label: "[FORM READY]", tone: "text-accent-2-text" },
+  pending: { label: "[SENDING]", tone: "text-accent-2-text" },
+  success: { label: "[QUEUED]", tone: "text-accent-text" },
+  error: { label: "[ERROR]", tone: "text-accent-3-text" },
 };
 
 const STATUS_PANEL: Record<FormStatus["type"], string> = {
   pending: "border-text-muted text-text-dim bg-text/5",
-  success: "border-accent text-accent bg-accent/5",
-  error: "border-accent-3 text-accent-3 bg-accent-3/5",
+  success: "border-accent text-accent-text bg-accent/5",
+  error: "border-accent-3 text-accent-3-text bg-accent-3/5",
 };
 
 export function Contact() {
@@ -136,7 +136,7 @@ export function Contact() {
           transition={{ duration: 0.35 }}
           className="flex items-center gap-4 mb-12"
         >
-          <span className="text-accent-2 text-sm">$</span>
+          <span className="text-accent-2-text text-sm">$</span>
           <span className="text-xs tracking-[0.4em] text-text-dim">
             mutt -f inbox
           </span>
@@ -153,8 +153,8 @@ export function Contact() {
             <span className="text-text-dim">LET'S BUILD</span>
             <br />
             <span className="text-text">SOMETHING </span>
-            <span className="text-accent">GREAT</span>
-            <span className="font-bold text-accent">_</span>
+            <span className="text-accent-text">GREAT</span>
+            <span className="font-bold text-accent-text">_</span>
           </h2>
         </motion.div>
 
@@ -171,16 +171,17 @@ export function Contact() {
                 borderColor:
                   "color-mix(in srgb, var(--color-accent) 25%, transparent)",
               }}
+              whileTap={{ scale: 0.99 }}
               className="border border-border-accent bg-surface p-4 md:p-6 transition-colors duration-300"
             >
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-[10px] tracking-widest text-accent">
+                <span className="text-[10px] tracking-widest text-accent-text">
                   [EMAIL]
                 </span>
               </div>
               <a
                 href={`mailto:${CONTACT_EMAIL}`}
-                className="text-sm md:text-lg font-bold text-text hover:text-accent transition-colors duration-300 block break-all"
+                className="text-sm md:text-lg font-bold text-text hover:text-accent-text transition-colors duration-300 block break-all"
               >
                 {CONTACT_EMAIL}
               </a>
@@ -191,10 +192,11 @@ export function Contact() {
                 borderColor:
                   "color-mix(in srgb, var(--color-accent-2) 25%, transparent)",
               }}
+              whileTap={{ scale: 0.99 }}
               className="border border-border-accent bg-surface p-4 md:p-6 transition-colors duration-300"
             >
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-[10px] tracking-widest text-accent-2">
+                <span className="text-[10px] tracking-widest text-accent-2-text">
                   [SOCIAL]
                 </span>
               </div>
@@ -203,7 +205,7 @@ export function Contact() {
                   href="https://github.com/nathwn12"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-xs text-text-dim hover:text-accent transition-colors"
+                  className="block text-xs text-text-dim hover:text-accent-text transition-colors"
                 >
                   github.com/nathwn12
                 </a>
@@ -211,7 +213,7 @@ export function Contact() {
                   href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="block text-xs text-text-dim hover:text-accent-2 transition-colors"
+                  className="block text-xs text-text-dim hover:text-accent-2-text transition-colors"
                 >
                   linkedin.com/in/nathaniel-nikolai-l-184181261/
                 </a>
@@ -223,10 +225,11 @@ export function Contact() {
                 borderColor:
                   "color-mix(in srgb, var(--color-accent-3) 25%, transparent)",
               }}
+              whileTap={{ scale: 0.99 }}
               className="border border-border-accent bg-surface p-4 md:p-6 transition-colors duration-300"
             >
               <div className="flex items-center gap-3 mb-3">
-                <span className="text-[10px] tracking-widest text-accent-3">
+                <span className="text-[10px] tracking-widest text-accent-3-text">
                   [LOCATION]
                 </span>
               </div>
@@ -247,17 +250,17 @@ export function Contact() {
         >
           {/* MUA toolbar */}
           <div className="flex items-center gap-4 px-4 py-2 border-b border-border-accent bg-surface text-[10px] tracking-widest text-text-muted">
-            <span className="text-accent">&lt;UNREAD 1&gt;</span>
-            <span className="text-accent-2">&lt;COMPOSE&gt;</span>
-            <span className="text-border-accent">&lt;REPLY&gt;</span>
-            <span className="text-border-accent">&lt;FORWARD&gt;</span>
+            <span className="text-accent-text">&lt;UNREAD 1&gt;</span>
+            <span className="text-accent-2-text">&lt;COMPOSE&gt;</span>
+            <span className="text-text-muted">&lt;REPLY&gt;</span>
+            <span className="text-text-muted">&lt;FORWARD&gt;</span>
             <span className="flex-1" />
-            <span className="text-border-accent">[COMPOSE WINDOW]</span>
+            <span className="text-text-muted">[COMPOSE WINDOW]</span>
           </div>
 
           <div className="p-6 md:p-8">
             <div className="flex items-center gap-2 mb-6">
-              <span className="text-accent-2">$</span>
+              <span className="text-accent-2-text">$</span>
               <span className="text-sm text-text-dim">cat mail.sh</span>
             </div>
 
@@ -286,7 +289,7 @@ export function Contact() {
                   htmlFor="form-name"
                   className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2"
                 >
-                  <span className="text-accent">$</span>
+                  <span className="text-accent-text">$</span>
                   <span>read -p "To: " name</span>
                 </label>
                 <input
@@ -306,7 +309,7 @@ export function Contact() {
                   htmlFor="form-email"
                   className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2"
                 >
-                  <span className="text-accent">$</span>
+                  <span className="text-accent-text">$</span>
                   <span>read -p "From: " email</span>
                 </label>
                 <input
@@ -326,7 +329,7 @@ export function Contact() {
                   htmlFor="form-subject"
                   className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2"
                 >
-                  <span className="text-accent">$</span>
+                  <span className="text-accent-text">$</span>
                   <span>read -p "Subject: " subject</span>
                 </label>
                 <input
@@ -345,7 +348,7 @@ export function Contact() {
                   htmlFor="form-message"
                   className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2"
                 >
-                  <span className="text-accent">$</span>
+                  <span className="text-accent-text">$</span>
                   <span>read -p "Body: " message</span>
                 </label>
                 <textarea
@@ -360,13 +363,13 @@ export function Contact() {
               </div>
 
               <div className="flex items-center gap-3">
-                <span className="text-accent text-xs">$</span>
+                <span className="text-accent-text text-xs">$</span>
                 <motion.button
                   type="submit"
                   disabled={isSubmitting}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="px-6 py-3 bg-accent/10 border border-accent/30 text-accent text-xs font-bold tracking-widest hover:bg-accent/20 hover:border-accent/60 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-6 py-3 bg-accent/10 border border-accent/30 text-accent-text text-xs font-bold tracking-widest hover:bg-accent/20 hover:border-accent/60 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting
                     ? "./send-message --sending…"
@@ -399,48 +402,19 @@ export function Contact() {
 
           {/* MUA status bar */}
           <div className="flex items-center gap-4 px-4 py-2 border-t border-border-accent bg-surface text-[10px] tracking-widest text-text-muted">
-            <span>"All mail queued for delivery. Thank you."</span>
+            <span className="hidden sm:inline">
+              "All mail queued for delivery. Thank you."
+            </span>
             <span className="flex-1" />
-            <span className="text-border-accent">-- MUA v1.0 --</span>
-          </div>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25, duration: 0.35 }}
-          className="mt-6 border border-border-accent bg-surface p-4 md:p-6"
-        >
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-4">
-            <span className="text-accent text-sm">$</span>
-            <span className="text-sm text-text-dim">./contact --status</span>
             <span
               role="status"
-              className={`text-[10px] tracking-widest md:ml-auto ${chip.tone}`}
+              className={`whitespace-nowrap text-[10px] tracking-widest ${chip.tone}`}
             >
               {chip.label}
             </span>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="border border-border-accent p-4">
-              <p className="text-xs text-text-dim leading-relaxed">
-                Use the compose window above to send a message. The status line
-                reports whether it was queued or if an error occurred.
-              </p>
-            </div>
-
-            <div className="border border-border-accent p-4">
-              <span className="text-[10px] tracking-widest text-accent-2">
-                [DIRECT EMAIL]
-              </span>
-              <a
-                href={`mailto:${CONTACT_EMAIL}`}
-                className="block mt-3 text-xs text-text-dim hover:text-accent transition-colors break-all"
-              >
-                {CONTACT_EMAIL}
-              </a>
-            </div>
+            <span className="whitespace-nowrap text-text-muted">
+              -- MUA v1.0 --
+            </span>
           </div>
         </motion.div>
 
@@ -454,7 +428,7 @@ export function Contact() {
           className="mt-6 border border-border-accent bg-surface"
         >
           <div className="flex items-center gap-2 px-4 md:px-6 py-3 border-b border-border-accent">
-            <span className="text-[10px] tracking-widest text-accent-3">
+            <span className="text-[10px] tracking-widest text-accent-3-text">
               [VERIFIED CREDENTIALS]
             </span>
             <div className="flex-1 h-[1px] bg-border" />
@@ -471,13 +445,13 @@ export function Contact() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Verify ${cert.title}`}
-                className="group flex items-start gap-3 border-b md:border-b-0 md:odd:border-r border-border-accent last:border-b-0 px-4 md:px-6 py-4 hover:bg-accent-3/[0.03] transition-colors duration-300 min-w-0"
+                className="group flex items-start gap-3 border-b md:border-b-0 md:odd:border-r border-border-accent last:border-b-0 px-4 md:px-6 py-4 hover:bg-accent-3/[0.03] active:bg-accent-3/[0.06] transition-colors duration-300 min-w-0"
               >
-                <span className="pt-0.5 text-[10px] font-bold tabular-nums text-accent-3">
+                <span className="pt-0.5 text-[10px] font-bold tabular-nums text-accent-3-text">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <span className="block text-xs font-bold leading-snug text-text break-words group-hover:text-accent transition-colors duration-300">
+                  <span className="block text-xs font-bold leading-snug text-text break-words group-hover:text-accent-text transition-colors duration-300">
                     {cert.title}
                   </span>
                   <span className="block mt-1 text-[10px] text-text-dim">
@@ -490,7 +464,7 @@ export function Contact() {
                 </div>
                 <span
                   aria-hidden="true"
-                  className="pt-0.5 shrink-0 text-text-dim transition-colors duration-300 group-hover:text-accent-3"
+                  className="pt-0.5 shrink-0 text-text-dim transition-colors duration-300 group-hover:text-accent-3-text"
                 >
                   -&gt;
                 </span>

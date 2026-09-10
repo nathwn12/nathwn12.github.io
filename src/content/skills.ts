@@ -31,10 +31,10 @@ export interface RepoGroup {
 }
 
 export const TIER_STYLES: Record<Tier, { color: string; note: string }> = {
-  DAILY: { color: "text-accent", note: "used daily in production work" },
-  PROD: { color: "text-accent-2", note: "shipped in production systems" },
+  DAILY: { color: "text-accent-text", note: "used daily in production work" },
+  PROD: { color: "text-accent-2-text", note: "shipped in production systems" },
   WORKING: {
-    color: "text-accent-4",
+    color: "text-accent-4-text",
     note: "competent, not a daily driver",
   },
 };
