@@ -61,11 +61,25 @@
 
   /* Text-safe accent. Separate token because the base accent only clears the
      3:1 UI threshold as text. Use `text-accent*-text` for text, `accent*`
-     for rules, fills, and glyphs. */
-  --color-accent-text: #b02f00; /* 6.46 / 6.02 / 5.61 */
-  --color-accent-2-text: #b02f00;
-  --color-accent-3-text: #b02f00;
-  --color-accent-4-text: #b02f00;
+     for rules, fills, and glyphs.
+
+     RATIOS BELOW ARE THE GRAINED WORST CASE, not the un-grained value: the
+     `html::after` film multiplies over every surface, so a glyph can land on
+     the darkest speckle. Darkening is linear in the grain opacity α, anchored
+     at the 1:1 measurement (α = 0.4 → darkest ground pixel 215):
+     P(α) = (255 − 215)/255 · α/0.4. At the shipped α = 0.315, P = 0.12353, so
+     a base surface Cb is worst-cased to Cb·(1 − P): ground #ffffff → 223.5,
+     surface #f7f7f6 → 216.5, surface-2 #efefee → 209.5. This token was
+     darkened #b02f00 → #9c2900 on 2026-09-20 so every realized text-on-grain
+     pair clears 4.5:1 against the strictest surface (grained surface-2); the
+     darkening is still required at the AA-tuned grain (the old #b02f00 would
+     only reach 4.5:1 on grained surface-2 at α = 0.2519). Grained:
+     5.80 / 5.42 / 5.06 (bg / surface / surface-2); un-grained:
+     7.69 / 7.18 / 6.69. See DESIGN.md §7 addendum. */
+  --color-accent-text: #9c2900;
+  --color-accent-2-text: #9c2900; /* alias of --color-accent-text — see above */
+  --color-accent-3-text: #9c2900; /* alias of --color-accent-text — see above */
+  --color-accent-4-text: #9c2900; /* alias of --color-accent-text — see above */
 
   /* Decoration neutralised at the token layer (`::selection` is its only
      remaining consumer; the decorative grid class is gone). */
@@ -277,9 +291,10 @@ p {
    ========================================================================== */
 
 :root {
-  /* Light: 0.16 under `multiply`. `multiply` is NOT mean-neutral — it darkens
-     (B = b·s), by design, because the mean-neutral modes are invisible on a
-     white ground: `overlay` collapses to `1 − 2(1 − b)(1 − s)`, which is
+  /* Light: 0.315 under `multiply` (AA-tuned down from 0.425 on 2026-09-20; see
+     DESIGN.md §7). `multiply` is NOT mean-neutral — it darkens (B = b·s), by
+     design, because the mean-neutral modes are invisible on a white ground:
+     `overlay` collapses to `1 − 2(1 − b)(1 − s)`, which is
      exactly 1 when b = 1, so on `#ffffff` it is a mathematical no-op
      (measured std-dev 0.00 on white, 0.47 on the old `#fbfbfa` — invisible
      either way). `multiply` scales the noise by the backdrop itself, so it
@@ -291,16 +306,20 @@ p {
      grain SIZE and raised opacity to 0.14. The operator REJECTED the coarse
      field as "too fat" and "sloppy" and asked for the fine, sharp grain back.
      Sharpness is therefore restored at `baseFrequency="0.85"` and visibility
-     is carried by OPACITY, not feature size: the accepted value is 0.4 light /
-     0.20 dark, up from the original 0.07. (The earlier "invisible" reading came
-     from a 2-pixel-stride sample of ~1px features — an aliasing artifact that
-     understated the true variation — see DESIGN.md §13.) The honest cost is a
+     is carried by OPACITY, not feature size: the accepted value is 0.315 light /
+     0.20 dark, up from the original 0.07 (the interim accepted value was 0.425;
+     it was lowered to 0.315 on 2026-09-20 for the §7 AA tune). (The earlier
+     "invisible" reading came from a 2-pixel-stride sample of ~1px features —
+     an aliasing artifact that understated the true variation — see DESIGN.md
+     §13.) The honest cost is a
      larger uniform average-luminance drop on white, roughly proportional to the
      opacity; the exact figure is the 1:1 browser measurement recorded in
-     DESIGN.md §13: mean luminance 241.4, grain std-dev 4.61, range 215–253
-     (effective ground ≈ `#f1f1f1`). Size is the separate, theme-independent
-     `--grain-scale` token beside this one; this comment owns STRENGTH only. */
-  --grain-opacity: 0.425;
+     DESIGN.md §13, at the α = 0.4 model anchor: mean luminance 241.4, grain
+     std-dev 4.61, range 215–253 (effective ground ≈ `#f1f1f1`). At the shipped
+     0.315 the model's darkest ground speckle is 223.5 (DESIGN.md §7). Size is
+     the separate, theme-independent `--grain-scale` token beside this one; this
+     comment owns STRENGTH only. */
+  --grain-opacity: 0.315;
   /* Grain SIZE/sharpness — 1 = default; below 1 = finer/sharper, above 1 = fatter. Theme-independent: declared once here, deliberately not repeated in the dark block. */
   --grain-scale: 1;
 }
@@ -427,7 +446,7 @@ html::after {
      no-op. No `baseFrequency` edit (and no four-string data-URI edit) needed. */
   background-size: calc(160px * var(--grain-scale));
   /* The kill switch reaches the animation, not just the paint. The duration is
-     an identity: at either live value (0.16 light / 0.20 dark) the ratio is
+     an identity: at the live values (0.315 light / 0.20 dark) the ratio is
      exactly 1, so the loop is exactly 0.3s. At `--grain-opacity: 0` it is
      `calc(0 / 0 * 0.3s)` — NaN, which is invalid at computed-value time, so no
      live duration exists and no frame is ever scheduled. Measured in Chrome:
