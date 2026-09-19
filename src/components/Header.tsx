@@ -85,24 +85,25 @@ export function Header() {
         initial={{ y: -100 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.28, ease: [0.25, 0.46, 0.45, 0.94] }}
-        className={`fixed top-0 left-0 right-0 z-50 font-mono transition-colors duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 font-mono transition-colors duration-150 ${
           scrolled
-            ? "border-b border-border bg-bg/95 backdrop-blur-sm"
+            ? "border-b border-border-accent bg-bg"
             : "border-b border-border bg-bg"
         }`}
       >
-        <div className="flex min-w-0 items-center justify-between gap-3 overflow-hidden px-4 py-1.5 border-b border-border text-[10px] tracking-widest text-text-muted uppercase">
-          <span className="flex min-w-0 shrink items-center gap-3 whitespace-nowrap overflow-hidden">
+        <div className="flex min-w-0 items-center justify-between gap-half overflow-hidden px-gutter py-quarter border-b border-border text-micro tracking-widest text-text-muted uppercase">
+          <span className="flex min-w-0 shrink items-center gap-half whitespace-nowrap overflow-hidden">
             <span
-              className={`hidden sm:inline-block w-1.5 h-1.5 rounded-full transition-all duration-200 ${
-                isScrolling ? "bg-accent" : "bg-accent/60"
+              aria-hidden="true"
+              className={`hidden sm:inline-block w-quarter h-quarter transition-colors duration-150 ${
+                isScrolling ? "bg-text" : "bg-text-muted"
               }`}
             />
             <span className="hidden sm:inline">sys::resume</span>
             <span className="hidden sm:inline text-text-muted">|</span>
             <span className="truncate">[nathan@portfolio ~]$</span>
           </span>
-          <span className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <span className="flex shrink-0 items-center gap-half">
             <span className="hidden sm:inline">{timeStr}</span>
             <span className="hidden sm:inline text-text-muted">|</span>
             <span className="hidden sm:inline">{utcOffset}</span>
@@ -114,7 +115,7 @@ export function Header() {
               onClick={toggleThemeHandler}
               aria-label="Switch color scheme"
               title="Toggle color scheme (F2)"
-              className="flex items-center gap-1.5 whitespace-nowrap uppercase transition-colors duration-300 hover:text-accent-text active:text-accent-text"
+              className="flex items-center gap-quarter whitespace-nowrap uppercase transition-colors duration-150 hover:text-text active:text-text"
             >
               <span className="text-text-muted">[F2]</span>
               <span>theme:{theme}</span>
@@ -122,49 +123,52 @@ export function Header() {
           </span>
         </div>
 
-        <div className="flex items-center justify-between px-4 lg:px-8 py-3">
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-1.5 mr-1">
+        <div className="flex items-center justify-between px-gutter lg:px-block py-half">
+          <div className="flex items-center gap-half">
+            <div className="hidden sm:flex items-center gap-quarter mr-quarter">
               <span
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  isScrolling ? "bg-accent-3" : "bg-accent-3/70"
+                aria-hidden="true"
+                className={`w-quarter h-quarter transition-colors duration-150 ${
+                  isScrolling ? "bg-text" : "bg-text-muted"
                 }`}
               />
               <span
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  isScrolling ? "bg-accent-2" : "bg-accent-2/70"
+                aria-hidden="true"
+                className={`w-quarter h-quarter transition-colors duration-150 ${
+                  isScrolling ? "bg-text" : "bg-text-muted"
                 }`}
               />
               <span
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  isScrolling ? "bg-accent" : "bg-accent/70"
+                aria-hidden="true"
+                className={`w-quarter h-quarter transition-colors duration-150 ${
+                  isScrolling ? "bg-text" : "bg-text-muted"
                 }`}
               />
             </div>
             <button
               onClick={() => navigateTo("/")}
-              className="text-sm font-bold tracking-tighter text-text flex items-center gap-2 group active:text-accent-text"
+              className="text-body-lg font-bold text-text flex items-center gap-half group active:opacity-70"
             >
-              <span className="text-accent-text text-xs">$</span>
-              <span className="group-hover:text-accent-text transition-colors duration-300">
+              <span className="text-text-muted text-label">$</span>
+              <span className="underline-offset-4 group-hover:underline transition-colors duration-150">
                 NNL
               </span>
-              <span className="text-accent-text text-xs">_</span>
+              <span className="text-text-muted text-label">_</span>
             </button>
           </div>
 
-          <nav className="hidden md:flex items-center gap-0">
+          <nav className="hidden md:flex items-center">
             {navItems.map((item, i) => (
               <button
                 key={item.label}
                 onClick={() => navigateTo(item.path)}
-                className={`relative px-4 py-2 text-xs tracking-widest transition-all duration-300 border-l border-border ${
+                className={`relative px-gutter py-half text-label tracking-widest transition-colors duration-150 border-l border-border ${
                   activeSection === item.label
-                    ? "text-accent-text bg-accent/5 active:bg-accent/10"
-                    : "text-text-dim hover:text-text hover:bg-text/5 hover:translate-x-[4px] active:bg-accent/10"
+                    ? "text-text font-bold bg-text/10 border-l-border-accent active:bg-text/20"
+                    : "text-text-dim hover:text-text hover:bg-text/5 active:bg-text/10"
                 }`}
               >
-                <span className="text-text-muted mr-2">^{i + 1}</span>
+                <span className="text-text-muted mr-half">^{i + 1}</span>
                 {item.label}
               </button>
             ))}
@@ -176,17 +180,11 @@ export function Header() {
             aria-label="Toggle navigation menu"
             aria-expanded={menuOpen}
             aria-controls="mobile-nav"
-            className="md:hidden flex flex-col gap-1.5 p-2 group"
+            className="md:hidden inline-flex h-8 w-8 items-center justify-center text-label text-text-dim hover:text-text transition-colors duration-150"
           >
-            <span
-              className={`block w-5 h-[2px] bg-text-dim transition-all duration-300 ${menuOpen ? "rotate-45 translate-y-[7px]" : ""}`}
-            />
-            <span
-              className={`block w-5 h-[2px] bg-text-dim transition-all duration-300 ${menuOpen ? "opacity-0" : ""}`}
-            />
-            <span
-              className={`block w-5 h-[2px] bg-text-dim transition-all duration-300 ${menuOpen ? "-rotate-45 -translate-y-[7px]" : ""}`}
-            />
+            <span aria-hidden="true" className="block w-6 text-center">
+              {menuOpen ? "[×]" : "[≡]"}
+            </span>
           </button>
         </div>
 
@@ -198,7 +196,7 @@ export function Header() {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.15 }}
               className="md:hidden overflow-hidden border-t border-border"
             >
               <div className="flex flex-col">
@@ -206,13 +204,13 @@ export function Header() {
                   <button
                     key={item.label}
                     onClick={() => navigateTo(item.path)}
-                    className={`px-4 py-3 text-xs tracking-widest border-b border-border transition-all duration-300 text-left ${
+                    className={`px-gutter py-block text-label tracking-widest border-b border-border transition-colors duration-150 text-left ${
                       activeSection === item.label
-                        ? "text-accent-text bg-accent/5 active:bg-accent/10"
-                        : "text-text-dim hover:text-text hover:bg-text/5 hover:translate-x-[4px] active:bg-accent/10"
+                        ? "text-text font-bold bg-text/10 active:bg-text/20"
+                        : "text-text-dim hover:text-text hover:bg-text/5 active:bg-text/10"
                     }`}
                   >
-                    <span className="text-text-muted mr-3">^{i + 1}</span>
+                    <span className="text-text-muted mr-half">^{i + 1}</span>
                     {item.label}
                   </button>
                 ))}

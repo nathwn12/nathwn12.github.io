@@ -1,163 +1,156 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { employer, logEntries } from "../content/experience";
 
+/**
+ * Experience — `journalctl` log pane.
+ *
+ * Brutalist pass: one flat surface, ink/paper rules only, named type steps,
+ * radius 0, no ambient gradient, no motion (DESIGN.md §4, §5, §6, §10).
+ *
+ * The active row is marked by the 2px `--border-width-rule` structural rule
+ * (ink in light / paper in dark) plus the `↓`/`→` glyph — never by a coloured
+ * side stripe (§6, §9 P1 [S2] K4). Inactive rows carry the same 2px width as
+ * `transparent`, so the row does not shift when it opens.
+ *
+ * Accent budget (§2.3 — one accent, three places): the header `$` prompt, the
+ * active row's entry id, and the expanded row's status mark.
+ */
 export function Experience() {
   const [activeExp, setActiveExp] = useState<number | null>(0);
 
   return (
     <section
       id="experience"
-      className="py-8 md:py-12 px-4 lg:px-8 relative overflow-hidden"
+      className="px-gutter py-block md:px-section md:py-section"
     >
-      <div
-        className="section-ambient"
-        style={{
-          background: `
-            radial-gradient(ellipse at 80% 50%, color-mix(in srgb, var(--color-accent-2) 8%, transparent) 0%, color-mix(in srgb, var(--color-accent-2) 2%, transparent) 40%, transparent 65%),
-            radial-gradient(ellipse at 20% 80%, color-mix(in srgb, var(--color-accent-2) 4%, transparent) 0%, transparent 50%)
-          `,
-        }}
-      />
-      <div className="max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.35 }}
-          className="flex items-center gap-4 mb-12"
-        >
-          <span className="text-accent-text text-sm">$</span>
-          <span className="text-xs tracking-[0.4em] text-text-dim">
+      <div className="mx-auto max-w-5xl">
+        {/* `prompt: command` section header — product IA, not an eyebrow */}
+        <div className="mb-block flex items-center gap-half">
+          <span className="text-body text-accent-text">$</span>
+          <span className="text-label tracking-[0.15em] text-text-dim">
             journalctl -u career.service --no-pager
           </span>
-          <div className="flex-1 h-[1px] bg-border" />
-        </motion.div>
+          <div className="h-px flex-1 bg-border" />
+        </div>
 
         <div className="border border-border-accent bg-bg">
           {/* Service header — single employer era */}
-          <div className="px-4 md:px-6 py-3 border-b border-border bg-text/[0.01]">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
-              <span className="text-accent-text font-bold">{employer.unit}</span>
-              <span className="text-text font-bold">{employer.role}</span>
-              <span className="text-text-dim">{employer.company}</span>
-              <span className="text-text-muted">({employer.location})</span>
-              <span className="flex-1" />
-              <span className="text-text-muted whitespace-nowrap">
-                {employer.period}
-              </span>
-            </div>
+          <div className="flex flex-wrap items-baseline gap-x-gutter gap-y-quarter border-b border-border-accent px-gutter py-half">
+            <span className="text-body-lg font-bold text-text">
+              {employer.unit}
+            </span>
+            <span className="text-body font-bold text-text-dim">
+              {employer.role}
+            </span>
+            <span className="text-label text-text-dim">{employer.company}</span>
+            <span className="text-label text-text-muted">
+              ({employer.location})
+            </span>
+            <span className="flex-1" />
+            <span className="whitespace-nowrap text-label tabular-nums text-text-muted">
+              {employer.period}
+            </span>
           </div>
 
           <div className="divide-y divide-border">
-            {logEntries.map((exp, i) => (
-              <motion.div
-                key={exp.id}
-                initial={{ opacity: 0, x: -40 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{
-                  delay: i * 0.08,
-                  duration: 0.35,
-                  ease: [0.16, 1, 0.3, 1],
-                }}
-              >
+            {logEntries.map((exp, i) => {
+              const active = activeExp === i;
+              return (
                 <div
+                  key={exp.id}
                   role="button"
                   tabIndex={0}
-                  aria-expanded={activeExp === i}
-                  className={`group cursor-pointer transition-all duration-500 border-l-2 active:bg-text/[0.02] ${
-                    activeExp === i
-                      ? "border-l-accent bg-accent/[0.03]"
-                      : "border-l-transparent hover:bg-text/[0.01]"
+                  aria-expanded={active}
+                  className={`cursor-pointer border-l-[length:var(--border-width-rule)] transition-colors duration-200 ${
+                    active
+                      ? "border-l-border-accent bg-surface"
+                      : "border-l-transparent hover:bg-surface"
                   }`}
                   onClick={() =>
                     setActiveExp((prev) => (prev === i ? null : i))
                   }
                   onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ")
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
                       setActiveExp((prev) => (prev === i ? null : i));
+                    }
                   }}
                 >
-                  <div className="flex items-center gap-4 md:gap-8 py-5 md:py-6 px-4 md:px-6">
-                    <motion.span
-                      className={`text-xs font-bold tabular-nums transition-colors duration-300 ${
-                        activeExp === i ? "text-accent-text" : "text-text-dim"
+                  <div className="flex items-center gap-block px-gutter py-block">
+                    <span
+                      className={`text-label font-bold tabular-nums transition-colors duration-200 ${
+                        active ? "text-accent-text" : "text-text-muted"
                       }`}
                     >
                       {exp.id}
-                    </motion.span>
+                    </span>
 
-                    <span className="text-xs font-bold text-accent-text">[OK]</span>
+                    <span className="text-label font-bold text-text-dim">
+                      [OK]
+                    </span>
 
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-1 md:gap-4">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-col gap-quarter md:flex-row md:items-baseline md:justify-between md:gap-gutter">
                         <h3
-                          className={`text-sm md:text-base font-bold tracking-tight transition-colors duration-300 ${
-                            activeExp === i ? "text-text" : "text-text-dim"
+                          className={`text-body-lg font-bold transition-colors duration-200 ${
+                            active ? "text-text" : "text-text-dim"
                           }`}
                         >
                           {exp.unit}
                         </h3>
-                        <span className="text-[10px] tracking-widest text-text-muted whitespace-nowrap tabular-nums">
+                        <span className="whitespace-nowrap text-micro tabular-nums text-text-muted">
                           {exp.timestamp}
                         </span>
                       </div>
-                      <div className="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 mt-1">
-                        <span className="text-xs text-text-dim">
-                          {exp.summary}
-                        </span>
-                      </div>
+                      <p className="mt-quarter text-body text-text-dim">
+                        {exp.summary}
+                      </p>
                     </div>
 
-                    <motion.div
-                      animate={{
-                        x: activeExp === i ? 4 : 0,
-                      }}
-                      className={`text-lg transition-colors duration-300 ${
-                        activeExp === i ? "text-accent-text" : "text-text-muted"
+                    <span
+                      aria-hidden="true"
+                      className={`text-body-lg ${
+                        active ? "text-text" : "text-text-muted"
                       }`}
                     >
-                      {activeExp === i ? "↓" : "→"}
-                    </motion.div>
+                      {active ? "↓" : "→"}
+                    </span>
                   </div>
 
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{
-                      height: activeExp === i ? "auto" : 0,
-                      opacity: activeExp === i ? 1 : 0,
-                    }}
-                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                    className="overflow-hidden"
-                  >
-                    <div className="p-4 md:p-6 space-y-4 border-t border-accent/10">
-                      <p className="text-sm text-text-dim leading-relaxed max-w-3xl">
+                  {active && (
+                    <div className="space-y-block border-t border-border px-gutter py-block md:px-block">
+                      <p className="max-w-[65ch] text-body text-text-dim">
                         {exp.description}
                       </p>
-                      <div className="flex flex-wrap gap-2">
+                      <ul className="flex flex-wrap gap-half">
                         {exp.tech.map((t) => (
-                          <span
+                          <li
                             key={t}
-                            className="text-[10px] tracking-wider px-2 py-1 border border-border-accent text-text-dim hover:border-accent/30 hover:text-accent-text transition-colors duration-300"
+                            className="border border-border px-half py-quarter text-label text-text-muted"
                           >
                             {t}
-                          </span>
+                          </li>
                         ))}
-                      </div>
-                      <div className="inline-flex items-center gap-2 text-[10px] tracking-widest text-accent-text mt-2">
-                        <span className="inline-block w-1.5 h-1.5 bg-accent rounded-full" />
+                      </ul>
+                      <p className="flex items-center gap-half text-label text-text-dim">
+                        {/* 4px square mark — radius 0, no rounded dot (§5) */}
+                        <span
+                          aria-hidden="true"
+                          className="h-quarter w-quarter shrink-0 bg-accent"
+                        />
                         {exp.status}
-                      </div>
+                      </p>
                     </div>
-                  </motion.div>
+                  )}
                 </div>
-              </motion.div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Provenance footnote — the only surviving footprint-ledger
               detail, kept as a plain log footer row (D3 survivor rule). */}
-          <div className="px-4 md:px-6 py-3 border-t border-border bg-text/[0.01]">
-            <p className="text-[10px] leading-relaxed text-text-dim">
+          <div className="border-t border-border-accent px-gutter py-half md:px-block">
+            <p className="text-micro text-text-muted">
               commit ledger recovered from 21 scanned internal repositories
               after Xentra closed May 2026 · 1,182 commits / 17 repos 2023–2026
             </p>
