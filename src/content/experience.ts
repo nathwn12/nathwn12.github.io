@@ -100,14 +100,14 @@ export const logEntries: LogEntry[] = [
     status: "OK",
     summary: "Integrated AI across the development lifecycle",
     description:
-      "Uses LM Studio, OpenCode, and Codex daily for coding, refactoring, investigative development, and prompt engineering. Works with preferred local models including Qwen 3.8, DeepSeek V4 Flash, and Qwen 3.5 (9B, 27B) for local LLM workflows.",
+      "Uses LM Studio, OpenCode, and Codex daily for coding, refactoring, investigative development, and prompt engineering. Works with preferred local models including DeepSeek V4 Flash (9B, MTP), Gemma 4 (26B, A4B), and Qwen 3.8 (35B, A3B) for local LLM workflows.",
     tech: [
       "LM STUDIO",
       "OPENCODE",
       "CODEX",
-      "QWEN 3.8",
-      "DEEPSEEK V4 FLASH",
-      "QWEN 3.5 (9B/27B)",
+      "DEEPSEEK V4 FLASH (9B/MTP)",
+      "GEMMA 4 (26B/A4B)",
+      "QWEN 3.8 (35B/A3B)",
     ],
   },
 ];

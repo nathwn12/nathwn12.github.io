@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { CONTACT_EMAIL, validateContact } from "../lib/contact";
 import { credentials } from "../content/credentials";
@@ -50,7 +50,6 @@ export function Contact() {
   const [formStatus, setFormStatus] = useState<FormStatus | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const statusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     return () => {
@@ -329,18 +328,15 @@ export function Contact() {
                 >
                   <span className="mr-half opacity-70">$</span>
                   {formStatus.message}
-                  {formStatus.type === "pending" &&
-                    (reduceMotion ? (
-                      <span className="ml-quarter font-bold">█</span>
-                    ) : (
-                      <motion.span
-                        animate={{ opacity: [1, 0] }}
-                        transition={{ duration: 0.8, repeat: Infinity }}
-                        className="ml-quarter font-bold"
-                      >
-                        █
-                      </motion.span>
-                    ))}
+                  {formStatus.type === "pending" && (
+                    <motion.span
+                      animate={{ opacity: [1, 0] }}
+                      transition={{ duration: 0.8, repeat: Infinity }}
+                      className="ml-quarter font-bold"
+                    >
+                      █
+                    </motion.span>
+                  )}
                 </div>
               )}
             </form>
@@ -385,6 +381,7 @@ export function Contact() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Verify ${cert.title}`}
+                data-nav-item
                 className="group flex items-start gap-half border-b md:border-b-0 md:odd:border-r border-border-accent last:border-b-0 px-gutter py-gutter hover:bg-text/5 active:bg-text/10 transition-colors duration-200 min-w-0"
               >
                 <span className="pt-quarter text-micro font-bold tabular-nums text-text-muted">

@@ -6,7 +6,7 @@ import {
   type ComponentType,
   type ReactNode,
 } from "react";
-import { AnimatePresence, MotionConfig, useReducedMotion } from "framer-motion";
+import { AnimatePresence, MotionConfig } from "framer-motion";
 import { PageShell } from "./components/PageShell";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
@@ -103,27 +103,28 @@ class PageErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState
 export default function App() {
   const { route, direction } = useRoute();
   const { goNext, goPrev } = useAdjacentNavigation();
-  const reduceMotion = useReducedMotion();
 
-  /* ←/→ navigates between pages; ↑/↓ + Home/End scroll the internal page
-     container (80vH section step). Never hijack keys while typing or while
-     the terminal overlay / mobile menu is open (guard in keyboardNav.ts;
-     CommandTerminal keeps its own ↑/↓ history on its input). */
+  /* ←/→ walks the page's item tour ([data-nav-item], DOM-driven) and rolls
+     over into the adjacent page when the current page's items are exhausted;
+     ↑/↓ + Home/End scroll the internal page container (80vH section step).
+     Never hijack keys while typing or while the terminal overlay / mobile
+     menu is open (guard in keyboardNav.ts; CommandTerminal keeps its own
+     ↑/↓ history on its input). */
   useEffect(() => {
     const onKey = createPageNavHandler({
       goNext,
       goPrev,
-      reduceMotion: reduceMotion ?? false,
+      reduceMotion: false,
     });
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [goNext, goPrev, reduceMotion]);
+  }, [goNext, goPrev]);
 
   const Content = routeByPath(route.path) ? (PAGES[route.id] ?? PAGES.hero) : NotFound;
 
   return (
     <div className="bg-bg min-h-screen font-mono relative">
-      <MotionConfig reducedMotion="user">
+      <MotionConfig reducedMotion="never">
         <a
           href="#main"
           className="skip-to-content"
