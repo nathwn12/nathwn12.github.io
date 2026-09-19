@@ -1,0 +1,3 @@
+# Normalize line endings: store and check out LF, so `git add` stops warning
+# "LF will be replaced by CRLF" on every file.
+* text=auto eol=lf
