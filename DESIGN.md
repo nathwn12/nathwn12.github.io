@@ -117,6 +117,16 @@ One family (`--font-mono`, Hack/Cascadia/IBM Plex Mono). Monospace is the
 product's voice, not a garnish; no second face, no italic-serif accent word
 (`[S2] T3`) and no mixed serif/sans (`[S3]`).
 
+**Exemption — logo mark face.** `public/fonts/OpenCode.otf` binds as `OpenCode`
+via `--font-logo: "OpenCode", var(--font-mono)`. It is a generative logo
+typeface, not a text face (every printable character collapses to a handful of
+logo letterforms), so it is licensed for **short brand marks only** — and it is
+**retained and wired but not currently applied to any element**: the header
+wordmark is monospace. Body copy, headings, labels, nav, status text, and any
+run of text stay on the single text family. Fallback chain: `OpenCode` →
+`--font-mono` (`'Hack', 'Cascadia Mono', 'IBM Plex Mono', monospace`), so a
+missing or failed OTF degrades to the existing monospace, never to blank.
+
 | Token | Size | Line-height | Role |
 | --- | --- | --- | --- |
 | `--text-micro` | 10px / `0.625rem` | 1.4 | hard floor — nothing ships smaller |
@@ -235,6 +245,41 @@ hairline less legible, not more.
 Discipline that keeps this true: **text uses `--color-accent*-text`; fills,
 rules, and glyphs use `--color-accent*`.** The base accent is not text-safe in
 light (4.36 ÷ surface-2 3.79), which is why the split exists.
+
+**Addendum — the accepted grain lowers the effective ground (measured
+2026-09-20).** The rows above are computed against the *pure* light tokens
+(`#ffffff` / `#f7f7f6` / `#efefee`), and they must stay true for the
+**ungrain-ed** case: with §13's grain off (or before it existed) the light
+ground is exactly those values. §13's **accepted** grain composites a `multiply`
+film over the paper, so a glyph no longer sits on pure white. Measured live at
+1:1 at the accepted `--grain-opacity: 0.4`: the light page's **mean luminance is
+241.4** (an effective ground of ≈`#f1f1f1`), grain **std-dev 4.61**, and the full
+pixel **range is 215–253** — so a glyph can sit anywhere between **215** (darkest
+speckle) and **253** (brightest).
+
+Recomputed with WCAG 2.1 relative-luminance math against those two bounds —
+**241.4** (the mean ground) and **215** (the worst-case speckle floor) — using
+each token's luminance as already implied by the rows above:
+
+| Token | vs pure white (row above) | vs 241.4 mean | vs 215 floor | Verdict |
+| --- | --- | --- | --- | --- |
+| `--color-text` (`#111110`) | 18.89 | 16.8 | 13.1 | body ✓ (≫4.5) |
+| `--color-text-dim` (`#3d3d39`) | 10.91 | 9.7 | 7.6 | body ✓ |
+| `--color-text-muted` (`#57574f`) | 7.29 | 6.5 | 5.1 | body ✓ — tightest *ink* token |
+| `--color-accent-text` (`#b02f00`) | 6.46 | 5.7 | **4.49** | body — a hair under 4.5 at the floor |
+| `--color-accent` (`#e03c00`) | 4.36 | 3.9 | **3.03** | UI ✓ (≥3:1, at the floor) |
+
+Every **ink** pair keeps real headroom — muted, the tightest, still holds
+**5.1:1** at the darkest speckle. The two **accent** pairs are the ones the grain
+erodes, and they are recorded honestly rather than assumed: `--color-accent-text`
+measures **5.7:1** on the mean ground but **4.49:1** at the extreme speckle
+floor, a hair under the 4.5 target, and base `--color-accent` as a UI/graphic
+mark measures **3.9:1** on the mean ground and **3.03:1** at the floor, clearing
+3:1 with no margin. These are single-pixel worst cases on a field whose *mean* is
+241.4: both pairs clear their thresholds at the mean and sit exactly on them at
+the extreme. That is the tradeoff §13 records, bounded here instead of waved
+away. The table above is unchanged — it remains the correct evidence for the
+ungrain-ed case, and this addendum is the grain-specific bound on top of it.
 
 ## 8. CONTENT CONTRACT (frozen token names)
 
@@ -445,9 +490,10 @@ self-contained inline `feTurbulence` SVGs (`type="fractalNoise"`,
 differing only in `seed` — 7 / 41 / 113) as `background-image` data-URIs,
 repeated, composited with **`mix-blend-mode: multiply`**, no JS, no asset, no
 dependency. Its intensity is the additive temporary token
-**`--grain-opacity`** — `0.16` light (`:root`), `0.20` dark
-(`html[data-theme="dark"]`), the values after the **2026-09-20 revert**
-recorded below. `--grain-opacity: 0` remains the single kill
+**`--grain-opacity`** — **`0.4` light (`:root`), `0.20` dark**
+(`html[data-theme="dark"]`), the **operator-accepted tuning** recorded below (the
+light value was raised `0.16 → 0.4` after the 1:1 measurement; dark is unchanged
+from the 2026-09-20 revert). `--grain-opacity: 0` remains the single kill
 switch, and it now stops the paint **and** the frames: the animation's duration
 is derived from the same token, so `0` collapses it — `calc(0 / 0 * 0.3s)` is
 NaN, invalid at computed-value time, and Chrome clamps the duration to `0s`
@@ -459,7 +505,7 @@ layer renders nothing to blend and nothing animates.
 **Two tuning knobs — strength and grain size.** The effect is tuned by exactly
 two additive temporary tokens, and they are independent:
 
-- **`--grain-opacity`** — *strength*, per theme (light `:root` `0.16`, dark
+- **`--grain-opacity`** — *strength*, per theme (light `:root` **`0.4`**, dark
   `html[data-theme="dark"]` `0.20`) and therefore the average-luminance cost,
   since `multiply` darkens in proportion to it. `0` remains the kill switch
   (above). Its comment in `src/index.css` owns strength only.
@@ -573,9 +619,15 @@ clips: `b·s ∈ [0, 1]` for every backdrop and noise sample.
 
 **2026-09-20 retune, then REVERT — coarse grain REJECTED, sharpness restored.** The first `multiply` tuning (`baseFrequency="0.85"`, sub-pixel ~1.2px features) was judged *technically* visible but *perceptually* flat: at `0.07` the grain's luminance variation was a standard deviation of only **~0.9 out of 255** (range **249–255** on white). The retune that followed changed the **lever to grain size** — `baseFrequency` **`0.85 → 0.3`** (~3–5px features) with opacity raised `0.07 → 0.14` light / `0.10 → 0.18` dark. **The operator rejected that result as too fat and sloppy:** the coarse field reads as blotchy texture rather than premium film grain. The coarse approach is therefore **reverted**: sharpness is restored at the original **`baseFrequency="0.85"`** on all three frames, and visibility is now carried by the **opacity, not the feature size** — `0.07 → 0.16` light, `0.10 → 0.20` dark, a modest raise that stops short of the rejected coarse amplitude.
 
-**Why the earlier "invisible" reading is not trustworthy.** The evidence that led to coarsening came from sampling the ~1px grain on a **2-pixel stride**, which aliases against features at or below the sampling period: it understated the true pixel-to-pixel variation of the fine field. The real variation at `0.85` is therefore not the `~0.9` std-dev the 2px sample reported, which means opacity is the **honest lever** the fine grain always had. The exact std-dev and mean-luminance drop at `0.16` / `0.20` are re-measured by the lead **at 1:1 (one sample per device pixel)** rather than by strided sampling; that measurement is the open item, and the change recorded here is only the `baseFrequency` restore and the two opacity values.
+**Why the earlier "invisible" reading is not trustworthy.** The evidence that led to coarsening came from sampling the ~1px grain on a **2-pixel stride**, which aliases against features at or below the sampling period: it understated the true pixel-to-pixel variation of the fine field. The real variation at `0.85` is therefore not the `~0.9` std-dev the 2px sample reported, which means opacity is the **honest lever** the fine grain always had. The exact std-dev and mean-luminance drop at `0.16` / `0.20` were re-measured by the lead **at 1:1 (one sample per device pixel)** rather than by strided sampling; that measurement is recorded in the accepted-tuning paragraphs below, and the change recorded *here* is only the `baseFrequency` restore and the two opacity values.
 
-The **honest cost**: `multiply` darkens in proportion to the opacity, so the uniform average-luminance drop on white rises with it — roughly **2% at `0.16`** against the **0.9% measured at `0.07`**. The paper stays essentially pure white (the shift is a fraction of one percent of the ground, with no cast — §2's hue is untouched), but the drop is real and is recorded here rather than waved away. The dark token rises `0.10 → 0.20` on the same reasoning and stays deliberately low because multiply darkens the near-black ink ground too. **Nothing else changed** in the revert: same three frames, same `seed`s (7 / 41 / 113), same `type="fractalNoise"`, same `numOctaves="3"`, same `stitchTiles="stitch"`, same 160px tile, same `background-repeat: repeat`, same `steps(1, end)` 3-frame 0.3s loop, same `multiply`, same `lite`/`full` `data-perf` throttle, same `--grain-opacity: 0` kill switch. The filter region stays pinned to exactly the tile, which is what keeps the stitch seamless.
+The **honest cost at the reverted `0.16`** — superseded by the accepted `0.4` recorded below: `multiply` darkens in proportion to the opacity, so the uniform average-luminance drop on white rises with it — roughly **2% at `0.16`** against the **0.9% measured at `0.07`**. At that value the paper stays essentially pure white (the shift is a fraction of one percent of the ground, with no cast — §2's hue is untouched), but the drop is real and is recorded here rather than waved away. At the accepted `0.4` the drop is no longer a fraction of a percent (see below). The dark token rises `0.10 → 0.20` on the same reasoning and stays deliberately low because multiply darkens the near-black ink ground too. **Nothing else changed** in the revert: same three frames, same `seed`s (7 / 41 / 113), same `type="fractalNoise"`, same `numOctaves="3"`, same `stitchTiles="stitch"`, same 160px tile, same `background-repeat: repeat`, same `steps(1, end)` 3-frame 0.3s loop, same `multiply`, same `lite`/`full` `data-perf` throttle, same `--grain-opacity: 0` kill switch. The filter region stays pinned to exactly the tile, which is what keeps the stitch seamless.
+
+**2026-09-20 — measured at 1:1, then ACCEPTED by the operator.** The reverted fine field (`baseFrequency="0.85"`, ~1.2px features) was re-measured **at 1:1, one sample per device pixel** — the sampling the 2px stride above could not be trusted for — and the visibility lever moved to the **opacity alone**: light **`0.16 → 0.4`**, dark **`0.20` unchanged**. The operator evaluated that result and **accepted this tuning**. Measured live on the light paper at `--grain-opacity: 0.4`: paper **mean luminance 241.4**, grain **standard deviation 4.61**, pixel **range 215–253** — an effective ground of about **`#f1f1f1`**. For comparison, the pre-acceptance `0.16` measured mean **249.65** and SD **1.85**: the accepted value is a materially stronger field, which is the entire point of the raise. `--grain-scale: 1` was confirmed in the same pass — the computed `background-size` is **`160px auto`**, the documented default and a visual no-op (the knob exists; the accepted tuning does not use it). The accepted grain is **fine and sharp**, not coarse: the rejected `0.3` recipe stays rejected.
+
+**The accepted tradeoff, stated plainly.** At `0.4` the paper is **no longer essentially pure white**: the grain is visible and the ground is correspondingly darker — ≈`#f1f1f1` (mean luminance **241.4**, roughly 5% below `255` in 8-bit ground value, with speckle reaching **215**). That is the **chosen, accepted tradeoff** — visibility bought with ground luminance — not an oversight, and §7 carries a measured addendum that bounds the darker ground: the ink pairs keep real headroom and the two accent pairs sit on their thresholds at the extreme speckle.
+
+**The accepted tuning, complete.** Light **`0.4`**, dark **`0.20`**, `--grain-scale` **`1`**. Everything else is unchanged: the three frames, the `seed`s (7 / 41 / 113), `baseFrequency="0.85"`, `numOctaves="3"`, `stitchTiles="stitch"`, the 160px tile, `background-repeat: repeat`, the 3-frame `steps(1, end)` 0.3s loop, `multiply`, the `lite` / `full` `data-perf` throttle (≈10 fps full, ≈3 fps lite), and the `--grain-opacity: 0` kill switch.
 
 **Why it is not slop.** The banned-pattern catalogs target decoration reached
 for without reason, and specifically decoration standing in for hierarchy
@@ -621,6 +673,11 @@ and go back to the mean-neutral `overlay` film, set `mix-blend-mode: overlay`
 and restore its parity tokens (`0.95` light, `0.46` dark) — with the §13
 measurement recorded above: that film is a no-op on the pure-white ground.
 
-**Status: operator-pending.** Awaiting a keep / drop decision — and, if kept, a
-decision on whether the ~10fps reshuffle stays or reverts to the static frame.
-Not a deferral — there is no later pass scheduled to resolve it.
+**Status: tuning ACCEPTED; the system decision is still operator-pending.** The
+**tuning is settled** — the operator evaluated the 1:1 measurements recorded
+above and accepted **`--grain-opacity: 0.4` light / `0.20` dark** with
+**`--grain-scale: 1`**. What remains pending is the *keep / drop* decision on the
+effect itself: §13 keeps its TEMP framing, is not promoted, and the section
+header and opening note above still stand unchanged. If kept, one further
+decision remains — whether the ~10fps reshuffle stays or reverts to the static
+frame. Not a deferral — there is no later pass scheduled to resolve it.

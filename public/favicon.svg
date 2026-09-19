@@ -1,5 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect width="64" height="64" rx="12" fill="#300a24"/>
-  <rect width="64" height="64" rx="12" fill="none" stroke="#8ae234" stroke-opacity="0.35" stroke-width="2"/>
-  <text x="17" y="45" font-family="'Courier New', monospace" font-size="32" font-weight="bold" fill="#8ae234">&gt;_</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <title>nathwn12 — terminal prompt</title>
+  <rect width="32" height="32" fill="#111110"/>
+  <polygon points="8.2,7.3 16.89,16 8.2,24.7 4.8,21.3 10.11,16 4.8,10.7" fill="#ffffff"/>
+  <rect x="17.5" y="20.7" width="9.5" height="4" fill="#ffffff"/>
 </svg>
