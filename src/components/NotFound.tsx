@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { navigate, ROUTES, useRoute } from "../lib/router";
 
 /**
@@ -6,61 +5,43 @@ import { navigate, ROUTES, useRoute } from "../lib/router";
  * The router keeps the requested path on the synthesized route, so the page
  * echoes the exact path in a real `bash: cd:` error and then offers the
  * surviving directories through `ls ~/` instead of a dead end.
+ *
+ * Brutalist restyle: no ambient gradient, named scale steps only, one accent
+ * (the `$` prompt and the primary `cd ~/home` action).
  */
 export function NotFound() {
   const { path: requestedPath } = useRoute();
 
   return (
-    <section
-      id="not-found"
-      className="py-8 md:py-12 px-4 lg:px-8 relative overflow-hidden"
-    >
-      <div
-        className="section-ambient"
-        style={{
-          background: `
-            radial-gradient(ellipse at 30% 40%, color-mix(in srgb, var(--color-accent-3) 7%, transparent) 0%, color-mix(in srgb, var(--color-accent-3) 2%, transparent) 40%, transparent 65%),
-            radial-gradient(ellipse at 80% 70%, color-mix(in srgb, var(--color-accent) 3%, transparent) 0%, transparent 50%)
-          `,
-        }}
-      />
-      <div className="max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.35 }}
-          className="flex items-center gap-4 mb-12"
-        >
-          <span className="text-accent-3-text text-sm">$</span>
-          <span className="text-xs tracking-[0.4em] text-text-dim break-all">
+    <section id="not-found" className="px-gutter py-section">
+      <div className="mx-auto max-w-5xl">
+        {/* $ cd <path> */}
+        <div className="mb-section flex items-center gap-block">
+          <span className="text-label text-accent-text">$</span>
+          <span className="text-label text-text-dim break-all">
             cd {requestedPath}
           </span>
-          <div className="flex-1 h-[1px] bg-border" />
-        </motion.div>
+          <div className="h-px flex-1 bg-border" />
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05, duration: 0.35 }}
-          className="border border-border-accent bg-bg"
-        >
+        <div className="border border-border-accent bg-bg">
           {/* Error output */}
-          <div className="px-4 md:px-6 py-5 border-b border-border">
-            <h1 className="text-xs md:text-sm font-bold text-accent-3-text break-words">
+          <div className="border-b border-border px-gutter py-block">
+            <h1 className="text-title font-bold text-text break-words">
               bash: cd: {requestedPath}: No such file or directory
             </h1>
-            <p className="mt-3 text-xs leading-relaxed text-text-dim max-w-2xl">
+            <p className="mt-half max-w-2xl text-body text-text-dim">
               That path doesn&apos;t exist on this system. It may have been
               moved, renamed, or the link that brought you here is stale.
             </p>
           </div>
 
           {/* Surviving directories */}
-          <div className="px-4 md:px-6 py-4 border-b border-border">
-            <div className="flex items-center gap-2 mb-3 text-[10px] text-text-dim">
-              <span className="text-accent-text">$</span>
+          <div className="border-b border-border px-gutter py-block">
+            <p className="mb-half flex items-center gap-half text-label text-text-dim">
+              <span>$</span>
               <span>ls ~/</span>
-            </div>
+            </p>
             <ul
               aria-label="Available pages"
               className="divide-y divide-border border border-border-accent"
@@ -70,17 +51,17 @@ export function NotFound() {
                   <button
                     type="button"
                     onClick={() => navigate(route.path)}
-                    className="group flex w-full items-center gap-3 md:gap-6 px-3 md:px-4 py-2.5 text-left transition-colors duration-200 hover:bg-accent/5 active:bg-accent/10"
+                    className="group flex w-full items-center gap-gutter px-half py-half text-left transition-colors duration-150 hover:bg-surface active:bg-surface-2"
                   >
-                    <span className="w-40 md:w-56 shrink-0 truncate text-[10px] text-accent-text">
+                    <span className="w-40 shrink-0 truncate text-label text-text md:w-56">
                       {route.command}
                     </span>
-                    <span className="flex-1 min-w-0 text-[10px] text-text-dim truncate">
+                    <span className="min-w-0 flex-1 truncate text-label text-text-dim">
                       {route.description}
                     </span>
                     <span
                       aria-hidden="true"
-                      className="shrink-0 text-text-muted transition-colors duration-200 group-hover:text-accent-text"
+                      className="shrink-0 text-text-muted transition-colors duration-150 group-hover:text-accent-text"
                     >
                       →
                     </span>
@@ -91,22 +72,20 @@ export function NotFound() {
           </div>
 
           {/* Primary way home */}
-          <div className="flex flex-wrap items-center gap-3 px-4 md:px-6 py-4">
-            <span className="text-accent-text text-xs">$</span>
-            <motion.button
+          <div className="flex flex-wrap items-center gap-half px-gutter py-block">
+            <span className="text-label text-text-muted">$</span>
+            <button
               type="button"
               onClick={() => navigate("/")}
-              whileHover={{ x: 4 }}
-              whileTap={{ scale: 0.98 }}
-              className="border border-accent/30 bg-accent/10 px-4 py-2 text-[10px] tracking-widest text-accent-text transition-colors duration-300 hover:border-accent/60 hover:bg-accent/20"
+              className="border border-border-accent px-gutter py-half text-label text-accent-text transition-colors duration-150 hover:bg-accent/10 active:bg-accent/20"
             >
               cd ~/home
-            </motion.button>
-            <span className="text-[10px] tracking-widest text-text-muted">
+            </button>
+            <span className="text-label text-text-muted">
               or press ←/→ to browse
             </span>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
