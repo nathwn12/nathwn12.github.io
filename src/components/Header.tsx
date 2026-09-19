@@ -113,7 +113,6 @@ export function Header() {
             <button
               type="button"
               onClick={toggleThemeHandler}
-              aria-label="Switch color scheme"
               title="Toggle color scheme (F2)"
               className="flex items-center gap-quarter whitespace-nowrap uppercase transition-colors duration-150 hover:text-text active:text-text"
             >

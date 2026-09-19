@@ -1,0 +1,46 @@
+# Nathaniel Nikolai Ladero Portfolio
+
+Terminal-themed portfolio for Nathaniel Nikolai Ladero, a backend developer with
+3 years building secure fintech systems in C# and ASP.NET Core. The site is a
+page-per-viewport single-page app rendered as a terminal interface: each route
+is one full page with keyboard-driven navigation, and the chrome is persistent.
+
+## Owner
+
+- Name: Nathaniel Nikolai Ladero
+- Role: Backend Developer
+- Focus: C#, ASP.NET Core, REST APIs, microservices, and fintech systems
+- Experience: Backend Developer at Xentra Infotech Solutions Inc. (Mar 2023 to May 2026, remote)
+- Email: nathanielnikolai.ladero@gmail.com
+- GitHub: https://github.com/nathwn12
+- LinkedIn: https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/
+
+## Pages
+
+- Home (profile, system facts, resume download): https://nathwn12.github.io/
+- Experience (career service journal): https://nathwn12.github.io/experience
+- Skills (systemd-style capability board): https://nathwn12.github.io/skills
+- Projects (production highlights in an `ls -la` listing): https://nathwn12.github.io/projects
+- Contact (terminal compose form and verified credentials): https://nathwn12.github.io/contact
+
+The legacy path /about redirects to the home page.
+
+## What the portfolio contains
+
+- Experience log: ASP.NET Web APIs, gRPC, SignalR, and RabbitMQ; a payments
+  latency migration (MySql.Data to MySqlConnector on AWS) that cut worst-case
+  query time from about 60s to under 1s; auth hardening (JWT, OAuth 2.0, OpenID
+  Connect, RBAC, ABAC) with zero high or critical Snyk findings; and EF Core,
+  Dapper, and Redis data access that cut read latency by over 40%.
+- Skills: C#, ASP.NET Core, .NET, MySQL, Redis, RabbitMQ, AWS, Docker, GitHub
+  Actions, Linux and Nginx, security and auth, testing, and AI-assisted
+  development.
+- Projects: Payments Latency Migration, Fintech Service Platform (1,182 commits
+  across 17 repositories), Auth Hardening, and Read Cache Data Layer.
+- Credentials: Google IT Automation with Python, Google IT Support, API Security
+  Fundamentals, and OWASP API Security Top 10.
+
+## Key links
+
+- Resume PDF: https://nathwn12.github.io/Nathaniel-Nikolai-Ladero-Resume.pdf
+- Sitemap: https://nathwn12.github.io/sitemap.xml
