@@ -11,8 +11,25 @@
    for dark users; the light block is the unthemed fallback.
    ========================================================================= */
 
+/* LOGO/MARK FACE — RETAINED AND WIRED, NOT CURRENTLY APPLIED. `OpenCode.otf` is
+   a generative logo typeface: every printable character maps to one of a handful
+   of OpenCode logo letterforms, so a long string renders as an unreadable logo
+   pattern. It stays on disk, registered here and exposed via `--font-logo`, for
+   potential SHORT brand-mark use only — never for body copy, headings, labels,
+   nav/status text, or any run of text. No element currently consumes `font-logo`
+   (the header wordmark is monospace). `font-display: swap` plus the
+   `var(--font-mono)` fallback in `--font-logo` keep a mark legible if the OTF is
+   missing or fails; it must never render blank. */
+@font-face {
+  font-family: "OpenCode";
+  src: url("/fonts/OpenCode.otf") format("opentype");
+  font-display: swap;
+}
+
 @theme {
   --font-mono: 'Hack', 'Cascadia Mono', 'IBM Plex Mono', monospace;
+  /* Logo/mark face — see the @font-face restriction above. Short marks only. */
+  --font-logo: "OpenCode", var(--font-mono);
 
   /* --- LIGHT · paper / ink / concrete ---------------------------------- */
   /* Paper is now PURE WHITE (#ffffff, was #fbfbfa/#f4f4f1/#ebebe7): the
@@ -274,15 +291,16 @@ p {
      grain SIZE and raised opacity to 0.14. The operator REJECTED the coarse
      field as "too fat" and "sloppy" and asked for the fine, sharp grain back.
      Sharpness is therefore restored at `baseFrequency="0.85"` and visibility
-     is carried by OPACITY, not feature size: 0.07 → 0.16 light. (The earlier
-     "invisible" reading came from a 2-pixel-stride sample of ~1px features —
-     an aliasing artifact that understated the true variation — see DESIGN.md
-     §13.) The honest cost is a larger uniform average-luminance drop on white,
-     roughly proportional to the opacity (~2% at 0.16 against ~0.9% at 0.07);
-     the exact figure is a browser measurement the lead re-takes at 1:1 and is
-     recorded in DESIGN.md §13. Size is the separate, theme-independent
+     is carried by OPACITY, not feature size: the accepted value is 0.4 light /
+     0.20 dark, up from the original 0.07. (The earlier "invisible" reading came
+     from a 2-pixel-stride sample of ~1px features — an aliasing artifact that
+     understated the true variation — see DESIGN.md §13.) The honest cost is a
+     larger uniform average-luminance drop on white, roughly proportional to the
+     opacity; the exact figure is the 1:1 browser measurement recorded in
+     DESIGN.md §13: mean luminance 241.4, grain std-dev 4.61, range 215–253
+     (effective ground ≈ `#f1f1f1`). Size is the separate, theme-independent
      `--grain-scale` token beside this one; this comment owns STRENGTH only. */
-  --grain-opacity: 0.4;
+  --grain-opacity: 0.425;
   /* Grain SIZE/sharpness — 1 = default; below 1 = finer/sharper, above 1 = fatter. Theme-independent: declared once here, deliberately not repeated in the dark block. */
   --grain-scale: 1;
 }
