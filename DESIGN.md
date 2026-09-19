@@ -418,3 +418,45 @@ grid) has been deleted, so the old canvas deferral no longer applies; and
 `.bg-grid`, `.input-glow`, and `.section-ambient` had zero remaining consumers
 after that deletion and were removed from `src/index.css`. `.terminal-cursor`
 survives as the one sanctioned blink (§10).
+
+---
+
+## 13. TEMPORARY — film grain (operator-pending, NOT a system decision)
+
+> **This section is an evaluation, not a spec.** It is the only place in this
+> document that describes something the restyle has not committed to. If the
+> operator declines it, §13 is deleted and §1–§12 are unchanged — no other rule,
+> token, or table above is affected while it exists.
+
+`src/index.css` carries a delimited **temporary** block at the end of the file:
+a page-wide static film grain, one `html::after` pseudo-element at
+`position: fixed; inset: 0`, `pointer-events: none`, filled with a
+self-contained inline `feTurbulence` (`type="fractalNoise"`,
+`stitchTiles="stitch"`, 160px tile) SVG data-URI, repeated, no blend mode, no
+animation, no JS, no asset, no dependency. Its intensity is the additive
+temporary token **`--grain-opacity`** — `0.03` light (`:root`), `0.05` dark
+(`html[data-theme="dark"]`), both ≤ `0.05`.
+
+**Why it is not slop.** The banned-pattern catalogs target decoration reached
+for without reason, and specifically decoration standing in for hierarchy
+(§9 P1 "Decorative grid-line background" is the nearest neighbour). They carve
+out the case where the texture **belongs to the design** `[S1]`/`[S3]` — the
+same exemption this document already uses for its off-white paper (§2.1) and
+its monospace-only system (§9 "Survives the ban"). The grain is that arm:
+operator-requested for an ink/paper brutalist surface, static, information-free,
+and explicitly time-boxed below.
+
+**Conformance while it exists.** It adds no DOM node and no role, so it is not
+in the accessibility tree and cannot take keyboard focus; `pointer-events: none`
+means it captures nothing; `position: fixed` keeps it out of flow (no CLS, no
+scrollbar). It introduces no hue (§2), no radius (§5), no border (§6), no
+motion (§10), and no raw hex — only opacity over the existing ground. It does
+not trip the §11 checklist's "no P0/P1 pattern" or motion items on those
+grounds.
+
+**Revert.** Delete the delimited block in `src/index.css` (it owns both
+`--grain-opacity` tokens, so nothing dangles) and this section — or, to keep the
+CSS and switch the effect off, set `--grain-opacity: 0` in both themes.
+
+**Status: operator-pending.** Awaiting a keep / drop decision. Not a deferral —
+there is no later pass scheduled to resolve it.
