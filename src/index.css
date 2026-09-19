@@ -228,3 +228,65 @@ p {
     animation: none !important;
   }
 }
+
+/* ============================================================================
+   === TEMPORARY — STATIC FILM GRAIN — OPERATOR-PENDING, NOT SYSTEM ============
+   ----------------------------------------------------------------------------
+   Status: TEMPORARY DECORATION, under evaluation. The operator wants to see
+   whether the brutalist restyle wants a page-wide film-grain texture, and will
+   decide whether to keep it. It is deliberately OUTSIDE the permanent token
+   layer quoted in DESIGN.md §2.2 ("the whole token layer") — the two
+   `--grain-opacity` tokens below are additive and temporary. Nothing else in
+   this file, and no component, knows this block exists.
+
+   Anti-slop note: the catalogs ban decoration standing in for hierarchy and
+   *decorative* noise, but exempt "a texture that belongs to the design"
+   ([S1]/[S3]; DESIGN.md §9 "Survives the ban", §12 deferrals). This is that
+   exemption's arm: operator-requested, static, zero-information, no motion.
+
+   REVERT — either step is complete on its own:
+     a) delete this whole comment + rules block (it owns both
+        `--grain-opacity` tokens — nothing else references them), or
+     b) set `--grain-opacity: 0` in both theme blocks below. The
+        pseudo-element then stays in the tree but paints nothing.
+   ========================================================================== */
+
+:root {
+  /* Light: paper is bright, so noise reads fast — 0.03 is texture, not dirt. */
+  --grain-opacity: 0.03;
+}
+
+/* Same selector shape as the dark token block above, so the grain follows the
+   theme exactly where the palette does (data-theme lives on <html>). */
+html[data-theme="dark"] {
+  /* Dark: noise reads weaker on an ink ground, so a touch more — still ≤0.05. */
+  --grain-opacity: 0.05;
+}
+
+/* The grain layer itself.
+   Host: `html::after` — the free pseudo-element (see the `.theme-flip` reset
+   above: nothing else claims ::before/::after on html or body; no component can
+   style `body`'s pseudo-elements from Tailwind).
+   - `position: fixed` + `inset: 0` → out of flow and out of scrollable
+     overflow: no layout box, no CLS, no scrollbar, no zoom interaction.
+   - `pointer-events: none` → cannot capture hover, click, or focus.
+   - A pseudo-element has no DOM node and no role, so it is absent from the
+     accessibility tree, and with no tabindex it cannot be reached by keyboard.
+   - `z-index` sits above the CommandTerminal panel (`z-[9999]`) and the skip
+     link (10001) so the texture is uniform across the screen instead of
+     stopping at the chrome; at ≤0.05 it is not perceptible over either.
+   - Static by construction: no animation, no transition, no keyframes, no
+     `mix-blend-mode`, no JS, no external fetch, no asset. The SVG is inline and
+     self-contained (feTurbulence, `stitchTiles="stitch"`), and the 160px tile
+     repeats seamlessly because the filter region is set to exactly the tile.
+   `opacity: var(--grain-opacity)` is the single kill switch: 0 disables it. */
+html::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 10002;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
