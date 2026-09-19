@@ -42,20 +42,22 @@ hue, no gradient, no glow.
 
 | Role | Light (`:root`, default) | Dark (`[data-theme="dark"]`) |
 | --- | --- | --- |
-| **paper** — page ground | `--color-bg` `#fbfbfa` | `--color-bg` `#0e0e0d` (ink ground) |
+| **paper** — page ground | `--color-bg` `#ffffff` | `--color-bg` `#0e0e0d` (ink ground) |
 | **ink** — text + structural rule | `--color-text` `#111110`, `--color-border-accent` `#111110` | `--color-text` `#f2f2ef`, `--color-border-accent` `#edede8` |
 | **concrete** — muted text, hairline | `--color-text-muted` `#57574f`, `--color-border` `#c9c9c3` | `--color-text-muted` `#a3a39c`, `--color-border` `#2c2c29` |
 | **accent** — one hue, signal orange | `--color-accent` `#e03c00` | `--color-accent` `#ff4d00` |
 
-`paper` is a neutral off-white with ~1% warm cast, not a cream/beige default;
-it is chosen with its ink and concrete counterparts as a documented system,
-which is the exemption `[S1]`'s "Cream / beige palette" rule carves out
-("Keep them when they belong to the product"). It exists to serve the "paper"
-half of a brutalist ink/paper pair, and every value is contrast-verified in §7.
-The ground was brightened from `#f2f2ef` to `#fbfbfa` (with `--color-surface`
-and `--color-surface-2` lifted in step) because the original paper read grey,
-not white; the warm cast, the layered order, and every threshold in §7 are
-unchanged by the move — each pair's ratio rose.
+`paper` is **pure white** (`#ffffff`), the literal page rather than an off-white
+approximation of one. It was previously `#fbfbfa` with a ~1% warm cast; the
+operator read that ground as grey, so it and the two surfaces went to a
+neutral white ramp (`#ffffff` / `#f7f7f6` / `#efefee`) with no hue cast at all.
+This does not weaken the `[S1]` "Cream / beige palette" exemption the system
+relies on — it removes the one attribute that needed it: white is not a
+defaulted cream, it is the luminance ceiling of an ink/paper pair, and every
+value is contrast-verified in §7 (each ratio rose, since the ground is now the
+brightest element in the system). The layered order is unchanged: `--color-bg`
+is the ground, and `--color-surface` / `--color-surface-2` are each a distinct
+step below it.
 
 ### 2.2 Token name → value table (the whole token layer)
 
@@ -63,9 +65,9 @@ Every name below is **frozen** (§8). Values are the brutalist palette.
 
 | Token | Light (`:root`) | Dark (`[data-theme="dark"]`) | Used for |
 | --- | --- | --- | --- |
-| `--color-bg` | `#fbfbfa` | `#0e0e0d` | page ground |
-| `--color-surface` | `#f4f4f1` | `#171716` | one raised step |
-| `--color-surface-2` | `#ebebe7` | `#1f1f1d` | two raised steps |
+| `--color-bg` | `#ffffff` | `#0e0e0d` | page ground |
+| `--color-surface` | `#f7f7f6` | `#171716` | one raised step |
+| `--color-surface-2` | `#efefee` | `#1f1f1d` | two raised steps |
 | `--color-border` | `#c9c9c3` | `#2c2c29` | concrete hairline (inner separation) |
 | `--color-border-accent` | `#111110` | `#edede8` | ink/paper structural rule (see §6) |
 | `--color-text` | `#111110` | `#f2f2ef` | body + headings |
@@ -203,32 +205,36 @@ Rules:
 
 Measured with WCAG 2.1 relative-luminance math against `--color-bg` (bg),
 `--color-surface` (s), `--color-surface-2` (s2). Body threshold **4.5:1**,
-UI/graphic threshold **3:1**. Ratios below are for the brightened light paper
-(`#fbfbfa` / `#f4f4f1` / `#ebebe7`, §2.2); the dark rows are unchanged.
+UI/graphic threshold **3:1**. Ratios below are for the pure-white light paper
+(`#ffffff` / `#f7f7f6` / `#efefee`, §2.2); the dark rows are unchanged. Every
+light ratio is higher than it was on the previous off-white ground (`#fbfbfa`
+/ `#f4f4f1` / `#ebebe7`), because white is the luminance ceiling the other
+colors are measured against.
 
 | Token | Theme | vs bg | vs s | vs s2 | Verdict |
 | --- | --- | --- | --- | --- | --- |
-| `--color-text` | light | 18.25 | 17.15 | 15.81 | AAA |
-| `--color-text-dim` | light | 10.54 | 9.90 | 9.13 | AAA |
-| `--color-text-muted` | light | 7.04 | 6.61 | 6.10 | AA ✓ |
-| `--color-accent` | light | 4.21 | 3.96 | 3.65 | ≥3:1 UI ✓ |
-| `--color-accent-text` | light | 6.24 | 5.86 | 5.40 | AA ✓ |
+| `--color-text` | light | 18.89 | 17.62 | 16.42 | AAA |
+| `--color-text-dim` | light | 10.91 | 10.18 | 9.48 | AAA |
+| `--color-text-muted` | light | 7.29 | 6.80 | 6.33 | AA ✓ |
+| `--color-accent` | light | 4.36 | 4.07 | 3.79 | ≥3:1 UI ✓ |
+| `--color-accent-text` | light | 6.46 | 6.02 | 5.61 | AA ✓ |
 | `--color-text` | dark | 16.84 | 15.62 | 14.37 | AAA |
 | `--color-text-dim` | dark | 11.61 | 10.79 | 9.93 | AAA |
 | `--color-text-muted` | dark | 7.61 | 7.07 | 6.51 | AA ✓ |
 | `--color-accent` | dark | 5.81 | 5.39 | 4.96 | AA/UI ✓ |
 | `--color-accent-text` | dark | 6.76 | 6.28 | 5.78 | AA ✓ |
 
-Every light pair cleared its threshold on the old paper and gained headroom on
-the new one; no value had to be re-chosen to pass. `--color-border` (`#c9c9c3`)
-is held unchanged deliberately: it is a separation rule, not a text or control
-token, and against the brighter ground its ink-vs-paper separation weight rises
-from 1.48:1 to 1.61:1 (1.39:1 against `--color-surface-2`) — lightening it would
-have made the concrete hairline less legible, not more.
+Every pair still clears its threshold; the move to pure white raised each light
+ratio by ~0.2–0.7 and changed no value. `--color-border` (`#c9c9c3`) is held
+unchanged deliberately: it is a separation rule, not a text or control token,
+and against the white ground its ink-vs-paper separation weight rises from
+1.61:1 to **1.66:1** vs bg (**1.55:1** against `--color-surface`, **1.45:1**
+against `--color-surface-2`) — lightening it would have made the concrete
+hairline less legible, not more.
 
 Discipline that keeps this true: **text uses `--color-accent*-text`; fills,
 rules, and glyphs use `--color-accent*`.** The base accent is not text-safe in
-light (4.21 ÷ surface-2 3.65), which is why the split exists.
+light (4.36 ÷ surface-2 3.79), which is why the split exists.
 
 ## 8. CONTENT CONTRACT (frozen token names)
 
@@ -359,9 +365,12 @@ Restraint executed well is not slop (`[S2]`). The following stay, deliberately:
   copy of it is removed by the component pass. The caret is a functional
   affordance, not decoration — and it carries the `[S1]`
   "Decorative blinking cursor" exemption only under that test.
-- **`prefers-reduced-motion: reduce` removes motion entirely**, including the
-  functional caret blink; Framer Motion honors it via `MotionConfig
-  reducedMotion="user"`. This is a hard requirement, not polish.
+- **`prefers-reduced-motion` is deliberately not honored.** This is an explicit
+  product decision by the site owner, recorded here: the site always animates at
+  full potential, and every `@media (prefers-reduced-motion: reduce)` gate has
+  been removed from `src/index.css` so nothing is ever disabled by the setting.
+  The tradeoff, stated plainly: motion-sensitive visitors receive full
+  animation, so the vestibular-safety accommodation is intentionally absent.
 - Entrance animations must never gate visibility: content is visible by
   default so a failed animation cannot hide it (`[S1]` "Content stuck waiting
   to appear").
@@ -429,34 +438,189 @@ survives as the one sanctioned blink (§10).
 > token, or table above is affected while it exists.
 
 `src/index.css` carries a delimited **temporary** block at the end of the file:
-a page-wide static film grain, one `html::after` pseudo-element at
-`position: fixed; inset: 0`, `pointer-events: none`, filled with a
-self-contained inline `feTurbulence` (`type="fractalNoise"`,
-`stitchTiles="stitch"`, 160px tile) SVG data-URI, repeated, no blend mode, no
-animation, no JS, no asset, no dependency. Its intensity is the additive
-temporary token **`--grain-opacity`** — `0.03` light (`:root`), `0.05` dark
-(`html[data-theme="dark"]`), both ≤ `0.05`.
+a page-wide **animated** film grain, one `html::after` pseudo-element at
+`position: fixed; inset: 0`, `pointer-events: none`, filled with **three**
+self-contained inline `feTurbulence` SVGs (`type="fractalNoise"`,
+`baseFrequency="0.85"`, `numOctaves="3"`, `stitchTiles="stitch"`, 160px tile,
+differing only in `seed` — 7 / 41 / 113) as `background-image` data-URIs,
+repeated, composited with **`mix-blend-mode: multiply`**, no JS, no asset, no
+dependency. Its intensity is the additive temporary token
+**`--grain-opacity`** — `0.16` light (`:root`), `0.20` dark
+(`html[data-theme="dark"]`), the values after the **2026-09-20 revert**
+recorded below. `--grain-opacity: 0` remains the single kill
+switch, and it now stops the paint **and** the frames: the animation's duration
+is derived from the same token, so `0` collapses it — `calc(0 / 0 * 0.3s)` is
+NaN, invalid at computed-value time, and Chrome clamps the duration to `0s`
+with no animation scheduled at all (measured: `getAnimations()` empty, painted
+frame never changes); an engine that instead invalidates the shorthand falls
+back to `animation-name: none`, which also schedules nothing. Either way the
+layer renders nothing to blend and nothing animates.
+
+**Two tuning knobs — strength and grain size.** The effect is tuned by exactly
+two additive temporary tokens, and they are independent:
+
+- **`--grain-opacity`** — *strength*, per theme (light `:root` `0.16`, dark
+  `html[data-theme="dark"]` `0.20`) and therefore the average-luminance cost,
+  since `multiply` darkens in proportion to it. `0` remains the kill switch
+  (above). Its comment in `src/index.css` owns strength only.
+- **`--grain-scale`** — *grain size / sharpness*. Declared **once** in `:root`,
+  because it is **theme-independent** — deliberately *not* repeated in the dark
+  block. Default **`1`**; **below 1 = finer/sharper, above 1 = fatter**. It works
+  by scaling the drawn tile: `background-size: calc(160px * var(--grain-scale))`
+  alongside the existing `background-repeat: repeat`, so at the default `1` the
+  tile is exactly **160px** and the change is a **visual no-op**. The source is a
+  **vector** `feTurbulence` SVG, so a non-default scale redraws the noise at the
+  new size **crisply** rather than resampling pixels, and the filter region still
+  pins to exactly the tile, so `stitchTiles="stitch"` keeps the repeat seamless
+  at any scale. One number, one knob — not a data-URI edit.
+
+**`baseFrequency` is the fixed base recipe, not a knob.** All four data-URI
+strings (the three frames plus the base `background-image`) keep
+`baseFrequency="0.85"` unchanged. It is never edited to change grain size: the
+coarse `0.3` retune recorded below is exactly that mistake — rejected as "too
+fat"/"sloppy" — and editing those four long strings is also how the block got
+broken before. Grain size is revisited through `--grain-scale` only.
+
+**The reshuffle — 3 frames, 0.3s loop, `steps(1, end)`, ≈10 fps.** The three
+data-URIs are three genuinely different noise fields (same filter recipe, three
+`seed`s) — not one image slid around, which would be drift, not film. The
+keyframes swap `background-image` itself, a discrete-typed property: adjacent
+frames can therefore only hard-cut, never cross-blend. Each frame holds one
+third of the 0.3s loop (≈0.1s, ≈10 fps) and `steps(1, end)` pins each cut to
+its segment's end; hairline keyframe pairs (`33.332%`/`33.333%`,
+`66.665%`/`66.666%`) hold the same frame on both sides of every boundary so the
+cut stays hard even if an engine resolves the discrete step at 50% of a segment
+instead. Nothing translates, scales, or resizes — the noise field is replaced,
+so it reads as reshuffle rather than motion. `background-repeat: repeat` and the
+160px tile are unchanged.
+
+**Ungated — and the name mismatch that used to kill it.** The loop is no longer
+gated: `src/index.css` carries no `@media (prefers-reduced-motion: reduce)`
+block for it, or for anything else, under the operator decision recorded in §10.
+Before that change the animation **never ran at all**: the `html::after` rule
+referenced a keyframes name (`grainFrames`) that did not exist — the real block
+is `@keyframes grain-reshuffle` — so no animation was ever scheduled. Measured
+live in the browser: `document.getAnimations().length` was `0` against the rule
+as written, and `1` once the rule referenced `grain-reshuffle`. The rule now
+points at the existing `grain-reshuffle` keyframes; the three frames, the `0.3s`
+duration, `steps(1, end)`, `infinite`, the `multiply` blend and the opacity
+values are unchanged.
+
+**Capability tier — `data-perf`, and it throttles rather than disables.** The
+one gate the grain *does* carry is not a preference gate: `index.html` sets
+`html[data-perf]` **pre-paint** from a WebGL probe, with two values — **`full`**
+(hardware acceleration present) and **`lite`** (no acceleration; this machine
+reports *"Microsoft Basic Render Driver"*, i.e. a software renderer). On the
+lite tier `src/index.css` adds one rule,
+`html[data-perf="lite"]::after { animation-duration: 1s; }` — selector
+specificity `(0,1,2)` against the base rule's `(0,0,2)`, and later in source
+order, so no `!important` is needed. Same three frames, same `steps(1, end)`,
+same `infinite`, same `multiply`, same `--grain-opacity` values: only the loop
+lengthens `0.3s → 1s`, dropping the reshuffle from **≈10 fps to ≈3 fps**. It is
+**throttled, never disabled** — the operator's call: a software renderer pays
+the full per-frame composite cost of a viewport-sized blended repaint, so it
+gets the cheap floor rather than no texture.
+
+**Capability ≠ preference — the distinction is explicit.** §10's decision is
+that a *preference* is never honoured: no `@media (prefers-reduced-motion)`
+block exists for the grain or for anything else, and the ungated rule above
+stays ungated. The lite tier is the opposite case: it is a statement about what
+the **machine can afford**, not what the **user wants**, so it *is* honoured.
+The two are not interchangeable — a preference gate would suppress the effect on
+a capable machine, and a capability gate is not a motion preference. Both may
+coexist on one machine without contradiction.
+
+**Documented exemption from §10's "No loops" rule.** §10 bans loops outright
+("No blinking, no pulsing, no marquee, no auto-scroll"). This effect is the
+**single recorded exemption**, and it is deliberately narrow: the texture is
+**operator-requested**, **zero-information** (a uniform field that cannot signal
+activity, hierarchy, or state — the thing §10's motion budget exists to
+protect), **cut at ≈10 fps** so it never reads as continuous motion, and
+**ungated** — no motion-preference media query disables it (see below). §1–§12 are otherwise
+unchanged; §10 is read as unqualified for everything that is not this block.
+Keeping the texture without the exemption means dropping the `animation`
+declaration (and the keyframes) and keeping frame 1 — the loop, not the grain,
+is what §10 forbids.
+
+**Cost — honest.** Each step repaints one **full-viewport** layer and
+`mix-blend-mode: multiply` re-blends it against the root stacking context every
+time: roughly **ten viewport-sized blended repaints per second**, plus the
+per-frame style recalc. The source is a 160px tile repeated, so raster work per
+frame is small, and only `background-image` animates — **no layout, no reflow,
+no CLS**. `will-change` is deliberately not set: promoting a full-viewport
+blended layer to its own compositor texture would trade a cheap paint for a
+viewport-sized composite. No motion-preference media query removes the loop —
+under the operator decision in §10 it always runs.
+
+**Why `multiply` — visible, and honestly darkening.** The block's second form
+used `overlay`, chosen because it is luminance-neutral. Measurement retired that
+choice: `overlay`'s upper branch is `B = 1 − 2(1 − b)(1 − s)`, which at `b = 1`
+collapses to exactly `1` for every noise sample `s` — on the pure-white ground
+`#ffffff` the grain is a **mathematical no-op**. Measured in the browser: grain
+std-dev **0.00** on `#ffffff` and **0.47** on the previous `#fbfbfa` — invisible
+either way. Mean-neutrality is the wrong goal against a highlight: a blend that
+preserves the mean necessarily multiplies the noise by ~0 there. `multiply`
+(`B = b·s`) scales the noise by the backdrop itself and therefore lands:
+measured at the original `0.07` on `#ffffff`, mean luminance **252.7** (a
+**0.9% average drop**), grain std-dev **0.9**, range **249–255**. The cost is
+explicit and bounded: `multiply` is **not** mean-neutral, and the ground darkens
+by ~0.9% on white at that opacity. That is accepted as the price of a texture
+that is actually visible — the alternative was a blend mode that provably
+painted nothing. Both tokens were re-tuned for the new mode (`0.95 → 0.07`
+light, `0.46 → 0.10` dark); the dark value is deliberately low because multiply
+darkens the near-black ink ground too, and a large value would crush it. Nothing
+clips: `b·s ∈ [0, 1]` for every backdrop and noise sample.
+
+**2026-09-20 retune, then REVERT — coarse grain REJECTED, sharpness restored.** The first `multiply` tuning (`baseFrequency="0.85"`, sub-pixel ~1.2px features) was judged *technically* visible but *perceptually* flat: at `0.07` the grain's luminance variation was a standard deviation of only **~0.9 out of 255** (range **249–255** on white). The retune that followed changed the **lever to grain size** — `baseFrequency` **`0.85 → 0.3`** (~3–5px features) with opacity raised `0.07 → 0.14` light / `0.10 → 0.18` dark. **The operator rejected that result as too fat and sloppy:** the coarse field reads as blotchy texture rather than premium film grain. The coarse approach is therefore **reverted**: sharpness is restored at the original **`baseFrequency="0.85"`** on all three frames, and visibility is now carried by the **opacity, not the feature size** — `0.07 → 0.16` light, `0.10 → 0.20` dark, a modest raise that stops short of the rejected coarse amplitude.
+
+**Why the earlier "invisible" reading is not trustworthy.** The evidence that led to coarsening came from sampling the ~1px grain on a **2-pixel stride**, which aliases against features at or below the sampling period: it understated the true pixel-to-pixel variation of the fine field. The real variation at `0.85` is therefore not the `~0.9` std-dev the 2px sample reported, which means opacity is the **honest lever** the fine grain always had. The exact std-dev and mean-luminance drop at `0.16` / `0.20` are re-measured by the lead **at 1:1 (one sample per device pixel)** rather than by strided sampling; that measurement is the open item, and the change recorded here is only the `baseFrequency` restore and the two opacity values.
+
+The **honest cost**: `multiply` darkens in proportion to the opacity, so the uniform average-luminance drop on white rises with it — roughly **2% at `0.16`** against the **0.9% measured at `0.07`**. The paper stays essentially pure white (the shift is a fraction of one percent of the ground, with no cast — §2's hue is untouched), but the drop is real and is recorded here rather than waved away. The dark token rises `0.10 → 0.20` on the same reasoning and stays deliberately low because multiply darkens the near-black ink ground too. **Nothing else changed** in the revert: same three frames, same `seed`s (7 / 41 / 113), same `type="fractalNoise"`, same `numOctaves="3"`, same `stitchTiles="stitch"`, same 160px tile, same `background-repeat: repeat`, same `steps(1, end)` 3-frame 0.3s loop, same `multiply`, same `lite`/`full` `data-perf` throttle, same `--grain-opacity: 0` kill switch. The filter region stays pinned to exactly the tile, which is what keeps the stitch seamless.
 
 **Why it is not slop.** The banned-pattern catalogs target decoration reached
 for without reason, and specifically decoration standing in for hierarchy
 (§9 P1 "Decorative grid-line background" is the nearest neighbour). They carve
 out the case where the texture **belongs to the design** `[S1]`/`[S3]` — the
-same exemption this document already uses for its off-white paper (§2.1) and
+same exemption this document already uses for its deliberately chosen paper (§2.1) and
 its monospace-only system (§9 "Survives the ban"). The grain is that arm:
-operator-requested for an ink/paper brutalist surface, static, information-free,
-and explicitly time-boxed below.
+operator-requested for an ink/paper brutalist surface, information-free, and
+explicitly time-boxed below. That exemption covers *having* the texture; the
+loop on top of it is a separate carve-out, recorded above, from §10.
 
 **Conformance while it exists.** It adds no DOM node and no role, so it is not
 in the accessibility tree and cannot take keyboard focus; `pointer-events: none`
 means it captures nothing; `position: fixed` keeps it out of flow (no CLS, no
-scrollbar). It introduces no hue (§2), no radius (§5), no border (§6), no
-motion (§10), and no raw hex — only opacity over the existing ground. It does
-not trip the §11 checklist's "no P0/P1 pattern" or motion items on those
-grounds.
+scrollbar). The blend changes none of that, and it cannot re-order the stack:
+`mix-blend-mode` makes the pseudo-element a stacking context of its own, but it
+already paints at `z-index: 10002` (above the CommandTerminal panel's `9999` and
+the skip link's `10001`), so nothing is lifted over or hidden under anything, and
+it has no children to isolate. It blends against the root stacking context —
+`body`'s `--color-bg` paper plus every layer below it — because nothing sets
+`isolation`, so the paper's real value is still what the backdrop contributes.
+Compositing touches pixels, as `opacity` already did, so no token and no text
+colour declaration changes. It introduces no hue (§2), no radius (§5), no border
+(§6), no raw hex, and no motion beyond the single §10 exemption recorded above
+— its animation is never gated by a motion-preference media query, per §10. It
+does not trip the §11 checklist's "no P0/P1 pattern" item on
+those grounds.
 
 **Revert.** Delete the delimited block in `src/index.css` (it owns both
-`--grain-opacity` tokens, so nothing dangles) and this section — or, to keep the
-CSS and switch the effect off, set `--grain-opacity: 0` in both themes.
+`--grain-opacity` tokens, the theme-independent `--grain-scale` token, the three
+frame data-URIs, the `grain-reshuffle` keyframes and the `data-perf="lite"`
+throttle rule, so nothing dangles) and this section —
+or, to keep the CSS and switch the effect off, set `--grain-opacity: 0` in both
+themes, which disables the paint and the animation together: the base
+`html::after` shorthand's duration collapses to NaN and invalid at
+computed-value time, which resolves `animation-name` to its initial `none`, so
+the later `html[data-perf="lite"]::after` duration has no animation left to
+re-time. Dropping only the
+grain *additions* means deleting the three `background-image` data-URIs, the
+`@keyframes grain-reshuffle` rule and the `animation` declaration, leaving one
+static frame. To undo only the blend change
+and go back to the mean-neutral `overlay` film, set `mix-blend-mode: overlay`
+and restore its parity tokens (`0.95` light, `0.46` dark) — with the §13
+measurement recorded above: that film is a no-op on the pure-white ground.
 
-**Status: operator-pending.** Awaiting a keep / drop decision. Not a deferral —
-there is no later pass scheduled to resolve it.
+**Status: operator-pending.** Awaiting a keep / drop decision — and, if kept, a
+decision on whether the ~10fps reshuffle stays or reverts to the static frame.
+Not a deferral — there is no later pass scheduled to resolve it.

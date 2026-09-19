@@ -174,6 +174,8 @@ export function Skills() {
                     <button
                       key={view.unit.id}
                       type="button"
+                      data-nav-item
+                      data-nav-activate
                       aria-label={`Inspect ${view.unit.name} capability unit`}
                       aria-pressed={selected}
                       aria-controls="skills-inspector"

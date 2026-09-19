@@ -92,6 +92,7 @@ export default function Projects() {
             <div
               role="button"
               tabIndex={0}
+              data-nav-item
               onClick={() => setSelectedId(null)}
               onKeyDown={(e) => {
                 if (e.key === "Enter") setSelectedId(null);
@@ -121,6 +122,8 @@ export default function Projects() {
                   key={project.id}
                   role="button"
                   tabIndex={0}
+                  data-nav-item
+                  data-nav-activate
                   onClick={() => handleSelect(project.id as ProjectId)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleSelect(project.id as ProjectId);
@@ -166,6 +169,8 @@ export default function Projects() {
                   key={project.id}
                   role="button"
                   tabIndex={0}
+                  data-nav-item
+                  data-nav-activate
                   onClick={() => handleSelect(project.id as ProjectId)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleSelect(project.id as ProjectId);

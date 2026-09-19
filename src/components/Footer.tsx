@@ -63,7 +63,7 @@ export function Footer() {
           <span>{idle ? "SYSTEM IDLE" : "SYSTEM ACTIVE"}</span>
           <span className="text-text-muted">UPTIME: {uptimeDays} DAYS</span>
           <span className="text-text-muted hidden lg:inline">
-            {"[<- -> PAGE] [UP/DOWN SECTION]"}
+            {"[<- -> ITEM] [UP/DOWN SECTION]"}
           </span>
         </div>
 

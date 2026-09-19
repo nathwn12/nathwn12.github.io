@@ -118,8 +118,9 @@ export function Hero() {
               </p>
               <p className="mt-block max-w-prose text-body-lg text-text-dim">
                 Daily AI tooling: LM Studio, OpenCode, and Codex, with
-                preferred local models Qwen 3.8, DeepSeek V4 Flash, and Qwen
-                3.5 (9B, 27B). English (professional), Filipino (native).
+                preferred local models DeepSeek V4 Flash (9B, MTP), Gemma 4
+                (26B, A4B), and Qwen 3.8 (35B, A3B). English (professional),
+                Filipino (native).
               </p>
             </div>
           </div>

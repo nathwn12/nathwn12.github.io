@@ -60,6 +60,8 @@ export function Experience() {
                   key={exp.id}
                   role="button"
                   tabIndex={0}
+                  data-nav-item
+                  data-nav-activate
                   aria-expanded={active}
                   className={`cursor-pointer border-l-[length:var(--border-width-rule)] transition-colors duration-200 ${
                     active
