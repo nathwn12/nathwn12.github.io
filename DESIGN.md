@@ -77,10 +77,10 @@ Every name below is **frozen** (§8). Values are the brutalist palette.
 | `--color-accent-2` | `#e03c00` | `#ff4d00` | **alias of accent** |
 | `--color-accent-3` | `#e03c00` | `#ff4d00` | **alias of accent** |
 | `--color-accent-4` | `#e03c00` | `#ff4d00` | **alias of accent** |
-| `--color-accent-text` | `#b02f00` | `#ff6a2b` | accent as text (≥4.5:1) |
-| `--color-accent-2-text` | `#b02f00` | `#ff6a2b` | alias of `--color-accent-text` |
-| `--color-accent-3-text` | `#b02f00` | `#ff6a2b` | alias of `--color-accent-text` |
-| `--color-accent-4-text` | `#b02f00` | `#ff6a2b` | alias of `--color-accent-text` |
+| `--color-accent-text` | `#9c2900` | `#ff6a2b` | accent as text (≥4.5:1 un-grained; grained bound §7) |
+| `--color-accent-2-text` | `#9c2900` | `#ff6a2b` | alias of `--color-accent-text` |
+| `--color-accent-3-text` | `#9c2900` | `#ff6a2b` | alias of `--color-accent-text` |
+| `--color-accent-4-text` | `#9c2900` | `#ff6a2b` | alias of `--color-accent-text` |
 | `--color-accent-glow` | `rgba(224, 60, 0, 0)` | `rgba(255, 77, 0, 0)` | **alpha 0** — glow banned (`[S1]`, `[S2] C5`, `[S3]`) |
 | `--color-grid-line` | `rgba(0, 0, 0, 0)` | `rgba(255, 255, 255, 0)` | **alpha 0** — decorative grid banned (`[S1]`) |
 | `--color-selection` | `rgba(224, 60, 0, 0.18)` | `rgba(255, 77, 0, 0.22)` | `::selection` background |
@@ -215,11 +215,13 @@ Rules:
 
 Measured with WCAG 2.1 relative-luminance math against `--color-bg` (bg),
 `--color-surface` (s), `--color-surface-2` (s2). Body threshold **4.5:1**,
-UI/graphic threshold **3:1**. Ratios below are for the pure-white light paper
-(`#ffffff` / `#f7f7f6` / `#efefee`, §2.2); the dark rows are unchanged. Every
-light ratio is higher than it was on the previous off-white ground (`#fbfbfa`
-/ `#f4f4f1` / `#ebebe7`), because white is the luminance ceiling the other
-colors are measured against.
+UI/graphic threshold **3:1**. Ratios below are **the un-grained values** — they
+assume the pure-white light paper (`#ffffff` / `#f7f7f6` / `#efefee`, §2.2)
+with §13's film grain **off** (or before it existed); the dark rows are
+unchanged. The grain-specific bound, which is the one the shipped build must
+meet, is the **addendum below**. Every light ratio is higher than it was on the
+previous off-white ground (`#fbfbfa` / `#f4f4f1` / `#ebebe7`), because white is
+the luminance ceiling the other colors are measured against.
 
 | Token | Theme | vs bg | vs s | vs s2 | Verdict |
 | --- | --- | --- | --- | --- | --- |
@@ -227,7 +229,7 @@ colors are measured against.
 | `--color-text-dim` | light | 10.91 | 10.18 | 9.48 | AAA |
 | `--color-text-muted` | light | 7.29 | 6.80 | 6.33 | AA ✓ |
 | `--color-accent` | light | 4.36 | 4.07 | 3.79 | ≥3:1 UI ✓ |
-| `--color-accent-text` | light | 6.46 | 6.02 | 5.61 | AA ✓ |
+| `--color-accent-text` | light | 7.69 | 7.18 | 6.69 | AA ✓ |
 | `--color-text` | dark | 16.84 | 15.62 | 14.37 | AAA |
 | `--color-text-dim` | dark | 11.61 | 10.79 | 9.93 | AAA |
 | `--color-text-muted` | dark | 7.61 | 7.07 | 6.51 | AA ✓ |
@@ -235,7 +237,8 @@ colors are measured against.
 | `--color-accent-text` | dark | 6.76 | 6.28 | 5.78 | AA ✓ |
 
 Every pair still clears its threshold; the move to pure white raised each light
-ratio by ~0.2–0.7 and changed no value. `--color-border` (`#c9c9c3`) is held
+ratio by ~0.2–0.7 (the light `--color-accent-text` token was separately
+darkened on 2026-09-20 — see the addendum). `--color-border` (`#c9c9c3`) is held
 unchanged deliberately: it is a separation rule, not a text or control token,
 and against the white ground its ink-vs-paper separation weight rises from
 1.61:1 to **1.66:1** vs bg (**1.55:1** against `--color-surface`, **1.45:1**
@@ -247,39 +250,72 @@ rules, and glyphs use `--color-accent*`.** The base accent is not text-safe in
 light (4.36 ÷ surface-2 3.79), which is why the split exists.
 
 **Addendum — the accepted grain lowers the effective ground (measured
-2026-09-20).** The rows above are computed against the *pure* light tokens
-(`#ffffff` / `#f7f7f6` / `#efefee`), and they must stay true for the
-**ungrain-ed** case: with §13's grain off (or before it existed) the light
-ground is exactly those values. §13's **accepted** grain composites a `multiply`
-film over the paper, so a glyph no longer sits on pure white. Measured live at
-1:1 at the accepted `--grain-opacity: 0.4`: the light page's **mean luminance is
-241.4** (an effective ground of ≈`#f1f1f1`), grain **std-dev 4.61**, and the full
-pixel **range is 215–253** — so a glyph can sit anywhere between **215** (darkest
-speckle) and **253** (brightest).
+2026-09-20; recomputed for the shipped opacity 2026-09-20).** The rows above are
+the **un-grained** case: with §13's grain off (or before it existed) the light
+paper is exactly those values, and that table stays the correct evidence for it.
+§13's **accepted** grain composites a `multiply` film over the **whole page**, so
+a glyph no longer sits on the pure token: it can sit on the **darkest grain
+speckle** of whichever surface is behind it. That is the case the shipped build
+must meet, and the earlier note that claimed every pair still cleared its
+threshold under grain was wrong.
 
-Recomputed with WCAG 2.1 relative-luminance math against those two bounds —
-**241.4** (the mean ground) and **215** (the worst-case speckle floor) — using
-each token's luminance as already implied by the rows above:
+**The grain-bound model.** Multiply darkening is linear in the grain opacity
+`α`, anchored to the 1:1 browser measurement: at `α` = **0.4** the darkest ground
+pixel on `#ffffff` was sRGB **215** (mean luminance 241.4, grain std-dev 4.61,
+range 215–253). The maximum per-channel darkening factor is therefore
 
-| Token | vs pure white (row above) | vs 241.4 mean | vs 215 floor | Verdict |
+`P(α) = (255 − 215) / 255 × α / 0.4 = 0.15686 × α / 0.4`.
+
+At the **shipped** `--grain-opacity: 0.315` this is `P = 0.12353`, so a base
+surface `Cb` is worst-cased to `Cb × (1 − P)`:
+
+| Surface | pure (un-grained) | darkest grained speckle |
+| --- | --- | --- |
+| `--color-bg` `#ffffff` | 255 | **223.5** |
+| `--color-surface` `#f7f7f6` | 247 | **216.5** |
+| `--color-surface-2` `#efefee` | 239 | **209.5** |
+
+Contrast uses the standard WCAG 2.1 relative-luminance ratio. The worst realized
+text pair is a glyph at its **full (un-darkened) value** on the darkest speckle
+of the **strictest surface it can sit on** — `--color-surface-2`, grained to
+**209.5**. Recomputed that way for every light text/accent token:
+
+| Token | vs grained bg (223.5) | vs grained s (216.5) | vs grained s2 (209.5) | Verdict |
 | --- | --- | --- | --- | --- |
-| `--color-text` (`#111110`) | 18.89 | 16.8 | 13.1 | body ✓ (≫4.5) |
-| `--color-text-dim` (`#3d3d39`) | 10.91 | 9.7 | 7.6 | body ✓ |
-| `--color-text-muted` (`#57574f`) | 7.29 | 6.5 | 5.1 | body ✓ — tightest *ink* token |
-| `--color-accent-text` (`#b02f00`) | 6.46 | 5.7 | **4.49** | body — a hair under 4.5 at the floor |
-| `--color-accent` (`#e03c00`) | 4.36 | 3.9 | **3.03** | UI ✓ (≥3:1, at the floor) |
+| `--color-text` (`#111110`) | 14.25 | 13.31 | 12.42 | body ✓ |
+| `--color-text-dim` (`#3d3d39`) | 8.23 | 7.69 | 7.17 | body ✓ |
+| `--color-text-muted` (`#57574f`) | 5.50 | 5.14 | 4.79 | body ✓ |
+| `--color-accent-text` (`#9c2900`) | 5.80 | 5.42 | 5.06 | body ✓ (darkened 2026-09-20) |
+| `--color-accent` (`#e03c00`) | 3.29 | 3.07 | **2.87** | UI ✓ ground/surface; latent on grained s2 |
 
-Every **ink** pair keeps real headroom — muted, the tightest, still holds
-**5.1:1** at the darkest speckle. The two **accent** pairs are the ones the grain
-erodes, and they are recorded honestly rather than assumed: `--color-accent-text`
-measures **5.7:1** on the mean ground but **4.49:1** at the extreme speckle
-floor, a hair under the 4.5 target, and base `--color-accent` as a UI/graphic
-mark measures **3.9:1** on the mean ground and **3.03:1** at the floor, clearing
-3:1 with no margin. These are single-pixel worst cases on a field whose *mean* is
-241.4: both pairs clear their thresholds at the mean and sit exactly on them at
-the extreme. That is the tradeoff §13 records, bounded here instead of waved
-away. The table above is unchanged — it remains the correct evidence for the
-ungrain-ed case, and this addendum is the grain-specific bound on top of it.
+**What was fixed.** Under grain the old `--color-accent-text` (`#b02f00`) measured
+**4.10:1** on grained `--color-surface` and **3.83:1** on grained
+`--color-surface-2` — a confirmed 4.5:1 miss on any panel. All four matching
+`--color-accent*-text` tokens were therefore **darkened `#b02f00 → #9c2900` on
+2026-09-20**; that darkening is **still required** at the AA-tuned grain (the old
+value would only reach 4.5:1 on grained `--color-surface-2` at `--grain-opacity`
+`0.2519`), and the new value now clears **5.06:1** on the strictest surface
+(grained `--color-surface-2`). The base `--color-accent*` tokens were **not**
+touched — they carry borders, fills, and the `:focus-visible` outline, so
+changing them would alter the identity. Instead the light **`--grain-opacity` was
+lowered `0.425 → 0.315` on 2026-09-20**, which brings the base accent to
+**3.29:1** on grained `--color-bg` and **3.07:1** on grained `--color-surface` —
+clearing the 3:1 non-text floor on the grained **ground and surface** (the accent
+status dot and the focus rings that sit on `--color-surface` chrome), and lifts
+`--color-text-muted` on grained `--color-surface-2` to **4.79:1**.
+
+**What is still open.** `--color-accent` on grained `--color-surface-2` is
+**2.87:1**, below the 3:1 non-text floor — but it is a **latent bound, not a
+realized pair**: no element puts a base-accent border, fill, or outline directly
+on `--color-surface-2`. That surface backs only transient hover/press washes and
+the expanded Projects row, all of which carry text and ink rules
+(`--color-border-accent`), never the base accent. Closing it would need
+`--grain-opacity` ≈ `0.266`, which would gut the texture, so it is left as a
+documented bound. Every **realized** light pair now clears its threshold under
+grain — `--color-text-muted` on grained `--color-surface-2` included (**4.79:1**).
+The dark tokens use the per-theme `--grain-opacity: 0.20` and expose no pair below
+threshold (their strictest realized ratios are **5.10:1** for the base accent and
+**5.94:1** for accent-text on grained `--color-surface-2`).
 
 ## 8. CONTENT CONTRACT (frozen token names)
 
@@ -450,16 +486,27 @@ review checklist and `[S1]`'s detector set.
 
 Token-layer-only scope means these are documented, not fixed here:
 
-1. `rounded-full` dots in `Header.tsx`, `Footer.tsx`, `Hero.tsx`,
-   `Experience.tsx`, `CommandTerminal.tsx`, `TerminalWindow.tsx` (via
-   `.terminal-dot`) — replace with square marks.
+1. ~~`rounded-full` dots~~ — **resolved in the restyle**: no component in
+   `src/` applies a `rounded-full` (or any `rounded-*`) class any more,
+   `TerminalWindow.tsx` and its `.terminal-dot` are deleted, and every
+   status/press mark is a 4px square (`w-quarter h-quarter`) in `Header.tsx`,
+   `Footer.tsx`, `Experience.tsx`, and `CommandTerminal.tsx`. (Tailwind still
+   emits the `rounded-full` utility because the string appears in this file; no
+   component applies it.)
 2. Per-section accent coding and the `[ERROR]` hue in `Contact.tsx` — collapse
    to ink/label-based tone (§2.3 consequence).
-3. `active:translate-*` micro-interactions in `Header.tsx`/`Footer.tsx`/
-   `Hero.tsx` — replace with colour/border state per the motion policy.
-4. `src/content/projects.ts:90-93` `TOKEN_HEX` is now dead data —
-   `Projects.tsx` no longer reads `project.color`, so the token→hex map has no
-   consumer. Deferred because content files are frozen this pass.
+3. ~~`active:translate-*` micro-interactions~~ — **already satisfied**: no
+   `translate-x`/`translate-y` class exists anywhere in `src/components`; the
+   press states are colour/opacity/border only (`active:bg-*`,
+   `active:opacity-70`, `active:border-border-accent`).
+4. `src/content/projects.ts:89-94` `TOKEN_HEX` is **live, not dead** — it is
+   evaluated at module load (lines 102 / 106) to build the `ProjectSchema`
+   projection (`color: TOKEN_HEX[project.token]`, `stats[].color`), which is
+   `safeParse`d at line 110. It is not read by `Projects.tsx` (that renders the
+   class-based tokens), so the map is load-time-only — but it *is* a running
+   consumer, and it still holds the stale Tango-era hex values, not the current
+   palette. Aligning the hex (or replacing the map with the token strings) is
+   the remaining follow-up.
 5. Framer Motion's full bundle is still in the entry chunk (~39.6 kB gz);
    migrating to `LazyMotion` + `m` is a follow-up.
 6. Google Fonts CSS is render-blocking (pre-existing at baseline).
@@ -490,9 +537,11 @@ self-contained inline `feTurbulence` SVGs (`type="fractalNoise"`,
 differing only in `seed` — 7 / 41 / 113) as `background-image` data-URIs,
 repeated, composited with **`mix-blend-mode: multiply`**, no JS, no asset, no
 dependency. Its intensity is the additive temporary token
-**`--grain-opacity`** — **`0.4` light (`:root`), `0.20` dark**
-(`html[data-theme="dark"]`), the **operator-accepted tuning** recorded below (the
-light value was raised `0.16 → 0.4` after the 1:1 measurement; dark is unchanged
+**`--grain-opacity`** — **`0.315` light (`:root`), `0.20` dark**
+(`html[data-theme="dark"]`), the **AA-tuned** operator-accepted tuning recorded
+below (the light value was raised `0.16 → 0.4 → 0.425` for the 1:1 measurement
+and acceptance, then **lowered `0.425 → 0.315` on 2026-09-20** for the §7 AA
+tune; dark is unchanged
 from the 2026-09-20 revert). `--grain-opacity: 0` remains the single kill
 switch, and it now stops the paint **and** the frames: the animation's duration
 is derived from the same token, so `0` collapses it — `calc(0 / 0 * 0.3s)` is
@@ -505,7 +554,7 @@ layer renders nothing to blend and nothing animates.
 **Two tuning knobs — strength and grain size.** The effect is tuned by exactly
 two additive temporary tokens, and they are independent:
 
-- **`--grain-opacity`** — *strength*, per theme (light `:root` **`0.4`**, dark
+- **`--grain-opacity`** — *strength*, per theme (light `:root` **`0.315`**, dark
   `html[data-theme="dark"]` `0.20`) and therefore the average-luminance cost,
   since `multiply` darkens in proportion to it. `0` remains the kill switch
   (above). Its comment in `src/index.css` owns strength only.
@@ -621,13 +670,13 @@ clips: `b·s ∈ [0, 1]` for every backdrop and noise sample.
 
 **Why the earlier "invisible" reading is not trustworthy.** The evidence that led to coarsening came from sampling the ~1px grain on a **2-pixel stride**, which aliases against features at or below the sampling period: it understated the true pixel-to-pixel variation of the fine field. The real variation at `0.85` is therefore not the `~0.9` std-dev the 2px sample reported, which means opacity is the **honest lever** the fine grain always had. The exact std-dev and mean-luminance drop at `0.16` / `0.20` were re-measured by the lead **at 1:1 (one sample per device pixel)** rather than by strided sampling; that measurement is recorded in the accepted-tuning paragraphs below, and the change recorded *here* is only the `baseFrequency` restore and the two opacity values.
 
-The **honest cost at the reverted `0.16`** — superseded by the accepted `0.4` recorded below: `multiply` darkens in proportion to the opacity, so the uniform average-luminance drop on white rises with it — roughly **2% at `0.16`** against the **0.9% measured at `0.07`**. At that value the paper stays essentially pure white (the shift is a fraction of one percent of the ground, with no cast — §2's hue is untouched), but the drop is real and is recorded here rather than waved away. At the accepted `0.4` the drop is no longer a fraction of a percent (see below). The dark token rises `0.10 → 0.20` on the same reasoning and stays deliberately low because multiply darkens the near-black ink ground too. **Nothing else changed** in the revert: same three frames, same `seed`s (7 / 41 / 113), same `type="fractalNoise"`, same `numOctaves="3"`, same `stitchTiles="stitch"`, same 160px tile, same `background-repeat: repeat`, same `steps(1, end)` 3-frame 0.3s loop, same `multiply`, same `lite`/`full` `data-perf` throttle, same `--grain-opacity: 0` kill switch. The filter region stays pinned to exactly the tile, which is what keeps the stitch seamless.
+The **honest cost at the reverted `0.16`** — superseded by the accepted `0.4 → 0.425` recorded below (since lowered to the AA-tuned `0.315`): `multiply` darkens in proportion to the opacity, so the uniform average-luminance drop on white rises with it — roughly **2% at `0.16`** against the **0.9% measured at `0.07`**. At that value the paper stays essentially pure white (the shift is a fraction of one percent of the ground, with no cast — §2's hue is untouched), but the drop is real and is recorded here rather than waved away. At the accepted `0.425` the drop was no longer a fraction of a percent (see below); the shipped `0.315` trades a little of that back for AA margin. The dark token rises `0.10 → 0.20` on the same reasoning and stays deliberately low because multiply darkens the near-black ink ground too. **Nothing else changed** in the revert: same three frames, same `seed`s (7 / 41 / 113), same `type="fractalNoise"`, same `numOctaves="3"`, same `stitchTiles="stitch"`, same 160px tile, same `background-repeat: repeat`, same `steps(1, end)` 3-frame 0.3s loop, same `multiply`, same `lite`/`full` `data-perf` throttle, same `--grain-opacity: 0` kill switch. The filter region stays pinned to exactly the tile, which is what keeps the stitch seamless.
 
-**2026-09-20 — measured at 1:1, then ACCEPTED by the operator.** The reverted fine field (`baseFrequency="0.85"`, ~1.2px features) was re-measured **at 1:1, one sample per device pixel** — the sampling the 2px stride above could not be trusted for — and the visibility lever moved to the **opacity alone**: light **`0.16 → 0.4`**, dark **`0.20` unchanged**. The operator evaluated that result and **accepted this tuning**. Measured live on the light paper at `--grain-opacity: 0.4`: paper **mean luminance 241.4**, grain **standard deviation 4.61**, pixel **range 215–253** — an effective ground of about **`#f1f1f1`**. For comparison, the pre-acceptance `0.16` measured mean **249.65** and SD **1.85**: the accepted value is a materially stronger field, which is the entire point of the raise. `--grain-scale: 1` was confirmed in the same pass — the computed `background-size` is **`160px auto`**, the documented default and a visual no-op (the knob exists; the accepted tuning does not use it). The accepted grain is **fine and sharp**, not coarse: the rejected `0.3` recipe stays rejected.
+**2026-09-20 — measured at 1:1, then ACCEPTED by the operator.** The reverted fine field (`baseFrequency="0.85"`, ~1.2px features) was re-measured **at 1:1, one sample per device pixel** — the sampling the 2px stride above could not be trusted for — and the visibility lever moved to the **opacity alone**: light **`0.16 → 0.4 → 0.425`**, dark **`0.20` unchanged**. The operator evaluated that result and **accepted this tuning**. Measured live on the light paper at `--grain-opacity: 0.4`: paper **mean luminance 241.4**, grain **standard deviation 4.61**, pixel **range 215–253** — an effective ground of about **`#f1f1f1`**. The token accepted here was **`0.425`** (one further nudge above the measured `0.4`); it was subsequently **lowered to the shipped `0.315`** on 2026-09-20 for the §7 AA tune. §7's addendum extends this measurement to the shipped value — see it for the derived darkest ground pixel (**223.5**) and the grained contrast bound. For comparison, the pre-acceptance `0.16` measured mean **249.65** and SD **1.85**: the accepted value is a materially stronger field, which is the entire point of the raise. `--grain-scale: 1` was confirmed in the same pass — the computed `background-size` is **`160px auto`**, the documented default and a visual no-op (the knob exists; the accepted tuning does not use it). The accepted grain is **fine and sharp**, not coarse: the rejected `0.3` recipe stays rejected.
 
-**The accepted tradeoff, stated plainly.** At `0.4` the paper is **no longer essentially pure white**: the grain is visible and the ground is correspondingly darker — ≈`#f1f1f1` (mean luminance **241.4**, roughly 5% below `255` in 8-bit ground value, with speckle reaching **215**). That is the **chosen, accepted tradeoff** — visibility bought with ground luminance — not an oversight, and §7 carries a measured addendum that bounds the darker ground: the ink pairs keep real headroom and the two accent pairs sit on their thresholds at the extreme speckle.
+**The accepted tradeoff, stated plainly.** At the accepted `0.425` (now shipped `0.315`) the paper is **no longer essentially pure white**: the grain is visible and the ground is correspondingly darker — ≈`#f1f1f1` (mean luminance **241.4**, roughly 5% below `255` in 8-bit ground value, with speckle reaching **215** at the measured `0.4` — **212.5** at the accepted `0.425`, **223.5** at the shipped `0.315`). That is the **chosen, accepted tradeoff** — visibility bought with ground luminance — not an oversight, and §7 carries a measured addendum that bounds the darker ground under the shipped opacity: the four `--color-accent*-text` tokens were darkened and the opacity was lowered `0.425 → 0.315`, which brings every realized pair over its floor; the only residual is the latent base-accent-on-`--color-surface-2` bound (all recorded there).
 
-**The accepted tuning, complete.** Light **`0.4`**, dark **`0.20`**, `--grain-scale` **`1`**. Everything else is unchanged: the three frames, the `seed`s (7 / 41 / 113), `baseFrequency="0.85"`, `numOctaves="3"`, `stitchTiles="stitch"`, the 160px tile, `background-repeat: repeat`, the 3-frame `steps(1, end)` 0.3s loop, `multiply`, the `lite` / `full` `data-perf` throttle (≈10 fps full, ≈3 fps lite), and the `--grain-opacity: 0` kill switch.
+**The accepted tuning, complete.** Light **`0.315`** (AA-tuned down from the accepted `0.425`), dark **`0.20`**, `--grain-scale` **`1`**. Everything else is unchanged: the three frames, the `seed`s (7 / 41 / 113), `baseFrequency="0.85"`, `numOctaves="3"`, `stitchTiles="stitch"`, the 160px tile, `background-repeat: repeat`, the 3-frame `steps(1, end)` 0.3s loop, `multiply`, the `lite` / `full` `data-perf` throttle (≈10 fps full, ≈3 fps lite), and the `--grain-opacity: 0` kill switch.
 
 **Why it is not slop.** The banned-pattern catalogs target decoration reached
 for without reason, and specifically decoration standing in for hierarchy
@@ -675,7 +724,7 @@ measurement recorded above: that film is a no-op on the pure-white ground.
 
 **Status: tuning ACCEPTED; the system decision is still operator-pending.** The
 **tuning is settled** — the operator evaluated the 1:1 measurements recorded
-above and accepted **`--grain-opacity: 0.4` light / `0.20` dark** with
+above and accepted **`--grain-opacity: 0.315` light / `0.20` dark** (accepted at `0.425`, lowered for AA) with
 **`--grain-scale: 1`**. What remains pending is the *keep / drop* decision on the
 effect itself: §13 keeps its TEMP framing, is not promoted, and the section
 header and opening note above still stand unchanged. If kept, one further

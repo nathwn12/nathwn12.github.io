@@ -185,9 +185,11 @@ afterEach(() => {
     attachedListeners.pop()?.();
   }
   document.body.replaceChildren();
-  // Release the per-element activeElement shim and any unconsumed handoff.
+  // Release the per-element activeElement shim, any unconsumed handoff, and
+  // the URL (the boundary tests move it, and the handler reads the real path).
   Reflect.deleteProperty(document, "activeElement");
   consumePendingStepFocus();
+  window.history.replaceState(null, "", "/");
 });
 
 describe("keyboard nav guard (C3)", () => {
@@ -538,6 +540,8 @@ describe("item tour (←/→ steps over [data-nav-item])", () => {
   });
 
   it("← before the first stop routes back, handing a pending step to the previous page", () => {
+    // Mid-route: "/" is the FIRST route, where ← is a boundary no-op (below).
+    window.history.replaceState(null, "", "/experience");
     const handler = attachHandler();
     const a = makeNavItem();
     a.el.focus();
@@ -558,6 +562,32 @@ describe("item tour (←/→ steps over [data-nav-item])", () => {
     expect(ev.defaultPrevented).toBe(true);
     expect(handler.goNext).toHaveBeenCalledTimes(1);
     expect(consumePendingStepFocus()).toBe(1);
+    handler.detach();
+  });
+
+  it("→ on the last route is a boundary no-op: no pending handoff is armed", () => {
+    window.history.replaceState(null, "", "/contact");
+    const handler = attachHandler();
+    const button = document.createElement("button");
+    document.body.appendChild(button);
+
+    const ev = press("ArrowRight", button);
+    expect(ev.defaultPrevented).toBe(true);
+    // There is no adjacent page, so nothing may be handed to the next mount:
+    // a stale pending focus would be consumed by the NEXT unrelated route
+    // change and land focus on its first stop instead of the #main baseline.
+    expect(consumePendingStepFocus()).toBeNull();
+    handler.detach();
+  });
+
+  it("← on the first route is a boundary no-op: no pending handoff is armed", () => {
+    window.history.replaceState(null, "", "/");
+    const handler = attachHandler();
+    const button = document.createElement("button");
+    document.body.appendChild(button);
+
+    press("ArrowLeft", button);
+    expect(consumePendingStepFocus()).toBeNull();
     handler.detach();
   });
 
