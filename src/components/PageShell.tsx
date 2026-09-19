@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, type ReactNode } from 
 import { motion, type Variants } from "framer-motion";
 import { emitPageScroll, type PageScrollState } from "../lib/pageScroll";
 import { applyRouteMeta, type RouteDef, type RouteDirection } from "../lib/router";
-import { consumePendingStepFocus, navItems } from "../lib/keyboardNav";
+import { consumePendingStepFocus, landOnNavItem, navItems } from "../lib/keyboardNav";
 
 interface PageShellProps {
   route: RouteDef;
@@ -34,6 +34,10 @@ export function PageShell({ route, direction, children }: PageShellProps) {
   /** Pending ←/→ step handoff for THIS mount: `undefined` = not read yet,
       `null` = none. Read once (see the keyed mount effect). */
   const pendingStepRef = useRef<1 | -1 | null | undefined>(undefined);
+  /** True once the handoff has landed on a stop (see the keyed mount effect:
+      StrictMode double-invokes it, and a second landing both re-focuses and
+      dispatches a second click, toggling the reveal closed). */
+  const stepLandedRef = useRef(false);
 
   /* The header is `fixed`, so it is out of flow and this scroller must
      reserve its height. That height is not a constant — zoom, large fonts,
@@ -80,19 +84,27 @@ export function PageShell({ route, direction, children }: PageShellProps) {
     }
     const pending = pendingStepRef.current;
 
+    /* StrictMode double-invokes this effect (dev). The handoff may land only
+       once: a second pass would re-focus the stop and dispatch a second click
+       (toggling closed what the first reveal opened), and re-running the
+       #main baseline would steal focus back from it. */
+    if (stepLandedRef.current) return;
+
     /* Baseline: the fresh page container owns focus... */
     focusMain();
     if (pending === null) return;
 
     /* ...unless a step is pending, in which case the tour's destination end
        WINS: step focus is applied after the baseline (and re-applied on a
-       retry frame), so the two never race. */
+       retry frame), so the two never race. Landing goes through the SAME rule
+       as an in-page step (landOnNavItem) — a stop marked [data-nav-activate]
+       is revealed here too, or ← back out of it would be the only way to see
+       its content. */
     const focusStepEnd = (): boolean => {
       const items = navItems();
       if (items.length === 0) return false;
-      const target = pending === 1 ? items[0] : items[items.length - 1];
-      target.focus();
-      target.scrollIntoView({ block: "center", behavior: "smooth" });
+      landOnNavItem(pending === 1 ? items[0] : items[items.length - 1]);
+      stepLandedRef.current = true;
       return true;
     };
 
