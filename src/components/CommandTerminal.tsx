@@ -90,7 +90,8 @@ function isValidTheme(value: string): value is TerminalTheme {
 /* Window chrome marks: three 4px ink squares — radius 0 (§5), no accent fill
    (§2.3). The old circular traffic-light dots collapsed to one hue (accent-2/3/4
    are aliases of accent) and spent the screen's whole accent budget on chrome.
-   Same marks as TerminalWindow so the two panels read as one system. */
+   The only window chrome left in the app — TerminalWindow was deleted in the
+   brutalist restyle. */
 const WINDOW_MARKS = ["close", "minimize", "maximize"] as const;
 
 export function CommandTerminal() {
