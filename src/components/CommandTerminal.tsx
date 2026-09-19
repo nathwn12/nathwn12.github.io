@@ -87,6 +87,12 @@ function isValidTheme(value: string): value is TerminalTheme {
   return value === "dark" || value === "light";
 }
 
+/* Window chrome marks: three 4px ink squares — radius 0 (§5), no accent fill
+   (§2.3). The old circular traffic-light dots collapsed to one hue (accent-2/3/4
+   are aliases of accent) and spent the screen's whole accent budget on chrome.
+   Same marks as TerminalWindow so the two panels read as one system. */
+const WINDOW_MARKS = ["close", "minimize", "maximize"] as const;
+
 export function CommandTerminal() {
   const [visible, setVisible] = useState(false);
   const [lines, setLines] = useState<Line[]>([]);
@@ -356,14 +362,18 @@ export function CommandTerminal() {
           animate={{ y: 0 }}
           exit={{ y: "100%" }}
           transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed bottom-0 left-0 right-0 z-[9999] h-[45dvh] md:h-[40dvh] bg-bg border-t border-border-accent shadow-2xl font-mono flex flex-col"
+          className="fixed bottom-0 left-0 right-0 z-[9999] h-[45dvh] md:h-[40dvh] bg-bg border-t border-border-accent font-mono flex flex-col"
         >
-          <div className="flex items-center justify-between px-4 py-1 border-b border-border shrink-0 bg-surface/80">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-accent-3" />
-              <span className="w-2.5 h-2.5 rounded-full bg-accent-2" />
-              <span className="w-2.5 h-2.5 rounded-full bg-accent" />
-              <span className="text-[10px] tracking-[0.3em] text-text-muted uppercase ml-2 select-none">
+          <div className="flex items-center justify-between px-gutter py-half border-b border-border shrink-0 bg-surface">
+            <div className="flex items-center gap-quarter">
+              {WINDOW_MARKS.map((mark) => (
+                <span
+                  key={mark}
+                  aria-hidden="true"
+                  className="w-quarter h-quarter bg-border-accent"
+                />
+              ))}
+              <span className="text-micro tracking-[0.3em] text-text-muted uppercase ml-half select-none">
                 COMMAND TERMINAL
               </span>
             </div>
@@ -372,7 +382,7 @@ export function CommandTerminal() {
                 visibleRef.current = false;
                 setVisible(false);
               }}
-              className="text-text-dim hover:text-text transition-colors text-xs tracking-widest cursor-pointer"
+              className="text-label text-text-dim border border-border px-half py-quarter hover:text-text hover:border-border-accent active:bg-surface-2 transition-colors cursor-pointer"
               aria-label="Close terminal"
             >
               [×]
@@ -383,14 +393,14 @@ export function CommandTerminal() {
             ref={containerRef}
             tabIndex={0}
             aria-label="Terminal output"
-            className="flex-1 overflow-y-auto px-4 py-2 text-xs leading-relaxed"
+            className="flex-1 overflow-y-auto px-gutter py-half text-body"
           >
             {lines.map((line) => (
               <div
                 key={line.id}
                 className={`whitespace-pre-wrap ${
                   line.type === "input"
-                    ? "text-accent-text"
+                    ? "text-text-dim"
                     : line.type === "system"
                       ? "text-text-muted"
                       : "text-text"
@@ -401,8 +411,13 @@ export function CommandTerminal() {
             ))}
           </div>
 
-          <div className="px-4 py-2 border-t border-border shrink-0 bg-surface/80 flex items-center gap-2">
-            <span className="text-accent-text text-xs shrink-0 select-none">$</span>
+          <div className="px-gutter py-half border-t border-border shrink-0 bg-surface flex items-center gap-half">
+            <span
+              aria-hidden="true"
+              className="text-body text-accent-text shrink-0 select-none"
+            >
+              $
+            </span>
             <input
               ref={inputRef}
               type="text"
@@ -410,13 +425,22 @@ export function CommandTerminal() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="type 'help'..."
-              className="flex-1 bg-transparent text-xs text-text outline-none placeholder-text-muted"
+              className="flex-1 bg-transparent text-body text-text placeholder-text-muted"
               spellCheck={false}
               autoComplete="off"
             />
-            <span className="text-accent-text text-xs animate-pulse select-none">
-              █
-            </span>
+            {/* The one caret: it sits on the live input line (the only place a
+                person can type) and collapses under prefers-reduced-motion via
+                `.terminal-cursor`. It is suppressed once there is text, because
+                the native input caret is already blinking there. */}
+            {input === "" && (
+              <span
+                aria-hidden="true"
+                className="terminal-cursor text-accent-text text-body shrink-0 select-none"
+              >
+                █
+              </span>
+            )}
           </div>
         </motion.div>
       )}

@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, type ReactNode } from "react";
-import { motion, type Variants } from "framer-motion";
+import { useCallback, useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
+import { motion, useReducedMotion, type Variants } from "framer-motion";
 import { emitPageScroll, type PageScrollState } from "../lib/pageScroll";
 import { applyRouteMeta, type RouteDef, type RouteDirection } from "../lib/router";
 
@@ -25,6 +25,28 @@ export function PageShell({ route, direction, children }: PageShellProps) {
   const lastY = useRef(0);
   const lastTime = useRef(0);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  /* The header is `fixed`, so it is out of flow and this scroller must
+     reserve its height. That height is not a constant — zoom, large fonts,
+     and the opening mobile menu all change it — so measure it live instead
+     of hard-coding a magic offset that content can slide under. Runs in a
+     layout effect so the reserved space exists before the first paint. */
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    const header = document.querySelector("header");
+    if (!el || !header) return;
+    const measure = () => {
+      el.style.setProperty(
+        "--page-header-offset",
+        `${Math.ceil(header.getBoundingClientRect().height)}px`,
+      );
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
 
   /* Keyed remount — always start the page at its top. Runs when the NEW
      page is actually mounted (AnimatePresence mode="wait"), so this is also
@@ -76,25 +98,38 @@ export function PageShell({ route, direction, children }: PageShellProps) {
     });
   }, []);
 
-  const variants: Variants = {
-    enter: (dir: RouteDirection) => ({
-      opacity: 0,
-      y: dir === "back" ? -28 : 28,
-    }),
-    center: {
-      opacity: [0, 1, 0.35, 1],
-      y: 0,
-      transition: {
-        opacity: { duration: 0.3, times: [0, 0.25, 0.5, 1], ease: "easeOut" },
-        y: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
-      },
-    },
-    exit: {
-      opacity: 0,
-      y: -36,
-      transition: { duration: 0.18, ease: "easeIn" },
-    },
-  };
+  const reduceMotion = useReducedMotion() ?? false;
+
+  /* Reduced motion is a hard requirement (DESIGN.md §10): the page must render
+     statically. `MotionConfig reducedMotion="user"` only drops transform/layout
+     animation, so the CRT opacity keyframes, the scanline, and the typed-`cd`
+     overlay are gated here. Content is never gated on an animation finishing —
+     the reduced-motion variants start (and stay) fully visible. */
+  const variants: Variants = reduceMotion
+    ? {
+        enter: { opacity: 1, y: 0 },
+        center: { opacity: 1, y: 0, transition: { duration: 0 } },
+        exit: { opacity: 1, y: 0, transition: { duration: 0 } },
+      }
+    : {
+        enter: (dir: RouteDirection) => ({
+          opacity: 0,
+          y: dir === "back" ? -28 : 28,
+        }),
+        center: {
+          opacity: [0, 1, 0.35, 1],
+          y: 0,
+          transition: {
+            opacity: { duration: 0.3, times: [0, 0.25, 0.5, 1], ease: "easeOut" },
+            y: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
+          },
+        },
+        exit: {
+          opacity: 0,
+          y: -36,
+          transition: { duration: 0.18, ease: "easeIn" },
+        },
+      };
 
   const cdPath = route.path === "/" ? "~" : route.path;
 
@@ -107,42 +142,46 @@ export function PageShell({ route, direction, children }: PageShellProps) {
       animate="center"
       exit="exit"
       onScroll={handleScroll}
-      className="page-scroll relative h-screen h-[100dvh] overflow-y-auto overflow-x-hidden pt-[88px] pb-8 bg-transparent"
+      className="page-scroll relative h-screen h-[100dvh] overflow-y-auto overflow-x-hidden pt-[var(--page-header-offset,0px)] pb-8 bg-transparent"
     >
-      {/* Cursor-typed destination line, drawn while the page boots in */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 1, 1, 0] }}
-        transition={{ opacity: { duration: 0.55, times: [0, 0.1, 0.75, 1] } }}
-        className="pointer-events-none select-none absolute top-[104px] left-4 lg:left-8 z-20 flex items-center gap-2 text-xs font-mono"
-        aria-hidden="true"
-      >
-        <span className="text-accent-text">$</span>
-        <span className="overflow-hidden whitespace-nowrap text-text-dim">
-          <motion.span
-            className="inline-block whitespace-nowrap overflow-hidden align-bottom"
-            initial={{ width: 0 }}
-            animate={{ width: "100%" }}
-            transition={{ duration: 0.22, delay: 0.03, ease: "linear" }}
-          >
-            cd {cdPath}
-          </motion.span>
-        </span>
-        <span className="terminal-cursor text-accent-text font-bold">█</span>
-      </motion.div>
+      {/* Cursor-typed destination line, drawn while the page boots in.
+          Absent under reduced motion (DESIGN.md §10). */}
+      {!reduceMotion && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: [0, 1, 1, 0] }}
+          transition={{ opacity: { duration: 0.55, times: [0, 0.1, 0.75, 1] } }}
+          className="pointer-events-none select-none absolute top-[calc(var(--page-header-offset,0px)+1rem)] left-gutter lg:left-block z-20 flex items-center gap-2 text-body font-mono"
+          aria-hidden="true"
+        >
+          <span className="text-accent-text">$</span>
+          <span className="overflow-hidden whitespace-nowrap text-text-dim">
+            <motion.span
+              className="inline-block whitespace-nowrap overflow-hidden align-bottom"
+              initial={{ width: 0 }}
+              animate={{ width: "100%" }}
+              transition={{ duration: 0.22, delay: 0.03, ease: "linear" }}
+            >
+              cd {cdPath}
+            </motion.span>
+          </span>
+        </motion.div>
+      )}
 
-      {/* CRT scanline sweep on entry */}
-      <motion.div
-        initial={{ top: "-18%" }}
-        animate={{ top: "112%" }}
-        transition={{ duration: 0.26, delay: 0.02, ease: "linear" }}
-        className="pointer-events-none absolute inset-x-0 h-20 z-10 opacity-40"
-        style={{
-          background:
-            "linear-gradient(to bottom, transparent, color-mix(in srgb, var(--color-text) 5%, transparent) 40%, color-mix(in srgb, var(--color-text) 12%, transparent) 50%, color-mix(in srgb, var(--color-text) 5%, transparent) 60%, transparent)",
-        }}
-        aria-hidden="true"
-      />
+      {/* CRT scanline sweep on entry — absent under reduced motion (§10). */}
+      {!reduceMotion && (
+        <motion.div
+          initial={{ top: "-18%" }}
+          animate={{ top: "112%" }}
+          transition={{ duration: 0.26, delay: 0.02, ease: "linear" }}
+          className="pointer-events-none absolute inset-x-0 h-20 z-10 opacity-40"
+          style={{
+            background:
+              "linear-gradient(to bottom, transparent, color-mix(in srgb, var(--color-text) 5%, transparent) 40%, color-mix(in srgb, var(--color-text) 12%, transparent) 50%, color-mix(in srgb, var(--color-text) 5%, transparent) 60%, transparent)",
+          }}
+          aria-hidden="true"
+        />
+      )}
 
       <div className="relative z-10 min-h-full flex flex-col">{children}</div>
     </motion.div>

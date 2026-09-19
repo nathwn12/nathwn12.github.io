@@ -1,4 +1,3 @@
-import { motion } from "framer-motion";
 import { usePageScroll } from "../lib/pageScroll";
 import { navigate } from "../lib/router";
 import { CONTACT_EMAIL } from "../lib/contact";
@@ -33,10 +32,10 @@ export function Footer() {
   const clockStr = now.toLocaleTimeString("en-US", { hour12: false });
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-50 h-8 border-t border-border-accent bg-surface/95 backdrop-blur-sm font-mono text-[10px] tracking-wider text-text-dim select-none">
-      <div className="h-full max-w-7xl mx-auto px-3 flex items-center justify-between gap-4 overflow-hidden">
-        <div className="flex items-center gap-3 shrink-0">
-          <span aria-hidden="true" className="text-accent-text">
+    <footer className="fixed bottom-0 left-0 right-0 z-50 h-8 border-t border-border-accent bg-surface font-mono text-micro tracking-wider text-text-dim select-none">
+      <div className="h-full max-w-7xl mx-auto px-gutter flex items-center justify-between gap-gutter overflow-hidden">
+        <div className="flex items-center gap-half shrink-0">
+          <span aria-hidden="true" className="text-text-muted">
             [0]
           </span>
           <span className="text-text-muted hidden sm:inline">~/nathwn12</span>
@@ -46,20 +45,19 @@ export function Footer() {
           >
             |
           </span>
-          <motion.button
+          <button
             onClick={() => navigate("/")}
-            whileHover={{ x: 4 }}
-            whileTap={{ scale: 0.95 }}
-            className="text-text-dim hover:text-accent-text transition-colors cursor-pointer"
+            className="text-label text-text-dim hover:text-text active:text-text transition-colors duration-150 cursor-pointer"
           >
             $ cd ~/home
-          </motion.button>
+          </button>
         </div>
 
-        <div className="items-center gap-3 hidden md:flex shrink-0">
+        <div className="items-center gap-half hidden md:flex shrink-0">
           <span
-            className={`w-1.5 h-1.5 rounded-full inline-block transition-colors duration-300 ${
-              idle ? "bg-accent" : "bg-accent-3"
+            aria-hidden="true"
+            className={`w-quarter h-quarter inline-block transition-colors duration-150 ${
+              idle ? "bg-text-muted" : "bg-accent"
             }`}
           />
           <span>{idle ? "SYSTEM IDLE" : "SYSTEM ACTIVE"}</span>
@@ -69,12 +67,12 @@ export function Footer() {
           </span>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-half shrink-0">
           <button
             onClick={() =>
               window.dispatchEvent(new CustomEvent("toggle-terminal"))
             }
-            className="text-text-dim hover:text-accent-text transition-all duration-300 cursor-pointer hover:translate-x-[4px] active:translate-y-px"
+            className="text-label text-text-dim hover:text-text active:text-text transition-colors duration-150 cursor-pointer"
             title="Toggle command terminal (Ctrl+K)"
           >
             &gt;_ TERMINAL
@@ -85,11 +83,11 @@ export function Footer() {
           >
             |
           </span>
-          <div className="items-center gap-3 hidden sm:flex">
+          <div className="items-center gap-half hidden sm:flex">
             <span className="tabular-nums">{clockStr}</span>
             <span
               aria-hidden="true"
-              className="terminal-cursor text-accent-text select-none"
+              className="text-text-muted select-none"
             >
               █
             </span>
@@ -97,7 +95,7 @@ export function Footer() {
               href="https://github.com/nathwn12"
               target="_blank"
               rel="noopener noreferrer"
-              className="hover:text-accent-text transition-all duration-300 hover:translate-x-[4px] active:translate-x-[2px]"
+              className="text-label hover:text-text active:text-text transition-colors duration-150"
             >
               github
             </a>
@@ -105,13 +103,13 @@ export function Footer() {
               href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/"
               target="_blank"
               rel="noopener noreferrer"
-              className="hidden lg:inline hover:text-accent-2-text transition-all duration-300 hover:translate-x-[4px] active:translate-x-[2px]"
+              className="hidden lg:inline text-label hover:text-text active:text-text transition-colors duration-150"
             >
               linkedin
             </a>
             <a
               href={`mailto:${CONTACT_EMAIL}`}
-              className="hidden xl:inline hover:text-accent-2-text transition-all duration-300 hover:translate-x-[4px] active:translate-x-[2px]"
+              className="hidden xl:inline text-label hover:text-text active:text-text transition-colors duration-150"
             >
               email
             </a>

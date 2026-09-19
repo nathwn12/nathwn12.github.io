@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { CONTACT_EMAIL, validateContact } from "../lib/contact";
 import { credentials } from "../content/credentials";
@@ -18,16 +18,39 @@ const STATUS_CHIP: Record<
   error: { label: "[ERROR]", tone: "text-accent-3-text" },
 };
 
+/* Typed panel lookup. `--color-accent-2/3/4` alias the single accent (§2.2), so
+   these tones collapse to one hue — the map survives as the lookup the panel
+   derives from (tests/contact-status.test.ts pins the literals), while PANEL_INK
+   below carries the state treatment that actually distinguishes the two. */
 const STATUS_PANEL: Record<FormStatus["type"], string> = {
   pending: "border-text-muted text-text-dim bg-text/5",
   success: "border-accent text-accent-text bg-accent/5",
   error: "border-accent-3 text-accent-3-text bg-accent-3/5",
 };
 
+/* Hue-free state treatment, applied after STATUS_PANEL and `!`-marked so it wins
+   on the colour-bearing properties. Tone is structure, not colour (§2.3):
+   success is a hairline ink box; error is an inverted ink/paper block on the
+   `--border-width-rule` rule — never "a different colour". */
+const PANEL_INK: Record<FormStatus["type"], string> = {
+  pending: "",
+  success: "border-border! text-text! bg-transparent!",
+  error:
+    "border-text! text-bg! bg-text! border-[length:var(--border-width-rule)]!",
+};
+
+/* Field labels: the `$ read -p "…"` prompt convention, at label size with the
+   label treatment reserved for short categorical text (no wide tracking on
+   body copy, DESIGN.md §3/§9). */
+const LABEL = "flex items-center gap-half text-label text-text-muted mb-half";
+const FIELD =
+  "w-full bg-bg border border-border-accent px-gutter py-half text-body text-text font-mono outline-none focus:border-text transition-colors duration-200 placeholder:text-text-muted";
+
 export function Contact() {
   const [formStatus, setFormStatus] = useState<FormStatus | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const statusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reduceMotion = useReducedMotion();
 
   useEffect(() => {
     return () => {
@@ -116,152 +139,88 @@ export function Contact() {
   const chip = STATUS_CHIP[formStatus?.type ?? "idle"];
 
   return (
-    <section
-      id="contact"
-      className="py-8 md:py-12 px-4 lg:px-8 relative overflow-hidden"
-    >
-      <div
-        className="section-ambient"
-        style={{
-          background: `
-            radial-gradient(ellipse at 50% 50%, color-mix(in srgb, var(--color-accent) 7%, transparent) 0%, color-mix(in srgb, var(--color-accent) 2%, transparent) 40%, transparent 65%),
-            radial-gradient(ellipse at 80% 20%, color-mix(in srgb, var(--color-accent-2) 3%, transparent) 0%, transparent 50%)
-          `,
-        }}
-      />
+    <section id="contact" className="py-block md:py-section px-gutter">
       <div className="max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.35 }}
-          className="flex items-center gap-4 mb-12"
-        >
-          <span className="text-accent-2-text text-sm">$</span>
-          <span className="text-xs tracking-[0.4em] text-text-dim">
-            mutt -f inbox
-          </span>
-          <div className="flex-1 h-[1px] bg-border" />
-        </motion.div>
+        <div className="flex items-center gap-gutter mb-section">
+          <span className="text-accent-text text-body-lg">$</span>
+          <span className="text-label text-text-dim">mutt -f inbox</span>
+          <div className="flex-1 h-px bg-border" />
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.4 }}
-          className="mb-16"
-        >
-          <h2 className="text-3xl md:text-6xl font-bold tracking-tight leading-tight">
+        <div className="mb-section">
+          <h2 className="text-headline md:text-display font-bold">
             <span className="text-text-dim">LET'S BUILD</span>
             <br />
-            <span className="text-text">SOMETHING </span>
-            <span className="text-accent-text">GREAT</span>
-            <span className="font-bold text-accent-text">_</span>
+            <span className="text-text">SOMETHING GREAT_</span>
           </h2>
-        </motion.div>
+        </div>
 
-        {/* Address book / contact cards */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.12, duration: 0.35 }}
-          className="mb-6"
-        >
-          <div className="grid md:grid-cols-2 gap-4">
-            <motion.div
-              whileHover={{
-                borderColor:
-                  "color-mix(in srgb, var(--color-accent) 25%, transparent)",
-              }}
-              whileTap={{ scale: 0.99 }}
-              className="border border-border-accent bg-surface p-4 md:p-6 transition-colors duration-300"
+        {/* Address book — one rule-separated table, not three equal cards.
+            Related rows sit at `--spacing-half`; the groups part at
+            `--spacing-block` (DESIGN.md §4). */}
+        <div className="mb-block border-t border-border-accent">
+          <div className="flex flex-col gap-quarter border-b border-border py-half sm:flex-row sm:items-baseline sm:gap-gutter">
+            <span className="w-28 shrink-0 text-micro uppercase tracking-[0.2em] text-text-muted">
+              [EMAIL]
+            </span>
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className="text-body-lg font-bold text-text break-all hover:underline"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-[10px] tracking-widest text-accent-text">
-                  [EMAIL]
-                </span>
-              </div>
-              <a
-                href={`mailto:${CONTACT_EMAIL}`}
-                className="text-sm md:text-lg font-bold text-text hover:text-accent-text transition-colors duration-300 block break-all"
-              >
-                {CONTACT_EMAIL}
-              </a>
-            </motion.div>
-
-            <motion.div
-              whileHover={{
-                borderColor:
-                  "color-mix(in srgb, var(--color-accent-2) 25%, transparent)",
-              }}
-              whileTap={{ scale: 0.99 }}
-              className="border border-border-accent bg-surface p-4 md:p-6 transition-colors duration-300"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-[10px] tracking-widest text-accent-2-text">
-                  [SOCIAL]
-                </span>
-              </div>
-              <div className="space-y-2">
-                <a
-                  href="https://github.com/nathwn12"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block text-xs text-text-dim hover:text-accent-text transition-colors"
-                >
-                  github.com/nathwn12
-                </a>
-                <a
-                  href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block text-xs text-text-dim hover:text-accent-2-text transition-colors"
-                >
-                  linkedin.com/in/nathaniel-nikolai-l-184181261/
-                </a>
-              </div>
-            </motion.div>
-
-            <motion.div
-              whileHover={{
-                borderColor:
-                  "color-mix(in srgb, var(--color-accent-3) 25%, transparent)",
-              }}
-              whileTap={{ scale: 0.99 }}
-              className="border border-border-accent bg-surface p-4 md:p-6 transition-colors duration-300"
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <span className="text-[10px] tracking-widest text-accent-3-text">
-                  [LOCATION]
-                </span>
-              </div>
-              <p className="text-sm md:text-lg font-bold text-text">
-                Hagonoy, Bulacan, PH
-              </p>
-              <p className="text-xs text-text-muted mt-1">UTC+8 (PHT)</p>
-            </motion.div>
+              {CONTACT_EMAIL}
+            </a>
           </div>
-        </motion.div>
+
+          <div className="flex flex-col gap-quarter border-b border-border py-half sm:flex-row sm:items-baseline sm:gap-gutter">
+            <span className="w-28 shrink-0 text-micro uppercase tracking-[0.2em] text-text-muted">
+              [SOCIAL]
+            </span>
+            <div className="flex flex-wrap gap-gutter">
+              <a
+                href="https://github.com/nathwn12"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-body text-text-dim hover:text-text hover:underline transition-colors duration-200"
+              >
+                github.com/nathwn12
+              </a>
+              <a
+                href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-body text-text-dim hover:text-text hover:underline transition-colors duration-200"
+              >
+                linkedin.com/in/nathaniel-nikolai-l-184181261/
+              </a>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-quarter border-b border-border py-half sm:flex-row sm:items-baseline sm:gap-gutter">
+            <span className="w-28 shrink-0 text-micro uppercase tracking-[0.2em] text-text-muted">
+              [LOCATION]
+            </span>
+            <p className="text-body-lg font-bold text-text">
+              Hagonoy, Bulacan, PH
+            </p>
+            <p className="text-label text-text-muted">UTC+8 (PHT)</p>
+          </div>
+        </div>
 
         {/* MUA chrome + compose window */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, duration: 0.35 }}
-          className="border border-border-accent bg-surface"
-        >
+        <div className="border border-border-accent bg-surface">
           {/* MUA toolbar */}
-          <div className="flex items-center gap-4 px-4 py-2 border-b border-border-accent bg-surface text-[10px] tracking-widest text-text-muted">
-            <span className="text-accent-text">&lt;UNREAD 1&gt;</span>
-            <span className="text-accent-2-text">&lt;COMPOSE&gt;</span>
-            <span className="text-text-muted">&lt;REPLY&gt;</span>
-            <span className="text-text-muted">&lt;FORWARD&gt;</span>
-            <span className="flex-1" />
-            <span className="text-text-muted">[COMPOSE WINDOW]</span>
+          <div className="flex items-center gap-gutter px-gutter py-half border-b border-border-accent text-micro tracking-[0.2em] text-text-muted">
+            <span className="text-text font-bold">&lt;COMPOSE&gt;</span>
+            <span>&lt;UNREAD 1&gt;</span>
+            <span>&lt;REPLY&gt;</span>
+            <span>&lt;FORWARD&gt;</span>
+            <span className="ml-auto">[COMPOSE WINDOW]</span>
           </div>
 
-          <div className="p-6 md:p-8">
-            <div className="flex items-center gap-2 mb-6">
-              <span className="text-accent-2-text">$</span>
-              <span className="text-sm text-text-dim">cat mail.sh</span>
+          <div className="p-gutter md:p-block">
+            <div className="flex items-center gap-half mb-block">
+              <span className="text-body text-text-dim">$</span>
+              <span className="text-body text-text-dim">cat mail.sh</span>
             </div>
 
             <form
@@ -284,12 +243,9 @@ export function Contact() {
                 style={{ display: "none" }}
               />
 
-              <div className="space-y-1 mb-4 input-glow">
-                <label
-                  htmlFor="form-name"
-                  className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2"
-                >
-                  <span className="text-accent-text">$</span>
+              <div className="mb-block">
+                <label htmlFor="form-name" className={LABEL}>
+                  <span className="text-text-dim">$</span>
                   <span>read -p "To: " name</span>
                 </label>
                 <input
@@ -300,16 +256,13 @@ export function Contact() {
                   autoComplete="name"
                   maxLength={100}
                   placeholder="Nathaniel Nikolai Ladero"
-                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-text font-mono outline-none focus:border-accent transition-colors duration-300 placeholder:text-text-muted"
+                  className={FIELD}
                 />
               </div>
 
-              <div className="space-y-1 mb-4 input-glow">
-                <label
-                  htmlFor="form-email"
-                  className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2"
-                >
-                  <span className="text-accent-text">$</span>
+              <div className="mb-block">
+                <label htmlFor="form-email" className={LABEL}>
+                  <span className="text-text-dim">$</span>
                   <span>read -p "From: " email</span>
                 </label>
                 <input
@@ -320,16 +273,13 @@ export function Contact() {
                   autoComplete="email"
                   maxLength={254}
                   placeholder="user@example.com"
-                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-text font-mono outline-none focus:border-accent transition-colors duration-300 placeholder:text-text-muted"
+                  className={FIELD}
                 />
               </div>
 
-              <div className="space-y-1 mb-4 input-glow">
-                <label
-                  htmlFor="form-subject"
-                  className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2"
-                >
-                  <span className="text-accent-text">$</span>
+              <div className="mb-block">
+                <label htmlFor="form-subject" className={LABEL}>
+                  <span className="text-text-dim">$</span>
                   <span>read -p "Subject: " subject</span>
                 </label>
                 <input
@@ -339,16 +289,13 @@ export function Contact() {
                   required
                   maxLength={300}
                   placeholder="What is this regarding?"
-                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-text font-mono outline-none focus:border-accent transition-colors duration-300 placeholder:text-text-muted"
+                  className={FIELD}
                 />
               </div>
 
-              <div className="space-y-1 mb-6 input-glow">
-                <label
-                  htmlFor="form-message"
-                  className="flex items-center gap-2 text-[10px] tracking-widest text-text-muted mb-2"
-                >
-                  <span className="text-accent-text">$</span>
+              <div className="mb-block">
+                <label htmlFor="form-message" className={LABEL}>
+                  <span className="text-text-dim">$</span>
                   <span>read -p "Body: " message</span>
                 </label>
                 <textarea
@@ -358,81 +305,74 @@ export function Contact() {
                   rows={5}
                   maxLength={5000}
                   placeholder="Your message here..."
-                  className="w-full bg-bg border border-border-accent px-4 py-3 text-sm text-text font-mono outline-none focus:border-accent transition-colors duration-300 resize-none placeholder:text-text-muted"
+                  className={`${FIELD} resize-none`}
                 />
               </div>
 
-              <div className="flex items-center gap-3">
-                <span className="text-accent-text text-xs">$</span>
-                <motion.button
+              <div className="flex items-center gap-half">
+                <span className="text-body text-text-dim">$</span>
+                <button
                   type="submit"
                   disabled={isSubmitting}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="px-6 py-3 bg-accent/10 border border-accent/30 text-accent-text text-xs font-bold tracking-widest hover:bg-accent/20 hover:border-accent/60 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-gutter py-half border-[length:var(--border-width-rule)] border-border-accent text-label font-bold text-accent-text hover:bg-accent/10 active:bg-accent/20 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSubmitting
                     ? "./send-message --sending…"
                     : "./send-message --send"}
-                </motion.button>
+                </button>
               </div>
 
               {formStatus && (
-                <motion.div
+                <div
                   role="alert"
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`mt-4 border-l-2 pl-4 py-2 text-xs font-mono ${STATUS_PANEL[formStatus.type]}`}
+                  className={`mt-block border px-gutter py-half text-body font-mono ${STATUS_PANEL[formStatus.type]} ${PANEL_INK[formStatus.type]}`}
                 >
-                  <span className="text-text-muted mr-2">$</span>
+                  <span className="mr-half opacity-70">$</span>
                   {formStatus.message}
-                  {formStatus.type === "pending" && (
-                    <motion.span
-                      animate={{ opacity: [1, 0] }}
-                      transition={{ duration: 0.8, repeat: Infinity }}
-                      className="ml-1 font-bold"
-                    >
-                      █
-                    </motion.span>
-                  )}
-                </motion.div>
+                  {formStatus.type === "pending" &&
+                    (reduceMotion ? (
+                      <span className="ml-quarter font-bold">█</span>
+                    ) : (
+                      <motion.span
+                        animate={{ opacity: [1, 0] }}
+                        transition={{ duration: 0.8, repeat: Infinity }}
+                        className="ml-quarter font-bold"
+                      >
+                        █
+                      </motion.span>
+                    ))}
+                </div>
               )}
             </form>
           </div>
 
           {/* MUA status bar */}
-          <div className="flex items-center gap-4 px-4 py-2 border-t border-border-accent bg-surface text-[10px] tracking-widest text-text-muted">
+          <div className="flex flex-wrap items-center gap-half px-gutter py-half border-t border-border-accent bg-surface text-micro text-text-muted">
             <span className="hidden sm:inline">
               "All mail queued for delivery. Thank you."
             </span>
-            <span className="flex-1" />
             <span
               role="status"
-              className={`whitespace-nowrap text-[10px] tracking-widest ${chip.tone}`}
+              className={`ml-auto whitespace-nowrap text-micro uppercase tracking-[0.2em] ${chip.tone}`}
             >
               {chip.label}
             </span>
-            <span className="whitespace-nowrap text-text-muted">
+            <span className="whitespace-nowrap text-micro uppercase tracking-[0.2em] text-text-muted">
               -- MUA v1.0 --
             </span>
           </div>
-        </motion.div>
+        </div>
 
         {/* Verified credentials — the four real certs salvaged from the
             retired Education page (C2, judge condition 2): real clickable
             verify links, not a decorative bracket label. */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.35 }}
-          className="mt-6 border border-border-accent bg-surface"
-        >
-          <div className="flex items-center gap-2 px-4 md:px-6 py-3 border-b border-border-accent">
-            <span className="text-[10px] tracking-widest text-accent-3-text">
+        <div className="mt-block border border-border-accent bg-surface">
+          <div className="flex items-center gap-half px-gutter py-half border-b border-border-accent">
+            <span className="text-micro uppercase tracking-[0.2em] text-text-muted">
               [VERIFIED CREDENTIALS]
             </span>
-            <div className="flex-1 h-[1px] bg-border" />
-            <span className="text-[10px] text-text-dim tabular-nums">
+            <div className="flex-1 h-px bg-border" />
+            <span className="text-micro text-text-dim tabular-nums">
               {credentials.length} VERIFIED
             </span>
           </div>
@@ -445,26 +385,26 @@ export function Contact() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={`Verify ${cert.title}`}
-                className="group flex items-start gap-3 border-b md:border-b-0 md:odd:border-r border-border-accent last:border-b-0 px-4 md:px-6 py-4 hover:bg-accent-3/[0.03] active:bg-accent-3/[0.06] transition-colors duration-300 min-w-0"
+                className="group flex items-start gap-half border-b md:border-b-0 md:odd:border-r border-border-accent last:border-b-0 px-gutter py-gutter hover:bg-text/5 active:bg-text/10 transition-colors duration-200 min-w-0"
               >
-                <span className="pt-0.5 text-[10px] font-bold tabular-nums text-accent-3-text">
+                <span className="pt-quarter text-micro font-bold tabular-nums text-text-muted">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <div className="min-w-0 flex-1">
-                  <span className="block text-xs font-bold leading-snug text-text break-words group-hover:text-accent-text transition-colors duration-300">
+                  <span className="block text-body font-bold leading-snug text-text break-words group-hover:underline">
                     {cert.title}
                   </span>
-                  <span className="block mt-1 text-[10px] text-text-dim">
+                  <span className="block mt-quarter text-micro text-text-dim">
                     {cert.issuer}
                     {cert.date ? ` · ${cert.date}` : ""}
                   </span>
-                  <span className="block mt-1 text-[10px] text-text-dim break-all tabular-nums">
+                  <span className="block mt-quarter text-micro text-text-dim break-all tabular-nums">
                     {cert.id}
                   </span>
                 </div>
                 <span
                   aria-hidden="true"
-                  className="pt-0.5 shrink-0 text-text-dim transition-colors duration-300 group-hover:text-accent-3-text"
+                  className="pt-quarter shrink-0 text-text-muted transition-colors duration-200 group-hover:text-text"
                 >
                   -&gt;
                 </span>
@@ -472,13 +412,13 @@ export function Contact() {
             ))}
           </div>
 
-          <div className="border-t border-border-accent px-4 md:px-6 py-3">
-            <p className="text-[10px] leading-relaxed text-text-dim">
+          <div className="border-t border-border-accent px-gutter py-half">
+            <p className="text-micro text-text-dim">
               EDUCATION: BS INFORMATION TECHNOLOGY — La Consolacion University
               Philippines · 2017–2023
             </p>
           </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );

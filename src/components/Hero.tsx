@@ -1,26 +1,21 @@
-import { motion } from "framer-motion";
 import { navigate } from "../lib/router";
-import { TerminalWindow } from "./TerminalWindow";
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.07,
-      delayChildren: 0.05,
-    },
-  },
-};
+/**
+ * Hero — brutalist restyle (DESIGN.md wins over code).
+ *
+ * Home-screen accent budget (DESIGN.md §2.3): the only accent owned by this
+ * file is the `wget ./resume.pdf` primary action. The `$ whoami` prompt and
+ * the `OPEN TO WORK` status are ink/concrete — state is weight, not hue. No
+ * ambient glow, no grid overlay, no blinking caret, no nested cards —
+ * hierarchy is size + weight + space.
+ */
 
-const childVariants = {
-  hidden: { opacity: 0, y: 30 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] as const },
-  },
-};
+const profileFacts: { label: string; value: string; emphasis?: boolean }[] = [
+  { label: "LOCATION", value: "HAGONOY, BULACAN, PH" },
+  { label: "EXPERIENCE", value: "3 YEARS" },
+  { label: "ROLE", value: "BACKEND DEVELOPER" },
+  { label: "STATUS", value: "OPEN TO WORK", emphasis: true },
+];
 
 const systemFacts = [
   ["OS", "Ubuntu/Linux Servers / Docker"],
@@ -35,215 +30,134 @@ export function Hero() {
   return (
     <section
       id="hero"
-      className="relative min-h-full flex flex-col justify-center overflow-hidden"
+      className="min-h-full flex flex-col justify-center px-gutter"
     >
-      {/* Ambient green gradient */}
-      <div
-        className="section-ambient"
-        style={{
-          background: `
-            radial-gradient(ellipse at 25% 30%, color-mix(in srgb, var(--color-accent) 8%, transparent) 0%, color-mix(in srgb, var(--color-accent) 1%, transparent) 45%, transparent 70%),
-            radial-gradient(ellipse at 75% 70%, color-mix(in srgb, var(--color-accent) 4%, transparent) 0%, transparent 50%)
-          `,
-        }}
-      />
-      {/* Subtle grid overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `
-            linear-gradient(color-mix(in srgb, var(--color-accent) 4%, transparent) 1px, transparent 1px),
-            linear-gradient(90deg, color-mix(in srgb, var(--color-accent) 4%, transparent) 1px, transparent 1px)
-          `,
-          backgroundSize: "40px 40px",
-        }}
-      />
+      <div className="mx-auto w-full max-w-5xl">
+        {/* $ whoami — the page's prompt (section-header convention, §9) */}
+        <p className="flex items-baseline gap-half text-label text-text-muted">
+          <span>$</span>
+          <span>whoami</span>
+        </p>
 
-      <motion.div
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-        className="relative z-10 px-4 lg:px-8 flex justify-center"
-      >
-        <div className="max-w-5xl w-full">
-          {/* $ whoami prompt */}
-          <motion.div
-            variants={childVariants}
-            className="mb-6 flex items-center gap-2"
-          >
-            <span className="text-accent-text text-sm">$</span>
-            <span className="text-text-muted text-sm">whoami</span>
-            <span className="terminal-cursor text-accent-text text-sm font-bold">
-              █
-            </span>
-          </motion.div>
+        {/* Name — display ceiling (40px); wraps, never clips */}
+        <h1 className="mt-block text-display font-bold text-text">
+          <span className="block">NATHANIEL</span>
+          <span className="block">NIKOLAI LADERO</span>
+        </h1>
 
-          {/* Name — clean, no glitch */}
-          <motion.h1
-            variants={childVariants}
-            className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-extrabold tracking-tighter leading-[0.85] mb-6"
-          >
-            <span className="block text-text">NATHANIEL</span>
-            <span className="block text-accent-text">NIKOLAI LADERO</span>
-          </motion.h1>
+        {/* Role */}
+        <p className="mt-half text-label uppercase tracking-[0.2em] text-text-dim">
+          BACKEND DEVELOPER — 3 YRS PRODUCTION FINTECH
+        </p>
 
-          {/* Role — static, no typewriter */}
-          <motion.p
-            variants={childVariants}
-            className="text-xs md:text-sm tracking-[0.3em] text-text-dim mb-6"
-          >
-            BACKEND DEVELOPER — 3 YRS PRODUCTION FINTECH
-          </motion.p>
+        {/* Lead */}
+        <p className="mt-block max-w-prose text-body-lg text-text-dim">
+          Backend Developer with 3 years of production fintech experience.
+          Builds C# and ASP.NET Core APIs, manages Ubuntu/Linux servers and
+          Docker containers, and automates CI/CD with GitHub Actions.
+        </p>
 
-          {/* Lead — the one-line pitch; detail lives in system.md below */}
-          <motion.p
-            variants={childVariants}
-            className="text-sm md:text-base text-text-dim leading-relaxed max-w-2xl mb-8"
-          >
-            Backend Developer with 3 years of production fintech experience.
-            Builds C# and ASP.NET Core APIs, manages Ubuntu/Linux servers and
-            Docker containers, and automates CI/CD with GitHub Actions.
-          </motion.p>
-
-          {/* Stats grid — terminal window */}
-          <motion.div variants={childVariants}>
-            <TerminalWindow title="profile">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-px bg-border-accent">
-              {[
-                { label: "LOCATION", value: "HAGONOY, BULACAN, PH" },
-                { label: "EXPERIENCE", value: "3 YEARS" },
-                { label: "ROLE", value: "BACKEND DEVELOPER" },
-                { label: "STATUS", value: "OPEN TO WORK" },
-              ].map((stat) => (
-                <motion.div
-                  key={stat.label}
-                  whileHover={{
-                    backgroundColor:
-                      "color-mix(in srgb, var(--color-accent) 5%, transparent)",
-                  }}
-                  className="bg-bg p-4 md:p-6 group transition-colors duration-500"
-                >
-                  <p className="text-[10px] tracking-[0.2em] text-text-muted mb-1">
-                    {stat.label}
-                  </p>
-                  <p className="text-sm md:text-base font-bold text-text group-hover:text-accent-text transition-colors duration-300">
-                    {stat.value}
-                  </p>
-                </motion.div>
-              ))}
-              </div>
-            </TerminalWindow>
-          </motion.div>
-
-          {/* System dossier — the non-duplicated profile detail */}
-          <motion.div variants={childVariants} className="mt-8">
-            <TerminalWindow title="system.md">
-              <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                className="grid md:grid-cols-[1fr_2fr] gap-8 md:gap-12 p-4 md:p-6"
+        {/* profile — a plain key/value list, one hairline row each (no cards) */}
+        <div className="mt-section">
+          <p className="flex items-baseline gap-half text-label text-text-muted">
+            <span>$</span>
+            <span>cat profile</span>
+          </p>
+          <dl className="mt-half border-t border-border-accent">
+            {profileFacts.map((fact) => (
+              <div
+                key={fact.label}
+                className="grid grid-cols-1 gap-half border-b border-border py-half sm:grid-cols-[8rem_1fr] sm:gap-gutter"
               >
-                <motion.div
-                  variants={childVariants}
-                  className="border border-border-accent bg-bg p-4 md:p-6 font-mono"
+                <dt className="text-micro uppercase tracking-[0.15em] text-text-muted">
+                  {fact.label}
+                </dt>
+                <dd
+                  className={
+                    fact.emphasis
+                      ? "text-body-lg font-bold text-text"
+                      : "text-body-lg text-text"
+                  }
                 >
-                  <div className="text-accent-text text-xs mb-3 flex items-center gap-2">
-                    <span className="inline-block w-2 h-2 bg-accent rounded-full" />
-                    $ neofetch
-                  </div>
-                  <div className="border-t border-border-accent pt-3 space-y-1.5">
-                    {systemFacts.map(([label, value]) => (
-                      <motion.div
-                        key={label}
-                        whileHover={{ x: 4 }}
-                        className="flex gap-2 text-xs group cursor-default"
-                      >
-                        <span className="text-text-muted shrink-0 w-16">
-                          {label}
-                        </span>
-                        <span className="text-text group-hover:text-accent-text transition-colors duration-300">
-                          {value}
-                        </span>
-                      </motion.div>
-                    ))}
-                  </div>
-                  <div className="mt-3">
-                    <span className="text-accent-text text-xs">$ </span>
-                  </div>
-                </motion.div>
-
-                <div className="space-y-6">
-                  <motion.div variants={childVariants}>
-                    <h2 className="text-2xl md:text-4xl font-bold tracking-tight mb-4">
-                      Crafting reliable systems{" "}
-                      <span className="text-accent-text">that scale</span> under
-                      pressure.
-                    </h2>
-                  </motion.div>
-
-                  <motion.div
-                    variants={childVariants}
-                    className="space-y-4 text-text-dim text-sm leading-relaxed"
-                  >
-                    <p>
-                      Treats infrastructure as part of the codebase: Nginx
-                      configs, Bash scripts, and CI/CD pipelines receive the
-                      same rigor as application code.
-                    </p>
-                    <p>
-                      Daily AI tooling: LM Studio, OpenCode, and Codex, with
-                      preferred local models Qwen 3.8, DeepSeek V4 Flash, and
-                      Qwen 3.5 (9B, 27B). English (professional), Filipino
-                      (native).
-                    </p>
-                  </motion.div>
-                </div>
-              </motion.div>
-            </TerminalWindow>
-          </motion.div>
-
-          {/* Resume download */}
-          <motion.div
-            variants={childVariants}
-            className="mt-10 flex items-center gap-3 text-xs tracking-widest group"
-          >
-            <span className="text-accent-text text-sm">$</span>
-            <motion.a
-              href="Nathaniel-Nikolai-Ladero-Resume.pdf"
-              download="Nathaniel-Nikolai-Ladero-Resume.pdf"
-              whileHover={{ x: 4 }}
-              className="text-text-dim hover:text-accent-text transition-colors duration-300 cursor-pointer"
-            >
-              wget ./resume.pdf
-            </motion.a>
-            <span className="text-accent-text">↓</span>
-          </motion.div>
-
-          {/* Page navigation hints */}
-          <motion.div
-            variants={childVariants}
-            className="mt-12 flex items-center justify-center gap-8 text-text-muted"
-          >
-            <button
-              type="button"
-              disabled
-              className="flex items-center gap-2 text-[10px] tracking-[0.3em] opacity-40 cursor-not-allowed"
-            >
-              <span className="text-xs">←</span>
-              <span>PREV</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/experience")}
-              className="flex items-center gap-2 text-[10px] tracking-[0.3em] hover:text-accent-text transition-all duration-300 cursor-pointer hover:translate-x-[4px] active:translate-x-[2px]"
-            >
-              <span>NEXT</span>
-              <span className="text-xs">→</span>
-            </button>
-          </motion.div>
+                  {fact.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </div>
-      </motion.div>
+
+        {/* system.md — one surface split by a rule; no window wrapping a panel */}
+        <div className="mt-section">
+          <p className="flex items-baseline gap-half text-label text-text-muted">
+            <span>$</span>
+            <span>cat system.md</span>
+          </p>
+          <div className="mt-block grid gap-block border-t border-border-accent pt-block md:grid-cols-[1fr_2fr] md:gap-section">
+            {/* neofetch facts */}
+            <div>
+              <p className="text-body text-text-dim">$ neofetch</p>
+              <dl className="mt-half space-y-half border-t border-border pt-half">
+                {systemFacts.map(([label, value]) => (
+                  <div key={label} className="flex gap-half text-body">
+                    <dt className="w-16 shrink-0 text-text-muted">{label}</dt>
+                    <dd className="text-text">{value}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+
+            {/* copy */}
+            <div>
+              <h2 className="text-headline font-bold text-text">
+                Crafting reliable systems that scale under pressure.
+              </h2>
+              <p className="mt-block max-w-prose text-body-lg text-text-dim">
+                Treats infrastructure as part of the codebase: Nginx configs,
+                Bash scripts, and CI/CD pipelines receive the same rigor as
+                application code.
+              </p>
+              <p className="mt-block max-w-prose text-body-lg text-text-dim">
+                Daily AI tooling: LM Studio, OpenCode, and Codex, with
+                preferred local models Qwen 3.8, DeepSeek V4 Flash, and Qwen
+                3.5 (9B, 27B). English (professional), Filipino (native).
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Resume — the one primary action */}
+        <div className="mt-section flex items-baseline gap-half">
+          <span className="text-label text-text-muted">$</span>
+          <a
+            href="Nathaniel-Nikolai-Ladero-Resume.pdf"
+            download="Nathaniel-Nikolai-Ladero-Resume.pdf"
+            className="text-body-lg text-accent-text underline-offset-4 hover:underline active:opacity-70"
+          >
+            wget ./resume.pdf
+          </a>
+          <span className="text-body-lg text-text-muted">↓</span>
+        </div>
+
+        {/* Page navigation hints */}
+        <div className="mt-block flex items-center gap-block">
+          <button
+            type="button"
+            disabled
+            className="flex items-center gap-half text-label text-text-muted opacity-40 cursor-not-allowed"
+          >
+            <span>←</span>
+            <span>PREV</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => navigate("/experience")}
+            className="flex items-center gap-half border-b border-transparent text-label text-text transition-colors duration-150 hover:border-border-accent active:border-border-accent"
+          >
+            <span>NEXT</span>
+            <span>→</span>
+          </button>
+        </div>
+      </div>
     </section>
   );
 }

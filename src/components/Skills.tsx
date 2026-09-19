@@ -1,18 +1,29 @@
-import { motion } from "framer-motion";
 import { useState } from "react";
 import { cn } from "@/lib/cn";
-import { TerminalWindow } from "./TerminalWindow";
 import { repos, TIER_STYLES, type RepoGroup, type Tier } from "../content/skills";
 
+/**
+ * Skills — systemd capability board.
+ *
+ * Brutalist pass: one flat surface replaces the window-in-window nesting
+ * (§9 P1 "Nested cards"); hierarchy now comes from rules, spacing and type
+ * steps. Radius 0, no hue coding — `accent-2/3/4` alias the single accent, so
+ * per-unit tone is carried by the unit's own name and rule, not by colour
+ * (§2.3 consequence). All aria/roles/keyboard behaviour is unchanged.
+ *
+ * Accent budget (§2.3 — one accent, three places): the header `$` prompt, the
+ * inspector's `systemctl status` prompt, and the inspector's `[STATUS]` chip.
+ * Everything else is ink or concrete. `TIER_STYLES[].color` is therefore
+ * consumed once, at the inspected unit's live status.
+ */
+
 type CapabilityId = "api" | "data" | "delivery" | "security" | "ai" | "tooling";
-type UnitAccent = "accent" | "accent-2" | "accent-3" | "accent-4";
 
 interface CapabilityUnit {
   id: CapabilityId;
   name: string;
   repo: RepoGroup;
   role: string;
-  accent: UnitAccent;
 }
 
 const capabilityUnits: CapabilityUnit[] = [
@@ -21,70 +32,38 @@ const capabilityUnits: CapabilityUnit[] = [
     name: "API",
     repo: repos[0],
     role: "Service contracts, transports, and backend runtime.",
-    accent: "accent",
   },
   {
     id: "data",
     name: "data",
     repo: repos[1],
     role: "Persistence, caching, messaging, and query performance.",
-    accent: "accent-2",
   },
   {
     id: "delivery",
     name: "delivery",
     repo: repos[2],
     role: "Cloud infrastructure, containers, and release automation.",
-    accent: "accent-3",
   },
   {
     id: "security",
     name: "security",
     repo: repos[3],
     role: "Identity, access policy, dependency safety, and transport security.",
-    accent: "accent-4",
   },
   {
     id: "ai",
     name: "AI",
     repo: repos[4],
     role: "AI-assisted development and local open-weight model workflows.",
-    accent: "accent",
   },
   {
     id: "tooling",
     name: "tooling",
     repo: repos[5],
     role: "Testing, documentation, version control, and operational review.",
-    accent: "accent-2",
   },
 ];
-
-const UNIT_ACCENTS: Record<
-  UnitAccent,
-  { text: string; border: string; background: string }
-> = {
-  accent: {
-    text: "text-accent-text",
-    border: "border-l-accent",
-    background: "bg-accent/5",
-  },
-  "accent-2": {
-    text: "text-accent-2-text",
-    border: "border-l-accent-2",
-    background: "bg-accent-2/5",
-  },
-  "accent-3": {
-    text: "text-accent-3-text",
-    border: "border-l-accent-3",
-    background: "bg-accent-3/5",
-  },
-  "accent-4": {
-    text: "text-accent-4-text",
-    border: "border-l-accent-4",
-    background: "bg-accent-4/5",
-  },
-};
 
 export function Skills() {
   const [selectedId, setSelectedId] = useState<CapabilityId>("api");
@@ -125,35 +104,38 @@ export function Skills() {
   return (
     <section
       id="skills"
-      className="py-8 md:py-12 px-4 lg:px-8 relative overflow-hidden"
+      className="px-gutter py-block md:px-section md:py-section"
     >
-      <div className="max-w-5xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.35 }}
-          className="flex items-center gap-4 mb-8 md:mb-10"
-        >
-          <span className="text-accent-3-text text-sm">$</span>
-          <span className="text-xs tracking-[0.25em] text-text-dim">
+      <div className="mx-auto max-w-5xl">
+        {/* `prompt: command` section header — product IA, not an eyebrow */}
+        <div className="mb-block flex items-center gap-half">
+          <span className="text-body text-accent-text">$</span>
+          <span className="text-label tracking-[0.15em] text-text-dim">
             systemctl --type=service --state=running
           </span>
-          <div className="flex-1 h-[1px] bg-border" />
-        </motion.div>
+          <div className="h-px flex-1 bg-border" />
+        </div>
 
-        <TerminalWindow title="capability-control-room">
-          <div className="flex flex-wrap gap-x-5 gap-y-1 px-4 md:px-6 py-2 border-b border-border-accent bg-bg text-[10px] tracking-widest text-text-dim">
-            <span>
-              <span className="text-accent-text font-bold">{totalPackages}</span>{" "}
+        {/* One flat surface: the control room. No pane is nested in another. */}
+        <div className="border border-border-accent bg-bg">
+          <div className="flex flex-wrap items-baseline gap-x-gutter gap-y-quarter border-b border-border-accent px-gutter py-half text-label">
+            <span className="uppercase tracking-[0.15em] text-text-muted">
+              capability-control-room
+            </span>
+            <span className="flex-1" />
+            <span className="text-text-muted">
+              <span className="font-bold tabular-nums text-text">
+                {totalPackages}
+              </span>{" "}
               package records
             </span>
-            <span>
-              <span className="text-accent-2-text font-bold">
+            <span className="text-text-muted">
+              <span className="font-bold tabular-nums text-text">
                 {capabilityUnits.length}
               </span>{" "}
               running units
             </span>
-            <span>
+            <span className="text-text-muted">
               selected{" "}
               <span className="text-text">{selectedView.unit.name}</span>
             </span>
@@ -162,21 +144,21 @@ export function Skills() {
           <div className="grid min-w-0 lg:grid-cols-[minmax(0,1.18fr)_minmax(18rem,0.82fr)]">
             <section
               aria-labelledby="skills-board-heading"
-              className="min-w-0 bg-bg p-4 md:p-6"
+              className="min-w-0 p-gutter md:p-block"
             >
-              <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="flex items-start justify-between gap-gutter">
                 <div className="min-w-0">
                   <h2
                     id="skills-board-heading"
-                    className="text-[10px] tracking-[0.3em] text-accent-3-text font-bold uppercase"
+                    className="text-body-lg font-bold text-text"
                   >
                     process board
                   </h2>
-                  <p className="mt-1 text-[10px] leading-relaxed text-text-muted">
+                  <p className="mt-half text-body text-text-muted">
                     select a unit to inspect its package records
                   </p>
                 </div>
-                <span className="shrink-0 text-[10px] tracking-widest text-text-muted">
+                <span className="shrink-0 text-label tabular-nums text-text-muted">
                   {capabilityUnits.length} services
                 </span>
               </div>
@@ -184,91 +166,74 @@ export function Skills() {
               <div
                 role="group"
                 aria-label="Capability units"
-                className="grid min-w-0 grid-cols-1 sm:grid-cols-2 gap-px bg-border-accent border border-border-accent"
+                className="mt-block grid min-w-0 grid-cols-1 gap-px border-t border-border-accent bg-border sm:grid-cols-2"
               >
                 {unitViews.map((view, index) => {
-                  const tone = UNIT_ACCENTS[view.unit.accent];
                   const selected = view.unit.id === selectedId;
                   return (
-                    <motion.button
+                    <button
                       key={view.unit.id}
                       type="button"
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        delay: index * 0.035,
-                        duration: 0.24,
-                      }}
                       aria-label={`Inspect ${view.unit.name} capability unit`}
                       aria-pressed={selected}
                       aria-controls="skills-inspector"
                       onClick={() => setSelectedId(view.unit.id)}
                       className={cn(
-                        "group min-w-0 w-full text-left border-l-2 bg-bg px-4 py-4 transition-colors duration-200 focus-visible:outline focus-visible:outline-1 focus-visible:outline-accent focus-visible:outline-offset-[-2px]",
+                        "w-full min-w-0 border-l-[length:var(--border-width-rule)] px-gutter py-block text-left transition-colors duration-200",
                         selected
-                          ? cn(tone.border, tone.background)
-                          : "border-l-transparent hover:bg-surface hover:border-l-border-accent",
+                          ? "border-l-border-accent bg-surface"
+                          : "border-l-transparent bg-bg hover:bg-surface-2",
                       )}
                     >
-                      <span className="flex min-w-0 items-start justify-between gap-3">
-                        <span className="flex min-w-0 items-center gap-2">
-                          <span className="shrink-0 text-[10px] tabular-nums text-text-muted">
+                      <span className="flex min-w-0 items-baseline justify-between gap-half">
+                        <span className="flex min-w-0 items-baseline gap-half">
+                          <span className="shrink-0 text-label tabular-nums text-text-muted">
                             {String(index + 1).padStart(2, "0")}
                           </span>
-                          <span
-                            className={cn(
-                              "truncate text-sm font-bold tracking-tight",
-                              tone.text,
-                            )}
-                          >
+                          <span className="truncate text-body-lg font-bold text-text">
                             {view.unit.name}
                           </span>
                         </span>
                         <span
                           aria-hidden="true"
                           className={cn(
-                            "shrink-0 text-[10px] tracking-widest",
-                            selected ? tone.text : "text-text-muted",
+                            "shrink-0 text-label",
+                            selected ? "text-text" : "text-text-muted",
                           )}
                         >
                           {selected ? "[selected]" : "[inspect]"}
                         </span>
                       </span>
-                      <span className="mt-1 block min-w-0 break-words text-[10px] text-text-muted">
+                      <span className="mt-quarter block min-w-0 break-words text-label text-text-muted">
                         {view.unit.repo.repo}
                       </span>
-                      <span className="mt-3 grid min-w-0 grid-cols-3 gap-2 border-t border-border pt-3">
+                      <span className="mt-half grid min-w-0 grid-cols-3 gap-half border-t border-border pt-half">
                         <span className="min-w-0">
-                          <span className="block text-[10px] tracking-widest text-text-muted uppercase">
+                          <span className="block text-label uppercase tracking-[0.15em] text-text-muted">
                             status
                           </span>
-                          <span
-                            className={cn(
-                              "block break-words text-[10px] font-bold",
-                              view.statusColor,
-                            )}
-                          >
+                          <span className="block break-words text-label font-bold text-text-dim">
                             {view.status}
                           </span>
                         </span>
                         <span className="min-w-0">
-                          <span className="block text-[10px] tracking-widest text-text-muted uppercase">
+                          <span className="block text-label uppercase tracking-[0.15em] text-text-muted">
                             tier mix
                           </span>
-                          <span className="block break-words text-[10px] text-text-dim tabular-nums">
+                          <span className="block break-words text-label tabular-nums text-text-dim">
                             {view.tierSummary}
                           </span>
                         </span>
                         <span className="min-w-0">
-                          <span className="block text-[10px] tracking-widest text-text-muted uppercase">
+                          <span className="block text-label uppercase tracking-[0.15em] text-text-muted">
                             load
                           </span>
-                          <span className="block break-words text-[10px] text-text-dim tabular-nums">
+                          <span className="block break-words text-label tabular-nums text-text-dim">
                             {view.load}
                           </span>
                         </span>
                       </span>
-                    </motion.button>
+                    </button>
                   );
                 })}
               </div>
@@ -277,170 +242,146 @@ export function Skills() {
             <section
               id="skills-inspector"
               aria-labelledby="skills-inspector-heading"
-              aria-live="polite"
-              className="min-w-0 border-t border-border-accent bg-bg p-4 md:p-6 lg:border-l lg:border-t-0"
+              className="min-w-0 border-t border-border-accent p-gutter md:p-block lg:border-l lg:border-t-0"
             >
-              <div className="mb-4 flex items-center gap-2 text-[10px] text-text-dim">
+              {/* The whole inspector used to be a live region, so every unit
+                  switch re-announced the status details and the package table.
+                  One short line now carries the announcement. */}
+              <p aria-live="polite" className="sr-only">
+                {selectedView.unit.name}: {selectedView.status}
+              </p>
+              <div className="flex items-baseline gap-half text-label text-text-dim">
                 <span className="text-accent-text">$</span>
                 <span className="min-w-0 break-words">
                   systemctl status {selectedView.unit.id}.service
                 </span>
               </div>
 
-              <motion.div
-                key={selectedView.unit.id}
-                initial={{ opacity: 0, y: 6 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-                className="min-w-0"
-              >
-                <div className="border border-border-accent bg-surface p-4 md:p-5">
-                  <div className="flex min-w-0 items-start justify-between gap-4">
-                    <div className="min-w-0">
-                      <p className="text-[10px] tracking-widest text-text-muted uppercase">
-                        selected capability unit
-                      </p>
-                      <h3
-                        id="skills-inspector-heading"
-                        className={cn(
-                          "mt-1 break-words text-lg font-bold tracking-tight",
-                          UNIT_ACCENTS[selectedView.unit.accent].text,
-                        )}
-                      >
-                        {selectedView.unit.name}
-                      </h3>
-                    </div>
-                    <span
-                      className={cn(
-                        "shrink-0 text-[10px] tracking-widest font-bold",
-                        selectedView.statusColor,
-                      )}
+              <div className="mt-block min-w-0">
+                <div className="flex min-w-0 items-start justify-between gap-gutter">
+                  <div className="min-w-0">
+                    <p className="text-label text-text-muted">
+                      selected capability unit
+                    </p>
+                    <h3
+                      id="skills-inspector-heading"
+                      className="mt-quarter break-words text-title font-bold text-text"
                     >
-                      [{selectedView.status}]
-                    </span>
+                      {selectedView.unit.name}
+                    </h3>
                   </div>
-                  <p className="mt-3 break-words text-xs leading-relaxed text-text-dim">
-                    {selectedView.unit.role}
-                  </p>
-
-                  <dl className="mt-5 grid min-w-0 grid-cols-3 gap-2 border-t border-border pt-4">
-                    <div className="min-w-0">
-                      <dt className="text-[10px] tracking-widest text-text-muted uppercase">
-                        status
-                      </dt>
-                      <dd
-                        className={cn(
-                          "mt-1 break-words text-[10px] font-bold",
-                          selectedView.statusColor,
-                        )}
-                      >
-                        {selectedView.status}
-                      </dd>
-                    </div>
-                    <div className="min-w-0">
-                      <dt className="text-[10px] tracking-widest text-text-muted uppercase">
-                        tier mix
-                      </dt>
-                      <dd className="mt-1 break-words text-[10px] text-text-dim tabular-nums">
-                        {selectedView.tierSummary}
-                      </dd>
-                    </div>
-                    <div className="min-w-0">
-                      <dt className="text-[10px] tracking-widest text-text-muted uppercase">
-                        load
-                      </dt>
-                      <dd className="mt-1 break-words text-[10px] text-text-dim tabular-nums">
-                        {selectedView.load}
-                      </dd>
-                    </div>
-                  </dl>
-
-                  <div className="mt-5 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 text-[10px]">
-                    <span className="text-accent-3-text">
-                      [{selectedView.unit.repo.fork}]
-                    </span>
-                    <span className="break-words text-text-dim">
-                      {selectedView.unit.repo.repo}
-                    </span>
-                    <span className="break-words text-text-muted">
-                      / {selectedView.unit.repo.label}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mt-6 min-w-0">
-                  <div className="mb-2 flex min-w-0 items-center gap-2 text-[10px] text-text-dim">
-                    <span className="text-accent-text">$</span>
-                    <span className="min-w-0 break-words">
-                      ls {selectedView.unit.repo.repo}/
-                    </span>
-                  </div>
-
-                  <div
-                    role="list"
-                    aria-label={`${selectedView.unit.name} packages`}
-                    className="min-w-0 border border-border-accent"
+                  <span
+                    className={cn(
+                      "shrink-0 text-label font-bold",
+                      selectedView.statusColor,
+                    )}
                   >
-                    <div className="hidden grid-cols-[minmax(0,1.1fr)_4rem_minmax(0,1fr)_auto] gap-x-3 border-b border-border-accent px-3 py-2 text-[10px] tracking-widest text-text-muted uppercase md:grid">
-                      <span>package</span>
-                      <span>version</span>
-                      <span>description</span>
-                      <span>tier</span>
-                    </div>
-                    {selectedView.unit.repo.packages.map((row, index) => (
-                      <motion.div
-                        key={row.slug}
-                        role="listitem"
-                        initial={{ opacity: 0, x: -4 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{
-                          delay: index * 0.015,
-                          duration: 0.18,
-                        }}
-                        aria-label={`${row.name}, version ${row.version}, ${row.tier}, ${row.description}`}
-                        className="grid min-w-0 grid-cols-[minmax(0,1fr)_4rem_auto] items-start gap-x-3 border-b border-border px-3 py-2 last:border-b-0 hover:bg-surface transition-colors duration-200 md:grid-cols-[minmax(0,1.1fr)_4rem_minmax(0,1fr)_auto]"
-                      >
-                        <span className="min-w-0 break-words">
-                          <span className="block break-words text-[11px] text-accent-text">
-                            {row.name}
-                          </span>
-                          <span className="block break-words text-[10px] leading-relaxed text-text-muted md:hidden">
-                            {row.slug} / {row.description}
-                          </span>
-                        </span>
-                        <span className="break-words text-[10px] text-text-dim tabular-nums">
-                          {row.version}
-                        </span>
-                        <span className="hidden min-w-0 break-words text-[10px] leading-relaxed text-text-muted md:block">
-                          {row.description}
-                        </span>
-                        <span
-                          className={cn(
-                            "break-words text-right text-[10px] tracking-widest font-bold",
-                            TIER_STYLES[row.tier].color,
-                          )}
-                        >
-                          [{row.tier}]
-                        </span>
-                      </motion.div>
-                    ))}
-                  </div>
+                    [{selectedView.status}]
+                  </span>
                 </div>
-              </motion.div>
+                <p className="mt-half break-words text-body text-text-dim">
+                  {selectedView.unit.role}
+                </p>
+
+                <dl className="mt-block grid min-w-0 grid-cols-3 gap-half border-t border-border pt-half">
+                  <div className="min-w-0">
+                    <dt className="text-label uppercase tracking-[0.15em] text-text-muted">
+                      status
+                    </dt>
+                    <dd className="mt-quarter break-words text-label font-bold text-text-dim">
+                      {selectedView.status}
+                    </dd>
+                  </div>
+                  <div className="min-w-0">
+                    <dt className="text-label uppercase tracking-[0.15em] text-text-muted">
+                      tier mix
+                    </dt>
+                    <dd className="mt-quarter break-words text-label tabular-nums text-text-dim">
+                      {selectedView.tierSummary}
+                    </dd>
+                  </div>
+                  <div className="min-w-0">
+                    <dt className="text-label uppercase tracking-[0.15em] text-text-muted">
+                      load
+                    </dt>
+                    <dd className="mt-quarter break-words text-label tabular-nums text-text-dim">
+                      {selectedView.load}
+                    </dd>
+                  </div>
+                </dl>
+
+                <div className="mt-half flex min-w-0 flex-wrap items-baseline gap-x-half gap-y-quarter text-label">
+                  <span className="text-text-muted">
+                    [{selectedView.unit.repo.fork}]
+                  </span>
+                  <span className="break-words text-text-dim">
+                    {selectedView.unit.repo.repo}
+                  </span>
+                  <span className="break-words text-text-muted">
+                    / {selectedView.unit.repo.label}
+                  </span>
+                </div>
+              </div>
+
+              <div className="mt-block min-w-0">
+                <div className="flex items-baseline gap-half text-label text-text-dim">
+                  <span className="text-text-muted">$</span>
+                  <span className="min-w-0 break-words">
+                    ls {selectedView.unit.repo.repo}/
+                  </span>
+                </div>
+
+                <div
+                  role="list"
+                  aria-label={`${selectedView.unit.name} packages`}
+                  className="mt-half min-w-0 border-t border-border-accent"
+                >
+                  <div className="hidden grid-cols-[minmax(0,1.1fr)_4rem_minmax(0,1fr)_auto] gap-x-half border-b border-border px-half py-quarter text-label uppercase tracking-[0.15em] text-text-muted md:grid">
+                    <span>package</span>
+                    <span>version</span>
+                    <span>description</span>
+                    <span>tier</span>
+                  </div>
+                  {selectedView.unit.repo.packages.map((row) => (
+                    <div
+                      key={row.slug}
+                      role="listitem"
+                      aria-label={`${row.name}, version ${row.version}, ${row.tier}, ${row.description}`}
+                      className="grid min-w-0 grid-cols-[minmax(0,1fr)_4rem_auto] items-start gap-x-half border-b border-border px-half py-half transition-colors duration-200 last:border-b-0 hover:bg-surface-2 md:grid-cols-[minmax(0,1.1fr)_4rem_minmax(0,1fr)_auto]"
+                    >
+                      <span className="min-w-0 break-words">
+                        <span className="block break-words text-body text-text">
+                          {row.name}
+                        </span>
+                        <span className="block break-words text-label text-text-muted md:hidden">
+                          {row.slug} / {row.description}
+                        </span>
+                      </span>
+                      <span className="break-words text-label tabular-nums text-text-dim">
+                        {row.version}
+                      </span>
+                      <span className="hidden min-w-0 break-words text-label text-text-muted md:block">
+                        {row.description}
+                      </span>
+                      <span className="break-words text-right text-label font-bold text-text-dim">
+                        [{row.tier}]
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </section>
           </div>
 
-          <div className="flex flex-wrap gap-x-5 gap-y-2 border-t border-border-accent bg-bg px-4 py-3 text-[10px] tracking-widest text-text-muted md:px-6">
+          <div className="flex flex-wrap gap-x-gutter gap-y-half border-t border-border-accent px-gutter py-half text-label text-text-muted md:px-block">
             {(["DAILY", "PROD", "WORKING"] as Tier[]).map((tier) => (
               <span key={tier} className="min-w-0">
-                <span className={cn("font-bold", TIER_STYLES[tier].color)}>
-                  [{tier}]
-                </span>{" "}
+                <span className="font-bold text-text">[{tier}]</span>{" "}
                 {TIER_STYLES[tier].note}
               </span>
             ))}
           </div>
-        </TerminalWindow>
+        </div>
       </div>
     </section>
   );
