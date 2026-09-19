@@ -22,6 +22,8 @@
  * guard in App.tsx and the F2 handler in Header.tsx).
  */
 
+import { resolveRoute, routeAtOffset } from "./router";
+
 export type NavAction =
   | { kind: "step"; direction: 1 | -1 }
   | { kind: "scroll"; direction: 1 | -1 }
@@ -117,6 +119,38 @@ export function resolveStep(
   return { type: "route", direction };
 }
 
+/**
+ * Land on a tour stop: focus it, center it, and — when it opts in with
+ * [data-nav-activate] — reveal its content with a bubbling click. Activation
+ * happens AFTER focus (the reveal must not steal focus back) and never on an
+ * <a>, where a dispatched click would navigate away from the tour. This is the
+ * one landing rule, shared by the in-page ←/→ step and PageShell's cross-page
+ * handoff so the two cannot drift.
+ */
+export function landOnNavItem(el: HTMLElement): void {
+  el.focus();
+  el.scrollIntoView({ block: "center", behavior: "smooth" });
+  if (el.hasAttribute("data-nav-activate") && el.tagName !== "A") {
+    el.dispatchEvent(
+      new MouseEvent("click", { bubbles: true, cancelable: true }),
+    );
+  }
+}
+
+/**
+ * Whether an item step's route change will actually move: the adjacent page
+ * exists. The first/last-route boundary belongs to the router, so this defers
+ * to its own resolution rather than keeping a second copy of the route order
+ * here — `resolveRoute` canonicalizes the current path exactly as the router's
+ * `currentPath` is, and `routeAtOffset` applies the same clamp that
+ * `useAdjacentNavigation` no-ops on. If the clamped target is where we already
+ * are, the move is a no-op.
+ */
+export function adjacentRouteExists(direction: 1 | -1): boolean {
+  const from = resolveRoute(window.location.pathname).path;
+  return routeAtOffset(from, direction).path !== from;
+}
+
 /* Pending step-focus for the destination page: set by the handler when a step
    routes, consumed by PageShell's keyed mount effect — the only moment the
    new page's DOM exists (AnimatePresence mode="wait"). */
@@ -165,23 +199,18 @@ export function createPageNavHandler(
       );
 
       if (resolved.type === "focus") {
-        const el = items[resolved.index];
-        el.focus();
-        el.scrollIntoView({ block: "center", behavior: "smooth" });
-        /* Activation AFTER focus (the reveal must not steal focus back), and
-           never on an <a> — a dispatched click there would navigate away from
-           the tour. Contact's credential rows are deliberately not marked. */
-        if (el.hasAttribute("data-nav-activate") && el.tagName !== "A") {
-          el.dispatchEvent(
-            new MouseEvent("click", { bubbles: true, cancelable: true }),
-          );
-        }
+        landOnNavItem(items[resolved.index]);
         return;
       }
 
-      /* Past the last / before the first item — route, and tell the
-         destination page which end of its tour to land on. */
-      setPendingStepFocus(action.direction);
+      /* Past the last / before the first item — roll into the adjacent page.
+         Only a move may arm the handoff: at the first/last route the adjacent
+         call is a no-op, and a stale pending focus would be consumed by the
+         NEXT unrelated route change (a header tab), landing focus on that
+         page's first/last item instead of restoring the #main baseline. */
+      if (adjacentRouteExists(action.direction)) {
+        setPendingStepFocus(action.direction);
+      }
       if (action.direction === 1) deps.goNext();
       else deps.goPrev();
       return;
