@@ -15,24 +15,28 @@
   --font-mono: 'Hack', 'Cascadia Mono', 'IBM Plex Mono', monospace;
 
   /* --- LIGHT · paper / ink / concrete ---------------------------------- */
-  /* Paper brightened (was #f2f2ef/#e9e9e5/#e0e0db): still neutral off-white
-     with a ~1% warm cast, not cream — the ground rose and the surfaces moved
-     up with it, keeping the same layered order and every contrast pair above
-     its threshold (§7 of DESIGN.md). */
-  --color-bg: #fbfbfa; /* paper */
-  --color-surface: #f4f4f1;
-  --color-surface-2: #ebebe7;
-  --color-border: #c9c9c3; /* concrete hairline — unchanged; brighter paper
-                              raises its separation weight (1.48 → 1.61 vs bg) */
+  /* Paper is now PURE WHITE (#ffffff, was #fbfbfa/#f4f4f1/#ebebe7): the
+     operator read the off-white paper as grey, so the ground went to white and
+     the two surfaces were lifted in step to keep the same layered order (each
+     still a distinct step below the ground). The warm cast is gone with it —
+     "paper" here is the literal page, not an off-white approximation of one.
+     Every contrast pair still clears its §7 threshold, and every ratio rose
+     (the ground is now the luminance ceiling). */
+  --color-bg: #ffffff; /* paper — pure white */
+  --color-surface: #f7f7f6;
+  --color-surface-2: #efefee;
+  --color-border: #c9c9c3; /* concrete hairline — unchanged; the whiter ground
+                              raises its separation weight (1.61 → 1.66 vs bg,
+                              1.55 vs surface, 1.45 vs surface-2) */
   --color-border-accent: #111110; /* ink rule — the brutalist 1px border */
-  --color-text: #111110; /* ink · 18.25:1 on paper */
-  --color-text-dim: #3d3d39; /* 10.54 / 9.90 / 9.13 on bg / surface / surface-2 */
-  --color-text-muted: #57574f; /* 7.04 / 6.61 / 6.10 — AA in all three */
+  --color-text: #111110; /* ink · 18.89:1 on paper */
+  --color-text-dim: #3d3d39; /* 10.91 / 10.18 / 9.48 on bg / surface / surface-2 */
+  --color-text-muted: #57574f; /* 7.29 / 6.80 / 6.33 — AA in all three */
 
   /* --- ONE ACCENT (signal orange) -------------------------------------- */
   /* accent-2/3/4 are ALIASES of accent. The palette reads as a single accent;
      the names survive because components and content still reference them. */
-  --color-accent: #e03c00; /* 4.21 on paper — ≥3:1 UI */
+  --color-accent: #e03c00; /* 4.36 on paper — ≥3:1 UI */
   --color-accent-2: #e03c00;
   --color-accent-3: #e03c00;
   --color-accent-4: #e03c00;
@@ -41,7 +45,7 @@
   /* Text-safe accent. Separate token because the base accent only clears the
      3:1 UI threshold as text. Use `text-accent*-text` for text, `accent*`
      for rules, fills, and glyphs. */
-  --color-accent-text: #b02f00; /* 6.24 / 5.86 / 5.40 */
+  --color-accent-text: #b02f00; /* 6.46 / 6.02 / 5.61 */
   --color-accent-2-text: #b02f00;
   --color-accent-3-text: #b02f00;
   --color-accent-4-text: #b02f00;
@@ -179,7 +183,7 @@ p {
   z-index: 10001;
   padding: 0.5rem 1rem;
   background: var(--color-bg);
-  color: var(--color-accent-text); /* 6.24:1 light / 6.76:1 dark (§7) */
+  color: var(--color-accent-text); /* 6.46:1 light / 6.76:1 dark (§7) */
   font-size: var(--text-body); /* 13px named step — a control, ≥ --text-label */
   font-family: 'Hack', 'Cascadia Mono', 'IBM Plex Mono', monospace;
   border: 1px solid var(--color-accent);
@@ -221,46 +225,78 @@ p {
   animation: terminal-cursor 1s step-end infinite;
 }
 
-/* Honor reduced-motion: kill the caret blink. Framer Motion separately drops
-   transform/layout animation via MotionConfig reducedMotion="user" in App.tsx. */
-@media (prefers-reduced-motion: reduce) {
-  .terminal-cursor {
-    animation: none !important;
-  }
-}
+/* No OS motion-preference gate here, by operator decision: the caret always
+   blinks (DESIGN.md §10). */
 
 /* ============================================================================
-   === TEMPORARY — STATIC FILM GRAIN — OPERATOR-PENDING, NOT SYSTEM ============
+   === TEMPORARY — ANIMATED FILM GRAIN — OPERATOR-PENDING, NOT SYSTEM =========
    ----------------------------------------------------------------------------
    Status: TEMPORARY DECORATION, under evaluation. The operator wants to see
    whether the brutalist restyle wants a page-wide film-grain texture, and will
    decide whether to keep it. It is deliberately OUTSIDE the permanent token
-   layer quoted in DESIGN.md §2.2 ("the whole token layer") — the two
-   `--grain-opacity` tokens below are additive and temporary. Nothing else in
-   this file, and no component, knows this block exists.
+   layer quoted in DESIGN.md §2.2 ("the whole token layer") — the
+   `--grain-opacity` and `--grain-scale` tokens below are additive and temporary.
+   Nothing else in this file, and no component, knows this block exists.
 
    Anti-slop note: the catalogs ban decoration standing in for hierarchy and
    *decorative* noise, but exempt "a texture that belongs to the design"
    ([S1]/[S3]; DESIGN.md §9 "Survives the ban", §12 deferrals). This is that
-   exemption's arm: operator-requested, static, zero-information, no motion.
+   exemption's arm: operator-requested, zero-information, and — because the
+   operator asked for film rather than a still — stepped at ~10fps under an
+   explicit, documented exemption from DESIGN.md §10's "No loops" rule (§13).
+   It is not a §10 loop on its own terms: it carries no information, signals no
+   activity, has no entrance or state meaning, and carries no OS motion-
+   preference gate at all — the site animates at full potential by operator
+   decision (DESIGN.md §10).
 
    REVERT — either step is complete on its own:
      a) delete this whole comment + rules block (it owns both
-        `--grain-opacity` tokens — nothing else references them), or
+        `--grain-opacity` tokens, the theme-independent `--grain-scale` token,
+        the three frame data-URIs and the keyframes — nothing else references
+        any of them), or
      b) set `--grain-opacity: 0` in both theme blocks below. The
-        pseudo-element then stays in the tree but paints nothing.
+        pseudo-element then stays in the tree but paints nothing and schedules
+        no frames: the kill switch reaches the animation too (see the rule).
    ========================================================================== */
 
 :root {
-  /* Light: paper is bright, so noise reads fast — 0.03 is texture, not dirt. */
-  --grain-opacity: 0.03;
+  /* Light: 0.16 under `multiply`. `multiply` is NOT mean-neutral — it darkens
+     (B = b·s), by design, because the mean-neutral modes are invisible on a
+     white ground: `overlay` collapses to `1 − 2(1 − b)(1 − s)`, which is
+     exactly 1 when b = 1, so on `#ffffff` it is a mathematical no-op
+     (measured std-dev 0.00 on white, 0.47 on the old `#fbfbfa` — invisible
+     either way). `multiply` scales the noise by the backdrop itself, so it
+     survives on white: measured at the ORIGINAL 0.07 on `#ffffff`, mean
+     luminance 252.7, grain std-dev 0.9, range 249–255 — present but, with the
+     `baseFrequency="0.85"` sub-pixel noise, perceptually invisible.
+     RETUNE, then REVERT (operator, 2026-09-20): a coarse retune dropped
+     `baseFrequency` 0.85 → 0.3 (~3–5px features) to buy perceptibility with
+     grain SIZE and raised opacity to 0.14. The operator REJECTED the coarse
+     field as "too fat" and "sloppy" and asked for the fine, sharp grain back.
+     Sharpness is therefore restored at `baseFrequency="0.85"` and visibility
+     is carried by OPACITY, not feature size: 0.07 → 0.16 light. (The earlier
+     "invisible" reading came from a 2-pixel-stride sample of ~1px features —
+     an aliasing artifact that understated the true variation — see DESIGN.md
+     §13.) The honest cost is a larger uniform average-luminance drop on white,
+     roughly proportional to the opacity (~2% at 0.16 against ~0.9% at 0.07);
+     the exact figure is a browser measurement the lead re-takes at 1:1 and is
+     recorded in DESIGN.md §13. Size is the separate, theme-independent
+     `--grain-scale` token beside this one; this comment owns STRENGTH only. */
+  --grain-opacity: 0.4;
+  /* Grain SIZE/sharpness — 1 = default; below 1 = finer/sharper, above 1 = fatter. Theme-independent: declared once here, deliberately not repeated in the dark block. */
+  --grain-scale: 1;
 }
 
 /* Same selector shape as the dark token block above, so the grain follows the
    theme exactly where the palette does (data-theme lives on <html>). */
 html[data-theme="dark"] {
-  /* Dark: noise reads weaker on an ink ground, so a touch more — still ≤0.05. */
-  --grain-opacity: 0.05;
+  /* Dark: 0.20 under `multiply` (retuned from 0.10 for the coarse retune, then
+     kept through the REVERT to fine grain — visibility stays in the opacity).
+     On ink `#0e0e0d` multiply darkens too, so this is deliberately conservative
+     — the dark ground is already near the floor and a large multiply would
+     crush it. (Under the retired `overlay` this was 0.46; multiply buys the
+     same texture at a small fraction of the value.) */
+  --grain-opacity: 0.20;
 }
 
 /* The grain layer itself.
@@ -274,12 +310,87 @@ html[data-theme="dark"] {
      accessibility tree, and with no tabindex it cannot be reached by keyboard.
    - `z-index` sits above the CommandTerminal panel (`z-[9999]`) and the skip
      link (10001) so the texture is uniform across the screen instead of
-     stopping at the chrome; at ≤0.05 it is not perceptible over either.
-   - Static by construction: no animation, no transition, no keyframes, no
-     `mix-blend-mode`, no JS, no external fetch, no asset. The SVG is inline and
-     self-contained (feTurbulence, `stitchTiles="stitch"`), and the 160px tile
-     repeats seamlessly because the filter region is set to exactly the tile.
-   `opacity: var(--grain-opacity)` is the single kill switch: 0 disables it. */
+     stopping at the chrome. Blending happens once, on the composited result of
+     those layers, so chrome and page get the same treatment; the chrome's own
+     grounds are the same `--color-bg`/`--color-surface*` tokens, so it reads as
+     one surface rather than a separate film per region.
+   - Self-contained: no animation plugin, no JS, no external fetch, no asset
+     file. Three inline self-contained `feTurbulence` SVGs (same filter recipe,
+     three different `seed`s) are the three frames, keyframed below; the 160px
+     tile repeats seamlessly because the filter region is set to exactly the
+     tile. This element is the only thing in the file that animates a
+     full-viewport layer — see the keyframes' COST note.
+
+   TWO TUNING KNOBS — deliberately only two:
+   - `--grain-opacity` = STRENGTH, and with it the average-luminance cost:
+     `multiply` darkens in proportion to it. 0 is the kill switch.
+   - `--grain-scale` = GRAIN SIZE / SHARPNESS, applied below as
+     `background-size: calc(160px * var(--grain-scale))`. 1 = the default 160px
+     tile (a no-op); below 1 = finer/sharper, above 1 = fatter. The tile is a
+     VECTOR `feTurbulence` SVG, so scaling redraws it crisply instead of
+     resampling pixels. `baseFrequency="0.85"` is the FIXED base recipe, not a
+     knob: sharpness is never chased by editing the four long data-URI strings
+     (that is how this block was broken before) — use `--grain-scale`.
+   `opacity: var(--grain-opacity)` is the single kill switch: 0 disables it,
+   animation included (the `animation` declaration below reads the same token).
+
+   `mix-blend-mode: multiply` — VISIBLE compositing. The block previously used
+   `overlay`, chosen for being luminance-neutral; measurement killed that choice.
+   `overlay`'s upper branch is B = 1 − 2(1 − b)(1 − s), and at b = 1 it collapses
+   to exactly 1 for every s: on pure white `#ffffff` the grain is a
+   mathematical no-op. Measured in the browser: grain std-dev 0.00 on `#ffffff`,
+   0.47 on the old `#fbfbfa` — invisible on both. Mean-neutral is the wrong goal
+   here; the ground is a highlight, and a blend that preserves the mean of a
+   highlight multiplies the noise by ~0.
+   `multiply` (B = b·s) instead scales the noise by the backdrop itself, so it
+   actually lands: measured at the original 0.07 on `#ffffff` the mean luminance
+   was 252.7 — a 0.9% average drop — with grain std-dev 0.9 and range 249–255.
+   RETUNED to 0.16 (light) / 0.20 (dark) on 2026-09-20. An intermediate coarse
+   retune (also changing `baseFrequency` 0.85 → 0.3) was REJECTED by the operator
+   as "too fat"/"sloppy", so `baseFrequency` is back at 0.85 — the size lever is
+   now `--grain-scale` (see the two knobs above), never a data-URI edit. At the
+   default scale the retune lives ONLY in the opacity: the fine grain is kept
+   sharp and made to register by strength, not by feature size. It is NOT
+   mean-neutral, and that is the
+   point: the cost of visibility is a small, uniform darkening of the ground,
+   roughly proportional to the opacity (~2% on white, against the measured 0.9%
+   at 0.07), recorded honestly here and in DESIGN.md §13. The per-theme
+   `--grain-opacity` tokens carry the strength; both were first re-tuned for
+   multiply (0.95→0.07 light, 0.46→0.10 dark), then raised to 0.14/0.18 for the
+   rejected coarse retune, then set to 0.16/0.20 for the fine-grain revert, and
+   the dark value stays deliberately low because multiply darkens on ink too.
+   Nothing here can clip: b·s ∈ [0, 1] for every backdrop and every noise
+   sample. The grain's own alpha channel varies too (feTurbulence fills all
+   four); that modulates coverage on the composite.
+   Blending is safe for this host: `html::after` is a child of the root element,
+   so its backdrop is the whole root stacking context — `body`'s
+   `background-color: var(--color-bg)` paper plus every app layer painted below
+   it (the motion pages and the chrome) — and nothing isolates it (`isolation`
+   is never set on html/body, and no ancestor exists above html). It already
+   paints at `z-index: 10002`, so the stacking context `mix-blend-mode` creates
+   on the pseudo-element is contained by an element that is already topmost: no
+   app layer is hidden, re-ordered, or repainted differently, and the
+   pseudo-element has no children to isolate. It changes no token and no text
+   colour declaration — it composites pixels, exactly as `opacity` already did,
+   so `--color-text` and friends are untouched; dark text on paper is its own
+   small backdrop (`b` near 0) and a multiply against it shifts less than the
+   ground does. `--grain-opacity: 0` still disables the whole effect: the layer
+   renders nothing to blend, blend mode or not.
+
+   ANIMATION — three frames, discrete swap, ~10fps. The three data-URIs below
+   share the filter recipe (`type="fractalNoise"`, `baseFrequency="0.85"`,
+   `numOctaves="3"`, `stitchTiles="stitch"`, saturate-0 grey) and differ only in
+   `seed` (7 / 41 / 113), so they are three genuinely different noise fields —
+   not one image slid around. The keyframes swap the `background-image` itself,
+   which is a discrete-typed property: it cannot interpolate, so adjacent frames
+   can only cut, never cross-blend. The base `background-image` below is frame 1
+   and the value the animation starts from. `baseFrequency="0.85"` is the FIXED
+   base recipe — the fine, sharp field the operator wants (a coarse 0.3 retune
+   was tried and REJECTED as "sloppy"; see `:root` and DESIGN.md §13) — and it is
+   never edited to change size: `--grain-scale` scales the drawn tile instead
+   (see the two knobs above). The tile is still 160px and the filter region is
+   still exactly the tile, so `stitchTiles="stitch"` keeps the repeat seamless
+   at any scale. */
 html::after {
   content: "";
   position: fixed;
@@ -287,6 +398,86 @@ html::after {
   z-index: 10002;
   pointer-events: none;
   opacity: var(--grain-opacity);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+  mix-blend-mode: multiply;
+  /* Frame 1 of 3 — the base frame. */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
   background-repeat: repeat;
+  /* The grain SIZE/sharpness knob — see TWO TUNING KNOBS above. The source is a
+     160px VECTOR tile, so this scales the drawing, not a bitmap: the SVG is
+     redrawn at the new size and `repeat` re-tiles it, filter region still pinned
+     to the tile. At the default `--grain-scale: 1` this is exactly 160px — a
+     no-op. No `baseFrequency` edit (and no four-string data-URI edit) needed. */
+  background-size: calc(160px * var(--grain-scale));
+  /* The kill switch reaches the animation, not just the paint. The duration is
+     an identity: at either live value (0.16 light / 0.20 dark) the ratio is
+     exactly 1, so the loop is exactly 0.3s. At `--grain-opacity: 0` it is
+     `calc(0 / 0 * 0.3s)` — NaN, which is invalid at computed-value time, so no
+     live duration exists and no frame is ever scheduled. Measured in Chrome:
+     the duration clamps to `0s`, `getAnimations()` on the element is empty, and
+     the painted frame never changes. (An engine that instead invalidates the
+     whole shorthand falls back to `animation-name: none`, which also schedules
+     nothing — the switch holds either way.) That keeps `--grain-opacity` the
+     single switch the whole block promises: 0 disables the paint and the loop
+     together, so the effect is fully off. */
+  animation: grain-reshuffle calc(var(--grain-opacity) / var(--grain-opacity) * 0.3s) steps(1, end) infinite;
+}
+
+/* The ~10fps reshuffle. Each frame holds one third of the 0.3s loop (~0.1s) and
+   the change is a hard cut — this is a reshuffle, not drift: no position, size
+   or transform moves, the noise field itself is replaced. `steps(1, end)` in the
+   rule above pins each cut to its segment's end; the hairline pairs
+   (`33.332%`/`33.333%`, `66.665%`/`66.666%`) hold the same frame on both sides
+   of each boundary, so the cut stays hard even if an engine resolves the
+   discrete step at 50% of a segment instead of at its end — both paths land on
+   the same 0.1s boundaries. `100%` repeats frame 1 so the loop wrap is no more
+   visible than any other cut.
+
+   COST — honest: this repaints one full-viewport layer ~10 times a second. The
+   source is a 160px tile repeated, so the raster work per frame is small, but
+   the result covers the whole viewport and `mix-blend-mode: multiply` re-blends
+   it against the root stacking context on every step: ~10 full-viewport
+   blended repaints/second, on top of the per-frame style recalc. It animates
+   `background-image` only — nothing that triggers layout, so no reflow and no
+   CLS. No `will-change` is set on purpose: it would promote a full-viewport
+   blended layer to its own compositor texture to skip a paint that is already
+   cheap, and the composite of a viewport-sized texture is not. The loop is
+   never gated by an OS motion preference — the site animates at full potential
+   by operator decision (DESIGN.md §10). */
+@keyframes grain-reshuffle {
+  /* frame 1 — seed 7 */
+  0%,
+  33.332% {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+  }
+  /* frame 2 — seed 41 */
+  33.333%,
+  66.665% {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='41' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+  }
+  /* frame 3 — seed 113 */
+  66.666%,
+  100% {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='113' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+  }
+}
+
+/* The grain animation is deliberately ungated: no OS motion-preference media
+   query disables it, by operator decision (DESIGN.md §10, §13). */
+
+/* Lite tier — throttle the reshuffle to ~3fps, do not disable it.
+   `html[data-perf="lite"]::after` (0,1,2) outranks the base `html::after`
+   (0,0,2) and follows it in source order, so this bare `animation-duration`
+   wins without `!important`. Only the duration changes: the name, the
+   `steps(1, end)`, `infinite`, `multiply` blend, `--grain-opacity` values and
+   the three frames all come from the rules above, unchanged.
+
+   This is a CAPABILITY tier, not a user-preference tier: `data-perf="lite"` is
+   set pre-paint when the WebGL probe finds no hardware acceleration (this
+   machine reports "Microsoft Basic Render Driver"), i.e. a software renderer
+   that pays the full per-frame composite cost. The preference-is-honoured rule
+   above does not apply here — the reduced-motion decision in §10 is about what
+   the user wants, this is about what the machine can afford, so the grain still
+   moves (3fps is the operator-chosen floor), it just moves less. */
+html[data-perf="lite"]::after {
+  animation-duration: 1s;
 }

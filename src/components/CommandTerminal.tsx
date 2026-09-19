@@ -45,7 +45,7 @@ const HELP_ROWS: ReadonlyArray<readonly [string, string]> = [
   ["help", "Show this help message"],
   ["ls", `List ${SECTION_COUNT} sections`],
   ["cd <section>", "Navigate to a section"],
-  ["←/→ keys", "Previous / next page"],
+  ["←/→ keys", "Step items; then next page"],
   ["↑/↓ keys", "Scroll within section"],
   ["Home/End", "Top / bottom of section"],
   ["whoami", "Identity information"],
@@ -430,9 +430,9 @@ export function CommandTerminal() {
               autoComplete="off"
             />
             {/* The one caret: it sits on the live input line (the only place a
-                person can type) and collapses under prefers-reduced-motion via
-                `.terminal-cursor`. It is suppressed once there is text, because
-                the native input caret is already blinking there. */}
+                person can type), styled by `.terminal-cursor`. It is suppressed
+                once there is text, because the native input caret is already
+                blinking there. */}
             {input === "" && (
               <span
                 aria-hidden="true"
