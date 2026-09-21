@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { navigate, ROUTES } from "../lib/router";
-import { setTheme, useTheme, type TerminalTheme } from "../lib/theme";
+import { getTheme, setTheme, useTheme, type ThemePreference } from "../lib/theme";
 
 interface Line {
   id: number;
@@ -55,7 +55,7 @@ const HELP_ROWS: ReadonlyArray<readonly [string, string]> = [
   ["uptime", "System uptime"],
   ["ping", "Network test"],
   ["sudo", "Elevate privileges"],
-  ["theme", "Display color scheme"],
+  ["theme", "Get/set: auto|light|dark"],
   ["history", "Command history"],
   ["Ctrl+L", "Clear screen"],
 ];
@@ -83,8 +83,8 @@ const TRY_SUDO = [
   "  Hint: you're already root on your own machine.",
 ];
 
-function isValidTheme(value: string): value is TerminalTheme {
-  return value === "dark" || value === "light";
+function isValidPreference(value: string): value is ThemePreference {
+  return value === "auto" || value === "dark" || value === "light";
 }
 
 /* Window chrome marks: three 4px ink squares — radius 0 (§5), no accent fill
@@ -293,12 +293,13 @@ export function CommandTerminal() {
         case "theme": {
           if (!args[0]) {
             addLine("output", `  TERM_THEME=${termTheme}`);
-            addLine("output", "  usage: theme <dark|light>");
+            addLine("output", `  TERM_SCHEME=${getTheme()}`);
+            addLine("output", "  usage: theme <auto|light|dark>");
             break;
           }
-          if (!isValidTheme(args[0])) {
+          if (!isValidPreference(args[0])) {
             addLine("output", `  unknown theme: ${args[0]}`);
-            addLine("output", "  usage: theme <dark|light>");
+            addLine("output", "  usage: theme <auto|light|dark>");
             break;
           }
           setTheme(args[0]);
