@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { usePageScroll } from "../lib/pageScroll";
 import { ROUTES, navigate, useRoute } from "../lib/router";
-import { useTheme } from "../lib/theme";
+import { cycleTheme, useTheme } from "../lib/theme";
 
 const navItems = ROUTES.filter((route) => route.path !== "/");
 
@@ -20,7 +20,7 @@ export function Header() {
   const menuButtonRef = useRef<HTMLButtonElement>(null);
   const { y, isScrolling } = usePageScroll();
   const { route } = useRoute();
-  const [theme, applyTheme] = useTheme();
+  const [themePreference] = useTheme();
   const scrolled = y > 50;
   const activeSection = route.label;
 
@@ -29,11 +29,12 @@ export function Header() {
     return () => clearInterval(timer);
   }, []);
 
-  const toggleThemeHandler = useCallback(() => {
-    applyTheme(theme === "dark" ? "light" : "dark");
-  }, [theme, applyTheme]);
+  const cycleThemeHandler = useCallback(() => {
+    cycleTheme();
+  }, []);
 
-  /* F2 cycles the color scheme. Never hijack keys while typing or overlays are open. */
+  /* F2 cycles the color scheme: auto → light → dark. Never hijack keys while
+     typing or overlays are open. */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "F2" || e.repeat) return;
@@ -54,11 +55,11 @@ export function Header() {
         return;
       }
       e.preventDefault();
-      toggleThemeHandler();
+      cycleThemeHandler();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [toggleThemeHandler]);
+  }, [cycleThemeHandler]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -112,12 +113,13 @@ export function Header() {
             <span className="text-text-muted">|</span>
             <button
               type="button"
-              onClick={toggleThemeHandler}
-              title="Toggle color scheme (F2)"
+              onClick={cycleThemeHandler}
+              title="Cycle color scheme: auto / light / dark (F2)"
+              aria-label={`Color scheme: ${themePreference}. Cycle to the next scheme (F2)`}
               className="flex items-center gap-quarter whitespace-nowrap uppercase transition-colors duration-150 hover:text-text active:text-text"
             >
               <span className="text-text-muted">[F2]</span>
-              <span>theme:{theme}</span>
+              <span>theme:{themePreference}</span>
             </button>
           </span>
         </div>
