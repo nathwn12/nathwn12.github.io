@@ -1,34 +1,27 @@
-// One-off OG-image rasterizer: inline SVG (1200x630 terminal card) → sharp →
-// public/og-image.png. The PNG is committed, so CI/build never needs sharp —
-// keep sharp OUT of the build pipeline.
+// One-off OG-image rasterizer: inline SVG (1200x630 brutalist ink card) →
+// sharp → public/og-image.png. The card is flat dark ink paper — ink ground
+// (#0e0e0d) with paper text (#f2f2ef), a single 2px paper rule at the top, one
+// accent line, no window chrome: no titlebar, no traffic-light dots, no rounded
+// corners, no grid, no glow. Colors are the site's DARK theme tokens (see
+// src/index.css `html[data-theme="dark"]` + DESIGN.md §1). Type is monospace,
+// left-aligned on the same 80px margin as the shipped page. The PNG is
+// committed, so CI/build never needs sharp — keep sharp OUT of the build pipeline.
 import sharp from "sharp";
 import { mkdirSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 
-const SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Courier New, monospace">
-  <defs>
-    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
-      <path d="M 40 0 H 0 V 40" fill="none" stroke="#8ae234" stroke-opacity="0.05"/>
-    </pattern>
-  </defs>
-  <!-- card background -->
-  <rect width="1200" height="630" fill="#300a24"/>
-  <rect width="1200" height="630" fill="url(#grid)"/>
-  <!-- terminal window -->
-  <rect x="100" y="80" width="1000" height="470" rx="12" fill="#26081c" stroke="#8ae234" stroke-opacity="0.35" stroke-width="2"/>
-  <!-- titlebar -->
-  <rect x="100" y="80" width="1000" height="54" fill="#3d0f2e"/>
-  <rect x="100" y="125" width="1000" height="9" fill="#3d0f2e"/>
-  <circle cx="136" cy="107" r="8" fill="#f57900"/>
-  <circle cx="164" cy="107" r="8" fill="#729fcf"/>
-  <circle cx="192" cy="107" r="8" fill="#8ae234"/>
-  <text x="1070" y="116" text-anchor="end" font-size="22" fill="#8ae234">bash — nathan@portfolio</text>
-  <!-- body -->
-  <text x="140" y="210" font-size="30" fill="#8ae234" font-weight="bold">$ whoami</text>
-  <text x="140" y="300" font-size="64" fill="#d3d7cf" font-weight="bold">NATHANIEL</text>
-  <text x="140" y="382" font-size="64" fill="#8ae234" font-weight="bold">NIKOLAI LADERO</text>
-  <text x="140" y="450" font-size="26" fill="#b0b7bd" letter-spacing="4">BACKEND DEVELOPER — 3 YRS PRODUCTION FINTECH</text>
-  <text x="140" y="515" font-size="24" fill="#729fcf">status: OPEN TO WORK</text>
+const SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Consolas, 'Courier New', 'DejaVu Sans Mono', monospace">
+  <!-- ink ground -->
+  <rect width="1200" height="630" fill="#0e0e0d"/>
+  <!-- the one structural rule: full-width 2px paper rule -->
+  <rect x="0" y="0" width="1200" height="2" fill="#edede8"/>
+  <!-- type -->
+  <text x="80" y="96" font-size="24" font-weight="400" fill="#a3a39c">$ whoami</text>
+  <text x="80" y="200" font-size="68" font-weight="700" fill="#f2f2ef">NATHANIEL</text>
+  <text x="80" y="282" font-size="68" font-weight="700" fill="#f2f2ef">NIKOLAI LADERO</text>
+  <text x="80" y="350" font-size="20" font-weight="400" letter-spacing="4" fill="#c9c9c3">BACKEND DEVELOPER — 3 YRS PRODUCTION FINTECH</text>
+  <text x="80" y="420" font-size="24" font-weight="400" fill="#ff6a2b">status: OPEN TO WORK</text>
+  <text x="1120" y="584" font-size="18" font-weight="400" text-anchor="end" fill="#a3a39c">nathwn12.github.io</text>
 </svg>`;
 
 const outFile = join(process.cwd(), "public", "og-image.png");
