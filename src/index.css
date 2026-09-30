@@ -232,7 +232,7 @@ p {
 
 ::selection {
   background: var(--color-selection);
-  color: var(--color-accent);
+  color: var(--color-text);
 }
 
 /* Theme flips must be atomic: while the `theme-flip` guard is on <html>,

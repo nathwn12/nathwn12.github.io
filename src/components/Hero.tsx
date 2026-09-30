@@ -1,4 +1,4 @@
-import { navigate } from "../lib/router";
+import { PageFoot } from "./PageFoot";
 
 /**
  * Hero — brutalist restyle (DESIGN.md wins over code).
@@ -126,38 +126,11 @@ export function Hero() {
           </div>
         </div>
 
-        {/* Resume — the one primary action */}
-        <div className="mt-section flex items-baseline gap-half">
-          <span className="text-label text-text-muted">$</span>
-          <a
-            href="Nathaniel-Nikolai-Ladero-Resume.pdf"
-            download="Nathaniel-Nikolai-Ladero-Resume.pdf"
-            className="text-body-lg text-accent-text underline-offset-4 hover:underline active:opacity-70"
-          >
-            wget ./resume.pdf
-          </a>
-          <span className="text-body-lg text-text-muted">↓</span>
-        </div>
-
-        {/* Page navigation hints */}
-        <div className="mt-block flex items-center gap-block">
-          <button
-            type="button"
-            disabled
-            className="flex items-center gap-half text-label text-text-muted opacity-40 cursor-not-allowed"
-          >
-            <span>←</span>
-            <span>PREV</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => navigate("/experience")}
-            className="flex items-center gap-half border-b border-transparent text-label text-text transition-colors duration-150 hover:border-border-accent active:border-border-accent"
-          >
-            <span>NEXT</span>
-            <span>→</span>
-          </button>
-        </div>
+        {/* PageFoot — the shared prompt row: `$ wget ./resume.pdf ↓` (accent
+            treatment preserved for Home) + the adjacent-route pager. The
+            terminus PREV and the old inline pager are gone (DESIGN.md §2.3 —
+            the résumé control stays the one primary action). */}
+        <PageFoot accentResume />
       </div>
     </section>
   );
