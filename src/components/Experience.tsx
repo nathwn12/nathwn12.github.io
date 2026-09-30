@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { employer, logEntries } from "../content/experience";
+import { PageFoot } from "./PageFoot";
 
 /**
  * Experience — `journalctl` log pane.
@@ -158,6 +159,8 @@ export function Experience() {
             </p>
           </div>
         </div>
+
+        <PageFoot />
       </div>
     </section>
   );

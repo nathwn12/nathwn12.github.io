@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/cn";
 import { repos, TIER_STYLES, type RepoGroup, type Tier } from "../content/skills";
+import { PageFoot } from "./PageFoot";
 
 /**
  * Skills — systemd capability board.
@@ -384,6 +385,8 @@ export function Skills() {
             ))}
           </div>
         </div>
+
+        <PageFoot />
       </div>
     </section>
   );
