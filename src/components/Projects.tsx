@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { cn } from "../lib/cn";
 import { projects } from "../content/projects";
+import { PageFoot } from "./PageFoot";
 
 type ProjectId = string & { readonly __brand: "Project" };
 
@@ -258,6 +259,8 @@ export default function Projects() {
             </div>
           )}
         </div>
+
+        <PageFoot />
       </div>
     </section>
   );

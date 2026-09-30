@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import { CONTACT_EMAIL, validateContact } from "../lib/contact";
 import { credentials } from "../content/credentials";
+import { PageFoot } from "./PageFoot";
 
 type FormStatus = {
   type: "pending" | "success" | "error";
@@ -416,6 +417,8 @@ export function Contact() {
             </p>
           </div>
         </div>
+
+        <PageFoot />
       </div>
     </section>
   );
