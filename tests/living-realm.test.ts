@@ -18,7 +18,9 @@ describe("living realm rebuild", () => {
     expect(atlas).toMatch(/aria-label=\{node\.label\}/);
     expect(atlas).toMatch(/aria-pressed=\{isSelected\}/);
     expect(atlas).toMatch(/aria-live="polite"/);
-    expect(atlas).toMatch(/useReducedMotion\(\)/);
+    // Reduced motion is now read through the persisted preference resolver,
+    // not the raw OS media query — the gate itself is what this pins.
+    expect(atlas).toMatch(/useResolvedReduceMotion\(\)/);
     expect(atlas).toMatch(/<svg[\s\S]*?viewBox=\{`0 0 \$\{VIEW_W\} \$\{VIEW_H\}`\}/);
     expect(atlas).toMatch(/motion\.path/);
     expect(atlas).toContain("payments");
