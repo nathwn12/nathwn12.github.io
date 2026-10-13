@@ -32,9 +32,10 @@ import { PageFoot } from "./PageFoot";
  * description as Detail lines, so how the work was done sits with what it was.
  *
  * Motion: the title block rises once (fadeUp); entries walk in under
- * staggerParent with one short beat per row (staggerChild). Reduced motion is
- * honoured inside src/lib/motion, so the ledger still arrives — shorter, never
- * cut, and every line stays legible.
+ * staggerParent with one short beat per row (staggerChild). It runs
+ * unconditionally — the OS reduced-motion query no longer gates this site
+ * (owner order 2026-10-14), so the ledger arrives full-length, every line
+ * legible.
  *
  * States: content is imported synchronously and schema-validated at module load
  * (content/experience.ts throws on a mismatch), so this page has no loading,

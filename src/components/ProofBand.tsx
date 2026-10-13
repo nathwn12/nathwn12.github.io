@@ -17,7 +17,8 @@ import { fadeUp, staggerChild, staggerParent } from "../lib/motion";
  *
  * Choreography: the band is a stagger parent (staggerParent) and each element
  * walks in a short beat apart (fadeUp / staggerChild), revealed once when the
- * band enters the viewport. Reduced motion is honoured inside src/lib/motion.
+ * band enters the viewport — unconditionally, since the OS reduced-motion query
+ * no longer gates this site (owner order 2026-10-14).
  *
  * Authority: fleet brief (senior landing pass) + docs/premium-direction.md
  * § Landing ("one measured outcome as the page proof marker"), § Hard-ban list

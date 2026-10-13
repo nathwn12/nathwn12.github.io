@@ -6,8 +6,9 @@
  *  1. The pure state machine (src/components/Hero.tsx: nextTypingState /
  *     typingDelayMs / initialTypingState) — driven step by step, no timers.
  *  2. useHeroTyping — the loop itself, mounted on a bare probe with fake
- *     timers: it advances through the cadence, renders the reduced-motion
- *     static first phrase with ZERO timers, and clears its timer on unmount.
+ *     timers: it advances through the cadence, keeps animating even when the OS
+ *     asks for less motion (owner order 2026-10-14 — there is no reduced state
+ *     to opt out to), and clears its timer on unmount.
  *
  * The probe renders no framer-motion nodes, so the scheduled-timer count is
  * the hook's alone.
@@ -214,8 +215,8 @@ describe("typingDelayMs — cadence by frame", () => {
 });
 
 /** Bare hook probe: no framer-motion nodes, so timers counted are the hook's. */
-function Probe({ reduceMotion }: { reduceMotion: boolean }) {
-  const { state, phrase, shown } = useHeroTyping(reduceMotion);
+function Probe() {
+  const { state, phrase, shown } = useHeroTyping();
   return createElement(
     "p",
     { "data-testid": "probe" },
@@ -226,9 +227,9 @@ function Probe({ reduceMotion }: { reduceMotion: boolean }) {
 let container: HTMLDivElement;
 let root: Root;
 
-function mount(reduceMotion: boolean) {
+function mount() {
   act(() => {
-    root.render(createElement(Probe, { reduceMotion }));
+    root.render(createElement(Probe));
   });
 }
 
@@ -265,17 +266,18 @@ afterEach(() => {
   act(() => root.unmount());
   container.remove();
   vi.useRealTimers();
+  vi.unstubAllGlobals();
 });
 
-describe("useHeroTyping — loop, reduced motion, cleanup", () => {
+describe("useHeroTyping — loop, always-animated, cleanup", () => {
   it("renders the full first phrase on mount and schedules one timer", () => {
-    mount(false);
+    mount();
     expect(probeText()).toBe(`${FIRST}|${FIRST}|0|${FIRST_LEN}|false`);
     expect(vi.getTimerCount()).toBe(1);
   });
 
   it("holds the hook, then deletes a character when the cadence advances", () => {
-    mount(false);
+    mount();
     act(() => vi.advanceTimersByTime(TYPING_CADENCE.holdFirst));
     // Deleting has begun but no character is removed yet.
     expect(probeText()).toBe(`${FIRST}|${FIRST}|0|${FIRST_LEN}|true`);
@@ -286,7 +288,7 @@ describe("useHeroTyping — loop, reduced motion, cleanup", () => {
   });
 
   it("cycles to a non-opening identity after hold + delete + gap + one type", () => {
-    mount(false);
+    mount();
     for (
       let i = 0;
       i < 500 && !(frame().phraseIndex !== 0 && frame().charCount === 1);
@@ -301,17 +303,35 @@ describe("useHeroTyping — loop, reduced motion, cleanup", () => {
     expect(probeText()).toBe(`${phrase[0]}|${phrase}|${phraseIndex}|1|false`);
   });
 
-  it("reduced motion: static first phrase, zero timers, no drift", () => {
-    mount(true);
+  it("always animates: the loop runs even when the OS reports reduce", () => {
+    /* Owner order 2026-10-14 — the OS reduced-motion query no longer holds this
+       loop still (src/lib/motionPreference.ts pins the animated path). */
+    const media = ((query: string) =>
+      ({
+        matches: query.includes("prefers-reduced-motion"),
+        media: query,
+        onchange: null,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+        addListener: () => undefined,
+        removeListener: () => undefined,
+        dispatchEvent: () => false,
+      }) as unknown as MediaQueryList) as typeof window.matchMedia;
+    vi.stubGlobal("matchMedia", media);
+
+    mount();
+    expect(
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+    ).toBe(true);
     expect(probeText()).toBe(`${FIRST}|${FIRST}|0|${FIRST_LEN}|false`);
-    expect(vi.getTimerCount()).toBe(0);
-    act(() => vi.advanceTimersByTime(120_000));
-    expect(probeText()).toBe(`${FIRST}|${FIRST}|0|${FIRST_LEN}|false`);
-    expect(vi.getTimerCount()).toBe(0);
+    expect(vi.getTimerCount()).toBe(1);
+
+    act(() => vi.advanceTimersByTime(TYPING_CADENCE.holdFirst));
+    expect(probeText()).toBe(`${FIRST}|${FIRST}|0|${FIRST_LEN}|true`);
   });
 
   it("clears its pending timer on unmount", () => {
-    mount(false);
+    mount();
     expect(vi.getTimerCount()).toBe(1);
     act(() => root.unmount());
     expect(vi.getTimerCount()).toBe(0);

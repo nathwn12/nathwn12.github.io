@@ -1,16 +1,10 @@
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { useResolvedReduceMotion } from "../lib/motionPreference";
+import { useEffect, useRef, useState } from "react";
+import { animate, motion, useMotionValue } from "framer-motion";
+import type { AnimationPlaybackControls } from "framer-motion";
 import { employer, experience } from "../content/experience";
 import { projects } from "../content/projects";
 import { RouteLink } from "../lib/router";
-import {
-  fadeUp,
-  heroIn,
-  marqueeX,
-  staggerChild,
-  staggerParent,
-} from "../lib/motion";
+import { fadeUp, heroIn, staggerChild, staggerParent } from "../lib/motion";
 import { CredentialsStrip, ProofBand } from "./ProofBand";
 import { PageFoot } from "./PageFoot";
 import { SystemAtlas } from "./SystemAtlas";
@@ -33,9 +27,13 @@ import { WorkTeaser } from "./WorkTeaser";
  * decoration.
  *
  * Motion comes from src/lib/motion only (frozen token names): the statement
- * walks in per element (heroIn for the title, fadeUp for the clauses), the
- * stack seam scrolls only when the visitor permits motion, and every band
- * degrades to a static, fully legible state under reduced motion.
+ * walks in per element (heroIn for the title, fadeUp for the clauses), and the
+ * stack seam scrolls continuously — the seam is the one motion this file drives
+ * itself, from a MotionValue, so the loop can be held (see
+ * {@link TICKER_PX_PER_S}). Nothing here is gated on the visitor's OS (owner
+ * order 2026-10-14, src/lib/motionPreference.ts): the typed claim is the
+ * page's one piece of character, and it is set in a fixed-length box so the
+ * bands below it never move while it types.
  *
  * Authority: fleet brief (senior landing pass) + docs/premium-direction.md
  * § Landing, § Type, § Principles 1 and 5.
@@ -51,8 +49,26 @@ const techStrip: string[] = Array.from(
 );
 
 /**
+ * The seam's rate: an ambient ticker reads at 35–45 px/s. The strip is laid out
+ * `w-max` and duplicated once, so one loop carries it exactly half its own
+ * width; the loop's seconds are therefore half the measured track over this
+ * rate, never a duration kept by hand — a stack item added to
+ * {@link techStrip} or a change of face would otherwise silently change the
+ * pace. Measured at 1440x900 (full Chromium over CDP, 2026-10-14): the track is
+ * 16417.34px wide, so one loop is 8208.67px and 40px/s is 205.2s.
+ *
+ * The loop is driven from a MotionValue rather than from a variant, because a
+ * variant's loop has no handle to hold: measured at 1440x900 (2026-10-14) the
+ * strip kept running at 40px/s while hovered. WCAG 2.2.2 asks that movement
+ * lasting over five seconds can be paused, and hovering or focusing the seam is
+ * that mechanism — a hidden document holds it too. Reduced motion is
+ * deliberately NOT a gate here (owner order 2026-10-14).
+ */
+const TICKER_PX_PER_S = 40;
+
+/**
  * The hero identities. The first entry is the fixed opening hook — it leads
- * every visit and is the static default (first paint, reduced motion, no-JS),
+ * every visit and is the static default (first paint, no-JS),
  * never randomized; the rest state what he is — a backend developer building
  * fintech systems, an AI-equipped builder — so the claim opens on the payments
  * work before the identities rotate. After the opener, the remaining entries
@@ -89,7 +105,7 @@ export interface TypingState {
 }
 
 /** The first frame: the opening phrase fully shown, so first paint and the
-    reduced-motion / no-JS state both carry the real claim, never an empty h1. */
+    no-JS state both carry the real claim, never an empty h1. */
 export function initialTypingState(
   phrases: readonly string[] = HERO_PHRASES,
 ): TypingState {
@@ -176,37 +192,110 @@ export function typingDelayMs(
 
 /**
  * The typing loop as a hook. Renders the current frame, waits its beat, steps
- * once with {@link nextTypingState}, and repeats. Reduced motion opts out
- * entirely: no timers are scheduled and the first phrase stays put. Exported so
+ * once with {@link nextTypingState}, and repeats — always: there is no reduced
+ * state to opt out to, so the loop owns its timer unconditionally. Exported so
  * the deterministic pure helpers AND the timer/cleanup behavior can be tested
  * without mounting the whole landing surface.
  */
-export function useHeroTyping(
-  reduceMotion: boolean,
-  phrases: readonly string[] = HERO_PHRASES,
-) {
+export function useHeroTyping(phrases: readonly string[] = HERO_PHRASES) {
   const [state, setState] = useState<TypingState>(() =>
     initialTypingState(phrases),
   );
 
   useEffect(() => {
-    if (reduceMotion) return;
     const id = window.setTimeout(() => {
       setState((current) => nextTypingState(current, phrases));
     }, typingDelayMs(state, phrases));
     return () => window.clearTimeout(id);
-  }, [state, reduceMotion, phrases]);
+  }, [state, phrases]);
 
   const phrase = phrases[state.phraseIndex] ?? phrases[0] ?? "";
-  const shown = reduceMotion
-    ? (phrases[0] ?? "")
-    : phrase.slice(0, state.charCount);
+  const shown = phrase.slice(0, state.charCount);
   return { state, phrase, shown };
 }
 
+/**
+ * The Insert caret — the rule that rides the end of the typed claim.
+ *
+ * Zero-width by construction: a `w-0` inline anchor with the rule absolutely
+ * positioned inside it, so the caret can never push the last character onto a
+ * new line. It is a drawn rule rather than a `▍` glyph so the page never asks
+ * for a face it does not set (premium-direction.md § Type: Fraunces + Public
+ * Sans, no system fallback). Its height stays inside the line's own ascent
+ * (0.8em of the 1em content box), so it adds no leading of its own.
+ */
+function InsertCaret() {
+  return (
+    <span aria-hidden="true" className="relative inline-block h-[0.8em] w-0">
+      <span className="absolute bottom-0 left-[0.1em] h-[0.7em] w-[0.09em] bg-accent-text" />
+    </span>
+  );
+}
+
 export function Hero() {
-  const reduceMotion = useResolvedReduceMotion();
-  const { phrase, shown } = useHeroTyping(reduceMotion);
+  const { phrase, shown } = useHeroTyping();
+  /* The same pass reads the loop's length off the track, so the seconds that
+     buy the ambient rate come from the rendered strip rather than from a
+     constant, and the faces are settled first: a fallback face lays the strip
+     out at a different width, and only the settled layout can time the loop.
+     Starting the loop from this effect, rather than from a variant, is also
+     what makes it holdable: the root's
+     `<AnimatePresence mode="wait" initial={false}>` (src/App.tsx) suppresses an
+     element's first declarative pass, which is what left the strip parked at the
+     loop's final keyframe, and a variant loop has no handle to pause. */
+  const trackRef = useRef<HTMLUListElement>(null);
+  const trackX = useMotionValue(0);
+  const [tickerSeconds, setTickerSeconds] = useState<number | null>(null);
+  useEffect(() => {
+    let alive = true;
+    const arm = () => {
+      const track = trackRef.current;
+      if (!alive || !track) return;
+      setTickerSeconds(track.getBoundingClientRect().width / 2 / TICKER_PX_PER_S);
+    };
+    document.fonts.ready.then(arm, arm);
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  /* The seam's loop: the duplicated track travels exactly half its own width
+     (the loop's seconds times the rate) and repeats for as long as the page is
+     up. `animate` hands back the playback controls, and they are kept — pausing
+     the loop where it stands is what the hold below needs; re-creating the loop
+     on resume would jump the strip back to its start. */
+  const controlsRef = useRef<AnimationPlaybackControls | null>(null);
+  useEffect(() => {
+    if (tickerSeconds === null) return;
+    const controls = animate(trackX, [0, -tickerSeconds * TICKER_PX_PER_S], {
+      duration: tickerSeconds,
+      ease: "linear",
+      repeat: Infinity,
+    });
+    controlsRef.current = controls;
+    return () => {
+      controlsRef.current = null;
+      controls.stop();
+    };
+  }, [tickerSeconds, trackX]);
+
+  /* The hold: hovering the seam, focusing inside it, or hiding the document
+     pauses the loop; releasing continues it from where it stopped. The seam
+     carries no control of its own, so the gesture IS the control. */
+  const [held, setHeld] = useState(false);
+  const [tabHidden, setTabHidden] = useState(false);
+  useEffect(() => {
+    const sync = () => setTabHidden(document.visibilityState === "hidden");
+    sync();
+    document.addEventListener("visibilitychange", sync);
+    return () => document.removeEventListener("visibilitychange", sync);
+  }, []);
+  useEffect(() => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+    if (held || tabHidden) controls.pause();
+    else controls.play();
+  }, [held, tabHidden, tickerSeconds]);
 
   return (
     <section id="hero" className="flex flex-col">
@@ -221,15 +310,28 @@ export function Hero() {
         >
           <motion.h1
             variants={heroIn}
-            aria-label={reduceMotion ? HERO_PHRASES[0] : phrase}
-            className="max-w-[16ch] text-[clamp(2.5rem,6vw,4rem)] leading-[1.04] font-semibold text-text"
+            aria-label={phrase}
+            className="grid max-w-[16ch] grid-cols-1 text-[clamp(2.5rem,6vw,4rem)] leading-[1.04] font-semibold text-text"
           >
-            <span aria-hidden="true">{shown}</span>
-            {!reduceMotion && (
-              <span aria-hidden="true" className="text-accent-text">
-                ▍
+            {/* Fixed-length Insert: every identity is laid out invisibly in the
+                SAME grid cell as the typed one, so the h1 is always exactly as
+                tall as the longest identity — including its caret — and the
+                claim can type itself out without ever reflowing the bands
+                below. No reserved magic height, and no drift at any breakpoint. */}
+            {HERO_PHRASES.map((identity) => (
+              <span
+                key={identity}
+                aria-hidden="true"
+                className="col-start-1 row-start-1 invisible"
+              >
+                {identity}
+                <InsertCaret />
               </span>
-            )}
+            ))}
+            <span aria-hidden="true" className="col-start-1 row-start-1">
+              {shown}
+              <InsertCaret />
+            </span>
           </motion.h1>
 
 
@@ -243,7 +345,7 @@ export function Hero() {
 
           <motion.p
             variants={fadeUp}
-            className="mt-5 max-w-[62ch] text-detail text-text-muted"
+            className="mt-5 max-w-[62ch] text-detail text-text-muted text-balance"
           >
             {employer.role}, {employer.company}. {employer.location},{" "}
             {employer.period}.
@@ -262,13 +364,21 @@ export function Hero() {
       </div>
 
       {/* The seam between the statement and its evidence: the real stack under
-          two hairlines, moving only when the visitor permits motion. Each item
-          is separated by a 1px Line rule, never a glyph. */}
-      <div className="overflow-hidden border-y border-border py-3">
+          two hairlines, always scrolling unless held — hovering, focusing
+          inside, or hiding the document pauses it (see
+          {@link TICKER_PX_PER_S}). Each item is separated by a 1px Line rule,
+          never a glyph. */}
+      <div
+        className="overflow-hidden border-y border-border py-3"
+        onMouseEnter={() => setHeld(true)}
+        onMouseLeave={() => setHeld(false)}
+        onFocus={() => setHeld(true)}
+        onBlur={() => setHeld(false)}
+      >
         <motion.ul
+          ref={trackRef}
           aria-hidden="true"
-          variants={marqueeX}
-          animate={reduceMotion ? undefined : "animate"}
+          style={{ x: trackX }}
           className="flex w-max items-center"
         >
           {[...techStrip, ...techStrip].map((tech, index) => (

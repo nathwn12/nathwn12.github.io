@@ -33,7 +33,8 @@ import { PageFoot } from "./PageFoot";
  * text gaps 16px (mt-4); credentials are the one dense list (py-4).
  *
  * Motion: the title block rises once (fadeUp) and the compose block settles a
- * beat later (fadeIn). Reduced motion is honoured inside src/lib/motion.
+ * beat later (fadeIn) — unconditionally, since the OS reduced-motion query no
+ * longer gates this site (owner order 2026-10-14).
  *
  * The form owns five visible states, never one-at-a-time guesses:
  *   loading     — the send control is disabled and the status line reads

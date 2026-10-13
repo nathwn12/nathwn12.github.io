@@ -18,8 +18,9 @@ import { staggerChild, staggerParent } from "../lib/motion";
  * hover affordance on a true control.
  *
  * Motion: the list is a stagger parent and each band is a stagger child, so the
- * three walk in one short beat apart and reduce to a static state under reduced
- * motion. Every string is read from src/content/projects.ts, so the copy lives
+ * three walk in one short beat apart, unconditionally — the OS reduced-motion
+ * query no longer gates this site (owner order 2026-10-14). Every string is
+ * read from src/content/projects.ts, so the copy lives
  * in exactly one place and this file only sequences and shortens it.
  *
  * Authority: fleet brief (senior landing pass) + docs/premium-direction.md
@@ -82,7 +83,7 @@ export function WorkTeaser() {
                   <RouteLink
                     href="/projects"
                     data-nav-item
-                    className="transition-colors duration-150 hover:text-accent-text hover:underline"
+                    className="inline-flex min-h-11 items-center transition-colors duration-150 hover:text-accent-text hover:underline"
                   >
                     {project.name}
                   </RouteLink>
