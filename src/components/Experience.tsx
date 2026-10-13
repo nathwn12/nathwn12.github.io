@@ -1,164 +1,149 @@
-import { useState } from "react";
-import { employer, logEntries } from "../content/experience";
+import { motion } from "framer-motion";
+import { employer, experience, provenance } from "../content/experience";
+import { fadeUp, staggerChild, staggerParent } from "../lib/motion";
+import { RouteLink } from "../lib/router";
 import { PageFoot } from "./PageFoot";
 
 /**
- * Experience — `journalctl` log pane.
+ * Experience — the career record as a dated time rail.
  *
- * Brutalist pass: one flat surface, ink/paper rules only, named type steps,
- * radius 0, no ambient gradient, no motion (DESIGN.md §4, §5, §6, §10).
+ * Authority: docs/premium-direction.md § Per-route application (Experience),
+ * § Layout (resolved asymmetry), § Type; motion names from src/lib/motion
+ * (frozen — never redefined here). Where this file and the direction disagree,
+ * the direction wins.
  *
- * The active row is marked by the 2px `--border-width-rule` structural rule
- * (ink in light / paper in dark) plus the `↓`/`→` glyph — never by a coloured
- * side stripe (§6, §9 P1 [S2] K4). Inactive rows carry the same 2px width as
- * `transparent`, so the row does not shift when it opens.
+ * Route identity (this route's alone): ONE persistent left rail carrying the
+ * date of every entry, so chronology is the spine and the eye travels a single
+ * vertical line down the page. That rail IS the resolved asymmetry — at wide
+ * widths the column widens past the 68ch measure and each date sits offset into
+ * the left gutter, aligned with the era marker the title block puts in the same
+ * rail; below `lg` the rail collapses and the date stacks above its entry. No
+ * other route has a left rail of its own: Skills runs its rail on the right
+ * (tier), Projects ranks in a narrow numeric column.
  *
- * Accent budget (§2.3 — one accent, three places): the header `$` prompt, the
- * active row's entry id, and the expanded row's status mark.
+ * Rhythm: the direction's 8px base held strictly — section gaps 64px (mt-16),
+ * entry gaps 32px (mt-8), text gaps 16px (mt-4). Bands are full width and
+ * unboxed: a 1px Line rule, then the entry. Nothing nests.
+ *
+ * Emphasis is weight and position, never colour: the outcome sentence (the
+ * claim) is set a step heavier than the supporting description, and the status
+ * is stated in words beside its tech as Line-bordered chips. Each entry's
+ * `highlights` — the concrete moves behind the outcome — render under the
+ * description as Detail lines, so how the work was done sits with what it was.
+ *
+ * Motion: the title block rises once (fadeUp); entries walk in under
+ * staggerParent with one short beat per row (staggerChild). Reduced motion is
+ * honoured inside src/lib/motion, so the ledger still arrives — shorter, never
+ * cut, and every line stays legible.
+ *
+ * States: content is imported synchronously and schema-validated at module load
+ * (content/experience.ts throws on a mismatch), so this page has no loading,
+ * empty, or error state of its own; the shell owns both (Suspense fallback and
+ * the route error boundary in App.tsx).
  */
+
+/* One rail, declared once: the title block and every entry share this width, so
+   the vertical line is a fact of the page rather than a per-row decision. */
+const RAIL = "lg:grid lg:grid-cols-[7rem_minmax(0,1fr)] lg:items-start lg:gap-x-8";
+
+/* The one code-adjacent convention in the system: Body family at Detail size,
+   letterspacing 0, distinguished by a Line border rather than a third face. */
+const CHIP =
+  "inline-flex items-center rounded-xs border border-border px-2 py-1 text-detail text-text-muted";
+
+const ACTION =
+  "mt-8 inline-flex min-h-11 items-center rounded-xs text-label font-semibold text-accent-text transition-colors duration-link hover:underline";
+
 export function Experience() {
-  const [activeExp, setActiveExp] = useState<number | null>(0);
-
   return (
-    <section
-      id="experience"
-      className="px-gutter py-block md:px-section md:py-section"
-    >
-      <div className="mx-auto max-w-5xl">
-        {/* `prompt: command` section header — product IA, not an eyebrow */}
-        <div className="mb-block flex items-center gap-half">
-          <span className="text-body text-accent-text">$</span>
-          <span className="text-label tracking-[0.15em] text-text-dim">
-            journalctl -u career.service --no-pager
-          </span>
-          <div className="h-px flex-1 bg-border" />
-        </div>
-
-        <div className="border border-border-accent bg-bg">
-          {/* Service header — single employer era */}
-          <div className="flex flex-wrap items-baseline gap-x-gutter gap-y-quarter border-b border-border-accent px-gutter py-half">
-            <span className="text-body-lg font-bold text-text">
-              {employer.unit}
-            </span>
-            <span className="text-body font-bold text-text-dim">
-              {employer.role}
-            </span>
-            <span className="text-label text-text-dim">{employer.company}</span>
-            <span className="text-label text-text-muted">
-              ({employer.location})
-            </span>
-            <span className="flex-1" />
-            <span className="whitespace-nowrap text-label tabular-nums text-text-muted">
-              {employer.period}
-            </span>
-          </div>
-
-          <div className="divide-y divide-border">
-            {logEntries.map((exp, i) => {
-              const active = activeExp === i;
-              return (
-                <div
-                  key={exp.id}
-                  role="button"
-                  tabIndex={0}
-                  data-nav-item
-                  data-nav-activate
-                  aria-expanded={active}
-                  className={`cursor-pointer border-l-[length:var(--border-width-rule)] transition-colors duration-200 ${
-                    active
-                      ? "border-l-border-accent bg-surface"
-                      : "border-l-transparent hover:bg-surface"
-                  }`}
-                  onClick={() =>
-                    setActiveExp((prev) => (prev === i ? null : i))
-                  }
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      setActiveExp((prev) => (prev === i ? null : i));
-                    }
-                  }}
-                >
-                  <div className="flex items-center gap-block px-gutter py-block">
-                    <span
-                      className={`text-label font-bold tabular-nums transition-colors duration-200 ${
-                        active ? "text-accent-text" : "text-text-muted"
-                      }`}
-                    >
-                      {exp.id}
-                    </span>
-
-                    <span className="text-label font-bold text-text-dim">
-                      [OK]
-                    </span>
-
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-col gap-quarter md:flex-row md:items-baseline md:justify-between md:gap-gutter">
-                        <h3
-                          className={`text-body-lg font-bold transition-colors duration-200 ${
-                            active ? "text-text" : "text-text-dim"
-                          }`}
-                        >
-                          {exp.unit}
-                        </h3>
-                        <span className="whitespace-nowrap text-micro tabular-nums text-text-muted">
-                          {exp.timestamp}
-                        </span>
-                      </div>
-                      <p className="mt-quarter text-body text-text-dim">
-                        {exp.summary}
-                      </p>
-                    </div>
-
-                    <span
-                      aria-hidden="true"
-                      className={`text-body-lg ${
-                        active ? "text-text" : "text-text-muted"
-                      }`}
-                    >
-                      {active ? "↓" : "→"}
-                    </span>
-                  </div>
-
-                  {active && (
-                    <div className="space-y-block border-t border-border px-gutter py-block md:px-block">
-                      <p className="max-w-[65ch] text-body text-text-dim">
-                        {exp.description}
-                      </p>
-                      <ul className="flex flex-wrap gap-half">
-                        {exp.tech.map((t) => (
-                          <li
-                            key={t}
-                            className="border border-border px-half py-quarter text-label text-text-muted"
-                          >
-                            {t}
-                          </li>
-                        ))}
-                      </ul>
-                      <p className="flex items-center gap-half text-label text-text-dim">
-                        {/* 4px square mark — radius 0, no rounded dot (§5) */}
-                        <span
-                          aria-hidden="true"
-                          className="h-quarter w-quarter shrink-0 bg-accent"
-                        />
-                        {exp.status}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Provenance footnote — the only surviving footprint-ledger
-              detail, kept as a plain log footer row (D3 survivor rule). */}
-          <div className="border-t border-border-accent px-gutter py-half md:px-block">
-            <p className="text-micro text-text-muted">
-              commit ledger recovered from 21 scanned internal repositories
-              after Xentra closed May 2026 · 1,182 commits / 17 repos 2023–2026
+    <section id="experience" className="px-6 py-16 lg:px-10">
+      <div className="mx-auto w-full max-w-[68ch] lg:max-w-[calc(68ch_+_9rem)]">
+        {/* Title block: the era marker takes the rail, the title and claim take
+            the content edge every entry below will share. */}
+        <div className={RAIL}>
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            className="lg:col-start-2 lg:row-start-1"
+          >
+            <h1 className="text-display font-semibold text-text">Experience</h1>
+            <p className="mt-4 max-w-[65ch] text-lead text-text">
+              Three years of production fintech work in C# and ASP.NET Core,
+              from payment APIs and data layers down to the Ubuntu servers they
+              run on.
             </p>
-          </div>
+            <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
+              {employer.role}, {employer.company}, {employer.location}.
+            </p>
+            <RouteLink href="/contact" className={ACTION}>
+              Ask about this work
+            </RouteLink>
+          </motion.div>
+
+          <motion.p
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            className="mt-2 text-detail tabular-nums text-text-muted lg:col-start-1 lg:row-start-1 lg:mt-0 lg:pt-2"
+          >
+            {employer.period}
+          </motion.p>
         </div>
+
+        <motion.ol
+          variants={staggerParent}
+          initial="hidden"
+          animate="visible"
+          className="mt-16"
+        >
+          {experience.map((entry) => (
+            <motion.li
+              key={entry.id}
+              variants={staggerChild}
+              className={`mt-16 border-t border-border pt-8 ${RAIL}`}
+            >
+              <p className="text-detail tabular-nums text-text-muted lg:pt-1">
+                {entry.date}
+              </p>
+
+              <div className="mt-4 lg:mt-0">
+                <h2 className="text-title font-semibold text-text">
+                  {entry.name}
+                </h2>
+                <p className="mt-4 max-w-[65ch] text-body font-medium text-text">
+                  {entry.outcome}
+                </p>
+                <p className="mt-4 max-w-[65ch] text-body text-text-muted">
+                  {entry.description}
+                </p>
+                {entry.highlights.length > 0 && (
+                  <ul className="mt-4 max-w-[65ch] space-y-2">
+                    {entry.highlights.map((highlight) => (
+                      <li key={highlight} className="text-detail text-text-muted">
+                        {highlight}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <p className="mt-4 text-detail text-text-muted">
+                  {entry.status}
+                </p>
+                <ul className="mt-4 flex flex-wrap gap-2">
+                  {entry.tech.map((item) => (
+                    <li key={item} className={CHIP}>
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </motion.li>
+          ))}
+        </motion.ol>
+
+        <p className="mt-16 max-w-[65ch] border-t border-border pt-8 text-detail text-text-muted">
+          {provenance}
+        </p>
 
         <PageFoot />
       </div>

@@ -6,11 +6,10 @@ import {
   type ComponentType,
   type ReactNode,
 } from "react";
-import { AnimatePresence, MotionConfig } from "framer-motion";
+import { AnimatePresence, MotionConfig, useReducedMotion } from "framer-motion";
 import { PageShell } from "./components/PageShell";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
-import { CommandTerminal } from "./components/CommandTerminal";
 import { Hero } from "./components/Hero";
 import { NotFound } from "./components/NotFound";
 import { useRoute, useAdjacentNavigation, routeByPath } from "./lib/router";
@@ -26,7 +25,7 @@ import { createPageNavHandler } from "./lib/keyboardNav";
  *
  * The other four routes stay `React.lazy`-loaded so their JS ships in its own
  * chunk rather than the first-paint bundle; the shared shell (Header/Footer/
- * CommandTerminal/PageShell) and the router stay in the entry chunk too.
+ * PageShell) and the router stay in the entry chunk too.
  */
 const PAGES: Record<string, ComponentType> = {
   hero: Hero,
@@ -41,7 +40,7 @@ const PAGES: Record<string, ComponentType> = {
 /** Static, non-animated fallback shown while a page chunk is in flight. */
 function PageFallback() {
   return (
-    <div className="min-h-[40vh] flex items-center justify-center text-label uppercase tracking-widest text-text-muted">
+    <div className="min-h-[40vh] flex items-center justify-center text-label text-text-muted">
       Loading…
     </div>
   );
@@ -51,13 +50,13 @@ type ErrorBoundaryProps = { children: ReactNode };
 type ErrorBoundaryState = { hasError: boolean };
 
 /**
- * Error boundary around the routed content only (DESIGN §10: "content is
- * visible by default so a failed animation cannot hide it"). A failed lazy
- * chunk import — GH Pages answers a missing /assets/*.js with 404.html — would
- * otherwise leave the Suspense fallback up forever and blank the SPA. The
- * fallback is static (no motion, no dependencies) and offers a hard link home,
- * which re-fetches the entry bundle. It remounts on every route change because
- * PageShell is keyed by route.path, so the error clears when the user leaves.
+ * Error boundary around the routed content only: content is visible by default,
+ * so a failed animation cannot hide it. A failed lazy chunk import — GH Pages
+ * answers a missing /assets/*.js with 404.html — would otherwise leave the
+ * Suspense fallback up forever and blank the SPA. The fallback is static (no
+ * motion, no dependencies) and offers a hard link home, which re-fetches the
+ * entry bundle. It remounts on every route change because PageShell is keyed by
+ * route.path, so the error clears when the user leaves.
  */
 class PageErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { hasError: false };
@@ -71,27 +70,22 @@ class PageErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState
       return (
         <section
           role="alert"
-          className="mx-auto w-full max-w-5xl px-gutter py-section"
+          className="mx-auto w-full max-w-[68ch] px-gutter py-section"
         >
-          <div className="border border-border-accent bg-bg">
-            <div className="border-b border-border px-gutter py-block">
-              <h1 className="text-title font-bold text-text">
-                bash: ./page: No such file or directory
-              </h1>
-              <p className="mt-half max-w-2xl text-body text-text-dim">
-                This page failed to load. Its script may be missing or the
-                network dropped mid-fetch.
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-half px-gutter py-block">
-              <span className="text-label text-text-muted">$</span>
-              <a
-                href="/"
-                className="border border-border-accent px-gutter py-half text-label text-accent-text transition-colors duration-150 hover:bg-accent/10 active:bg-accent/20"
-              >
-                cd ~/home
-              </a>
-            </div>
+          <div className="rounded-lg border border-border bg-surface p-block">
+            <h1 className="text-headline font-semibold text-text">
+              This page didn&rsquo;t load
+            </h1>
+            <p className="mt-block max-w-[65ch] text-body text-text-muted">
+              Its script may be missing, or the network dropped mid-fetch.
+              Returning home re-fetches the bundle.
+            </p>
+            <a
+              href="/"
+              className="mt-block flex min-h-11 w-fit items-center text-body font-semibold text-accent-text hover:underline"
+            >
+              Back to home
+            </a>
           </div>
         </section>
       );
@@ -103,28 +97,26 @@ class PageErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState
 export default function App() {
   const { route, direction } = useRoute();
   const { goNext, goPrev } = useAdjacentNavigation();
+  /* ↑/↓ scrolling walks the internal page container; when the visitor asks for
+     reduced motion the scroll is instant instead of smooth. */
+  const reduceMotion = useReducedMotion() === true;
 
   /* ←/→ walks the page's item tour ([data-nav-item], DOM-driven) and rolls
      over into the adjacent page when the current page's items are exhausted;
      ↑/↓ + Home/End scroll the internal page container (80vH section step).
-     Never hijack keys while typing or while the terminal overlay / mobile
-     menu is open (guard in keyboardNav.ts; CommandTerminal keeps its own
-     ↑/↓ history on its input). */
+     Never hijack keys while typing or while the mobile menu is open (guard in
+     keyboardNav.ts). */
   useEffect(() => {
-    const onKey = createPageNavHandler({
-      goNext,
-      goPrev,
-      reduceMotion: false,
-    });
+    const onKey = createPageNavHandler({ goNext, goPrev, reduceMotion });
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [goNext, goPrev]);
+  }, [goNext, goPrev, reduceMotion]);
 
   const Content = routeByPath(route.path) ? (PAGES[route.id] ?? PAGES.hero) : NotFound;
 
   return (
-    <div className="bg-bg min-h-screen font-mono relative">
-      <MotionConfig reducedMotion="never">
+    <div className="bg-bg min-h-screen relative">
+      <MotionConfig reducedMotion="user">
         <a
           href="#main"
           className="skip-to-content"
@@ -155,7 +147,6 @@ export default function App() {
           </PageShell>
         </AnimatePresence>
 
-        <CommandTerminal />
         <Footer />
       </MotionConfig>
     </div>

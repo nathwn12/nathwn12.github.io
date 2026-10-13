@@ -1,136 +1,136 @@
+import { motion, useReducedMotion } from "framer-motion";
+import { employer, experience } from "../content/experience";
+import { projects } from "../content/projects";
+import { RouteLink } from "../lib/router";
+import {
+  fadeUp,
+  heroIn,
+  marqueeX,
+  staggerChild,
+  staggerParent,
+} from "../lib/motion";
+import { CredentialsStrip, ProofBand } from "./ProofBand";
 import { PageFoot } from "./PageFoot";
+import { SystemAtlas } from "./SystemAtlas";
+import { WorkTeaser } from "./WorkTeaser";
 
 /**
- * Hero — brutalist restyle (DESIGN.md wins over code).
+ * Hero — the landing page, read as one statement followed by its evidence.
  *
- * Home-screen accent budget (DESIGN.md §2.3): the only accent owned by this
- * file is the `wget ./resume.pdf` primary action. The `$ whoami` prompt and
- * the `OPEN TO WORK` status are ink/concrete — state is weight, not hue. No
- * ambient glow, no grid overlay, no blinking caret, no nested cards —
- * hierarchy is size + weight + space.
+ * Bands run in the direction's order (docs/premium-direction.md § Landing
+ * wireframe): the title block carries the page's single moment of character
+ * (weight and size, no second spectacle), the current role sits adjacent to it
+ * in Detail, the real stack runs as a hairline-bounded seam, then the proof
+ * marker, the selected work, and the credentials strip close the page — one
+ * band after another, separated by 1px Line rules, so position carries
+ * hierarchy instead of colour or cards.
+ *
+ * Copy is read from src/content/*.ts — this file states the claim and sequences
+ * the evidence, it never authors a fact. Depth lives on the routes, not here:
+ * there is no metric wall, no card grid, and no credentials list dressed as
+ * decoration.
+ *
+ * Motion comes from src/lib/motion only (frozen token names): the statement
+ * walks in per element (heroIn for the title, fadeUp for the clauses), the
+ * stack seam scrolls only when the visitor permits motion, and every band
+ * degrades to a static, fully legible state under reduced motion.
+ *
+ * Authority: fleet brief (senior landing pass) + docs/premium-direction.md
+ * § Landing, § Type, § Principles 1 and 5.
  */
 
-const profileFacts: { label: string; value: string; emphasis?: boolean }[] = [
-  { label: "LOCATION", value: "HAGONOY, BULACAN, PH" },
-  { label: "EXPERIENCE", value: "3 YEARS" },
-  { label: "ROLE", value: "BACKEND DEVELOPER" },
-  { label: "STATUS", value: "OPEN TO WORK", emphasis: true },
-];
-
-const systemFacts = [
-  ["OS", "Ubuntu/Linux Servers / Docker"],
-  ["Kernel", ".NET 6/7/8/9 / C#"],
-  ["Packages", "17 repos · 1,182 commits"],
-  ["Shell", "Bash / PowerShell"],
-  ["AI Tools", "LM Studio / OpenCode / Codex"],
-  ["Certs", "Google IT Support · IT Automation with Python"],
-] as const;
+/* The seam's index: real identifiers from the shipped work, de-duplicated and
+   order-preserved. Read-only from content. */
+const techStrip: string[] = Array.from(
+  new Set([
+    ...projects.flatMap((project) => project.tech),
+    ...experience.flatMap((entry) => entry.tech),
+  ]),
+);
 
 export function Hero() {
+  const reduceMotion = useReducedMotion() === true;
+
   return (
-    <section
-      id="hero"
-      className="min-h-full flex flex-col justify-center px-gutter"
-    >
-      <div className="mx-auto w-full max-w-5xl">
-        {/* $ whoami — the page's prompt (section-header convention, §9) */}
-        <p className="flex items-baseline gap-half text-label text-text-muted">
-          <span>$</span>
-          <span>whoami</span>
-        </p>
+    <section id="hero" className="flex flex-col">
+      {/* Title block — the one bold move on the page. Left aligned, one claim
+          sentence, then the role stated in words with no separator glyphs. */}
+      <div className="px-6 pt-14 pb-block lg:px-10 lg:pt-20">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={staggerParent}
+          className="mx-auto w-full max-w-[68ch]"
+        >
+          <motion.h1
+            variants={heroIn}
+            className="max-w-[16ch] text-[clamp(2.5rem,6vw,4rem)] leading-[1.04] font-semibold text-text"
+          >
+            Payment backends that hold up under production load.
+          </motion.h1>
 
-        {/* Name — display ceiling (40px); wraps, never clips */}
-        <h1 className="mt-block text-display font-bold text-text">
-          <span className="block">NATHANIEL</span>
-          <span className="block">NIKOLAI LADERO</span>
-        </h1>
+          <motion.p
+            variants={fadeUp}
+            className="mt-6 max-w-[62ch] text-lead text-text"
+          >
+            C# and ASP.NET Core, Ubuntu servers, Docker, and CI/CD, measured by
+            what changed in production rather than by the size of the stack.
+          </motion.p>
 
-        {/* Role */}
-        <p className="mt-half text-label uppercase tracking-[0.2em] text-text-dim">
-          BACKEND DEVELOPER — 3 YRS PRODUCTION FINTECH
-        </p>
+          <motion.p
+            variants={fadeUp}
+            className="mt-5 max-w-[62ch] text-detail text-text-muted"
+          >
+            {employer.role}, {employer.company}. {employer.location},{" "}
+            {employer.period}.
+          </motion.p>
 
-        {/* Lead */}
-        <p className="mt-block max-w-prose text-body-lg text-text-dim">
-          Backend Developer with 3 years of production fintech experience.
-          Builds C# and ASP.NET Core APIs, manages Ubuntu/Linux servers and
-          Docker containers, and automates CI/CD with GitHub Actions.
-        </p>
+          <motion.p variants={staggerChild} className="mt-8">
+            <RouteLink
+              href="/contact"
+              data-nav-item
+              className="flex min-h-11 w-fit items-center rounded-xs text-lead font-semibold text-accent-text transition-colors duration-150 hover:underline"
+            >
+              Get in touch about a role
+            </RouteLink>
+          </motion.p>
+        </motion.div>
+      </div>
 
-        {/* profile — a plain key/value list, one hairline row each (no cards) */}
-        <div className="mt-section">
-          <p className="flex items-baseline gap-half text-label text-text-muted">
-            <span>$</span>
-            <span>cat profile</span>
-          </p>
-          <dl className="mt-half border-t border-border-accent">
-            {profileFacts.map((fact) => (
-              <div
-                key={fact.label}
-                className="grid grid-cols-1 gap-half border-b border-border py-half sm:grid-cols-[8rem_1fr] sm:gap-gutter"
-              >
-                <dt className="text-micro uppercase tracking-[0.15em] text-text-muted">
-                  {fact.label}
-                </dt>
-                <dd
-                  className={
-                    fact.emphasis
-                      ? "text-body-lg font-bold text-text"
-                      : "text-body-lg text-text"
-                  }
-                >
-                  {fact.value}
-                </dd>
-              </div>
-            ))}
-          </dl>
+      {/* The seam between the statement and its evidence: the real stack under
+          two hairlines, moving only when the visitor permits motion. Each item
+          is separated by a 1px Line rule, never a glyph. */}
+      <div className="overflow-hidden border-y border-border py-3">
+        <motion.ul
+          aria-hidden="true"
+          variants={marqueeX}
+          animate={reduceMotion ? undefined : "animate"}
+          className="flex w-max items-center"
+        >
+          {[...techStrip, ...techStrip].map((tech, index) => (
+            <li
+              key={`${tech}-${index}`}
+              className="flex items-center gap-6 pr-6 text-detail text-text-muted"
+            >
+              {tech}
+              <span className="h-3 w-px bg-border" aria-hidden="true" />
+            </li>
+          ))}
+        </motion.ul>
+      </div>
+
+      <SystemAtlas />
+
+      <ProofBand />
+
+      <WorkTeaser />
+
+      <CredentialsStrip />
+
+      <div className="px-6 pb-section lg:px-10">
+        <div className="mx-auto w-full max-w-[68ch]">
+          <PageFoot accentResume />
         </div>
-
-        {/* system.md — one surface split by a rule; no window wrapping a panel */}
-        <div className="mt-section">
-          <p className="flex items-baseline gap-half text-label text-text-muted">
-            <span>$</span>
-            <span>cat system.md</span>
-          </p>
-          <div className="mt-block grid gap-block border-t border-border-accent pt-block md:grid-cols-[1fr_2fr] md:gap-section">
-            {/* neofetch facts */}
-            <div>
-              <p className="text-body text-text-dim">$ neofetch</p>
-              <dl className="mt-half space-y-half border-t border-border pt-half">
-                {systemFacts.map(([label, value]) => (
-                  <div key={label} className="flex gap-half text-body">
-                    <dt className="w-16 shrink-0 text-text-muted">{label}</dt>
-                    <dd className="text-text">{value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-
-            {/* copy */}
-            <div>
-              <h2 className="text-headline font-bold text-text">
-                Crafting reliable systems that scale under pressure.
-              </h2>
-              <p className="mt-block max-w-prose text-body-lg text-text-dim">
-                Treats infrastructure as part of the codebase: Nginx configs,
-                Bash scripts, and CI/CD pipelines receive the same rigor as
-                application code.
-              </p>
-              <p className="mt-block max-w-prose text-body-lg text-text-dim">
-                Daily AI tooling: LM Studio, OpenCode, and Codex, with
-                preferred local models DeepSeek V4 Flash (9B, MTP), Gemma 4
-                (26B, A4B), and Qwen 3.8 (35B, A3B). English (professional),
-                Filipino (native).
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* PageFoot — the shared prompt row: `$ wget ./resume.pdf ↓` (accent
-            treatment preserved for Home) + the adjacent-route pager. The
-            terminus PREV and the old inline pager are gone (DESIGN.md §2.3 —
-            the résumé control stays the one primary action). */}
-        <PageFoot accentResume />
       </div>
     </section>
   );
