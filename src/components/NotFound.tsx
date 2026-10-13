@@ -20,8 +20,9 @@ import { RouteLink, useRoute } from "../lib/router";
  * Rhythm: the direction's 8px base — text gaps 16px (mt-4), the action 32px
  * below the sentence (mt-8).
  *
- * Motion: the numeral makes the page's single arrival (heroIn). Reduced motion
- * is honoured inside src/lib/motion.
+ * Motion: the numeral makes the page's single arrival (heroIn), which runs
+ * unconditionally — the OS reduced-motion query no longer gates this site
+ * (owner order 2026-10-14).
  *
  * The requested path survives from the router (`resolveRoute` echoes it) so a
  * mistyped address is visible in the sentence.

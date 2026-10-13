@@ -124,9 +124,10 @@ export function resolveStep(
  * one landing rule, shared by the in-page ←/→ step and PageShell's cross-page
  * handoff so the two cannot drift.
  *
- * `reduceMotion` mirrors the section-scroll behaviour above: reduced motion
- * disables all nonessential movement (docs/premium-direction.md § Principles
- * 5), so centering jumps instead of animating.
+ * `reduceMotion` mirrors the section-scroll behaviour above: it makes the
+ * centering jump instead of animating. No OS query feeds it — the in-tree
+ * caller passes motionPreference.ts's constant, so centering always animates
+ * (owner order 2026-10-14) and the argument stays for the generic caller.
  */
 export function landOnNavItem(el: HTMLElement, reduceMotion = false): void {
   el.focus();

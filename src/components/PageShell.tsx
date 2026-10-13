@@ -29,8 +29,9 @@ const STEP_FOCUS_RETRY_FRAMES = 60;
  */
 export function PageShell({ route, direction, children }: PageShellProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  /** Reduced motion disables all nonessential movement (direction §
-      Principles 5); the landing scroll honours it (keyboardNav.landOnNavItem). */
+  /** The motion gate the tree reads. It resolves to `false` unconditionally
+      (owner order 2026-10-14: the OS query no longer gates this site), so the
+      step landing always animates its centering scroll. */
   const reduceMotion = useResolvedReduceMotion();
   /** Pending ←/→ step handoff for THIS mount: `undefined` = not read yet,
       `null` = none. Read once (see the keyed mount effect). */
@@ -151,14 +152,12 @@ export function PageShell({ route, direction, children }: PageShellProps) {
   }, [route.path, route.title]);
 
   /* Opacity only, and one short duration per state change: the direction
-     forbids blanket fade-and-rise entrances and any layout-property tween, and
-     opacity is the one channel that still runs when the visitor asks for
-     reduced motion (MotionConfig reducedMotion="user" in App) — so the
-     transition degrades to a shorter fade, never to a hard cut.
+     forbids blanket fade-and-rise entrances and any layout-property tween.
 
      The fade itself is the shared `fadeIn` (src/lib/motion.ts), not a local
-     duration: the route layer and the chrome cross-fade on one contract, and
-     the module's own reduced-motion probe shortens it on its own. */
+     duration: the route layer and the chrome cross-fade on one contract. Both
+     run unconditionally — the OS reduced-motion query no longer gates this
+     site (owner order 2026-10-14), so there is no shortened reduced fade. */
   return (
     <motion.div
       ref={scrollRef}

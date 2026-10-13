@@ -13,8 +13,9 @@ import { navName } from "../lib/navNames";
  * underline-on-hover affordance. No arrow glyphs: link affordance is color,
  * weight, and underline on hover. Timing is per element, not per component:
  * the two pager buttons move on the nav token, the résumé link on the link
- * token — both frozen in src/index.css and both collapsed under reduced
- * motion.
+ * token — both frozen in src/index.css, each running its named value as written
+ * (owner order 2026-10-14: the OS reduced-motion query no longer collapses a
+ * duration).
  *
  * Tour contract: every control is a `[data-nav-item]` stop, and none carries
  * `[data-nav-activate]` (no click-after-focus; the item tour already routes at

@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
       (function () {
-        /* Resolve the stored preference before paint so "auto" (or a missing /
-           unrecognized value) lands on the OS scheme with no FOUC. data-theme
-           only ever holds the resolved theme — CSS has no "auto" branch.
+        /* Resolve the stored scheme before paint, so a missing, unrecognized,
+           or retired ("auto") value lands on the OS scheme with no FOUC.
+           data-theme only ever holds light or dark — CSS has no "auto" branch,
+           and src/lib/theme.ts resolves a legacy "auto" exactly this way (an
+           unrecognized value is not a pin, so it falls through to the OS).
            Storage and the OS probe are TWO INDEPENDENT try/catches: a storage
            throw (Safari private mode / blocked storage) must never suppress OS
            detection and force a dark-OS visitor onto the light theme. */

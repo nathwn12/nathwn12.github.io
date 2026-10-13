@@ -18,19 +18,22 @@ const CONTAINER = "mx-auto w-full max-w-[68ch]";
  *
  * No translucency, no shadow, no scroll-reactive restyle: the chrome is
  * static, and the only rule is the 1px Line hairline under it. The active
- * page is the header's one Claret moment, and it never rides on color alone:
- * a 2px Claret rule is drawn under the label (the marker), the label weight
- * steps to semibold, and `aria-current="page"` carries it to assistive tech.
- * The marker's rule is reserved on every item — transparent when inactive —
- * so the row never shifts as the route changes.
+ * page is the header's one Claret moment, and in the nav row it never rides
+ * on color alone: a 2px Claret rule is drawn under the nav label (the
+ * marker), the label weight steps to semibold, and `aria-current="page"`
+ * carries it to assistive tech. The marker's rule is reserved on every nav
+ * item — transparent when inactive — so the row never shifts as the route
+ * changes. The marker belongs to the NAV ITEMS only.
  *
- * Home is the wordmark, so `/` is marked there: on Home the wordmark carries
- * the same rule and `aria-current`, which is the active state the nav row
- * cannot show (the nav row is every route but Home).
+ * Home is the wordmark, so `/` is marked there, but never by the marker: the
+ * wordmark carries its active state by colour alone (`text-accent-text`)
+ * plus `aria-current` — the nav row is every route but Home, so the wordmark
+ * is where Home's active state lives.
  *
  * The menu's one move is the shared opacity fade — `fadeIn` from
- * src/lib/motion, never a duration written here — and it degrades to a still
- * frame when the visitor asks for reduced motion.
+ * src/lib/motion, never a duration written here — and it runs on every open
+ * (owner order 2026-10-14: the OS reduced-motion query no longer gates this
+ * site).
  *
  * The theme control lives in the footer, not here — the footer owns the
  * colophon, the theme control, and the safe-area pad.
@@ -83,7 +86,7 @@ export function Header() {
             }`}
             aria-label="Nathaniel Nikolai Ladero — home"
           >
-            <span className={`truncate text-title font-semibold ${marker(homeActive)}`}>
+            <span className="truncate text-title font-semibold">
               Nathaniel Nikolai Ladero
             </span>
           </button>
@@ -101,7 +104,7 @@ export function Header() {
                     className={`flex min-h-11 items-center rounded-xs px-3 text-label transition-colors duration-nav ${
                       active
                         ? "font-semibold text-accent-text"
-                        : "font-medium text-text hover:text-accent-text"
+                        : "font-medium text-text hover:text-accent-text hover:underline"
                     }`}
                   >
                     <span className={marker(active)}>
@@ -119,7 +122,7 @@ export function Header() {
               aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={menuOpen}
               aria-controls="mobile-nav"
-              className="flex min-h-11 items-center gap-2 rounded-xs px-3 text-label font-medium text-text transition-colors duration-nav hover:text-accent-text md:hidden"
+              className="flex min-h-11 items-center gap-2 rounded-xs px-3 text-label font-medium text-text transition-colors duration-nav hover:text-accent-text hover:underline md:hidden"
             >
               <svg
                 width="16"
