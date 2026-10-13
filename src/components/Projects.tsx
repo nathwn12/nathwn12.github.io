@@ -31,8 +31,8 @@ import { PageFoot } from "./PageFoot";
  *
  * Motion: the title block makes the page's single slow arrival (heroIn); each
  * band settles on the crisp zero-overshoot spring (springSnappy) applied to
- * OPACITY ONLY — no rise, no layout tween. Reduced motion is honoured inside
- * src/lib/motion.
+ * OPACITY ONLY — no rise, no layout tween. Both run unconditionally: the OS
+ * reduced-motion query no longer gates this site (owner order 2026-10-14).
  */
 
 /* The one code-adjacent convention in the system: Body family at Detail size,
