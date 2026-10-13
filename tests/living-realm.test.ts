@@ -13,14 +13,17 @@ describe("living realm rebuild", () => {
     expect(atlas).toMatch(/export function SystemAtlas/);
   });
 
-  test("SystemAtlas is an interactive, accessible, reduced-motion-aware diagram", () => {
-    expect(atlas).toMatch(/role="radiogroup"/);
+  test("SystemAtlas is an interactive, accessible, always-animated diagram", () => {
+    expect(atlas).toMatch(/role="group"/);
     expect(atlas).toMatch(/aria-label=\{node\.label\}/);
     expect(atlas).toMatch(/aria-pressed=\{isSelected\}/);
     expect(atlas).toMatch(/aria-live="polite"/);
-    // Reduced motion is now read through the persisted preference resolver,
-    // not the raw OS media query — the gate itself is what this pins.
-    expect(atlas).toMatch(/useResolvedReduceMotion\(\)/);
+    // Owner order 2026-10-14 (src/lib/motionPreference.ts): the atlas is never
+    // gated off — the component carries no motion gate of its own, and the pulse
+    // paths render unconditionally beside the static links.
+    expect(atlas).not.toMatch(/reduceMotion/);
+    expect(atlas).not.toMatch(/useResolvedReduceMotion/);
+    expect(atlas).toMatch(/strokeDashoffset: \[0, -1\]/);
     expect(atlas).toMatch(/<svg[\s\S]*?viewBox=\{`0 0 \$\{VIEW_W\} \$\{VIEW_H\}`\}/);
     expect(atlas).toMatch(/motion\.path/);
     expect(atlas).toContain("payments");

@@ -24,8 +24,8 @@ import { PageFoot } from "./PageFoot";
  * package gaps 32px (py-4), text gaps 16px (mt-4).
  *
  * Motion: each group rises once on its own short beat (fadeUp) as the page
- * settles; no stagger, no choreography. Reduced motion is honoured inside
- * src/lib/motion.
+ * settles; no stagger, no choreography, and no reduced variant — the OS query
+ * no longer shortens it (owner order 2026-10-14).
  *
  * States: content is imported synchronously and schema-validated at module load
  * (content/skills.ts throws on a mismatch), so this page has no loading, empty,

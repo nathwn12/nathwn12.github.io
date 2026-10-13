@@ -6,7 +6,7 @@ import {
   type ComponentType,
   type ReactNode,
 } from "react";
-import { AnimatePresence, MotionConfig, useReducedMotion } from "framer-motion";
+import { AnimatePresence, MotionConfig } from "framer-motion";
 import { PageShell } from "./components/PageShell";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
@@ -102,16 +102,17 @@ class PageErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState
 export default function App() {
   const { route, direction } = useRoute();
   const { goNext, goPrev } = useAdjacentNavigation();
-  /* The visitor's motion preference: an explicit override wins, otherwise the
-     live OS setting. It drives BOTH the Framer runtime (MotionConfig below)
-     and every hand-rolled gate in the tree, so the two never diverge. */
+  /* The visitor's motion intent. The OS reduced-motion query no longer gates
+     this site (owner order 2026-10-14): motionPreference.ts reads the one
+     always-animated intent as MotionConfig's "never" below and as the `false`
+     every hand-rolled gate in the tree reads, so the Framer runtime and the tree
+     cannot diverge. Nothing here reads the OS query — not even framer's
+     `useReducedMotion()` — so no listener is registered for a value no branch
+     can use. */
   const [motionPreference] = useMotionPreference();
-  /* ↑/↓ scrolling walks the internal page container; when motion is reduced the
-     scroll is instant instead of smooth. */
-  const reduceMotion = resolveReduceMotion(
-    motionPreference,
-    useReducedMotion() === true,
-  );
+  /* ↑/↓ scrolls the internal page container. The gate is the same
+     always-animated intent, so the scroll never drops to an instant jump. */
+  const reduceMotion = resolveReduceMotion(motionPreference, false);
 
   /* ←/→ walks the page's item tour ([data-nav-item], DOM-driven) and rolls
      over into the adjacent page when the current page's items are exhausted;
