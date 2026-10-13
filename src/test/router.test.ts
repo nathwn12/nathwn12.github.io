@@ -42,13 +42,13 @@ describe("router", () => {
         .querySelector('meta[name="description"]')
         ?.getAttribute("content"),
     ).toBe(
-      "Portfolio of Nathaniel Nikolai Ladero — Backend Developer specializing in C#, ASP.NET Core, and fintech systems.",
+      "Backend systems that hold up in production - plus the plugins, MCP servers, and tools built around them.",
     );
     expect(
       document
         .querySelector('meta[property="og:title"]')
         ?.getAttribute("content"),
-    ).toBe("Nathaniel Nikolai Ladero | Backend Developer");
+    ).toBe("Nathaniel Nikolai Ladero | Systems & Developer Tools");
   });
 
   it("every ROUTES entry carries a recruiter metaDescription", () => {
