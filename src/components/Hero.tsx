@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { employer, experience } from "../content/experience";
 import { projects } from "../content/projects";
@@ -48,8 +49,120 @@ const techStrip: string[] = Array.from(
   ]),
 );
 
+/**
+ * The hero identities, in rotation order. The first entry is the owner's
+ * opening claim and the static default (first paint, reduced motion, no-JS);
+ * the rest state what he is — a backend developer building fintech systems, an
+ * AI-equipped builder — so the h1 says "what I am", never payment-only. Kept
+ * here, in the Hero surface, because the copy is the page's one bold move.
+ */
+export const HERO_PHRASES: readonly string[] = [
+  "Payment backends that hold up under production load.",
+  "A backend developer building fintech systems.",
+  "An AI-equipped builder who ships measured change.",
+  "An engineer who reads production before the diagram.",
+];
+
+/** Typing cadence in ms: one beat per keystroke, a longer hold on a finished
+    phrase, and a short gap before the next phrase starts. */
+export const TYPING_CADENCE = {
+  type: 45,
+  delete: 24,
+  hold: 1600,
+  gap: 350,
+} as const;
+
+export interface TypingState {
+  phraseIndex: number;
+  charCount: number;
+  deleting: boolean;
+}
+
+/** The first frame: the opening phrase fully shown, so first paint and the
+    reduced-motion / no-JS state both carry the real claim, never an empty h1. */
+export function initialTypingState(
+  phrases: readonly string[] = HERO_PHRASES,
+): TypingState {
+  return {
+    phraseIndex: 0,
+    charCount: (phrases[0] ?? "").length,
+    deleting: false,
+  };
+}
+
+/**
+ * Pure, timerless one-step transition of the typing loop — deterministic, so
+ * the unit tests drive it directly and the mount effect only schedules it.
+ * Types forward, holds, deletes, then advances to the next phrase (wrapping).
+ */
+export function nextTypingState(
+  state: TypingState,
+  phrases: readonly string[] = HERO_PHRASES,
+): TypingState {
+  const full = phrases[state.phraseIndex] ?? "";
+  if (!state.deleting) {
+    if (state.charCount < full.length) {
+      return { ...state, charCount: state.charCount + 1 };
+    }
+    return { ...state, deleting: true };
+  }
+  if (state.charCount > 0) {
+    return { ...state, charCount: state.charCount - 1 };
+  }
+  return {
+    phraseIndex: (state.phraseIndex + 1) % phrases.length,
+    charCount: 0,
+    deleting: false,
+  };
+}
+
+/** How long the current frame is displayed before {@link nextTypingState}. */
+export function typingDelayMs(
+  state: TypingState,
+  phrases: readonly string[] = HERO_PHRASES,
+): number {
+  const full = phrases[state.phraseIndex] ?? "";
+  if (!state.deleting) {
+    return state.charCount < full.length
+      ? TYPING_CADENCE.type
+      : TYPING_CADENCE.hold;
+  }
+  return state.charCount > 0 ? TYPING_CADENCE.delete : TYPING_CADENCE.gap;
+}
+
+/**
+ * The typing loop as a hook. Renders the current frame, waits its beat, steps
+ * once with {@link nextTypingState}, and repeats. Reduced motion opts out
+ * entirely: no timers are scheduled and the first phrase stays put. Exported so
+ * the deterministic pure helpers AND the timer/cleanup behavior can be tested
+ * without mounting the whole landing surface.
+ */
+export function useHeroTyping(
+  reduceMotion: boolean,
+  phrases: readonly string[] = HERO_PHRASES,
+) {
+  const [state, setState] = useState<TypingState>(() =>
+    initialTypingState(phrases),
+  );
+
+  useEffect(() => {
+    if (reduceMotion) return;
+    const id = window.setTimeout(() => {
+      setState((current) => nextTypingState(current, phrases));
+    }, typingDelayMs(state, phrases));
+    return () => window.clearTimeout(id);
+  }, [state, reduceMotion, phrases]);
+
+  const phrase = phrases[state.phraseIndex] ?? phrases[0] ?? "";
+  const shown = reduceMotion
+    ? (phrases[0] ?? "")
+    : phrase.slice(0, state.charCount);
+  return { state, phrase, shown };
+}
+
 export function Hero() {
   const reduceMotion = useReducedMotion() === true;
+  const { phrase, shown } = useHeroTyping(reduceMotion);
 
   return (
     <section id="hero" className="flex flex-col">
@@ -64,10 +177,17 @@ export function Hero() {
         >
           <motion.h1
             variants={heroIn}
+            aria-label={reduceMotion ? HERO_PHRASES[0] : phrase}
             className="max-w-[16ch] text-[clamp(2.5rem,6vw,4rem)] leading-[1.04] font-semibold text-text"
           >
-            Payment backends that hold up under production load.
+            <span aria-hidden="true">{shown}</span>
+            {!reduceMotion && (
+              <span aria-hidden="true" className="text-accent-text">
+                ▍
+              </span>
+            )}
           </motion.h1>
+
 
           <motion.p
             variants={fadeUp}
