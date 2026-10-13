@@ -1,7 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { CONTACT_EMAIL } from "../lib/contact";
 import { cycleTheme, useTheme } from "../lib/theme";
-import { cycleMotionPreference, useMotionPreference } from "../lib/motionPreference";
 
 /**
  * Footer — the colophon, the theme control, and the safe-area pad.
@@ -27,15 +26,14 @@ const linkClass =
 
 export function Footer() {
   const [themePreference] = useTheme();
-  const [motionPreference] = useMotionPreference();
 
   const cycleThemeHandler = useCallback(() => {
     cycleTheme();
   }, []);
 
-  /* F2 cycles the color scheme: auto → light → dark. Never hijack keys while
-     typing or while the mobile menu is open — the footer is the control's
-     home, so the shortcut is registered here beside it. */
+  /* F2 switches the color scheme: light ↔ dark. Never hijack keys while typing
+     or while the mobile menu is open — the footer is the control's home, so the
+     shortcut is registered here beside it. */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "F2" || e.repeat) return;
@@ -58,7 +56,6 @@ export function Footer() {
   }, [cycleThemeHandler]);
 
   const themeLabel = `${themePreference[0].toUpperCase()}${themePreference.slice(1)}`;
-  const motionLabel = `${motionPreference[0].toUpperCase()}${motionPreference.slice(1)}`;
 
   return (
     <footer className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-bg pb-[env(safe-area-inset-bottom)]">
@@ -73,7 +70,7 @@ export function Footer() {
           </p>
 
           <nav
-            aria-label="Contact, appearance, and motion"
+            aria-label="Contact and appearance"
             className="flex flex-wrap items-center gap-x-6"
           >
             <a
@@ -98,24 +95,11 @@ export function Footer() {
             <button
               type="button"
               onClick={cycleThemeHandler}
-              title="Cycle the color scheme: auto, light, dark (F2)"
-              aria-label={`Color scheme: ${themePreference}. Activate to switch to the next scheme (F2).`}
+              title="Switch the color scheme: light or dark (F2)"
+              aria-label={`Color scheme: ${themePreference}. Activate to switch to the other scheme (F2).`}
               className="flex min-h-11 items-center rounded-sm border border-border px-3 text-detail font-medium text-text transition-colors duration-field hover:border-border-accent hover:text-accent-text"
             >
               Theme: {themeLabel}
-            </button>
-            {/* A tri-state cycle, so `aria-pressed` reads "the visitor has
-                asked for reduced motion" (auto still reduces if the OS does);
-                the visible label always names the current preference. */}
-            <button
-              type="button"
-              onClick={() => cycleMotionPreference()}
-              title="Cycle motion: auto, animate, reduce"
-              aria-label={`Motion: ${motionPreference}. Activate to switch to the next setting.`}
-              aria-pressed={motionPreference === "reduce"}
-              className="flex min-h-11 items-center rounded-sm border border-border px-3 text-detail font-medium text-text transition-colors duration-field hover:border-border-accent hover:text-accent-text"
-            >
-              Motion: {motionLabel}
             </button>
           </nav>
         </div>

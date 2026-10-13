@@ -15,7 +15,7 @@
    src/lib/theme.ts (the `data-theme` + `nnl-theme` storage seam).
 
    :root                   = LIGHT (paper ground, ink text)
-   html[data-theme="dark"] = DARK  (ink ground, paper text — a true inversion)
+   html[data-theme="dark"] = DARK  (AMOLED black ground, paper text)
    index.html seeds data-theme before paint, so the dark block always wins for
    dark users; the light block is the unthemed fallback.
 
@@ -55,14 +55,16 @@
 
   /* --- LIGHT · paper ground ---------------------------------------------- */
   --color-bg: #fcfcf9; /* Paper — page ground */
-  --color-text: #191914; /* Ink — 17.2:1 on Paper; text and rules */
-  --color-border: #dddccf; /* Line — 1px hairlines and dividers */
-  --color-text-muted: #55564e; /* Muted — 7.2:1 on Paper; secondary text only */
-  --color-accent: #7a1e1e; /* Claret — 10.0:1 on Paper; sole accent */
+  --color-text: #191914; /* Ink — primary text and rules */
+  --color-border: #8a8778; /* Line — 1px hairlines and dividers */
+  --color-text-muted: #4e4f47; /* Muted — secondary text only */
+  --color-accent: #7a1e1e; /* Claret — 10.1:1 on Paper; sole accent */
   --color-accent-2: #7a1e1e; /* alias — see the alias note below */
   --color-accent-3: #7a1e1e; /* alias */
   --color-accent-4: #7a1e1e; /* alias */
-  --color-accent-text: #7a1e1e; /* Claret is text-safe: 10.0:1 on Paper */
+  --color-accent-text: #7a1e1e; /* accent as TEXT (links, active nav) — the
+     repo's meaning: ~28 consumers set it as a foreground colour on the page
+     ground, so it must stay a text-safe accent. */
   --color-accent-2-text: #7a1e1e;
   --color-accent-3-text: #7a1e1e;
   --color-accent-4-text: #7a1e1e;
@@ -71,8 +73,8 @@
   /* Surfaces step away from the ground in LUMINANCE ONLY — same hue, no hue
      shift between levels, and no sixth token: they are the ground at a lower
      (light) / higher (dark) luminance. */
-  --color-surface: #f5f4ef;
-  --color-surface-2: #edece5;
+  --color-surface: #f3f1e6;
+  --color-surface-2: #e9e6d9;
   --color-border-accent: #191914; /* Ink rule — page titles and inputs */
 
   /* --- Type scale — the direction's named roles ------------------------- */
@@ -137,9 +139,9 @@
      Authority: docs/premium-direction.md § Principles 4, § Hard-ban list
      ("One shared duration: each transition names its own short duration").
      Nav, links, form fields, and submission each name their own value;
-     opacity/color only, never a layout property. Reduced motion still wins:
-     the prefers-reduced-motion block below collapses every duration to
-     0.01ms regardless of the value named here. */
+     opacity/color only, never a layout property. The value named here is the
+     value that runs — nothing collapses it (owner order 2026-10-14: the OS
+     reduced-motion query no longer gates this site). */
   --transition-duration-nav: 120ms;
   --transition-duration-link: 140ms;
   --transition-duration-field: 160ms;
@@ -160,25 +162,27 @@
   --radius-3xl: 24px;
 }
 
-/* DARK · ink ground, paper text — a true inversion, not a tinted overlay. */
+/* DARK · ink ground, paper text — a true inversion, not a tinted overlay.
+   AMOLED: the ground is exactly #000000, not a tinted near-black. Two panels
+   and a page must read as pure black. */
 html[data-theme="dark"] {
   color-scheme: dark;
-  --color-bg: #141310; /* Ink ground */
-  --color-text: #f4f3ec; /* Paper text — 16.7:1 on the ground */
-  --color-border: #2e2d26; /* Line */
-  --color-text-muted: #a6a69a; /* Muted — 7.6:1 on the ground */
-  --color-accent: #e8a0a0; /* Claret — 8.8:1 on the ground */
-  --color-accent-2: #e8a0a0;
-  --color-accent-3: #e8a0a0;
-  --color-accent-4: #e8a0a0;
-  --color-accent-text: #e8a0a0;
-  --color-accent-2-text: #e8a0a0;
-  --color-accent-3-text: #e8a0a0;
-  --color-accent-4-text: #e8a0a0;
-  --color-selection: rgba(232, 160, 160, 0.22);
-  --color-surface: #1e1d19;
-  --color-surface-2: #282722;
-  --color-border-accent: #f4f3ec; /* Paper rule */
+  --color-bg: #000000; /* AMOLED ground */
+  --color-text: #ede9dd; /* Paper text */
+  --color-border: #636052; /* Line */
+  --color-text-muted: #a8a396; /* Muted */
+  --color-accent: #e89b8b; /* Claret — 9.4:1 on the ground */
+  --color-accent-2: #e89b8b;
+  --color-accent-3: #e89b8b;
+  --color-accent-4: #e89b8b;
+  --color-accent-text: #e89b8b; /* accent as text — see the light-block note */
+  --color-accent-2-text: #e89b8b;
+  --color-accent-3-text: #e89b8b;
+  --color-accent-4-text: #e89b8b;
+  --color-selection: rgba(232, 155, 139, 0.22);
+  --color-surface: #141310;
+  --color-surface-2: #1e1c17;
+  --color-border-accent: #ede9dd; /* Paper rule */
 }
 
 html {
@@ -196,6 +200,13 @@ body {
      tricks are needed for legibility at 16px. */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* The base text style carries the wrap style, not `p` alone: `text-wrap`
+     inherits, so a credential link or a list item avoids the same stranded last
+     line a paragraph does. Measured at 390 (full Chromium over CDP, 2026-10-14):
+     the "Verify Google IT Automation with Python at Coursera" link computed
+     `wrap` and left a 0.17-fill last line; `pretty` lifts it to 0.22. Engines
+     without `pretty` fall back to plain wrapping. */
+  text-wrap: pretty;
   overflow: hidden;
   height: 100%;
 }
@@ -211,11 +222,6 @@ h3, h4 {
   font-family: var(--font-sans);
   font-weight: 600;
   text-wrap: balance;
-}
-
-/* Body copy: avoid single-word orphan lines. */
-p {
-  text-wrap: pretty;
 }
 
 * {
@@ -302,21 +308,6 @@ p {
   transition: none !important;
 }
 
-/* Reduced motion disables all nonessential movement — in CSS as well as in
-   the motion layer (MotionConfig reducedMotion="user", useReducedMotion). */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-  .page-scroll {
-    scroll-behavior: auto;
-  }
-}
-
 /* =========================================================================
    MOTION LAYER (additive) — tokens and keyframes for `src/lib/motion.ts`.
    Authority: docs/premium-direction.md § Principles 4-5, § Hard-ban list.
@@ -325,8 +316,9 @@ p {
    half (fadeUp, fadeIn, staggerParent, staggerChild, springSnappy, heroIn,
    marqueeX) lives in src/lib/motion.ts and names the same values.
 
-   Reduced motion: the `prefers-reduced-motion` block above already collapses
-   every animation to a still frame, so these keyframes need no second guard.
+   Every keyframe here runs unconditionally: the OS reduced-motion query no
+   longer gates this site (owner order 2026-10-14), so nothing in the tree
+   collapses a duration or a keyframe.
    ========================================================================= */
 :root {
   --motion-duration-fast: 160ms;
