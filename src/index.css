@@ -1,208 +1,254 @@
 @import "tailwindcss";
 
 /* =========================================================================
-   BRUTALIST TOKEN LAYER — the system is specified in DESIGN.md (repo root).
-   Token NAMES are frozen; only values change. Consumers that break if a name
+   TOKEN LAYER — the whole system, in five named tokens.
+   Authority: docs/premium-direction.md § Token plan / § Type. Where this file
+   and that one disagree, that one wins.
+
+   Paper   page ground            Ink     primary text and rules
+   Line    hairlines, dividers    Muted   secondary text only (never < 14px)
+   Claret  the sole accent
+
+   Token NAMES are frozen; only values move. Consumers that break if a name
    moves: src/content/projects.ts:9 (Token union → Projects.tsx accent maps),
-   src/content/skills.ts TIER_STYLES, src/lib/router.tsx route accents.
-   :root                = LIGHT (paper + ink)   ← default, per DESIGN.md
-   [data-theme="dark"]  = DARK  (ink + paper)
-   index.html seeds data-theme before paint, so the dark block always wins
-   for dark users; the light block is the unthemed fallback.
+   src/content/skills.ts TIER_STYLES, src/lib/router.tsx route accents,
+   src/lib/theme.ts (the `data-theme` + `nnl-theme` storage seam).
+
+   :root                   = LIGHT (paper ground, ink text)
+   html[data-theme="dark"] = DARK  (ink ground, paper text — a true inversion)
+   index.html seeds data-theme before paint, so the dark block always wins for
+   dark users; the light block is the unthemed fallback.
+
+   Components consume SEMANTIC tokens only — never a raw color literal.
    ========================================================================= */
 
-/* LOGO/MARK FACE — RETAINED AND WIRED, NOT CURRENTLY APPLIED. `OpenCode.otf` is
-   a generative logo typeface: every printable character maps to one of a handful
-   of OpenCode logo letterforms, so a long string renders as an unreadable logo
-   pattern. It stays on disk, registered here and exposed via `--font-logo`, for
-   potential SHORT brand-mark use only — never for body copy, headings, labels,
-   nav/status text, or any run of text. No element currently consumes `font-logo`
-   (the header wordmark is monospace). `font-display: swap` plus the
-   `var(--font-mono)` fallback in `--font-logo` keep a mark legible if the OTF is
-   missing or fails; it must never render blank. */
+/* --- TWO FAMILIES, LOADED LOCALLY (public/fonts, both OFL 1.1) -----------
+   Display: Fraunces — page titles and section headings only. Never body,
+   never labels, never code.
+   Body:    Public Sans — everything else, including navigation and controls.
+   No third family, and no system stack as a design choice: the fallback lists
+   below are a safety net for a failed font fetch, not the design. */
 @font-face {
-  font-family: "OpenCode";
-  src: url("/fonts/OpenCode.otf") format("opentype");
+  font-family: "Fraunces";
+  src: url("/fonts/fraunces-600-latin.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Public Sans";
+  src: url("/fonts/public-sans-latin.woff2") format("woff2");
+  font-weight: 400 600;
+  font-style: normal;
   font-display: swap;
 }
 
 @theme {
-  --font-mono: 'Hack', 'Cascadia Mono', 'IBM Plex Mono', monospace;
-  /* Logo/mark face — see the @font-face restriction above. Short marks only. */
-  --font-logo: "OpenCode", var(--font-mono);
+  --font-sans:
+    "Public Sans", ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  /* Deliberately an ALIAS of the body face: the system has exactly two
+     families, and code-adjacent strings keep their character through
+     Line-bordered chips and letterspacing 0 — never a third face. */
+  --font-mono: "Public Sans", ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
 
-  /* --- LIGHT · paper / ink / concrete ---------------------------------- */
-  /* Paper is now PURE WHITE (#ffffff, was #fbfbfa/#f4f4f1/#ebebe7): the
-     operator read the off-white paper as grey, so the ground went to white and
-     the two surfaces were lifted in step to keep the same layered order (each
-     still a distinct step below the ground). The warm cast is gone with it —
-     "paper" here is the literal page, not an off-white approximation of one.
-     Every contrast pair still clears its §7 threshold, and every ratio rose
-     (the ground is now the luminance ceiling). */
-  --color-bg: #ffffff; /* paper — pure white */
-  --color-surface: #f7f7f6;
-  --color-surface-2: #efefee;
-  --color-border: #c9c9c3; /* concrete hairline — unchanged; the whiter ground
-                              raises its separation weight (1.61 → 1.66 vs bg,
-                              1.55 vs surface, 1.45 vs surface-2) */
-  --color-border-accent: #111110; /* ink rule — the brutalist 1px border */
-  --color-text: #111110; /* ink · 18.89:1 on paper */
-  --color-text-dim: #3d3d39; /* 10.91 / 10.18 / 9.48 on bg / surface / surface-2 */
-  --color-text-muted: #57574f; /* 7.29 / 6.80 / 6.33 — AA in all three */
+  /* --- LIGHT · paper ground ---------------------------------------------- */
+  --color-bg: #fcfcf9; /* Paper — page ground */
+  --color-text: #191914; /* Ink — 17.2:1 on Paper; text and rules */
+  --color-border: #dddccf; /* Line — 1px hairlines and dividers */
+  --color-text-muted: #55564e; /* Muted — 7.2:1 on Paper; secondary text only */
+  --color-accent: #7a1e1e; /* Claret — 10.0:1 on Paper; sole accent */
+  --color-accent-2: #7a1e1e; /* alias — see the alias note below */
+  --color-accent-3: #7a1e1e; /* alias */
+  --color-accent-4: #7a1e1e; /* alias */
+  --color-accent-text: #7a1e1e; /* Claret is text-safe: 10.0:1 on Paper */
+  --color-accent-2-text: #7a1e1e;
+  --color-accent-3-text: #7a1e1e;
+  --color-accent-4-text: #7a1e1e;
+  --color-selection: rgba(122, 30, 30, 0.14);
 
-  /* --- ONE ACCENT (signal orange) -------------------------------------- */
-  /* accent-2/3/4 are ALIASES of accent. The palette reads as a single accent;
-     the names survive because components and content still reference them. */
-  --color-accent: #e03c00; /* 4.36 on paper — ≥3:1 UI */
-  --color-accent-2: #e03c00;
-  --color-accent-3: #e03c00;
-  --color-accent-4: #e03c00;
-  --color-accent-glow: rgba(224, 60, 0, 0); /* glow banned: alpha 0 */
+  /* Surfaces step away from the ground in LUMINANCE ONLY — same hue, no hue
+     shift between levels, and no sixth token: they are the ground at a lower
+     (light) / higher (dark) luminance. */
+  --color-surface: #f5f4ef;
+  --color-surface-2: #edece5;
+  --color-border-accent: #191914; /* Ink rule — page titles and inputs */
 
-  /* Text-safe accent. Separate token because the base accent only clears the
-     3:1 UI threshold as text. Use `text-accent*-text` for text, `accent*`
-     for rules, fills, and glyphs.
-
-     RATIOS BELOW ARE THE GRAINED WORST CASE, not the un-grained value: the
-     `html::after` film multiplies over every surface, so a glyph can land on
-     the darkest speckle. Darkening is linear in the grain opacity α, anchored
-     at the 1:1 measurement (α = 0.4 → darkest ground pixel 215):
-     P(α) = (255 − 215)/255 · α/0.4. At the shipped α = 0.315, P = 0.12353, so
-     a base surface Cb is worst-cased to Cb·(1 − P): ground #ffffff → 223.5,
-     surface #f7f7f6 → 216.5, surface-2 #efefee → 209.5. This token was
-     darkened #b02f00 → #9c2900 on 2026-09-20 so every realized text-on-grain
-     pair clears 4.5:1 against the strictest surface (grained surface-2); the
-     darkening is still required at the AA-tuned grain (the old #b02f00 would
-     only reach 4.5:1 on grained surface-2 at α = 0.2519). Grained:
-     5.80 / 5.42 / 5.06 (bg / surface / surface-2); un-grained:
-     7.69 / 7.18 / 6.69. See DESIGN.md §7 addendum. */
-  --color-accent-text: #9c2900;
-  --color-accent-2-text: #9c2900; /* alias of --color-accent-text — see above */
-  --color-accent-3-text: #9c2900; /* alias of --color-accent-text — see above */
-  --color-accent-4-text: #9c2900; /* alias of --color-accent-text — see above */
-
-  /* Decoration neutralised at the token layer (`::selection` is its only
-     remaining consumer; the decorative grid class is gone). */
-  --color-grid-line: rgba(0, 0, 0, 0); /* decorative grid: banned */
-  --color-selection: rgba(224, 60, 0, 0.18);
-
-  /* --- Type scale (additive) ------------------------------------------- */
-  --text-micro: 0.625rem; /* 10px — floor; no text below this */
+  /* --- Type scale — the direction's named roles ------------------------- */
+  /* Page title 2.5rem/1.1 · Section heading 1.5rem/1.25 · Subheading
+     1.125rem/1.4 · Body 1rem/1.65 · Detail 0.875rem/1.55 · Label
+     0.8125rem/1.4. micro/label/detail keep their frozen names; the smallest
+     step in the system is 0.8125rem (13px), and Muted text is never set
+     below 14px. */
+  --text-micro: 0.8125rem; /* 13px — the floor */
   --text-micro--line-height: 1.4;
-  --text-label: 0.6875rem; /* 11px */
+  --text-label: 0.875rem; /* 14px — controls, nav items, form labels */
   --text-label--line-height: 1.4;
-  --text-body: 0.8125rem; /* 13px */
-  --text-body--line-height: 1.5;
-  --text-body-lg: 0.875rem; /* 14px */
-  --text-body-lg--line-height: 1.5;
-  --text-lead: 1rem; /* 16px */
-  --text-lead--line-height: 1.6;
-  --text-title: 1.25rem; /* 20px */
-  --text-title--line-height: 1.3;
-  --text-headline: 1.5rem; /* 24px */
-  --text-headline--line-height: 1.2;
-  --text-display: 2.5rem; /* 40px ceiling — oversized hero type is banned */
+  --text-detail: 0.875rem; /* 14px — timestamps, metadata, tech lists */
+  --text-detail--line-height: 1.55;
+  --text-body: 1rem; /* 16px — prose */
+  --text-body--line-height: 1.65;
+  --text-body-lg: 1rem; /* alias of body — pages use it for lead prose */
+  --text-body-lg--line-height: 1.65;
+  --text-lead: 1.125rem; /* 18px — Subheading */
+  --text-lead--line-height: 1.4;
+  --text-title: 1.125rem; /* 18px — entry titles, group names */
+  --text-title--line-height: 1.4;
+  --text-headline: 1.5rem; /* 24px — Section heading */
+  --text-headline--line-height: 1.25;
+  --text-display: 2.5rem; /* 40px — Page title, one per route */
   --text-display--line-height: 1.1;
 
-  /* --- Spacing scale (additive) ---------------------------------------- */
+  /* --- Spacing scale (8px base) ----------------------------------------
+     Authority: docs/premium-direction.md § Layout — "One column, one
+     container, one rhythm ... Vertical rhythm on an 8px base: section gaps
+     64px, entry gaps 32px, text gaps 16px." The three rhythm gaps are named
+     so a component sets rhythm by INTENT instead of hard-coding a raw number
+     that drifts from the direction. Every step is a multiple of the 8px base;
+     `hairline` and the quarter/half steps are the sub-8px control affordances. */
   --spacing-hairline: 1px;
   --spacing-quarter: 0.25rem;
   --spacing-half: 0.5rem;
-  --spacing-gutter: 1rem;
-  --spacing-block: 1.5rem;
-  --spacing-section: 3rem;
-  --spacing-page: 4.5rem;
+  --spacing-gutter: 1rem; /* 16px — page gutter base */
+  --spacing-text: 1rem; /* 16px — text gaps */
+  --spacing-block: 1.5rem; /* 24px — control-local breathing room */
+  --spacing-entry: 2rem; /* 32px — entry gaps */
+  --spacing-section: 4rem; /* 64px — section gaps */
+  /* Tight rhythmic step: the route intro-block-to-first-content seam. Kept
+     deliberately smaller than --spacing-section (the hero/section rhythm) so a
+     route intro no longer leaves a full-rhythm dead gap before its first
+     content row; inter-row rhythm stays on the section step. */
+  --spacing-section-tight: 1rem;
+  --spacing-page: 4.5rem; /* 72px — full page pad */
 
-  /* --- Border widths (additive) ---------------------------------------- */
-  /* Tailwind v4 has no stock border-width namespace; use these via
-     `border-[length:var(--border-width-rule)]`. */
+  /* --- Border widths (additive) ----------------------------------------
+     One Line hairline carries every structural divider: the chrome bars, the
+     band separators, chips, and inputs all draw the same 1px Line rule
+     (§ Token plan, § Layout: "Rules are 1px Line color"). `rule` is the 2px
+     active-state marker; Ink rules (--color-border-accent) appear only under
+     a page title. Tailwind v4 has no stock border-width namespace, so widths
+     are consumed via `border-[length:var(--border-width-rule)]`. */
   --border-width-hairline: 1px;
   --border-width-rule: 2px;
   --border-width-heavy: 4px;
+
+  /* --- Timing tokens (additive) — one short duration per control context --
+     Authority: docs/premium-direction.md § Principles 4, § Hard-ban list
+     ("One shared duration: each transition names its own short duration").
+     Nav, links, form fields, and submission each name their own value;
+     opacity/color only, never a layout property. Reduced motion still wins:
+     the prefers-reduced-motion block below collapses every duration to
+     0.01ms regardless of the value named here. */
+  --transition-duration-nav: 120ms;
+  --transition-duration-link: 140ms;
+  --transition-duration-field: 160ms;
+  --transition-duration-submit: 180ms;
 }
 
-/* Radius scale: zero. `static` keeps these emitted even while unused, so no
-   later `rounded-*` class can resurrect a curve. `rounded-full` is
-   Tailwind-static and still rounds; it is reserved for 1–2px indicator dots
-   only (see the deferral list in DESIGN.md). */
+/* Radius scale — soft control geometry. `static` keeps every step emitted.
+   Nothing is a zero-radius broadsheet: radius is a control signal, not
+   decoration. */
 @theme static {
-  --radius-xs: 0px;
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --radius-2xl: 0px;
-  --radius-3xl: 0px;
-  --radius-4xl: 0px;
   --radius-none: 0px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
 }
 
-/* DARK · ink / paper — same system, inverted */
+/* DARK · ink ground, paper text — a true inversion, not a tinted overlay. */
 html[data-theme="dark"] {
   color-scheme: dark;
-  --color-bg: #0e0e0d; /* ink */
-  --color-surface: #171716;
-  --color-surface-2: #1f1f1d;
-  --color-border: #2c2c29; /* concrete hairline */
-  --color-border-accent: #edede8; /* paper rule */
-  --color-text: #f2f2ef; /* 16.84:1 on ink */
-  --color-text-dim: #c9c9c3; /* 11.61 / 10.79 / 9.93 */
-  --color-text-muted: #a3a39c; /* 7.61 / 7.07 / 6.51 */
-  --color-accent: #ff4d00; /* 5.81 on ink */
-  --color-accent-2: #ff4d00;
-  --color-accent-3: #ff4d00;
-  --color-accent-4: #ff4d00;
-  --color-accent-glow: rgba(255, 77, 0, 0); /* glow banned: alpha 0 */
-  --color-accent-text: #ff6a2b; /* 6.76 / 6.28 / 5.78 */
-  --color-accent-2-text: #ff6a2b;
-  --color-accent-3-text: #ff6a2b;
-  --color-accent-4-text: #ff6a2b;
-  --color-grid-line: rgba(255, 255, 255, 0); /* decorative grid: banned */
-  --color-selection: rgba(255, 77, 0, 0.22);
+  --color-bg: #141310; /* Ink ground */
+  --color-text: #f4f3ec; /* Paper text — 16.7:1 on the ground */
+  --color-border: #2e2d26; /* Line */
+  --color-text-muted: #a6a69a; /* Muted — 7.6:1 on the ground */
+  --color-accent: #e8a0a0; /* Claret — 8.8:1 on the ground */
+  --color-accent-2: #e8a0a0;
+  --color-accent-3: #e8a0a0;
+  --color-accent-4: #e8a0a0;
+  --color-accent-text: #e8a0a0;
+  --color-accent-2-text: #e8a0a0;
+  --color-accent-3-text: #e8a0a0;
+  --color-accent-4-text: #e8a0a0;
+  --color-selection: rgba(232, 160, 160, 0.22);
+  --color-surface: #1e1d19;
+  --color-surface-2: #282722;
+  --color-border-accent: #f4f3ec; /* Paper rule */
 }
 
 html {
   height: 100%;
   color-scheme: light;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
   background-color: var(--color-bg);
   color: var(--color-text);
-  font-family: 'Hack', 'Cascadia Mono', 'IBM Plex Mono', monospace;
+  font-family: var(--font-sans);
+  font-weight: 400;
+  /* Public Sans ships a full latin set; no synthetic smoothing or tracking
+     tricks are needed for legibility at 16px. */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   overflow: hidden;
   height: 100%;
 }
 
-* {
-  scrollbar-width: thin;
-  scrollbar-color: var(--color-border-accent) var(--color-bg);
-}
-
-.page-scroll {
-  scroll-behavior: auto;
-  overscroll-behavior: contain;
-}
-
-h1, h2, h3, h4 {
+/* Page titles and section headings take the display face. */
+h1, h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
   text-wrap: balance;
 }
 
-/* Body copy: avoid single-word orphan lines (skill polish). */
+h3, h4 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+/* Body copy: avoid single-word orphan lines. */
 p {
   text-wrap: pretty;
 }
 
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) var(--color-bg);
+}
+
+/* The page-per-viewport scroller. `keyboardNav.ts` and the skip link both
+   resolve this class by name — it is load-bearing, not cosmetic. */
+.page-scroll {
+  scroll-behavior: auto;
+  overscroll-behavior: contain;
+  /* The keyboard item tour (←/→) and the skip link both land focus with
+     `scrollIntoView`; the header and footer are `fixed` (out of flow), so
+     without scroll padding a stop focused at the top of the scroller hides
+     under the chrome. PageShell measures both heights into these custom
+     properties ON THIS ELEMENT, so the padding always tracks the live chrome
+     (zoom, the opening mobile menu, a footer wrap). Direction § Principles 5:
+     keyboard-only reading without overlap. */
+  scroll-padding-top: var(--page-header-offset, 0px);
+  scroll-padding-bottom: var(--page-footer-offset, 0px);
+}
+
 :focus-visible {
-  outline: 1px solid var(--color-accent);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+  border-radius: var(--radius-xs);
 }
 
 /* #main is focused programmatically on page mount (PageShell) to announce the
    new page to screen readers. It is a container, not an interactive element,
    so it must never paint the focus ring — the :focus-visible rule above would
-   otherwise draw a 1px full-width accent line along its top edge (y≈85, right
-   under the header) on every first load. */
+   otherwise draw a full-width accent rule along its top edge on every load. */
 #main:focus {
   outline: none;
 }
@@ -210,25 +256,36 @@ p {
 .skip-to-content {
   position: fixed;
   top: -100%;
-  left: 0;
+  left: 0.75rem;
   z-index: 10001;
-  padding: 0.5rem 1rem;
+  padding: 0.75rem 1rem;
   background: var(--color-bg);
-  color: var(--color-accent-text); /* 6.46:1 light / 6.76:1 dark (§7) */
-  font-size: var(--text-body); /* 13px named step — a control, ≥ --text-label */
-  font-family: 'Hack', 'Cascadia Mono', 'IBM Plex Mono', monospace;
-  border: 1px solid var(--color-accent);
-  transition: top 0.2s;
+  color: var(--color-accent-text); /* 10.0:1 light / 8.8:1 dark */
+  font-size: var(--text-label);
+  font-weight: 500;
+  border: 1px solid var(--color-border-accent);
+  border-radius: var(--radius-sm);
+  /* Opacity only, on its own short duration. The reveal must not animate a
+     layout property, so `top` jumps while the fade carries the state change
+     (docs/premium-direction.md § Principles 4, § Hard-ban list). */
+  opacity: 0;
+  transition: opacity 0.12s ease-out;
 }
 
 .skip-to-content:focus {
-  top: 0;
+  top: 0.75rem;
+  opacity: 1;
 }
 
-::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--color-bg); }
-::-webkit-scrollbar-thumb { background: var(--color-border-accent); border-radius: 0; }
-::-webkit-scrollbar-thumb:hover { background: color-mix(in srgb, var(--color-border-accent) 75%, white); }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-xs);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
 
 ::selection {
   background: var(--color-selection);
@@ -245,276 +302,76 @@ p {
   transition: none !important;
 }
 
-/* The one sanctioned blink: the CommandTerminal input caret, where a person
-   can actually type (DESIGN.md §10). Every static/decorative copy is gone. */
-@keyframes terminal-cursor {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0; }
+/* Reduced motion disables all nonessential movement — in CSS as well as in
+   the motion layer (MotionConfig reducedMotion="user", useReducedMotion). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .page-scroll {
+    scroll-behavior: auto;
+  }
 }
 
-.terminal-cursor {
-  animation: terminal-cursor 1s step-end infinite;
-}
+/* =========================================================================
+   MOTION LAYER (additive) — tokens and keyframes for `src/lib/motion.ts`.
+   Authority: docs/premium-direction.md § Principles 4-5, § Hard-ban list.
+   Contextual durations, opacity/transform only, never a layout property.
+   These are the CSS half of the frozen motion contract; the framer-motion
+   half (fadeUp, fadeIn, staggerParent, staggerChild, springSnappy, heroIn,
+   marqueeX) lives in src/lib/motion.ts and names the same values.
 
-/* No OS motion-preference gate here, by operator decision: the caret always
-   blinks (DESIGN.md §10). */
-
-/* ============================================================================
-   === TEMPORARY — ANIMATED FILM GRAIN — OPERATOR-PENDING, NOT SYSTEM =========
-   ----------------------------------------------------------------------------
-   Status: TEMPORARY DECORATION, under evaluation. The operator wants to see
-   whether the brutalist restyle wants a page-wide film-grain texture, and will
-   decide whether to keep it. It is deliberately OUTSIDE the permanent token
-   layer quoted in DESIGN.md §2.2 ("the whole token layer") — the
-   `--grain-opacity` and `--grain-scale` tokens below are additive and temporary.
-   Nothing else in this file, and no component, knows this block exists.
-
-   Anti-slop note: the catalogs ban decoration standing in for hierarchy and
-   *decorative* noise, but exempt "a texture that belongs to the design"
-   ([S1]/[S3]; DESIGN.md §9 "Survives the ban", §12 deferrals). This is that
-   exemption's arm: operator-requested, zero-information, and — because the
-   operator asked for film rather than a still — stepped at ~10fps under an
-   explicit, documented exemption from DESIGN.md §10's "No loops" rule (§13).
-   It is not a §10 loop on its own terms: it carries no information, signals no
-   activity, has no entrance or state meaning, and carries no OS motion-
-   preference gate at all — the site animates at full potential by operator
-   decision (DESIGN.md §10).
-
-   REVERT — either step is complete on its own:
-     a) delete this whole comment + rules block (it owns both
-        `--grain-opacity` tokens, the theme-independent `--grain-scale` token,
-        the three frame data-URIs and the keyframes — nothing else references
-        any of them), or
-     b) set `--grain-opacity: 0` in both theme blocks below. The
-        pseudo-element then stays in the tree but paints nothing and schedules
-        no frames: the kill switch reaches the animation too (see the rule).
-   ========================================================================== */
-
+   Reduced motion: the `prefers-reduced-motion` block above already collapses
+   every animation to a still frame, so these keyframes need no second guard.
+   ========================================================================= */
 :root {
-  /* Light: 0.315 under `multiply` (AA-tuned down from 0.425 on 2026-09-20; see
-     DESIGN.md §7). `multiply` is NOT mean-neutral — it darkens (B = b·s), by
-     design, because the mean-neutral modes are invisible on a white ground:
-     `overlay` collapses to `1 − 2(1 − b)(1 − s)`, which is
-     exactly 1 when b = 1, so on `#ffffff` it is a mathematical no-op
-     (measured std-dev 0.00 on white, 0.47 on the old `#fbfbfa` — invisible
-     either way). `multiply` scales the noise by the backdrop itself, so it
-     survives on white: measured at the ORIGINAL 0.07 on `#ffffff`, mean
-     luminance 252.7, grain std-dev 0.9, range 249–255 — present but, with the
-     `baseFrequency="0.85"` sub-pixel noise, perceptually invisible.
-     RETUNE, then REVERT (operator, 2026-09-20): a coarse retune dropped
-     `baseFrequency` 0.85 → 0.3 (~3–5px features) to buy perceptibility with
-     grain SIZE and raised opacity to 0.14. The operator REJECTED the coarse
-     field as "too fat" and "sloppy" and asked for the fine, sharp grain back.
-     Sharpness is therefore restored at `baseFrequency="0.85"` and visibility
-     is carried by OPACITY, not feature size: the accepted value is 0.315 light /
-     0.20 dark, up from the original 0.07 (the interim accepted value was 0.425;
-     it was lowered to 0.315 on 2026-09-20 for the §7 AA tune). (The earlier
-     "invisible" reading came from a 2-pixel-stride sample of ~1px features —
-     an aliasing artifact that understated the true variation — see DESIGN.md
-     §13.) The honest cost is a
-     larger uniform average-luminance drop on white, roughly proportional to the
-     opacity; the exact figure is the 1:1 browser measurement recorded in
-     DESIGN.md §13, at the α = 0.4 model anchor: mean luminance 241.4, grain
-     std-dev 4.61, range 215–253 (effective ground ≈ `#f1f1f1`). At the shipped
-     0.315 the model's darkest ground speckle is 223.5 (DESIGN.md §7). Size is
-     the separate, theme-independent `--grain-scale` token beside this one; this
-     comment owns STRENGTH only. */
-  --grain-opacity: 0.315;
-  /* Grain SIZE/sharpness — 1 = default; below 1 = finer/sharper, above 1 = fatter. Theme-independent: declared once here, deliberately not repeated in the dark block. */
-  --grain-scale: 1;
+  --motion-duration-fast: 160ms;
+  --motion-duration-base: 280ms;
+  --motion-duration-slow: 480ms;
+  --motion-ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-marquee-duration: 32s;
 }
 
-/* Same selector shape as the dark token block above, so the grain follows the
-   theme exactly where the palette does (data-theme lives on <html>). */
-html[data-theme="dark"] {
-  /* Dark: 0.20 under `multiply` (retuned from 0.10 for the coarse retune, then
-     kept through the REVERT to fine grain — visibility stays in the opacity).
-     On ink `#0e0e0d` multiply darkens too, so this is deliberately conservative
-     — the dark ground is already near the floor and a large multiply would
-     crush it. (Under the retired `overlay` this was 0.46; multiply buys the
-     same texture at a small fraction of the value.) */
-  --grain-opacity: 0.20;
-}
-
-/* The grain layer itself.
-   Host: `html::after` — the free pseudo-element (see the `.theme-flip` reset
-   above: nothing else claims ::before/::after on html or body; no component can
-   style `body`'s pseudo-elements from Tailwind).
-   - `position: fixed` + `inset: 0` → out of flow and out of scrollable
-     overflow: no layout box, no CLS, no scrollbar, no zoom interaction.
-   - `pointer-events: none` → cannot capture hover, click, or focus.
-   - A pseudo-element has no DOM node and no role, so it is absent from the
-     accessibility tree, and with no tabindex it cannot be reached by keyboard.
-   - `z-index` sits above the CommandTerminal panel (`z-[9999]`) and the skip
-     link (10001) so the texture is uniform across the screen instead of
-     stopping at the chrome. Blending happens once, on the composited result of
-     those layers, so chrome and page get the same treatment; the chrome's own
-     grounds are the same `--color-bg`/`--color-surface*` tokens, so it reads as
-     one surface rather than a separate film per region.
-   - Self-contained: no animation plugin, no JS, no external fetch, no asset
-     file. Three inline self-contained `feTurbulence` SVGs (same filter recipe,
-     three different `seed`s) are the three frames, keyframed below; the 160px
-     tile repeats seamlessly because the filter region is set to exactly the
-     tile. This element is the only thing in the file that animates a
-     full-viewport layer — see the keyframes' COST note.
-
-   TWO TUNING KNOBS — deliberately only two:
-   - `--grain-opacity` = STRENGTH, and with it the average-luminance cost:
-     `multiply` darkens in proportion to it. 0 is the kill switch.
-   - `--grain-scale` = GRAIN SIZE / SHARPNESS, applied below as
-     `background-size: calc(160px * var(--grain-scale))`. 1 = the default 160px
-     tile (a no-op); below 1 = finer/sharper, above 1 = fatter. The tile is a
-     VECTOR `feTurbulence` SVG, so scaling redraws it crisply instead of
-     resampling pixels. `baseFrequency="0.85"` is the FIXED base recipe, not a
-     knob: sharpness is never chased by editing the four long data-URI strings
-     (that is how this block was broken before) — use `--grain-scale`.
-   `opacity: var(--grain-opacity)` is the single kill switch: 0 disables it,
-   animation included (the `animation` declaration below reads the same token).
-
-   `mix-blend-mode: multiply` — VISIBLE compositing. The block previously used
-   `overlay`, chosen for being luminance-neutral; measurement killed that choice.
-   `overlay`'s upper branch is B = 1 − 2(1 − b)(1 − s), and at b = 1 it collapses
-   to exactly 1 for every s: on pure white `#ffffff` the grain is a
-   mathematical no-op. Measured in the browser: grain std-dev 0.00 on `#ffffff`,
-   0.47 on the old `#fbfbfa` — invisible on both. Mean-neutral is the wrong goal
-   here; the ground is a highlight, and a blend that preserves the mean of a
-   highlight multiplies the noise by ~0.
-   `multiply` (B = b·s) instead scales the noise by the backdrop itself, so it
-   actually lands: measured at the original 0.07 on `#ffffff` the mean luminance
-   was 252.7 — a 0.9% average drop — with grain std-dev 0.9 and range 249–255.
-   RETUNED to 0.16 (light) / 0.20 (dark) on 2026-09-20. An intermediate coarse
-   retune (also changing `baseFrequency` 0.85 → 0.3) was REJECTED by the operator
-   as "too fat"/"sloppy", so `baseFrequency` is back at 0.85 — the size lever is
-   now `--grain-scale` (see the two knobs above), never a data-URI edit. At the
-   default scale the retune lives ONLY in the opacity: the fine grain is kept
-   sharp and made to register by strength, not by feature size. It is NOT
-   mean-neutral, and that is the
-   point: the cost of visibility is a small, uniform darkening of the ground,
-   roughly proportional to the opacity (~2% on white, against the measured 0.9%
-   at 0.07), recorded honestly here and in DESIGN.md §13. The per-theme
-   `--grain-opacity` tokens carry the strength; both were first re-tuned for
-   multiply (0.95→0.07 light, 0.46→0.10 dark), then raised to 0.14/0.18 for the
-   rejected coarse retune, then set to 0.16/0.20 for the fine-grain revert, and
-   the dark value stays deliberately low because multiply darkens on ink too.
-   Nothing here can clip: b·s ∈ [0, 1] for every backdrop and every noise
-   sample. The grain's own alpha channel varies too (feTurbulence fills all
-   four); that modulates coverage on the composite.
-   Blending is safe for this host: `html::after` is a child of the root element,
-   so its backdrop is the whole root stacking context — `body`'s
-   `background-color: var(--color-bg)` paper plus every app layer painted below
-   it (the motion pages and the chrome) — and nothing isolates it (`isolation`
-   is never set on html/body, and no ancestor exists above html). It already
-   paints at `z-index: 10002`, so the stacking context `mix-blend-mode` creates
-   on the pseudo-element is contained by an element that is already topmost: no
-   app layer is hidden, re-ordered, or repainted differently, and the
-   pseudo-element has no children to isolate. It changes no token and no text
-   colour declaration — it composites pixels, exactly as `opacity` already did,
-   so `--color-text` and friends are untouched; dark text on paper is its own
-   small backdrop (`b` near 0) and a multiply against it shifts less than the
-   ground does. `--grain-opacity: 0` still disables the whole effect: the layer
-   renders nothing to blend, blend mode or not.
-
-   ANIMATION — three frames, discrete swap, ~10fps. The three data-URIs below
-   share the filter recipe (`type="fractalNoise"`, `baseFrequency="0.85"`,
-   `numOctaves="3"`, `stitchTiles="stitch"`, saturate-0 grey) and differ only in
-   `seed` (7 / 41 / 113), so they are three genuinely different noise fields —
-   not one image slid around. The keyframes swap the `background-image` itself,
-   which is a discrete-typed property: it cannot interpolate, so adjacent frames
-   can only cut, never cross-blend. The base `background-image` below is frame 1
-   and the value the animation starts from. `baseFrequency="0.85"` is the FIXED
-   base recipe — the fine, sharp field the operator wants (a coarse 0.3 retune
-   was tried and REJECTED as "sloppy"; see `:root` and DESIGN.md §13) — and it is
-   never edited to change size: `--grain-scale` scales the drawn tile instead
-   (see the two knobs above). The tile is still 160px and the filter region is
-   still exactly the tile, so `stitchTiles="stitch"` keeps the repeat seamless
-   at any scale. */
-html::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 10002;
-  pointer-events: none;
-  opacity: var(--grain-opacity);
-  mix-blend-mode: multiply;
-  /* Frame 1 of 3 — the base frame. */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
-  background-repeat: repeat;
-  /* The grain SIZE/sharpness knob — see TWO TUNING KNOBS above. The source is a
-     160px VECTOR tile, so this scales the drawing, not a bitmap: the SVG is
-     redrawn at the new size and `repeat` re-tiles it, filter region still pinned
-     to the tile. At the default `--grain-scale: 1` this is exactly 160px — a
-     no-op. No `baseFrequency` edit (and no four-string data-URI edit) needed. */
-  background-size: calc(160px * var(--grain-scale));
-  /* The kill switch reaches the animation, not just the paint. The duration is
-     an identity: at the live values (0.315 light / 0.20 dark) the ratio is
-     exactly 1, so the loop is exactly 0.3s. At `--grain-opacity: 0` it is
-     `calc(0 / 0 * 0.3s)` — NaN, which is invalid at computed-value time, so no
-     live duration exists and no frame is ever scheduled. Measured in Chrome:
-     the duration clamps to `0s`, `getAnimations()` on the element is empty, and
-     the painted frame never changes. (An engine that instead invalidates the
-     whole shorthand falls back to `animation-name: none`, which also schedules
-     nothing — the switch holds either way.) That keeps `--grain-opacity` the
-     single switch the whole block promises: 0 disables the paint and the loop
-     together, so the effect is fully off. */
-  animation: grain-reshuffle calc(var(--grain-opacity) / var(--grain-opacity) * 0.3s) steps(1, end) infinite;
-}
-
-/* The ~10fps reshuffle. Each frame holds one third of the 0.3s loop (~0.1s) and
-   the change is a hard cut — this is a reshuffle, not drift: no position, size
-   or transform moves, the noise field itself is replaced. `steps(1, end)` in the
-   rule above pins each cut to its segment's end; the hairline pairs
-   (`33.332%`/`33.333%`, `66.665%`/`66.666%`) hold the same frame on both sides
-   of each boundary, so the cut stays hard even if an engine resolves the
-   discrete step at 50% of a segment instead of at its end — both paths land on
-   the same 0.1s boundaries. `100%` repeats frame 1 so the loop wrap is no more
-   visible than any other cut.
-
-   COST — honest: this repaints one full-viewport layer ~10 times a second. The
-   source is a 160px tile repeated, so the raster work per frame is small, but
-   the result covers the whole viewport and `mix-blend-mode: multiply` re-blends
-   it against the root stacking context on every step: ~10 full-viewport
-   blended repaints/second, on top of the per-frame style recalc. It animates
-   `background-image` only — nothing that triggers layout, so no reflow and no
-   CLS. No `will-change` is set on purpose: it would promote a full-viewport
-   blended layer to its own compositor texture to skip a paint that is already
-   cheap, and the composite of a viewport-sized texture is not. The loop is
-   never gated by an OS motion preference — the site animates at full potential
-   by operator decision (DESIGN.md §10). */
-@keyframes grain-reshuffle {
-  /* frame 1 — seed 7 */
-  0%,
-  33.332% {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+@keyframes nnl-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
   }
-  /* frame 2 — seed 41 */
-  33.333%,
-  66.665% {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='41' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
-  }
-  /* frame 3 — seed 113 */
-  66.666%,
-  100% {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g' x='0' y='0' width='100%25' height='100%25'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' seed='113' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+  to {
+    opacity: 1;
+    transform: none;
   }
 }
 
-/* The grain animation is deliberately ungated: no OS motion-preference media
-   query disables it, by operator decision (DESIGN.md §10, §13). */
+@keyframes nnl-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
-/* Lite tier — throttle the reshuffle to ~3fps, do not disable it.
-   `html[data-perf="lite"]::after` (0,1,2) outranks the base `html::after`
-   (0,0,2) and follows it in source order, so this bare `animation-duration`
-   wins without `!important`. Only the duration changes: the name, the
-   `steps(1, end)`, `infinite`, `multiply` blend, `--grain-opacity` values and
-   the three frames all come from the rules above, unchanged.
+@keyframes nnl-hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 
-   This is a CAPABILITY tier, not a user-preference tier: `data-perf="lite"` is
-   set pre-paint when the WebGL probe finds no hardware acceleration (this
-   machine reports "Microsoft Basic Render Driver"), i.e. a software renderer
-   that pays the full per-frame composite cost. The preference-is-honoured rule
-   above does not apply here — the reduced-motion decision in §10 is about what
-   the user wants, this is about what the machine can afford, so the grain still
-   moves (3fps is the operator-chosen floor), it just moves less. */
-html[data-perf="lite"]::after {
-  animation-duration: 1s;
+@keyframes nnl-marquee-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
