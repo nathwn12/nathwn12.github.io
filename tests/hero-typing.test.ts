@@ -54,7 +54,7 @@ function advance(state: TypingState, rng?: () => number): TypingState {
 
 describe("hero identities", () => {
   it("keeps the opening hook as the first (static default) identity", () => {
-    expect(FIRST).toBe("I build systems that hold up — and the tools around them.");
+    expect(FIRST).toBe("Payment backends that hold up under production load.");
   });
 
   it("rotates four distinct identities stating what the owner is", () => {
