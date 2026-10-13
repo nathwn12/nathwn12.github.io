@@ -28,9 +28,33 @@ import {
 const FIRST = HERO_PHRASES[0];
 const FIRST_LEN = FIRST.length;
 
+/** Deterministic LCG so bag order is reproducible across runs (a stub rng). */
+function seededRng(seed: number): () => number {
+  let s = seed >>> 0;
+  return () => {
+    s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+    return s / 0x1_0000_0000;
+  };
+}
+
+/** Step from a fully-deleted phrase to the one the bag draws next, carrying
+    the bag forward. */
+function advance(state: TypingState, rng?: () => number): TypingState {
+  return nextTypingState(
+    {
+      phraseIndex: state.phraseIndex,
+      charCount: 0,
+      deleting: true,
+      bag: state.bag,
+    },
+    HERO_PHRASES,
+    rng,
+  );
+}
+
 describe("hero identities", () => {
-  it("keeps the payment claim as the first (static default) identity", () => {
-    expect(FIRST).toBe("Payment backends that hold up under production load.");
+  it("keeps the opening hook as the first (static default) identity", () => {
+    expect(FIRST).toBe("I build systems that hold up — and the tools around them.");
   });
 
   it("rotates four distinct identities stating what the owner is", () => {
@@ -42,7 +66,7 @@ describe("hero identities", () => {
     expect(joined).toContain("ai-equipped");
   });
 
-  it("starts fully typed on the first phrase (no empty first paint)", () => {
+  it("opens on the hook: phrase 0, fully typed, no bag (opens every visit)", () => {
     expect(initialTypingState()).toEqual({
       phraseIndex: 0,
       charCount: FIRST_LEN,
@@ -70,37 +94,113 @@ describe("nextTypingState — deterministic cycle", () => {
     ).toEqual({ phraseIndex: 0, charCount: FIRST_LEN - 1, deleting: true });
   });
 
-  it("wraps to the next phrase once fully deleted", () => {
-    expect(nextTypingState({ phraseIndex: 0, charCount: 0, deleting: true })).toEqual({
-      phraseIndex: 1,
-      charCount: 0,
-      deleting: false,
-    });
+  it("draws the next phrase from the shuffled bag once fully deleted", () => {
+    const next = nextTypingState(
+      { phraseIndex: 0, charCount: 0, deleting: true },
+      HERO_PHRASES,
+      seededRng(3),
+    );
+    expect(next.deleting).toBe(false);
+    expect(next.charCount).toBe(0);
+    expect(next.phraseIndex).toBeGreaterThanOrEqual(1);
+    expect(next.phraseIndex).toBeLessThan(HERO_PHRASES.length);
+    expect(next.bag).toHaveLength(HERO_PHRASES.length - 2);
   });
 
-  it("returns to phrase 0 after the last phrase (loop, not stop)", () => {
-    expect(
-      nextTypingState({ phraseIndex: 3, charCount: 0, deleting: true }, HERO_PHRASES),
-    ).toEqual({ phraseIndex: 0, charCount: 0, deleting: false });
+  it("never redraws the opening hook once the rotation begins", () => {
+    const next = nextTypingState(
+      { phraseIndex: 3, charCount: 0, deleting: true },
+      HERO_PHRASES,
+      seededRng(5),
+    );
+    expect(next.phraseIndex).not.toBe(0);
   });
 
-  it("reaches phrase 1 fully deleted after hold + deletes + gap", () => {
+  it("reaches a non-opening identity fully deleted after hold + deletes + gap", () => {
+    const rng = seededRng(13);
     let state: TypingState = initialTypingState();
     for (let i = 0; i < 1 + FIRST_LEN + 1; i += 1) {
-      state = nextTypingState(state);
+      state = nextTypingState(state, HERO_PHRASES, rng);
     }
-    expect(state).toEqual({ phraseIndex: 1, charCount: 0, deleting: false });
+    expect(state.deleting).toBe(false);
+    expect(state.charCount).toBe(0);
+    expect(state.phraseIndex).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe("opener + shuffled bag ordering", () => {
+  it("(a) opens on the hook — index 0, fully typed, every visit", () => {
+    for (let paint = 0; paint < 3; paint += 1) {
+      const state = initialTypingState();
+      expect(state.phraseIndex).toBe(0);
+      expect(state.charCount).toBe(FIRST_LEN);
+    }
+  });
+
+  it("(b) two consecutive cycles never repeat a phrase", () => {
+    const rng = seededRng(7);
+    let state: TypingState = initialTypingState();
+    let previous = state.phraseIndex;
+    for (let i = 0; i < 12; i += 1) {
+      state = advance(state, rng);
+      expect(state.phraseIndex).not.toBe(previous);
+      previous = state.phraseIndex;
+    }
+  });
+
+  it("(c) a cycle covers every remaining phrase before any repeat", () => {
+    const rng = seededRng(11);
+    const seen: number[] = [];
+    let state: TypingState = initialTypingState();
+    for (let i = 0; i < HERO_PHRASES.length - 1; i += 1) {
+      state = advance(state, rng);
+      seen.push(state.phraseIndex);
+    }
+    expect(new Set(seen).size).toBe(HERO_PHRASES.length - 1);
+    expect(seen).not.toContain(0);
+
+    // The bag refills only after every remaining phrase has appeared once, and
+    // the refill never begins with the phrase that just finished.
+    const refill = advance(state, rng);
+    expect(refill.phraseIndex).not.toBe(seen[seen.length - 1]);
+    expect(refill.phraseIndex).not.toBe(0);
+  });
+
+  it("(d) a stub rng yields a fixed, reproducible order", () => {
+    const run = (rng: () => number) => {
+      let state: TypingState = initialTypingState();
+      const order: number[] = [];
+      for (let i = 0; i < 6; i += 1) {
+        state = advance(state, rng);
+        order.push(state.phraseIndex);
+      }
+      return order;
+    };
+    // rng()===0 ⇒ Fisher–Yates leaves [1,2,3] as [2,3,1] on every refill.
+    expect(run(() => 0)).toEqual([2, 3, 1, 2, 3, 1]);
+    expect(run(seededRng(9))).toEqual(run(seededRng(9)));
   });
 });
 
 describe("typingDelayMs — cadence by frame", () => {
-  it("uses the type beat while typing, the hold beat when complete", () => {
+  it("uses the type beat while typing, the hold beat when a phrase completes", () => {
     expect(typingDelayMs({ phraseIndex: 0, charCount: 0, deleting: false })).toBe(
       TYPING_CADENCE.type,
     );
     expect(
-      typingDelayMs({ phraseIndex: 0, charCount: FIRST_LEN, deleting: false }),
+      typingDelayMs({
+        phraseIndex: 1,
+        charCount: HERO_PHRASES[1].length,
+        deleting: false,
+      }),
     ).toBe(TYPING_CADENCE.hold);
+  });
+
+  it("holds the opening hook longest", () => {
+    expect(
+      typingDelayMs({ phraseIndex: 0, charCount: FIRST_LEN, deleting: false }),
+    ).toBe(TYPING_CADENCE.holdFirst);
+    expect(TYPING_CADENCE.holdFirst).toBeGreaterThan(TYPING_CADENCE.hold);
   });
 
   it("uses the delete beat while deleting, the gap beat when empty", () => {
@@ -174,9 +274,9 @@ describe("useHeroTyping — loop, reduced motion, cleanup", () => {
     expect(vi.getTimerCount()).toBe(1);
   });
 
-  it("holds, then deletes a character when the cadence advances", () => {
+  it("holds the hook, then deletes a character when the cadence advances", () => {
     mount(false);
-    act(() => vi.advanceTimersByTime(TYPING_CADENCE.hold));
+    act(() => vi.advanceTimersByTime(TYPING_CADENCE.holdFirst));
     // Deleting has begun but no character is removed yet.
     expect(probeText()).toBe(`${FIRST}|${FIRST}|0|${FIRST_LEN}|true`);
     act(() => vi.advanceTimersByTime(TYPING_CADENCE.delete));
@@ -185,17 +285,20 @@ describe("useHeroTyping — loop, reduced motion, cleanup", () => {
     );
   });
 
-  it("cycles to the second identity after hold + delete + gap + one type", () => {
+  it("cycles to a non-opening identity after hold + delete + gap + one type", () => {
     mount(false);
-    const second = HERO_PHRASES[1];
     for (
       let i = 0;
-      i < 500 && !(frame().phraseIndex === 1 && frame().charCount === 1);
+      i < 500 && !(frame().phraseIndex !== 0 && frame().charCount === 1);
       i += 1
     ) {
       step();
     }
-    expect(probeText()).toBe(`${second[0]}|${second}|1|1|false`);
+    const { phraseIndex } = frame();
+    expect(phraseIndex).toBeGreaterThanOrEqual(1);
+    expect(phraseIndex).toBeLessThan(HERO_PHRASES.length);
+    const phrase = HERO_PHRASES[phraseIndex];
+    expect(probeText()).toBe(`${phrase[0]}|${phrase}|${phraseIndex}|1|false`);
   });
 
   it("reduced motion: static first phrase, zero timers, no drift", () => {

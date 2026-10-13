@@ -10,8 +10,8 @@ import { useReducedMotion } from "framer-motion";
  * reduces motion could never opt back into the animation. This module makes
  * motion a first-class, persisted preference:
  *
- *   auto    → follow the OS (Framer's "user" mode) — the DEFAULT
- *   animate → always animate, overriding a reduce-OS ("never")
+ *   animate → always animate, overriding a reduce-OS ("never") — the DEFAULT
+ *   auto    → follow the OS (Framer's "user" mode)
  *   reduce  → never animate, overriding a motion-OS ("always")
  *
  * Storage namespace mirrors the theme resolver (`nnl-theme` → `nnl-motion`).
@@ -56,12 +56,13 @@ export function resolveReduceMotion(
 
 /** In-memory mirror for a preference whose storage write could not be
  *  confirmed. `setMotionPreference` broadcasts MOTION_CHANGE_EVENT *after*
- *  writing, so a listener that re-derives from storage alone would read "auto"
- *  (the write never landed) and silently revert the visitor's explicit choice.
+ *  writing, so a listener that re-derives from storage alone would read
+ *  "animate" (the fresh-visitor default; the write never landed) and silently
+ *  revert the visitor's explicit choice.
  *  Cleared whenever a write verifiably lands — storage is then authoritative. */
 let inMemoryPreference: MotionPreference | null = null;
 
-/** Preference persisted for the session; missing or unrecognized ⇒ "auto". */
+/** Preference persisted for the session; missing or unrecognized ⇒ "animate". */
 export function storedMotionPreference(): MotionPreference {
   try {
     const stored = window.localStorage.getItem(MOTION_STORAGE_KEY);
@@ -71,7 +72,7 @@ export function storedMotionPreference(): MotionPreference {
   } catch {
     /* storage unavailable — fall through to the in-memory mirror */
   }
-  return inMemoryPreference ?? "auto";
+  return inMemoryPreference ?? "animate";
 }
 
 /** Persist a preference, then broadcast so every consumer recalibrates. */
