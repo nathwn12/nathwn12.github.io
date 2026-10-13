@@ -51,32 +51,41 @@ const techStrip: string[] = Array.from(
 );
 
 /**
- * The hero identities, in rotation order. The first entry is the owner's
- * opening claim and the static default (first paint, reduced motion, no-JS);
- * the rest state what he is — a backend developer building fintech systems, an
- * AI-equipped builder — so the h1 says "what I am", never payment-only. Kept
- * here, in the Hero surface, because the copy is the page's one bold move.
+ * The hero identities. The first entry is the fixed opening hook — it leads
+ * every visit and is the static default (first paint, reduced motion, no-JS),
+ * never randomized; the rest state what he is — a backend developer building
+ * fintech systems, an AI-equipped builder — so the h1 says "what I am", never
+ * payment-only. After the opener, the remaining entries rotate from a shuffled
+ * bag ({@link nextTypingState}) rather than in fixed order, so the h1 varies
+ * without repeating the previous phrase. Kept here, in the Hero surface,
+ * because the copy is the page's one bold move.
  */
 export const HERO_PHRASES: readonly string[] = [
-  "Payment backends that hold up under production load.",
+  "I build systems that hold up — and the tools around them.",
   "A backend developer building fintech systems.",
   "An AI-equipped builder who ships measured change.",
   "An engineer who reads production before the diagram.",
 ];
 
 /** Typing cadence in ms: one beat per keystroke, a longer hold on a finished
-    phrase, and a short gap before the next phrase starts. */
+    phrase, a longer still hold on the opening hook (the page's one claim, held
+    longest so it is read before the rotation begins), and a short gap before
+    the next phrase starts. */
 export const TYPING_CADENCE = {
-  type: 45,
-  delete: 24,
-  hold: 1600,
-  gap: 350,
+  type: 55,
+  delete: 30,
+  hold: 2000,
+  holdFirst: 2600,
+  gap: 400,
 } as const;
 
 export interface TypingState {
   phraseIndex: number;
   charCount: number;
   deleting: boolean;
+  /** Remaining shuffled phrase indices drawn after the opener; absent until the
+      first advance, then carried frame to frame so ordering survives steps. */
+  bag?: readonly number[];
 }
 
 /** The first frame: the opening phrase fully shown, so first paint and the
@@ -92,13 +101,40 @@ export function initialTypingState(
 }
 
 /**
- * Pure, timerless one-step transition of the typing loop — deterministic, so
- * the unit tests drive it directly and the mount effect only schedules it.
- * Types forward, holds, deletes, then advances to the next phrase (wrapping).
+ * Fisher–Yates shuffle of a set of phrase indices, seeded by the injected
+ * `rng`. When more than one index remains, `avoidFirst` is never left in the
+ * first slot — so a bag refilled at the end of a cycle can never begin with the
+ * phrase that just finished (no immediate repeat across the refill boundary).
+ */
+function shuffledBag(
+  indices: readonly number[],
+  avoidFirst: number,
+  rng: () => number,
+): number[] {
+  const bag = [...indices];
+  for (let i = bag.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(rng() * (i + 1));
+    [bag[i], bag[j]] = [bag[j], bag[i]];
+  }
+  if (bag.length > 1 && bag[0] === avoidFirst) {
+    const swap = 1 + Math.floor(rng() * (bag.length - 1));
+    [bag[0], bag[swap]] = [bag[swap], bag[0]];
+  }
+  return bag;
+}
+
+/**
+ * Pure, timerless one-step transition of the typing loop — deterministic given
+ * `rng`, so the unit tests drive it directly and the mount effect only
+ * schedules it. Types forward, holds, deletes, then draws the next phrase from
+ * a shuffled bag of the non-opening indices (refilled when exhausted), so the
+ * rotation varies but never repeats the phrase that just finished. The opener
+ * (index 0) leads every visit and is never drawn again.
  */
 export function nextTypingState(
   state: TypingState,
   phrases: readonly string[] = HERO_PHRASES,
+  rng: () => number = Math.random,
 ): TypingState {
   const full = phrases[state.phraseIndex] ?? "";
   if (!state.deleting) {
@@ -110,11 +146,17 @@ export function nextTypingState(
   if (state.charCount > 0) {
     return { ...state, charCount: state.charCount - 1 };
   }
-  return {
-    phraseIndex: (state.phraseIndex + 1) % phrases.length,
-    charCount: 0,
-    deleting: false,
-  };
+  const others =
+    phrases.length > 1 ? phrases.slice(1).map((_, i) => i + 1) : [];
+  if (others.length === 0) {
+    return { phraseIndex: 0, charCount: 0, deleting: false };
+  }
+  const remaining =
+    state.bag && state.bag.length > 0
+      ? state.bag
+      : shuffledBag(others, state.phraseIndex, rng);
+  const [phraseIndex, ...bag] = remaining;
+  return { phraseIndex, charCount: 0, deleting: false, bag };
 }
 
 /** How long the current frame is displayed before {@link nextTypingState}. */
@@ -124,8 +166,9 @@ export function typingDelayMs(
 ): number {
   const full = phrases[state.phraseIndex] ?? "";
   if (!state.deleting) {
-    return state.charCount < full.length
-      ? TYPING_CADENCE.type
+    if (state.charCount < full.length) return TYPING_CADENCE.type;
+    return state.phraseIndex === 0
+      ? TYPING_CADENCE.holdFirst
       : TYPING_CADENCE.hold;
   }
   return state.charCount > 0 ? TYPING_CADENCE.delete : TYPING_CADENCE.gap;
