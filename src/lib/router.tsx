@@ -39,10 +39,11 @@ export interface RouteDef {
 /** index.html default meta content — kept verbatim for home-route parity.
    Keep in sync with index.html's <head> if either is edited. */
 export const HOME_META_DESCRIPTION =
-  "Portfolio of Nathaniel Nikolai Ladero — Backend Developer specializing in C#, ASP.NET Core, and fintech systems.";
-export const HOME_OG_TITLE = "Nathaniel Nikolai Ladero | Backend Developer";
+  "Backend systems that hold up in production - plus the plugins, MCP servers, and tools built around them.";
+export const HOME_OG_TITLE =
+  "Nathaniel Nikolai Ladero | Systems & Developer Tools";
 export const HOME_OG_DESCRIPTION =
-  "Backend Developer with 3 years building secure fintech systems in C# and ASP.NET Core. APIs, microservices, and production delivery.";
+  "Backend systems that hold up in production - plus the plugins, MCP servers, and tools built around them.";
 
 export const ROUTES: readonly RouteDef[] = [
   {
@@ -53,7 +54,7 @@ export const ROUTES: readonly RouteDef[] = [
     description: "Identity & system profile",
     metaDescription: HOME_META_DESCRIPTION,
     accent: "accent",
-    title: "NNL — Backend Developer",
+    title: "Nathaniel Nikolai Ladero | Systems & Developer Tools",
   },
   {
     path: "/experience",
