@@ -53,7 +53,7 @@ export function WorkTeaser() {
               data-nav-item
               className="flex min-h-11 items-center rounded-xs text-label font-medium text-text-muted transition-colors duration-150 hover:text-accent-text hover:underline"
             >
-              All nine projects
+              All fifteen projects
             </RouteLink>
           </div>
           <p className="mt-1 text-detail text-text-muted">
