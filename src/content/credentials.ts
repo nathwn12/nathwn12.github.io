@@ -10,11 +10,6 @@ import { CertificationSchema, type Certification } from "../types/models";
  * [VERIFIED CREDENTIALS] strip (C2). Copied EXACTLY from education.ts:49-76 —
  * titles, issuers, ids, and verify URLs are unchanged.
  *
- * Senior-flex pass (fleet brief): every entry now carries its `date`, and two
- * additional entries are owner-authorized PLACEHOLDER filler for richness —
- * they use real issuer catalogue URLs and stand in until real verification
- * records replace them. Drop the last two before any real publish.
- *
  * Validated against CertificationSchema at module load — a mismatch throws a
  * descriptive error at import time (repo convention, see models.ts).
  */
@@ -47,20 +42,6 @@ export const credentials: Certification[] = [
     date: "Aug 2023",
     id: "FC46A72A0806A19E",
     url: "https://www.credly.com/badges/8aeb5515-665f-4c0a-bfe6-640c314f1311/public_url",
-  },
-  {
-    title: "AWS Certified Cloud Practitioner",
-    issuer: "Amazon Web Services",
-    date: "Nov 2024",
-    id: "AWS-CP-2024-1842",
-    url: "https://aws.amazon.com/certification/certified-cloud-practitioner/",
-  },
-  {
-    title: "Microsoft Certified: Azure Fundamentals",
-    issuer: "Microsoft",
-    date: "Jun 2024",
-    id: "MS-AZ900-2024-7731",
-    url: "https://learn.microsoft.com/en-us/credentials/certifications/azure-fundamentals/",
   },
 ];
 
