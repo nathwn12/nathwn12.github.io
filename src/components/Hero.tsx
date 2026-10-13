@@ -54,14 +54,14 @@ const techStrip: string[] = Array.from(
  * The hero identities. The first entry is the fixed opening hook — it leads
  * every visit and is the static default (first paint, reduced motion, no-JS),
  * never randomized; the rest state what he is — a backend developer building
- * fintech systems, an AI-equipped builder — so the h1 says "what I am", never
- * payment-only. After the opener, the remaining entries rotate from a shuffled
- * bag ({@link nextTypingState}) rather than in fixed order, so the h1 varies
- * without repeating the previous phrase. Kept here, in the Hero surface,
- * because the copy is the page's one bold move.
+ * fintech systems, an AI-equipped builder — so the claim opens on the payments
+ * work before the identities rotate. After the opener, the remaining entries
+ * rotate from a shuffled bag ({@link nextTypingState}) rather than in fixed
+ * order, so the h1 varies without repeating the previous phrase. Kept here, in
+ * the Hero surface, because the copy is the page's one bold move.
  */
 export const HERO_PHRASES: readonly string[] = [
-  "I build systems that hold up — and the tools around them.",
+  "Payment backends that hold up under production load.",
   "A backend developer building fintech systems.",
   "An AI-equipped builder who ships measured change.",
   "An engineer who reads production before the diagram.",
