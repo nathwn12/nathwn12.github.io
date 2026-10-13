@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useResolvedReduceMotion } from "../lib/motionPreference";
 import { applyRouteMeta, type RouteDef, type RouteDirection } from "../lib/router";
 import { consumePendingStepFocus, landOnNavItem, navItems } from "../lib/keyboardNav";
 import { fadeIn } from "../lib/motion";
@@ -30,7 +31,7 @@ export function PageShell({ route, direction, children }: PageShellProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   /** Reduced motion disables all nonessential movement (direction §
       Principles 5); the landing scroll honours it (keyboardNav.landOnNavItem). */
-  const reduceMotion = useReducedMotion() === true;
+  const reduceMotion = useResolvedReduceMotion();
   /** Pending ←/→ step handoff for THIS mount: `undefined` = not read yet,
       `null` = none. Read once (see the keyed mount effect). */
   const pendingStepRef = useRef<1 | -1 | null | undefined>(undefined);
