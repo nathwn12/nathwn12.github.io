@@ -66,7 +66,7 @@ export default function Projects() {
         >
           <h1 className="text-display font-semibold text-text">Projects</h1>
           <p className="mt-4 max-w-[65ch] text-lead text-text">
-            Nine open-source projects, ranked newest and most distinctive
+            Fifteen open-source projects, ranked newest and most distinctive
             first.
           </p>
           <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
