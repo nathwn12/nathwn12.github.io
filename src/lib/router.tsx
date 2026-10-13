@@ -24,9 +24,9 @@ export interface RouteDef {
   id: string;
   /** Short nav label (Header tabs) */
   label: string;
-  /** Terminal command displayed as the page's "section header" */
+  /** Shell-style identifier rendered as the row name in the 404 index listing */
   command: string;
-  /** Short description used in `ls` listing (CommandTerminal) — visible copy */
+  /** One-line summary rendered under `command` in the 404 index listing */
   description: string;
   /** Recruiter-facing 1-2 sentence description for per-route SEO meta */
   metaDescription: string;
@@ -39,7 +39,7 @@ export interface RouteDef {
 /** index.html default meta content — kept verbatim for home-route parity.
    Keep in sync with index.html's <head> if either is edited. */
 export const HOME_META_DESCRIPTION =
-  "Terminal-themed portfolio of Nathaniel Nikolai Ladero — Backend Developer specializing in C#, ASP.NET Core, and fintech systems.";
+  "Portfolio of Nathaniel Nikolai Ladero — Backend Developer specializing in C#, ASP.NET Core, and fintech systems.";
 export const HOME_OG_TITLE = "Nathaniel Nikolai Ladero | Backend Developer";
 export const HOME_OG_DESCRIPTION =
   "Backend Developer with 3 years building secure fintech systems in C# and ASP.NET Core. APIs, microservices, and production delivery.";

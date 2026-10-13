@@ -1,107 +1,130 @@
+import { useRef, useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
-import { CONTACT_EMAIL, validateContact } from "../lib/contact";
+import {
+  CONTACT_EMAIL,
+  validateContactFields,
+  type ContactField,
+  type ContactFieldError,
+} from "../lib/contact";
 import { credentials } from "../content/credentials";
+import { fadeIn, fadeUp } from "../lib/motion";
 import { PageFoot } from "./PageFoot";
 
-type FormStatus = {
-  type: "pending" | "success" | "error";
-  message: string;
-};
+/**
+ * Contact — the conversion point, and the quietest page on the site.
+ *
+ * Authority: docs/premium-direction.md § Per-route application, Contact.
+ * Order is fixed and this file follows it literally: title block, address block
+ * (email link phrase, location in words), one stacked form with a visible label
+ * above every field, then the four verified credentials inline with
+ * verification links.
+ *
+ * Route identity (this route's alone): a two-column address plate. The email
+ * link phrase and the location sit side by side at `sm` as labelled pairs, so
+ * the page opens on a plate rather than a paragraph, and the one primary action
+ * phrase in the title block jumps straight to the form rather than imitating
+ * the address below it. Every field is genuinely EMPTY on load: labels sit above
+ * each control and no placeholder imitates a filled value, so nothing reads as
+ * prefilled and nothing is mistaken for an answer. Errors are linked twice over:
+ * one sentence beside the offending field, and a focused summary whose links
+ * return to each field.
+ *
+ * Rhythm: the direction's 8px base held strictly — section gaps 64px (mt-16),
+ * text gaps 16px (mt-4); credentials are the one dense list (py-4).
+ *
+ * Motion: the title block rises once (fadeUp) and the compose block settles a
+ * beat later (fadeIn). Reduced motion is honoured inside src/lib/motion.
+ *
+ * The form owns five visible states, never one-at-a-time guesses:
+ *   loading     — the send control is disabled and the status line reads
+ *                 "Sending your message…" (aria-busy on the form)
+ *   validation  — one sentence beside each offending field, plus an error
+ *                 summary that takes focus and links back to every field
+ *   error       — the mail service refused: the message stays in the form, the
+ *                 send control is live again, and the direct address is offered
+ *   disabled    — the send control while a request is in flight
+ *   recovery    — nothing is cleared on failure, so retry is one activation
+ *
+ * Two live regions, both mounted from the first render so a state change is
+ * announced instead of re-created: one polite status role for progress and
+ * success, one assertive alert role for the validation summary and the send
+ * failure (only one of those can be current, so they share a region and never
+ * double-announce).
+ *
+ * The send contract is unchanged from the previous UI: the same FormSubmit
+ * action, `_subject` / `_captcha` / `_honey` fields, field names, HTML5
+ * constraints, and JSON POST. Only the presentation and the pre-submit
+ * messages moved.
+ */
 
-const STATUS_CHIP: Record<
-  FormStatus["type"] | "idle",
-  { label: string; tone: string }
-> = {
-  idle: { label: "[FORM READY]", tone: "text-accent-2-text" },
-  pending: { label: "[SENDING]", tone: "text-accent-2-text" },
-  success: { label: "[QUEUED]", tone: "text-accent-text" },
-  error: { label: "[ERROR]", tone: "text-accent-3-text" },
-};
+type FormStatus =
+  | { kind: "idle" }
+  | { kind: "sending" }
+  | { kind: "sent"; message: string }
+  | { kind: "failed"; detail?: string };
 
-/* Typed panel lookup. `--color-accent-2/3/4` alias the single accent (§2.2), so
-   these tones collapse to one hue — the map survives as the lookup the panel
-   derives from (tests/contact-status.test.ts pins the literals), while PANEL_INK
-   below carries the state treatment that actually distinguishes the two. */
-const STATUS_PANEL: Record<FormStatus["type"], string> = {
-  pending: "border-text-muted text-text-dim bg-text/5",
-  success: "border-accent text-accent-text bg-accent/5",
-  error: "border-accent-3 text-accent-3-text bg-accent-3/5",
-};
-
-/* Hue-free state treatment, applied after STATUS_PANEL and `!`-marked so it wins
-   on the colour-bearing properties. Tone is structure, not colour (§2.3):
-   success is a hairline ink box; error is an inverted ink/paper block on the
-   `--border-width-rule` rule — never "a different colour". */
-const PANEL_INK: Record<FormStatus["type"], string> = {
-  pending: "",
-  success: "border-border! text-text! bg-transparent!",
-  error:
-    "border-text! text-bg! bg-text! border-[length:var(--border-width-rule)]!",
-};
-
-/* Field labels: the `$ read -p "…"` prompt convention, at label size with the
-   label treatment reserved for short categorical text (no wide tracking on
-   body copy, DESIGN.md §3/§9). */
-const LABEL = "flex items-center gap-half text-label text-text-muted mb-half";
 const FIELD =
-  "w-full bg-bg border border-border-accent px-gutter py-half text-body text-text font-mono outline-none focus:border-text transition-colors duration-200 placeholder:text-text-muted";
+  "w-full rounded-sm border border-border-accent bg-bg px-4 py-3 text-body text-text transition-colors duration-field";
+const FIELD_LABEL = "block text-label font-medium text-text";
+const FIELD_ERROR = "mt-2 text-detail font-medium text-text";
+const FIELD_WRAP = "mb-6";
+const LINK = "font-medium text-accent-text hover:underline";
+const ACTION =
+  "mt-8 inline-flex min-h-11 items-center rounded-xs text-label font-semibold text-accent-text transition-colors duration-link hover:underline";
+
+/* The error-summary links are Ink, not Claret: the accent budget above the
+   fold is the email phrase and the send control (docs/premium-direction.md
+   § Token plan, "Usage budget"), and a summary link is still a link by weight
+   and underline. */
+const SUMMARY_LINK = "font-medium text-text hover:underline";
 
 export function Contact() {
-  const [formStatus, setFormStatus] = useState<FormStatus | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const statusTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [errors, setErrors] = useState<ContactFieldError[]>([]);
+  const [status, setStatus] = useState<FormStatus>({ kind: "idle" });
+  const alertRef = useRef<HTMLDivElement>(null);
+  const isSubmitting = status.kind === "sending";
 
-  useEffect(() => {
-    return () => {
-      if (statusTimeoutRef.current) clearTimeout(statusTimeoutRef.current);
-    };
-  }, []);
+  const errorFor = (field: ContactField) =>
+    errors.find((error) => error.field === field)?.message;
 
-  /** Shared success marker for both the honeypot branch and the real
-      FormSubmit success path (sanctioned blink lives on the pending state). */
-  function markQueued(form: HTMLFormElement) {
-    const msgId = Math.random().toString(36).substring(2, 12).toUpperCase();
-    setFormStatus({
-      type: "success",
-      message: `Message queued for delivery [MSG-ID: ${msgId}]. Check your email for confirmation.`,
-    });
-    form.reset();
-  }
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     if (isSubmitting) return;
-    const form = e.currentTarget;
+
+    const form = event.currentTarget;
     const data = new FormData(form);
 
-    /* Honeypot guard — bots fill the hidden _honey field. Accept silently
-       without POSTing so they get no signal; FormSubmit's convention is to
-       ignore it on their side as well. */
+    /* Honeypot guard — unchanged: a filled `_honey` field is accepted
+       silently without POSTing, so bots get no signal either way. */
     if (String(data.get("_honey") ?? "").length > 0) {
-      markQueued(form);
+      form.reset();
+      setErrors([]);
+      setStatus({
+        kind: "sent",
+        message: "A confirmation is on its way to your email address.",
+      });
       return;
     }
 
-    /* Pre-submit zod validation — mirror of the HTML5 constraints, rejected
-       in the terminal UI language before any network call. */
-    const validation = validateContact({
+    const fieldErrors = validateContactFields({
       name: data.get("name"),
       email: data.get("email"),
       subject: data.get("subject"),
       message: data.get("message"),
     });
-    if (!validation.ok) {
-      setFormStatus({ type: "error", message: validation.error });
-      statusTimeoutRef.current = setTimeout(() => setFormStatus(null), 8000);
+
+    if (fieldErrors.length > 0) {
+      setErrors(fieldErrors);
+      setStatus({ kind: "idle" });
+      /* Focus the summary, not the first field: it lists every problem in form
+         order and links each one, which is the read-back a screen reader needs
+         (focus jumps to the field from the link, not from here). */
+      requestAnimationFrame(() => alertRef.current?.focus());
       return;
     }
 
-    setFormStatus({
-      type: "pending",
-      message: "Queuing message for delivery...",
-    });
-    setIsSubmitting(true);
+    setErrors([]);
+    setStatus({ kind: "sending" });
 
     try {
       const payload = Object.fromEntries(data.entries());
@@ -113,6 +136,7 @@ export function Contact() {
         },
         body: JSON.stringify(payload),
       });
+
       let payloadJson: { message?: string } | null = null;
       try {
         const body: unknown = await res.json();
@@ -120,302 +144,320 @@ export function Contact() {
           payloadJson = body as { message?: string };
         }
       } catch {
-        /* Non-JSON body (e.g. proxy/gateway error page) — report a generic
-           failure instead of leaking raw response bytes to the user. */
+        /* Non-JSON body (proxy or gateway error page) — report a generic
+           failure instead of leaking raw response bytes to the visitor. */
       }
+
       if (!res.ok) {
         throw new Error(payloadJson?.message || "Something went wrong.");
       }
-      markQueued(form);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Something went wrong.";
-      setFormStatus({ type: "error", message: msg });
-    } finally {
-      setIsSubmitting(false);
-      statusTimeoutRef.current = setTimeout(() => setFormStatus(null), 8000);
+
+      form.reset();
+      setStatus({
+        kind: "sent",
+        message: "A confirmation is on its way to your email address.",
+      });
+    } catch (error: unknown) {
+      setStatus({
+        kind: "failed",
+        detail: error instanceof Error ? error.message : undefined,
+      });
+      requestAnimationFrame(() => alertRef.current?.focus());
     }
   }
 
-  const chip = STATUS_CHIP[formStatus?.type ?? "idle"];
+  const alertVisible = errors.length > 0 || status.kind === "failed";
 
   return (
-    <section id="contact" className="py-block md:py-section px-gutter">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex items-center gap-gutter mb-section">
-          <span className="text-accent-text text-body-lg">$</span>
-          <span className="text-label text-text-dim">mutt -f inbox</span>
-          <div className="flex-1 h-px bg-border" />
-        </div>
+    <section id="contact" className="px-6 py-16 lg:px-10">
+      <div className="mx-auto w-full max-w-[68ch]">
+        <motion.div variants={fadeUp} initial="hidden" animate="visible">
+          <h1 className="text-display font-semibold text-text">Contact</h1>
+          <p className="mt-4 max-w-[65ch] text-lead text-text">
+            Send a note about a role, a system, or a problem worth solving — it
+            reaches my inbox directly and I answer from Hagonoy, Bulacan.
+          </p>
+          {/* The page's one primary action phrase, at the end of the title
+              block (docs/premium-direction.md § Layout). It is a jump to the
+              form below, not a second copy of the address. */}
+          <a href="#contactForm" className={ACTION}>
+            Send a message
+          </a>
+        </motion.div>
 
-        <div className="mb-section">
-          <h2 className="text-headline md:text-display font-bold">
-            <span className="text-text-dim">LET'S BUILD</span>
-            <br />
-            <span className="text-text">SOMETHING GREAT_</span>
+        {/* Address plate: the direct email link phrase and the location in
+            words, side by side as labelled pairs. */}
+        <dl className="mt-16 grid grid-cols-1 gap-x-10 gap-y-6 border-t border-border pt-8 sm:grid-cols-2">
+          <div>
+            <dt className="text-label font-medium text-text-muted">
+              Direct email
+            </dt>
+            <dd className="mt-2">
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="break-words text-body font-semibold text-accent-text transition-colors duration-link hover:underline"
+              >
+                Write to {CONTACT_EMAIL}
+              </a>
+            </dd>
+          </div>
+          <div>
+            <dt className="text-label font-medium text-text-muted">Location</dt>
+            <dd className="mt-2 max-w-[65ch] text-body text-text">
+              Hagonoy, Bulacan, Philippines, UTC+8 (Philippine time)
+            </dd>
+          </div>
+        </dl>
+
+        {/* Compose form */}
+        <motion.div
+          variants={fadeIn}
+          initial="hidden"
+          animate="visible"
+          className="mt-16 border-t border-border pt-8"
+        >
+          <h2 className="text-headline font-semibold text-text">
+            Send a message
           </h2>
-        </div>
 
-        {/* Address book — one rule-separated table, not three equal cards.
-            Related rows sit at `--spacing-half`; the groups part at
-            `--spacing-block` (DESIGN.md §4). */}
-        <div className="mb-block border-t border-border-accent">
-          <div className="flex flex-col gap-quarter border-b border-border py-half sm:flex-row sm:items-baseline sm:gap-gutter">
-            <span className="w-28 shrink-0 text-micro uppercase tracking-[0.2em] text-text-muted">
-              [EMAIL]
-            </span>
-            <a
-              href={`mailto:${CONTACT_EMAIL}`}
-              className="text-body-lg font-bold text-text break-all hover:underline"
-            >
-              {CONTACT_EMAIL}
-            </a>
+          <div
+            ref={alertRef}
+            tabIndex={-1}
+            role="alert"
+            className={
+              alertVisible
+                ? "mt-6 rounded-sm border border-border-accent bg-surface p-4"
+                : "sr-only"
+            }
+          >
+            {errors.length > 0 && (
+              <>
+                <p className="text-label font-semibold text-text">
+                  There is a problem with{" "}
+                  {errors.length === 1 ? "one field" : `${errors.length} fields`}
+                </p>
+                <ul className="mt-2 list-disc pl-4">
+                  {errors.map((error) => (
+                    <li key={error.field} className="text-detail text-text">
+                      <a
+                        href={`#form-${error.field}`}
+                        className={SUMMARY_LINK}
+                        onClick={(event) => {
+                          event.preventDefault();
+                          document.getElementById(`form-${error.field}`)?.focus();
+                        }}
+                      >
+                        {error.message}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+
+            {status.kind === "failed" && (
+              <>
+                <p className="text-body font-semibold text-text">
+                  Your message was not sent.
+                </p>
+                <p className="mt-2 max-w-[65ch] text-detail text-text-muted">
+                  It is still in the form below. Check your connection and send
+                  it again, or reach me directly at{" "}
+                  <a
+                    href={`mailto:${CONTACT_EMAIL}`}
+                    className={`${LINK} break-words`}
+                  >
+                    {CONTACT_EMAIL}
+                  </a>
+                  .
+                </p>
+                {status.detail && (
+                  <p className="mt-2 max-w-[65ch] text-detail text-text-muted">
+                    The mail service reported: {status.detail}
+                  </p>
+                )}
+              </>
+            )}
           </div>
 
-          <div className="flex flex-col gap-quarter border-b border-border py-half sm:flex-row sm:items-baseline sm:gap-gutter">
-            <span className="w-28 shrink-0 text-micro uppercase tracking-[0.2em] text-text-muted">
-              [SOCIAL]
-            </span>
-            <div className="flex flex-wrap gap-gutter">
-              <a
-                href="https://github.com/nathwn12"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-body text-text-dim hover:text-text hover:underline transition-colors duration-200"
-              >
-                github.com/nathwn12
-              </a>
-              <a
-                href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-body text-text-dim hover:text-text hover:underline transition-colors duration-200"
-              >
-                linkedin.com/in/nathaniel-nikolai-l-184181261/
-              </a>
-            </div>
-          </div>
+          <form
+            id="contactForm"
+            action={`https://formsubmit.co/ajax/${CONTACT_EMAIL}`}
+            method="POST"
+            noValidate
+            aria-busy={isSubmitting}
+            onSubmit={handleSubmit}
+            className="mt-6"
+          >
+            <input type="hidden" name="_subject" value="New resume site contact submission" />
+            <input type="hidden" name="_captcha" value="true" />
+            <input
+              type="text"
+              name="_honey"
+              tabIndex={-1}
+              autoComplete="off"
+              style={{ display: "none" }}
+            />
 
-          <div className="flex flex-col gap-quarter border-b border-border py-half sm:flex-row sm:items-baseline sm:gap-gutter">
-            <span className="w-28 shrink-0 text-micro uppercase tracking-[0.2em] text-text-muted">
-              [LOCATION]
-            </span>
-            <p className="text-body-lg font-bold text-text">
-              Hagonoy, Bulacan, PH
-            </p>
-            <p className="text-label text-text-muted">UTC+8 (PHT)</p>
-          </div>
-        </div>
-
-        {/* MUA chrome + compose window */}
-        <div className="border border-border-accent bg-surface">
-          {/* MUA toolbar */}
-          <div className="flex items-center gap-gutter px-gutter py-half border-b border-border-accent text-micro tracking-[0.2em] text-text-muted">
-            <span className="text-text font-bold">&lt;COMPOSE&gt;</span>
-            <span>&lt;UNREAD 1&gt;</span>
-            <span>&lt;REPLY&gt;</span>
-            <span>&lt;FORWARD&gt;</span>
-            <span className="ml-auto">[COMPOSE WINDOW]</span>
-          </div>
-
-          <div className="p-gutter md:p-block">
-            <div className="flex items-center gap-half mb-block">
-              <span className="text-body text-text-dim">$</span>
-              <span className="text-body text-text-dim">cat mail.sh</span>
-            </div>
-
-            <form
-              id="contactForm"
-              action={`https://formsubmit.co/ajax/${CONTACT_EMAIL}`}
-              method="POST"
-              onSubmit={handleSubmit}
-            >
+            <div className={FIELD_WRAP}>
+              <label htmlFor="form-name" className={FIELD_LABEL}>
+                Your name
+              </label>
               <input
-                type="hidden"
-                name="_subject"
-                value="New resume site contact submission"
-              />
-              <input type="hidden" name="_captcha" value="true" />
-              <input
+                id="form-name"
+                name="name"
                 type="text"
-                name="_honey"
-                tabIndex={-1}
-                autoComplete="off"
-                style={{ display: "none" }}
+                required
+                maxLength={100}
+                autoComplete="name"
+                aria-invalid={errorFor("name") ? true : undefined}
+                aria-describedby={errorFor("name") ? "form-name-error" : undefined}
+                className={`mt-2 ${FIELD}`}
               />
-
-              <div className="mb-block">
-                <label htmlFor="form-name" className={LABEL}>
-                  <span className="text-text-dim">$</span>
-                  <span>read -p "To: " name</span>
-                </label>
-                <input
-                  id="form-name"
-                  name="name"
-                  type="text"
-                  required
-                  autoComplete="name"
-                  maxLength={100}
-                  placeholder="Nathaniel Nikolai Ladero"
-                  className={FIELD}
-                />
-              </div>
-
-              <div className="mb-block">
-                <label htmlFor="form-email" className={LABEL}>
-                  <span className="text-text-dim">$</span>
-                  <span>read -p "From: " email</span>
-                </label>
-                <input
-                  id="form-email"
-                  name="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  maxLength={254}
-                  placeholder="user@example.com"
-                  className={FIELD}
-                />
-              </div>
-
-              <div className="mb-block">
-                <label htmlFor="form-subject" className={LABEL}>
-                  <span className="text-text-dim">$</span>
-                  <span>read -p "Subject: " subject</span>
-                </label>
-                <input
-                  id="form-subject"
-                  name="subject"
-                  type="text"
-                  required
-                  maxLength={300}
-                  placeholder="What is this regarding?"
-                  className={FIELD}
-                />
-              </div>
-
-              <div className="mb-block">
-                <label htmlFor="form-message" className={LABEL}>
-                  <span className="text-text-dim">$</span>
-                  <span>read -p "Body: " message</span>
-                </label>
-                <textarea
-                  id="form-message"
-                  name="message"
-                  required
-                  rows={5}
-                  maxLength={5000}
-                  placeholder="Your message here..."
-                  className={`${FIELD} resize-none`}
-                />
-              </div>
-
-              <div className="flex items-center gap-half">
-                <span className="text-body text-text-dim">$</span>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="px-gutter py-half border-[length:var(--border-width-rule)] border-border-accent text-label font-bold text-accent-text hover:bg-accent/10 active:bg-accent/20 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {isSubmitting
-                    ? "./send-message --sending…"
-                    : "./send-message --send"}
-                </button>
-              </div>
-
-              {formStatus && (
-                <div
-                  role="alert"
-                  className={`mt-block border px-gutter py-half text-body font-mono ${STATUS_PANEL[formStatus.type]} ${PANEL_INK[formStatus.type]}`}
-                >
-                  <span className="mr-half opacity-70">$</span>
-                  {formStatus.message}
-                  {formStatus.type === "pending" && (
-                    <motion.span
-                      animate={{ opacity: [1, 0] }}
-                      transition={{ duration: 0.8, repeat: Infinity }}
-                      className="ml-quarter font-bold"
-                    >
-                      █
-                    </motion.span>
-                  )}
-                </div>
+              {errorFor("name") && (
+                <p id="form-name-error" className={FIELD_ERROR}>
+                  {errorFor("name")}
+                </p>
               )}
-            </form>
-          </div>
+            </div>
 
-          {/* MUA status bar */}
-          <div className="flex flex-wrap items-center gap-half px-gutter py-half border-t border-border-accent bg-surface text-micro text-text-muted">
-            <span className="hidden sm:inline">
-              "All mail queued for delivery. Thank you."
-            </span>
-            <span
-              role="status"
-              className={`ml-auto whitespace-nowrap text-micro uppercase tracking-[0.2em] ${chip.tone}`}
+            <div className={FIELD_WRAP}>
+              <label htmlFor="form-email" className={FIELD_LABEL}>
+                Your email address
+              </label>
+              <input
+                id="form-email"
+                name="email"
+                type="email"
+                required
+                maxLength={254}
+                autoComplete="email"
+                aria-invalid={errorFor("email") ? true : undefined}
+                aria-describedby={
+                  errorFor("email") ? "form-email-error" : undefined
+                }
+                className={`mt-2 ${FIELD}`}
+              />
+              {errorFor("email") && (
+                <p id="form-email-error" className={FIELD_ERROR}>
+                  {errorFor("email")}
+                </p>
+              )}
+            </div>
+
+            <div className={FIELD_WRAP}>
+              <label htmlFor="form-subject" className={FIELD_LABEL}>
+                Subject
+              </label>
+              <input
+                id="form-subject"
+                name="subject"
+                type="text"
+                required
+                maxLength={300}
+                aria-invalid={errorFor("subject") ? true : undefined}
+                aria-describedby={
+                  errorFor("subject") ? "form-subject-error" : undefined
+                }
+                className={`mt-2 ${FIELD}`}
+              />
+              {errorFor("subject") && (
+                <p id="form-subject-error" className={FIELD_ERROR}>
+                  {errorFor("subject")}
+                </p>
+              )}
+            </div>
+
+            <div className={FIELD_WRAP}>
+              <label htmlFor="form-message" className={FIELD_LABEL}>
+                Message
+              </label>
+              <textarea
+                id="form-message"
+                name="message"
+                required
+                rows={6}
+                maxLength={5000}
+                aria-invalid={errorFor("message") ? true : undefined}
+                aria-describedby={
+                  errorFor("message") ? "form-message-error" : undefined
+                }
+                className={`mt-2 resize-y ${FIELD}`}
+              />
+              {errorFor("message") && (
+                <p id="form-message-error" className={FIELD_ERROR}>
+                  {errorFor("message")}
+                </p>
+              )}
+            </div>
+
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex min-h-11 items-center rounded-sm bg-accent px-6 py-3 text-label font-semibold text-bg transition-colors duration-submit disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {chip.label}
-            </span>
-            <span className="whitespace-nowrap text-micro uppercase tracking-[0.2em] text-text-muted">
-              -- MUA v1.0 --
-            </span>
-          </div>
-        </div>
+              {isSubmitting ? "Sending your message…" : "Send the message"}
+            </button>
 
-        {/* Verified credentials — the four real certs salvaged from the
-            retired Education page (C2, judge condition 2): real clickable
-            verify links, not a decorative bracket label. */}
-        <div className="mt-block border border-border-accent bg-surface">
-          <div className="flex items-center gap-half px-gutter py-half border-b border-border-accent">
-            <span className="text-micro uppercase tracking-[0.2em] text-text-muted">
-              [VERIFIED CREDENTIALS]
-            </span>
-            <div className="flex-1 h-px bg-border" />
-            <span className="text-micro text-text-dim tabular-nums">
-              {credentials.length} VERIFIED
-            </span>
-          </div>
+            <div
+              role="status"
+              className={
+                status.kind === "sent"
+                  ? "mt-6 max-w-[65ch] rounded-sm border border-border bg-surface p-4 text-body text-text"
+                  : "sr-only"
+              }
+            >
+              {status.kind === "sending" && (
+                <p className="text-body text-text-muted">
+                  Sending your message…
+                </p>
+              )}
+              {status.kind === "sent" && (
+                <>
+                  <span className="font-semibold">Message sent.</span>{" "}
+                  {status.message}
+                </>
+              )}
+            </div>
+          </form>
+        </motion.div>
 
-          <div className="grid md:grid-cols-2">
-            {credentials.map((cert, i) => (
-              <a
+        {/* Verified credentials — four real, externally verifiable entries,
+            each with a link phrased as a full phrase */}
+        <div className="mt-16 border-t border-border pt-8">
+          <h2 className="text-headline font-semibold text-text">
+            Credentials and degree
+          </h2>
+          <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
+            Four certificates, each with a public verification link. BS
+            Information Technology, La Consolacion University Philippines, 2017
+            to 2023.
+          </p>
+
+          <ul className="mt-6 border-t border-border">
+            {credentials.map((cert) => (
+              <li
                 key={cert.id}
-                href={cert.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Verify ${cert.title}`}
-                data-nav-item
-                className="group flex items-start gap-half border-b md:border-b-0 md:odd:border-r border-border-accent last:border-b-0 px-gutter py-gutter hover:bg-text/5 active:bg-text/10 transition-colors duration-200 min-w-0"
+                className="grid grid-cols-1 gap-x-6 gap-y-1 border-b border-border py-4"
               >
-                <span className="pt-quarter text-micro font-bold tabular-nums text-text-muted">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <span className="block text-body font-bold leading-snug text-text break-words group-hover:underline">
-                    {cert.title}
-                  </span>
-                  <span className="block mt-quarter text-micro text-text-dim">
-                    {cert.issuer}
-                    {cert.date ? ` · ${cert.date}` : ""}
-                  </span>
-                  <span className="block mt-quarter text-micro text-text-dim break-all tabular-nums">
-                    {cert.id}
-                  </span>
-                </div>
-                <span
-                  aria-hidden="true"
-                  className="pt-quarter shrink-0 text-text-muted transition-colors duration-200 group-hover:text-text"
+                <p className="text-body font-semibold text-text">
+                  {cert.title}
+                </p>
+                <p className="text-detail text-text-muted">
+                  {cert.issuer}
+                  {cert.date ? `, ${cert.date}` : ""}. Credential ID {cert.id}.
+                </p>
+                <a
+                  href={cert.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${LINK} mt-1 flex min-h-11 w-fit items-center text-label`}
                 >
-                  -&gt;
-                </span>
-              </a>
+                  Verify {cert.title} at {cert.issuer}
+                </a>
+              </li>
             ))}
-          </div>
-
-          <div className="border-t border-border-accent px-gutter py-half">
-            <p className="text-micro text-text-dim">
-              EDUCATION: BS INFORMATION TECHNOLOGY — La Consolacion University
-              Philippines · 2017–2023
-            </p>
-          </div>
+          </ul>
         </div>
 
         <PageFoot />

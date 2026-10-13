@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 /** Resolved/applied theme — the only values <html data-theme> and CSS understand. */
-export type TerminalTheme = "dark" | "light";
+export type Theme = "dark" | "light";
 
 /** Stored user intent: "auto" follows the OS scheme, explicit values pin it. */
 export type ThemePreference = "auto" | "light" | "dark";
@@ -36,12 +36,12 @@ function darkMedia(): MediaQueryList | undefined {
 }
 
 /** OS/browser scheme. Missing matchMedia (SSR, jsdom, very old browsers) ⇒ light. */
-export function systemTheme(): TerminalTheme {
+export function systemTheme(): Theme {
   return darkMedia()?.matches ? "dark" : "light";
 }
 
 /** Resolve a stored preference against the live system scheme. */
-export function resolveTheme(preference: ThemePreference): TerminalTheme {
+export function resolveTheme(preference: ThemePreference): Theme {
   return preference === "auto" ? systemTheme() : preference;
 }
 
@@ -61,7 +61,7 @@ export function storedPreference(): ThemePreference {
 }
 
 /** Current applied theme, read from the <html> dataset the inline script seeds pre-paint. */
-export function getTheme(): TerminalTheme {
+export function getTheme(): Theme {
   return document.documentElement.dataset.theme === "light" ? "light" : "dark";
 }
 

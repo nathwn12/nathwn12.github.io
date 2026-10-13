@@ -9,17 +9,17 @@
  *   - Home/End scroll to top/bottom of that container
  *
  * The tour is DOM-driven — an attribute convention exactly like the existing
- * [data-terminal-panel] / [data-mobile-menu] hooks, with no per-page registry:
+ * [data-mobile-menu] hook, with no per-page registry:
  *   - [data-nav-item]     a focusable stop on the tour (any element)
  *   - [data-nav-activate] OPT-IN: stepping onto the item also reveals its
  *                         content (a bubbling click is dispatched after focus)
  *
  * The guard (judge condition 3 / C3) is factored here so it is unit-testable
  * without a full React mount: the handler never fires while the event target
- * is editable (INPUT/TEXTAREA/SELECT/contentEditable — CommandTerminal keeps
- * its own ↑/↓ history on its input) nor while a [data-terminal-panel] or
- * [data-mobile-menu] overlay is in the DOM (mirrors the pre-existing ←/→
- * guard in App.tsx and the F2 handler in Header.tsx).
+ * is editable (INPUT/TEXTAREA/SELECT/contentEditable — an editable surface
+ * keeps its own caret and ↑/↓ behaviour) nor while a [data-mobile-menu]
+ * overlay is in the DOM (mirrors the pre-existing ←/→ guard in App.tsx and
+ * the F2 handler in Header.tsx).
  */
 
 import { resolveRoute, routeAtOffset } from "./router";
@@ -43,13 +43,10 @@ export function isEditableTarget(target: EventTarget | null): boolean {
   );
 }
 
-/** True while the terminal panel or the mobile menu is mounted (load-bearing
-    attributes — do not rename; consumers live in App/Header/CommandTerminal). */
+/** True while an overlay is mounted. The Header's mobile menu sets
+    [data-mobile-menu] — load-bearing, do not rename. */
 export function isOverlayOpen(): boolean {
-  return Boolean(
-    document.querySelector("[data-terminal-panel]") ||
-      document.querySelector("[data-mobile-menu]"),
-  );
+  return Boolean(document.querySelector("[data-mobile-menu]"));
 }
 
 /** Map a raw keydown to its intent, applying the editable/overlay guard. */
@@ -126,10 +123,17 @@ export function resolveStep(
  * <a>, where a dispatched click would navigate away from the tour. This is the
  * one landing rule, shared by the in-page ←/→ step and PageShell's cross-page
  * handoff so the two cannot drift.
+ *
+ * `reduceMotion` mirrors the section-scroll behaviour above: reduced motion
+ * disables all nonessential movement (docs/premium-direction.md § Principles
+ * 5), so centering jumps instead of animating.
  */
-export function landOnNavItem(el: HTMLElement): void {
+export function landOnNavItem(el: HTMLElement, reduceMotion = false): void {
   el.focus();
-  el.scrollIntoView({ block: "center", behavior: "smooth" });
+  el.scrollIntoView({
+    block: "center",
+    behavior: reduceMotion ? "auto" : "smooth",
+  });
   if (el.hasAttribute("data-nav-activate") && el.tagName !== "A") {
     el.dispatchEvent(
       new MouseEvent("click", { bubbles: true, cancelable: true }),
@@ -199,7 +203,7 @@ export function createPageNavHandler(
       );
 
       if (resolved.type === "focus") {
-        landOnNavItem(items[resolved.index]);
+        landOnNavItem(items[resolved.index], deps.reduceMotion);
         return;
       }
 
