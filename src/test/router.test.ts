@@ -42,7 +42,7 @@ describe("router", () => {
         .querySelector('meta[name="description"]')
         ?.getAttribute("content"),
     ).toBe(
-      "Terminal-themed portfolio of Nathaniel Nikolai Ladero — Backend Developer specializing in C#, ASP.NET Core, and fintech systems.",
+      "Portfolio of Nathaniel Nikolai Ladero — Backend Developer specializing in C#, ASP.NET Core, and fintech systems.",
     );
     expect(
       document

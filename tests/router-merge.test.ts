@@ -223,18 +223,26 @@ describe("home dossier route merge", () => {
     });
   });
 
-  test("keeps five terminal sections coherent with routes and aliases about", async () => {
+  test("names all five routes for the shell nav in sentence case", async () => {
     const { router } = await loadRouter("/");
     vi.resetModules();
-    const terminal = await import("../src/components/CommandTerminal");
+    const nav = await import("../src/lib/navNames");
 
-    expect(terminal.SECTIONS.map((section) => section.path)).toEqual(
-      router.ROUTES.map((route) => route.path),
-    );
-    expect(terminal.SECTIONS).toHaveLength(5);
-    expect(terminal.resolveTerminalSection("about")?.path).toBe("/");
-    expect(terminal.resolveTerminalSection("about.md")?.path).toBe("/");
-    expect(terminal.resolveTerminalSection("education")).toBeUndefined();
-    expect(terminal.resolveTerminalSection("footprint")).toBeUndefined();
+    // premium-direction.md: a label is sentence case wherever a person reads
+    // it, so RouteDef.label stays the shell's short code and navName() is the
+    // single step to display copy — shared by the Header nav and the PageFoot
+    // pager, which is why the mapping has to cover every route.
+    expect(
+      router.ROUTES.map((route) => nav.navName(route.id, route.label)),
+    ).toEqual(["Home", "Experience", "Skills", "Projects", "Contact"]);
+
+    for (const route of router.ROUTES) {
+      expect(nav.navName(route.id, route.label)).not.toMatch(/[A-Z]{2,}/);
+    }
+
+    // An unmapped id renders its label rather than an empty control, which is
+    // also the 404's path (NOT_FOUND_ROUTE is not a nav destination).
+    expect(nav.navName("unknown", "Custom")).toBe("Custom");
+    expect(nav.navName("notfound", "404")).toBe("404");
   });
 });

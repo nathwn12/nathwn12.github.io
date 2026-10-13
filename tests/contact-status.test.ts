@@ -16,27 +16,16 @@ const lib = existsSync(libPath) ? readFileSync(libPath, "utf8") : "";
 
 const EMAIL = "nathanielnikolai.ladero@gmail.com";
 
-function lineWith(source: string, needle: string): string {
-  const line = source.split("\n").find((l) => l.includes(needle));
-  if (!line) {
-    throw new Error(`expected a line containing ${JSON.stringify(needle)}`);
-  }
-  return line;
-}
-
 describe("contact status chip regressions", () => {
-  test("maps every status label to its tone in the typed lookup", () => {
-    const pairs: Array<[label: string, tone: string]> = [
-      ["[FORM READY]", "text-accent-2-text"],
-      ["[SENDING]", "text-accent-2-text"],
-      ["[QUEUED]", "text-accent-text"],
-      ["[ERROR]", "text-accent-3-text"],
-    ];
-    for (const [label, tone] of pairs) {
-      expect(lineWith(contact, `label: "${label}"`)).toContain(
-        `tone: "${tone}"`,
-      );
+  test("drops the retired ALL-CAPS status chip for sentence-case copy", () => {
+    // docs/premium-direction.md § "All caps labels": every label is
+    // sentence case, so the bracket-chip status vocabulary is retired.
+    for (const retired of ["[FORM READY]", "[SENDING]", "[QUEUED]", "[ERROR]"]) {
+      expect(contact.includes(retired)).toBe(false);
     }
+    expect(contact).not.toMatch(/\[[A-Z][A-Z ]+\]/);
+    expect(contact.includes("Message sent.")).toBe(true);
+    expect(contact.includes("Sending your message…")).toBe(true);
   });
 
   test("renders the chip as a single always-mounted role=status live region", () => {
@@ -45,15 +34,11 @@ describe("contact status chip regressions", () => {
     expect(contact.match(/role="status"/g)?.length).toBe(1);
   });
 
-  test("derives status message panel styles from the typed lookup, not nested ternaries", () => {
-    for (const tone of [
-      "border-accent text-accent-text bg-accent/5",
-      "border-accent-3 text-accent-3-text bg-accent-3/5",
-      "border-text-muted text-text-dim bg-text/5",
-    ]) {
-      expect(contact).toContain(tone);
-    }
-    expect(contact).toMatch(/STATUS_PANEL\[formStatus\.type\]/);
+  test("derives the status line from status.kind, not a STATUS_PANEL lookup", () => {
+    expect(contact).toMatch(/status\.kind === "sent"/);
+    expect(contact).toMatch(/status\.kind === "sending"/);
+    expect(contact).not.toMatch(/STATUS_PANEL/);
+    expect(contact).not.toMatch(/formStatus/);
     expect(contact).not.toMatch(/\? "border-/);
   });
 

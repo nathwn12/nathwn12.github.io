@@ -5,7 +5,7 @@
  * The global ArrowLeft/Right/Up/Down + Home/End handler in App.tsx must never
  * fire an item step (←/→) or section-scroll (↑/↓/Home/End) while:
  *   (a) e.target is an INPUT/TEXTAREA/SELECT or contentEditable element, or
- *   (b) a [data-terminal-panel] or [data-mobile-menu] overlay is in the DOM.
+ *   (b) a [data-mobile-menu] overlay is in the DOM.
  *
  * ←/→ is a DOM-driven TOUR over the page's [data-nav-item] stops, not a plain
  * page flip: it focuses the next/previous stop, activates it when the stop is
@@ -212,19 +212,6 @@ describe("keyboard nav guard (C3)", () => {
     }
   });
 
-  it("maps every guarded key to none while [data-terminal-panel] is in the DOM", () => {
-    const panel = document.createElement("div");
-    panel.setAttribute("data-terminal-panel", "");
-    document.body.appendChild(panel);
-    expect(isOverlayOpen()).toBe(true);
-    const button = document.createElement("button");
-    for (const key of GUARDED_KEYS) {
-      expect(navActionForKey({ key, target: button }), key).toEqual({
-        kind: "none",
-      });
-    }
-  });
-
   it("maps every guarded key to none while [data-mobile-menu] is in the DOM", () => {
     const menu = document.createElement("nav");
     menu.setAttribute("data-mobile-menu", "");
@@ -283,7 +270,7 @@ describe("keyboard nav guard (C3)", () => {
 
   it("never fires a step or section-scroll while an overlay is open (real dispatch)", () => {
     const overlay = document.createElement("div");
-    overlay.setAttribute("data-terminal-panel", "");
+    overlay.setAttribute("data-mobile-menu", "");
     document.body.appendChild(overlay);
     const handler = attachHandler();
     const scroller = makeScroller(800, 1600);
@@ -379,10 +366,10 @@ describe("keyboard nav guard (C3)", () => {
     handler.detach();
   });
 
-  it("keeps ArrowUp/Down out of the terminal input's history cycle", () => {
-    // Regression for CommandTerminal's own up/down history handling: the
-    // global handler must not steal the keys while the terminal input holds
-    // focus (covered by the editable-target guard, verified end-to-end here).
+  it("leaves ArrowUp/Down to whatever control holds focus", () => {
+    // Regression for the editable-target guard: a control that owns up/down
+    // (the contact form's fields) must keep them, so the global handler stays
+    // out of the way whenever an input holds focus (verified end-to-end here).
     const handler = attachHandler();
     const { scrollTo } = makeScroller(800, 1600);
     const input = document.createElement("input");

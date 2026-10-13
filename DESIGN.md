@@ -1,8 +1,15 @@
 # DESIGN.md — brutalist system for nathwn12-portfolio
 
-Single source of truth for the ultra-minimalist / brutalist restyle. The token
-layer in `src/index.css` implements exactly what is written here; if the two
-disagree, this file wins and `index.css` is the bug.
+> **SUPERSEDED (2026-10-13).** This document records the **brutalist pass**, which
+> the premium rewrite replaced. The binding design spec is now
+> `docs/premium-direction.md`. Where this file and that direction disagree —
+> palette, type families, radius, motion policy, and the film-grain evaluation —
+> the premium direction wins. Read this file for the reasoning behind the
+> retired system, not as current instruction.
+
+Historical record of the ultra-minimalist / brutalist restyle. The token layer
+in `src/index.css` implemented exactly what is written here during that pass; if
+the two disagree today, the premium direction above is authoritative.
 
 Scope of this document: palette, type scale, spacing scale, radius scale,
 border rule, motion policy, the banned-pattern list, and the content contract.
@@ -84,7 +91,7 @@ Every name below is **frozen** (§8). Values are the brutalist palette.
 | `--color-accent-glow` | `rgba(224, 60, 0, 0)` | `rgba(255, 77, 0, 0)` | **alpha 0** — glow banned (`[S1]`, `[S2] C5`, `[S3]`) |
 | `--color-grid-line` | `rgba(0, 0, 0, 0)` | `rgba(255, 255, 255, 0)` | **alpha 0** — decorative grid banned (`[S1]`) |
 | `--color-selection` | `rgba(224, 60, 0, 0.18)` | `rgba(255, 77, 0, 0.22)` | `::selection` background |
-| `--font-mono` | `'Hack', 'Cascadia Mono', 'IBM Plex Mono', monospace` | same | the only typeface |
+| `--font-mono` | legacy slot: `--font-sans` (Public Sans) | same | retired single-face slot — now an alias of the body face |
 
 ### 2.3 One accent, three places
 
@@ -113,19 +120,22 @@ usage appears on one screen, one of the first three is wrong — cut it.
 
 ## 3. Type scale
 
-One family (`--font-mono`, Hack/Cascadia/IBM Plex Mono). Monospace is the
-product's voice, not a garnish; no second face, no italic-serif accent word
-(`[S2] T3`) and no mixed serif/sans (`[S3]`).
+The retired single-face system, kept for the record: one family (`--font-mono`,
+Hack/Cascadia/IBM Plex Mono) — the product's voice, not a garnish; no second
+face, no italic-serif accent word (`[S2]` T3), no mixed serif/sans (`[S3]`).
 
-**Exemption — logo mark face.** `public/fonts/OpenCode.otf` binds as `OpenCode`
-via `--font-logo: "OpenCode", var(--font-mono)`. It is a generative logo
-typeface, not a text face (every printable character collapses to a handful of
-logo letterforms), so it is licensed for **short brand marks only** — and it is
-**retained and wired but not currently applied to any element**: the header
-wordmark is monospace. Body copy, headings, labels, nav, status text, and any
-run of text stay on the single text family. Fallback chain: `OpenCode` →
-`--font-mono` (`'Hack', 'Cascadia Mono', 'IBM Plex Mono', monospace`), so a
-missing or failed OTF degrades to the existing monospace, never to blank.
+**Superseded by the premium rewrite: two self-hosted families.** `--font-display`
+(Fraunces — page titles and section headings only) and `--font-sans` (Public Sans —
+body copy, labels, navigation, form controls, code-adjacent identifiers), loaded
+from `public/fonts/*.woff2` through `@font-face` in `src/index.css` and preloaded
+from `index.html`; no Google Fonts request remains. `--font-mono` survives only as
+an alias of `--font-sans`, so code-adjacent strings keep their character through
+Line-bordered chips and letterspacing 0, never a third face
+(`docs/premium-direction.md` §Type).
+
+**Retired — logo mark face.** `public/fonts/OpenCode.otf` and `--font-logo` are
+gone from `src/index.css`: the premium rewrite ships exactly two families and
+applies neither to a logo mark.
 
 | Token | Size | Line-height | Role |
 | --- | --- | --- | --- |
@@ -398,7 +408,7 @@ requirements → **ESCALATE** and document the tradeoff.
 
 | Banned | Why | Source |
 | --- | --- | --- |
-| Decorative blinking cursor | Makes static text look editable; terminal cosplay | `[S1]` "Decorative blinking cursor" |
+| Decorative blinking cursor | Makes static text look editable; costume motion | `[S1]` "Decorative blinking cursor" |
 | Pulsing status dot | Draws attention when nothing changes | `[S1]` "Pulsing status dot" |
 | Auto-scrolling marquee | Forces the page's reading pace | `[S1]` "Auto-scrolling marquee"; `[S3]` |
 | Bounce / elastic / spring easing | Fussy for routine actions | `[S1]` "Bounce or elastic easing"; `[S3]` |
@@ -446,12 +456,13 @@ Restraint executed well is not slop (`[S2]`). The following stay, deliberately:
   copy of it is removed by the component pass. The caret is a functional
   affordance, not decoration — and it carries the `[S1]`
   "Decorative blinking cursor" exemption only under that test.
-- **`prefers-reduced-motion` is deliberately not honored.** This is an explicit
-  product decision by the site owner, recorded here: the site always animates at
-  full potential, and every `@media (prefers-reduced-motion: reduce)` gate has
-  been removed from `src/index.css` so nothing is ever disabled by the setting.
-  The tradeoff, stated plainly: motion-sensitive visitors receive full
-  animation, so the vestibular-safety accommodation is intentionally absent.
+- **`prefers-reduced-motion` is honored.** Reversed from the decision recorded
+  here earlier: the premium direction's Principle 5 requires that reduced motion
+  disable all nonessential movement. `src/App.tsx` reads `useReducedMotion()` and
+  passes `reduceMotion` into the nav handler, `<MotionConfig reducedMotion="user">`
+  wraps the tree, and `src/index.css` carries a
+  `@media (prefers-reduced-motion: reduce)` block that collapses animation and
+  transition durations and pins `scroll-behavior: auto`.
 - Entrance animations must never gate visibility: content is visible by
   default so a failed animation cannot hide it (`[S1]` "Content stuck waiting
   to appear").
@@ -478,21 +489,19 @@ review checklist and `[S1]`'s detector set.
 - [ ] Hover, focus-visible, active, disabled, loading, empty, and error states
       are all designed and stable-sized `[S2]` K7.
 - [ ] Keyboard nav still works: `←/→` pages, `↑/↓` section scroll, `Home/End`,
-      and the editable/overlay guard (`[data-terminal-panel]`,
-      `[data-mobile-menu]`).
+      and the editable/overlay guard (`[data-mobile-menu]`).
 - [ ] `npx tsc -b` passes; `pnpm run build` prints both `OK:` copy lines.
 
 ## 12. Known deferrals (owned by later passes)
 
 Token-layer-only scope means these are documented, not fixed here:
 
-1. ~~`rounded-full` dots~~ — **resolved in the restyle**: no component in
-   `src/` applies a `rounded-full` (or any `rounded-*`) class any more,
-   `TerminalWindow.tsx` and its `.terminal-dot` are deleted, and every
-   status/press mark is a 4px square (`w-quarter h-quarter`) in `Header.tsx`,
-   `Footer.tsx`, `Experience.tsx`, and `CommandTerminal.tsx`. (Tailwind still
-   emits the `rounded-full` utility because the string appears in this file; no
-   component applies it.)
+1. ~~`rounded-full` dots~~ — **resolved in the brutalist pass, then superseded by
+   the premium rewrite**, which reinstates a real radius scale (§5 is retired) and
+   applies `rounded-xs` to controls. The 4px-square status marks went with the
+   window-chrome component that shared them. (Tailwind still emits the
+   `rounded-full` utility because the string appears in this file; no component
+   applies it.)
 2. Per-section accent coding and the `[ERROR]` hue in `Contact.tsx` — collapse
    to ink/label-based tone (§2.3 consequence).
 3. ~~`active:translate-*` micro-interactions~~ — **already satisfied**: no
@@ -517,8 +526,8 @@ Token-layer-only scope means these are documented, not fixed here:
 (`src/components/BackgroundEffects.tsx` — matrix rain + animated perspective
 grid) has been deleted, so the old canvas deferral no longer applies; and
 `.bg-grid`, `.input-glow`, and `.section-ambient` had zero remaining consumers
-after that deletion and were removed from `src/index.css`. `.terminal-cursor`
-survives as the one sanctioned blink (§10).
+after that deletion and were removed from `src/index.css`. The last surviving
+caret class is gone too — the premium rewrite removed it with the blink budget.
 
 ---
 
@@ -693,7 +702,7 @@ in the accessibility tree and cannot take keyboard focus; `pointer-events: none`
 means it captures nothing; `position: fixed` keeps it out of flow (no CLS, no
 scrollbar). The blend changes none of that, and it cannot re-order the stack:
 `mix-blend-mode` makes the pseudo-element a stacking context of its own, but it
-already paints at `z-index: 10002` (above the CommandTerminal panel's `9999` and
+already paints at `z-index: 10002` (above the retired command panel's `9999` and
 the skip link's `10001`), so nothing is lifted over or hidden under anything, and
 it has no children to isolate. It blends against the root stacking context —
 `body`'s `--color-bg` paper plus every layer below it — because nothing sets
