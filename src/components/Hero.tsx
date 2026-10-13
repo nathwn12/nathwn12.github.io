@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useResolvedReduceMotion } from "../lib/motionPreference";
 import { employer, experience } from "../content/experience";
 import { projects } from "../content/projects";
 import { RouteLink } from "../lib/router";
@@ -161,7 +162,7 @@ export function useHeroTyping(
 }
 
 export function Hero() {
-  const reduceMotion = useReducedMotion() === true;
+  const reduceMotion = useResolvedReduceMotion();
   const { phrase, shown } = useHeroTyping(reduceMotion);
 
   return (

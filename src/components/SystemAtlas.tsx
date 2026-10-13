@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { motion, useReducedMotion } from "framer-motion";
+import { motion } from "framer-motion";
+import { useResolvedReduceMotion } from "../lib/motionPreference";
 import { fadeUp, staggerParent } from "../lib/motion";
 
 /**
@@ -14,9 +15,9 @@ import { fadeUp, staggerParent } from "../lib/motion";
  *
  * Accessibility: the section is labelled by its heading; the nodes are a
  * radiogroup of aria-labelled buttons; the reading updates through an
- * aria-live region. Reduced motion is read through `useReducedMotion()` — the
- * entrance is skipped and the pulses are not rendered, so the layout holds
- * still without animating.
+ * aria-live region. Reduced motion is read through the persisted preference
+ * (`useResolvedReduceMotion`) — the entrance is skipped and the pulses are not
+ * rendered, so the layout holds still without animating.
  *
  * Authority: docs/premium-direction.md § Principles 4–5, § Hard-ban list.
  */
@@ -127,7 +128,7 @@ function pct(value: number, total: number): string {
 }
 
 export function SystemAtlas() {
-  const reduceMotion = useReducedMotion() === true;
+  const reduceMotion = useResolvedReduceMotion();
   const [selectedId, setSelectedId] = useState(productionNodes[0].id);
   const selected =
     nodes.find((node) => node.id === selectedId) ?? productionNodes[0];
