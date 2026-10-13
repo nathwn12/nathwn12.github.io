@@ -14,6 +14,11 @@ import { Hero } from "./components/Hero";
 import { NotFound } from "./components/NotFound";
 import { useRoute, useAdjacentNavigation, routeByPath } from "./lib/router";
 import { createPageNavHandler } from "./lib/keyboardNav";
+import {
+  motionPreferenceToMode,
+  resolveReduceMotion,
+  useMotionPreference,
+} from "./lib/motionPreference";
 
 /**
  * route.id → section component — one "page" per route.
@@ -97,9 +102,16 @@ class PageErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState
 export default function App() {
   const { route, direction } = useRoute();
   const { goNext, goPrev } = useAdjacentNavigation();
-  /* ↑/↓ scrolling walks the internal page container; when the visitor asks for
-     reduced motion the scroll is instant instead of smooth. */
-  const reduceMotion = useReducedMotion() === true;
+  /* The visitor's motion preference: an explicit override wins, otherwise the
+     live OS setting. It drives BOTH the Framer runtime (MotionConfig below)
+     and every hand-rolled gate in the tree, so the two never diverge. */
+  const [motionPreference] = useMotionPreference();
+  /* ↑/↓ scrolling walks the internal page container; when motion is reduced the
+     scroll is instant instead of smooth. */
+  const reduceMotion = resolveReduceMotion(
+    motionPreference,
+    useReducedMotion() === true,
+  );
 
   /* ←/→ walks the page's item tour ([data-nav-item], DOM-driven) and rolls
      over into the adjacent page when the current page's items are exhausted;
@@ -116,7 +128,7 @@ export default function App() {
 
   return (
     <div className="bg-bg min-h-screen relative">
-      <MotionConfig reducedMotion="user">
+      <MotionConfig reducedMotion={motionPreferenceToMode(motionPreference)}>
         <a
           href="#main"
           className="skip-to-content"
