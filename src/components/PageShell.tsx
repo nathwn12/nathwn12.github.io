@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
-import { motion, type Variants } from "framer-motion";
-import { emitPageScroll, type PageScrollState } from "../lib/pageScroll";
+import { useEffect, useLayoutEffect, useRef, type ReactNode } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { applyRouteMeta, type RouteDef, type RouteDirection } from "../lib/router";
 import { consumePendingStepFocus, landOnNavItem, navItems } from "../lib/keyboardNav";
+import { fadeIn } from "../lib/motion";
 
 interface PageShellProps {
   route: RouteDef;
@@ -16,21 +16,21 @@ interface PageShellProps {
 const STEP_FOCUS_RETRY_FRAMES = 60;
 
 /**
- * One "terminal page" — locks to exactly one viewport (100dvh) with internal
- * scrolling, so the document itself never scrolls. Mounted inside a keyed
- * AnimatePresence, it performs the page transition:
+ * One "page" — locks to exactly one viewport (100dvh) with internal scrolling,
+ * so the document itself never scrolls. Mounted inside a keyed AnimatePresence,
+ * it cross-fades on the shared opacity fade (`fadeIn`, src/lib/motion.ts) —
+ * opacity only, no rise, no choreography.
  *
- *  - exit:  the whole screen wipes upward like a terminal `clear`
- *  - enter: direction-aware rise (forward: from below, back: from above),
- *           a CRT flicker, a scanline sweep, and a cursor-typed `$ cd <path>`
- *           overlay — the signature "booted into a new page" moment.
+ * Everything else this component owns is seam, not style: the live header and
+ * footer offsets it reserves, the keyed mount that restores focus to #main, the
+ * per-route document.title/meta, and the cross-page step handoff. Those are
+ * contracts (PageShell is unit-tested for the handoff) and are unchanged.
  */
 export function PageShell({ route, direction, children }: PageShellProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const rafRef = useRef(0);
-  const lastY = useRef(0);
-  const lastTime = useRef(0);
-  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** Reduced motion disables all nonessential movement (direction §
+      Principles 5); the landing scroll honours it (keyboardNav.landOnNavItem). */
+  const reduceMotion = useReducedMotion() === true;
   /** Pending ←/→ step handoff for THIS mount: `undefined` = not read yet,
       `null` = none. Read once (see the keyed mount effect). */
   const pendingStepRef = useRef<1 | -1 | null | undefined>(undefined);
@@ -39,25 +39,41 @@ export function PageShell({ route, direction, children }: PageShellProps) {
       dispatches a second click, toggling the reveal closed). */
   const stepLandedRef = useRef(false);
 
-  /* The header is `fixed`, so it is out of flow and this scroller must
-     reserve its height. That height is not a constant — zoom, large fonts,
-     and the opening mobile menu all change it — so measure it live instead
-     of hard-coding a magic offset that content can slide under. Runs in a
-     layout effect so the reserved space exists before the first paint. */
+  /* The header and footer are `fixed`, so they are out of flow and this
+     scroller must reserve their heights. Neither is a constant — zoom, large
+     fonts, the opening mobile menu, a footer wrap at 375px, and the iOS
+     safe-area inset all change them — so measure them live instead of
+     hard-coding magic offsets that content can slide under. Runs in a layout
+     effect so the reserved space exists before the first paint.
+
+     These two custom properties are the shell's public chrome metrics: the
+     scroller's own padding consumes them, and `.page-scroll`
+     (src/index.css) also reads them for `scroll-padding`, so the ←/→ item
+     tour and the skip link never land focus under the fixed chrome. */
   useLayoutEffect(() => {
     const el = scrollRef.current;
-    const header = document.querySelector("header");
-    if (!el || !header) return;
+    if (!el) return;
     const measure = () => {
-      el.style.setProperty(
-        "--page-header-offset",
-        `${Math.ceil(header.getBoundingClientRect().height)}px`,
-      );
+      const chrome: Array<[string, Element | null]> = [
+        ["--page-header-offset", document.querySelector("header")],
+        ["--page-footer-offset", document.querySelector("footer")],
+      ];
+      chrome.forEach(([property, node]) => {
+        if (node) {
+          el.style.setProperty(
+            property,
+            `${Math.ceil(node.getBoundingClientRect().height)}px`,
+          );
+        }
+      });
     };
     measure();
     if (typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(measure);
-    observer.observe(header);
+    const header = document.querySelector("header");
+    const footer = document.querySelector("footer");
+    if (header) observer.observe(header);
+    if (footer) observer.observe(footer);
     return () => observer.disconnect();
   }, []);
 
@@ -68,7 +84,6 @@ export function PageShell({ route, direction, children }: PageShellProps) {
   useEffect(() => {
     window.scrollTo(0, 0);
     scrollRef.current?.scrollTo(0, 0);
-    lastY.current = 0;
 
     const focusMain = () => {
       document.getElementById("main")?.focus({ preventScroll: true });
@@ -103,7 +118,7 @@ export function PageShell({ route, direction, children }: PageShellProps) {
     const focusStepEnd = (): boolean => {
       const items = navItems();
       if (items.length === 0) return false;
-      landOnNavItem(pending === 1 ? items[0] : items[items.length - 1]);
+      landOnNavItem(pending === 1 ? items[0] : items[items.length - 1], reduceMotion);
       stepLandedRef.current = true;
       return true;
     };
@@ -134,104 +149,25 @@ export function PageShell({ route, direction, children }: PageShellProps) {
     applyRouteMeta(route);
   }, [route.path, route.title]);
 
-  /* Feed the internal scroll position to chrome (Header, Footer). */
-  const handleScroll = useCallback(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(() => {
-      const now = performance.now();
-      const dt = now - lastTime.current;
-      lastTime.current = now;
-      const dy = el.scrollTop - lastY.current;
-      lastY.current = el.scrollTop;
-      const velocity = dt > 0 ? Math.min(Math.abs(dy / dt) * 1000, 5000) : 0;
-      const state: PageScrollState = {
-        y: el.scrollTop,
-        velocity,
-        direction: dy > 0.5 ? "down" : dy < -0.5 ? "up" : "idle",
-        isScrolling: true,
-      };
-      emitPageScroll(state);
-      if (idleTimer.current) clearTimeout(idleTimer.current);
-      idleTimer.current = setTimeout(() => {
-        emitPageScroll({
-          ...state,
-          velocity: 0,
-          direction: "idle",
-          isScrolling: false,
-        });
-      }, 300);
-    });
-  }, []);
+  /* Opacity only, and one short duration per state change: the direction
+     forbids blanket fade-and-rise entrances and any layout-property tween, and
+     opacity is the one channel that still runs when the visitor asks for
+     reduced motion (MotionConfig reducedMotion="user" in App) — so the
+     transition degrades to a shorter fade, never to a hard cut.
 
-  const variants: Variants = {
-    enter: (dir: RouteDirection) => ({
-      opacity: 0,
-      y: dir === "back" ? -28 : 28,
-    }),
-    center: {
-      opacity: [0, 1, 0.35, 1],
-      y: 0,
-      transition: {
-        opacity: { duration: 0.3, times: [0, 0.25, 0.5, 1], ease: "easeOut" },
-        y: { duration: 0.3, ease: [0.16, 1, 0.3, 1] },
-      },
-    },
-    exit: {
-      opacity: 0,
-      y: -36,
-      transition: { duration: 0.18, ease: "easeIn" },
-    },
-  };
-
-  const cdPath = route.path === "/" ? "~" : route.path;
-
+     The fade itself is the shared `fadeIn` (src/lib/motion.ts), not a local
+     duration: the route layer and the chrome cross-fade on one contract, and
+     the module's own reduced-motion probe shortens it on its own. */
   return (
     <motion.div
       ref={scrollRef}
       custom={direction}
-      variants={variants}
-      initial="enter"
-      animate="center"
-      exit="exit"
-      onScroll={handleScroll}
-      className="page-scroll relative h-screen h-[100dvh] overflow-y-auto overflow-x-hidden pt-[var(--page-header-offset,0px)] pb-8 bg-transparent"
+      variants={fadeIn}
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+      className="page-scroll relative h-screen h-[100dvh] overflow-y-auto overflow-x-hidden pt-[var(--page-header-offset,0px)] pb-[var(--page-footer-offset,2rem)] bg-transparent"
     >
-      {/* Cursor-typed destination line, drawn while the page boots in. */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 1, 1, 0] }}
-        transition={{ opacity: { duration: 0.55, times: [0, 0.1, 0.75, 1] } }}
-        className="pointer-events-none select-none absolute top-[calc(var(--page-header-offset,0px)+1rem)] left-gutter lg:left-block z-20 flex items-center gap-2 text-body font-mono"
-        aria-hidden="true"
-      >
-        <span className="text-accent-text">$</span>
-        <span className="overflow-hidden whitespace-nowrap text-text-dim">
-          <motion.span
-            className="inline-block whitespace-nowrap overflow-hidden align-bottom"
-            initial={{ width: 0 }}
-            animate={{ width: "100%" }}
-            transition={{ duration: 0.22, delay: 0.03, ease: "linear" }}
-          >
-            cd {cdPath}
-          </motion.span>
-        </span>
-      </motion.div>
-
-      {/* CRT scanline sweep on entry. */}
-      <motion.div
-        initial={{ top: "-18%" }}
-        animate={{ top: "112%" }}
-        transition={{ duration: 0.26, delay: 0.02, ease: "linear" }}
-        className="pointer-events-none absolute inset-x-0 h-20 z-10 opacity-40"
-        style={{
-          background:
-            "linear-gradient(to bottom, transparent, color-mix(in srgb, var(--color-text) 5%, transparent) 40%, color-mix(in srgb, var(--color-text) 12%, transparent) 50%, color-mix(in srgb, var(--color-text) 5%, transparent) 60%, transparent)",
-        }}
-        aria-hidden="true"
-      />
-
       <div className="relative z-10 min-h-full flex flex-col">{children}</div>
     </motion.div>
   );

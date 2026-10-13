@@ -39,6 +39,9 @@ export const ProjectSchema = z.object({
   tech: z.array(z.string()),
   status: z.enum(["PRODUCTION", "SHIPPED"]),
   color: z.string().regex(/^#[0-9a-fA-F]{3,8}$/),
+  /* Canonical public repository for the case study; optional so the schema
+     still accepts an internal project entry with no public link. */
+  url: z.string().url().optional(),
   stats: z.array(
     z.object({
       label: z.string(),
