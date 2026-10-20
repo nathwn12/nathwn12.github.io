@@ -1,5 +1,6 @@
-// Static regression test for the Contact status chip + the single contact-email
-// constant. Node-only source analysis (no jsdom / DOM / rendering):
+// Static regression test for the keyless Contact page + the single
+// contact-email constant. Node-only source analysis (no jsdom / DOM /
+// rendering):
 //   npx vitest run tests/contact-status.test.ts
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -15,8 +16,9 @@ const footer = readFileSync(footerPath, "utf8");
 const lib = existsSync(libPath) ? readFileSync(libPath, "utf8") : "";
 
 const EMAIL = "nathanielnikolai.ladero@gmail.com";
+const ISSUES = "https://github.com/nathwn12/nathwn12/issues/new";
 
-describe("contact status chip regressions", () => {
+describe("contact keyless regressions", () => {
   test("drops the retired ALL-CAPS status chip for sentence-case copy", () => {
     // docs/premium-direction.md § "All caps labels": every label is
     // sentence case, so the bracket-chip status vocabulary is retired.
@@ -24,25 +26,9 @@ describe("contact status chip regressions", () => {
       expect(contact.includes(retired)).toBe(false);
     }
     expect(contact).not.toMatch(/\[[A-Z][A-Z ]+\]/);
-    expect(contact.includes("Message sent.")).toBe(true);
-    expect(contact.includes("Sending your message…")).toBe(true);
   });
 
-  test("renders the chip as a single always-mounted role=status live region", () => {
-    expect(contact).toMatch(/role="status"/);
-    expect(contact).not.toMatch(/role=\{formStatus/);
-    expect(contact.match(/role="status"/g)?.length).toBe(1);
-  });
-
-  test("derives the status line from status.kind, not a STATUS_PANEL lookup", () => {
-    expect(contact).toMatch(/status\.kind === "sent"/);
-    expect(contact).toMatch(/status\.kind === "sending"/);
-    expect(contact).not.toMatch(/STATUS_PANEL/);
-    expect(contact).not.toMatch(/formStatus/);
-    expect(contact).not.toMatch(/\? "border-/);
-  });
-
-  test("shares one CONTACT_EMAIL source across contact, form, and footer links", () => {
+  test("shares one CONTACT_EMAIL source across contact and footer links", () => {
     expect(existsSync(libPath), "src/lib/contact.ts should exist").toBe(true);
     expect(lib).toMatch(
       /export const CONTACT_EMAIL = "nathanielnikolai\.ladero@gmail\.com"/,
@@ -54,9 +40,6 @@ describe("contact status chip regressions", () => {
       /import \{ CONTACT_EMAIL \} from "\.\.\/lib\/contact"/,
     );
     expect(contact).toMatch(/mailto:\$\{CONTACT_EMAIL\}/);
-    expect(contact).toMatch(
-      /https:\/\/formsubmit\.co\/ajax\/\$\{CONTACT_EMAIL\}/,
-    );
     expect(footer).toMatch(/mailto:\$\{CONTACT_EMAIL\}/);
     // the raw address may only live in the constant module
     expect(
@@ -66,42 +49,44 @@ describe("contact status chip regressions", () => {
     expect(footer.includes(EMAIL)).toBe(false);
   });
 
-  test("removes the goodbye filler from the contact status footer", () => {
+  test("prefills the mailto draft with the portfolio subject and a body template", () => {
+    expect(contact).toMatch(/MAIL_SUBJECT = "Portfolio enquiry"/);
+    expect(contact).toMatch(/MAIL_BODY = /);
+    expect(contact).toMatch(/subject=\$\{encodeURIComponent\(MAIL_SUBJECT\)\}/);
+    expect(contact).toMatch(/body=\$\{encodeURIComponent\(MAIL_BODY\)\}/);
+  });
+
+  test("offers copy-email with a visible confirmation state, no mail client needed", () => {
+    expect(contact).toMatch(/Copy the email address/);
+    expect(contact).toMatch(/Copied to the clipboard/);
+    expect(contact).toMatch(/navigator\.clipboard\.writeText\(CONTACT_EMAIL\)/);
+    expect(contact).toMatch(/role="status"/);
+    expect(contact.match(/role="status"/g)?.length).toBe(1);
+  });
+
+  test("links the public issue tracker for non-private messages", () => {
+    expect(contact.includes(ISSUES)).toBe(true);
+    expect(contact).toMatch(/target="_blank"/);
+    expect(contact).toMatch(/rel="noopener noreferrer"/);
+  });
+
+  test("says what happens next in one honest line", () => {
+    expect(contact).toMatch(/usually answer within a day or two/);
+  });
+
+  test("carries no form that posts nowhere: no form element, no relay, no honeypot", () => {
+    expect(contact).not.toMatch(/<form/);
+    expect(contact).not.toMatch(/formsubmit\.co/i);
+    expect(contact).not.toMatch(/FormSubmit/);
+    expect(contact).not.toMatch(/_honey/);
+    expect(contact).not.toMatch(/_captcha/);
+    expect(contact).not.toMatch(/handleSubmit/);
+    expect(contact).not.toMatch(/validateContactFields/);
+  });
+
+  test("removes the goodbye filler from the contact page", () => {
     expect(contact.includes("goodbye")).toBe(false);
     expect(contact.includes("cat /dev/null")).toBe(false);
     expect(contact.includes("Thanks for visiting")).toBe(false);
-  });
-
-  test("keeps FormSubmit captcha enabled and the honeypot intact", () => {
-    expect(contact).toMatch(/name="_captcha" value="true"/);
-    expect(contact.includes('type="hidden"')).toBe(true);
-    expect(contact.includes('name="_honey"')).toBe(true);
-    expect(contact.includes("tabIndex={-1}")).toBe(true);
-    expect(contact.includes('autoComplete="off"')).toBe(true);
-    expect(contact.includes('style={{ display: "none" }}')).toBe(true);
-  });
-
-  test("parses FormSubmit responses defensively without leaking raw bytes", () => {
-    expect(contact).not.toMatch(/const result = await res\.json\(\)/);
-    expect(contact).toMatch(
-      /payloadJson\?\.message \|\| "Something went wrong\."/,
-    );
-    expect(contact.includes("Non-JSON body")).toBe(true);
-  });
-
-  test("blocks duplicate parallel submissions at the submit boundary", () => {
-    expect(contact).toMatch(/if \(isSubmitting\) return;/);
-  });
-
-  test("bounds compose inputs with sensible maxLength limits", () => {
-    expect(contact).toMatch(/id="form-name"[\s\S]*?maxLength=\{100\}/);
-    expect(contact).toMatch(/id="form-email"[\s\S]*?maxLength=\{254\}/);
-    expect(contact).toMatch(/id="form-subject"[\s\S]*?maxLength=\{300\}/);
-    expect(contact).toMatch(/id="form-message"[\s\S]*?maxLength=\{5000\}/);
-  });
-
-  test("keeps one role=status chip and one role=alert detail panel", () => {
-    expect(contact.match(/role="status"/g)?.length).toBe(1);
-    expect(contact.match(/role="alert"/g)?.length).toBe(1);
   });
 });
