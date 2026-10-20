@@ -47,8 +47,8 @@ describe("portfolio refresh — UX spec", () => {
     expect(byId.puppet.install).toBe("npx -y puppet-mcp@latest --doctor");
     expect(byId.gladius.install).toBe("npx -y gladius-mcp@latest --doctor");
     expect(byId["oc-harness-setup"].install).toBe("npx --yes oc-harness-setup setup");
-    expect(byId["oc-bifrost"].install).toContain("@nathwn12/oc-bifrost@1.6.5");
-    expect(byId["oc-flight-deck"].install).toContain("oc-flight-deck@0.19.2");
+    expect(byId["oc-bifrost"].install).toContain("@nathwn12/oc-bifrost@latest");
+    expect(byId["oc-flight-deck"].install).toContain("oc-flight-deck@latest");
     // every install line copyable: InstallStrip + FeaturedGrid render CopyButton per install
     const strip = readFileSync(resolve(root, "src", "components", "InstallStrip.tsx"), "utf8");
     expect(strip).toContain("CopyButton");
