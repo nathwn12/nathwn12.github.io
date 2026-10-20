@@ -15,7 +15,7 @@ import { ProjectSchema } from "../types/models";
  * Senior-flex pass (fleet brief): the band is now driven by the real public
  * repositories on github.com/nathwn12, each carrying its canonical `url`, plus
  * case-study fields (`kind`, `role`, `year`, `highlights`) for the expanded
- * notes. Every repo is public and freshly verified (2026-10-13) — but popularity
+ * notes. Every repo below is public and freshly verified (2026-10-20) — but popularity
  * is not the signal, so NO star count is stored or rendered anywhere here
  * (anti-flex). The flex is honest instead: recency (what shipped, and when),
  * the technology actually used, and own-brand authorship.
@@ -45,8 +45,10 @@ export interface ProjectLore {
   stats: { label: string; value: string; accent: Token }[];
 }
 
-// Open-source work published under github.com/nathwn12, newest and most
-// distinctive first. No star counts: the signal is what each one does.
+// Open-source work published under github.com/nathwn12: featured work first
+// in the stated order, then the supporting tools. Twelve entries, every one
+// public and verified 2026-10-20. Descriptions follow the current GitHub
+// repository descriptions. No star counts: the signal is what each one does.
 export const projects: ProjectLore[] = [
   {
     id: "10",
@@ -57,7 +59,7 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2026",
     description:
-      "A native-Rust Windows desktop-control server for MCP clients: six tools over stdio JSON-RPC cover screen capture, window listing and control, input, and cursor position in one binary with no interpreter to install.",
+      "Windows desktop control for any MCP client — screenshot, window, input, and cursor — for automation that needs the real screen.",
     tech: ["Rust", "MCP", "JSON-RPC 2.0", "Win32", "DXGI"],
     highlights: [
       "Six tools only: screenshot, list_windows, window, do, cursor, and elements.",
@@ -80,7 +82,7 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2026",
     description:
-      "A Rust browser-automation server for MCP clients: fifteen tools drive the owned Obscura engine directly over CDP via WebSocket, built from source today with no Node.js and no Playwright in the runtime path and the engine binaries provisioned alongside.",
+      "Headless Chrome driven over CDP for any MCP client — browser automation with no Node.js or Playwright in the runtime path.",
     tech: ["Rust", "CDP", "WebSocket", "MCP", "JSON-RPC 2.0"],
     highlights: [
       "Fifteen tools over the active page, from AX snapshots with stable refs to tabs, uploads, and console capture.",
@@ -95,121 +97,6 @@ export const projects: ProjectLore[] = [
     ],
   },
   {
-    id: "12",
-    name: "OC Unified",
-    dir: "oc-unified",
-    url: "https://github.com/nathwn12/oc-unified",
-    kind: "Plugin",
-    role: "Own brand",
-    year: "2026",
-    description:
-      "One OpenCode v2 plugin carries the fleet watcher, the lifeline daemon, and the title renamer as internal features on a single mount, config file, and row grammar, with each feature wired in its own guarded setup step, so one feature's setup rejecting is reported and never stops the others from wiring.",
-    tech: ["TypeScript", "OpenCode plugin API", "Bun", "JSONC", "Node.js"],
-    highlights: [
-      "Three features fused into one mount: a single default export, one config resolver, and one rail renderer.",
-      "The fleet watcher subscribes to the session event stream and queues a compact note only for the error, stalled, wedged, and terminal-all classes.",
-      "The masthead keeps every top-level session title in the status, seat, work grammar and never renames a child session.",
-    ],
-    accent: "accent-4",
-    stats: [
-      { label: "last shipped", value: "2026", accent: "accent-4" },
-      { label: "surface", value: "OpenCode v2 plugin", accent: "accent-4" },
-      { label: "features", value: "three fused", accent: "accent-4" },
-    ],
-  },
-  {
-    id: "13",
-    name: "Bridge",
-    dir: "bridge",
-    url: "https://github.com/nathwn12/bridge",
-    kind: "App",
-    role: "Own brand",
-    year: "2026",
-    description:
-      "A single-machine dashboard for a solo Windows dev: it scans each direct child repo under a root for live git state, runs bounded git operations, lists and creates pull requests through the gh CLI, and bridges local OpenCode agent sessions over WebSocket.",
-    tech: ["TypeScript", "Node.js", "WebSocket", "WebView2", "PowerShell"],
-    highlights: [
-      "Serves the built frontend from the same origin and pushes live updates over WebSocket, with 20s polling as the fallback.",
-      "Binds loopback-only and gates the HTTP API and WebSocket surface: a non-loopback Host or a cross-origin mutating request is refused 403, while the Vite dev origins (127.0.0.1:5173, localhost:5173) are explicitly allowed.",
-      "Git is non-destructive by construction: fetch --all --prune, pull --ff-only, and plain push, never forced.",
-    ],
-    accent: "accent",
-    stats: [
-      { label: "last shipped", value: "2026", accent: "accent" },
-      { label: "surface", value: "local dashboard", accent: "accent" },
-      { label: "release", value: "v1.0.0", accent: "accent" },
-    ],
-  },
-  {
-    id: "14",
-    name: "Potflix",
-    dir: "Potflix",
-    url: "https://github.com/nathwn12/Potflix",
-    kind: "App",
-    role: "Own brand",
-    year: "2026",
-    description:
-      "A Windows tray app that mirrors whatever plays in PotPlayer as a Discord Rich Presence card, cleaning raw filenames into real titles; the implementation is mid-rewrite into a Rust workspace against a frozen Go reference, and the feature behaviour is the intended contract carried from that reference, not live re-verified against PotPlayer or Discord.",
-    tech: ["Rust", "Go", "Win32", "Discord IPC", "Cargo"],
-    highlights: [
-      "Cleans codecs, tags, and release groups out of filenames, parenthesizes years, and parses SxxEyy episode tags; the cleaner logic derives from the upstream PotPlayer-DiscordRPC project.",
-      "Resolves series and episode names from keyless sources: TVmaze, AniList, Jikan, and iTunes, under a permanent on-disk cache.",
-      "Carries a parity oracle: the Rust title cleaner must reproduce the frozen Go output byte-for-byte, hashed per corpus.",
-    ],
-    accent: "accent-2",
-    stats: [
-      { label: "last shipped", value: "2026", accent: "accent-2" },
-      { label: "surface", value: "Windows tray", accent: "accent-2" },
-      { label: "implementation", value: "Rust port", accent: "accent-2" },
-    ],
-  },
-  {
-    id: "15",
-    name: "Slowburn",
-    dir: "slowburn",
-    url: "https://github.com/nathwn12/slowburn",
-    kind: "App",
-    role: "Own brand",
-    year: "2026",
-    description:
-      "A Windows music player built for practice: studio-grade Slow plus Reverb and a per-track A-B loop sit on a multi-folder library with four skins and a mini mode, offline and with no account.",
-    tech: ["TypeScript", "Rust", "Tauri", "React", "SQLite"],
-    highlights: [
-      "A-B loop points live on the seek bar and save per track, auto-applying when the track reopens.",
-      "Slow and reverb are fine-stepped with per-track memory and a one-click reset to dry.",
-      "A fork of Museeks; the Slow and Reverb UX, A-B repeat, skins, mini mode, and queue are this fork's own work.",
-    ],
-    accent: "accent-3",
-    stats: [
-      { label: "last shipped", value: "2026", accent: "accent-3" },
-      { label: "surface", value: "Windows desktop", accent: "accent-3" },
-      { label: "base", value: "fork of Museeks", accent: "accent-3" },
-    ],
-  },
-  {
-    id: "01",
-    name: "OC Flight Deck",
-    dir: "oc-flight-deck",
-    url: "https://github.com/nathwn12/oc-flight-deck",
-    kind: "Plugin",
-    role: "Own brand",
-    year: "2026",
-    description:
-      "A configurable sidebar for the OpenCode terminal UI: one JSONC file drives rows, ordering, visibility, glyphs, and caution thresholds, hot-reloaded without restarting the session.",
-    tech: ["TypeScript", "OpenCode plugin API", "JSONC", "Node.js"],
-    highlights: [
-      "Schema-checked JSONC config with per-row visibility and ordering.",
-      "Hot reload: edits land in the running TUI without a restart.",
-      "Caution thresholds let a row change state instead of shouting in colour.",
-    ],
-    accent: "accent",
-    stats: [
-      { label: "last shipped", value: "2026", accent: "accent" },
-      { label: "runtime", value: "OpenCode TUI", accent: "accent" },
-      { label: "config", value: "one JSONC file", accent: "accent" },
-    ],
-  },
-  {
     id: "02",
     name: "OC Harness Setup",
     dir: "oc-harness-setup",
@@ -218,7 +105,7 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2026",
     description:
-      "Bootstraps a complete OpenCode harness onto a fresh machine in one run: agents, commands, skills, references, and scripts, wired so a new session starts with the same working environment every time.",
+      "The whole OpenCode harness installed and orchestrated in one command — for a fresh machine that should start in the same working environment every time.",
     tech: ["PowerShell", "TypeScript", "Node.js", "Git"],
     highlights: [
       "One command reproduces the full harness layout on a clean machine.",
@@ -241,7 +128,7 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2026",
     description:
-      "An OpenCode plugin that runs the adversarial loop: one agent challenges a plugin's behaviour with concrete cases while another repairs it, re-challenging until the findings stop moving.",
+      "V1-era OpenCode plugin hooks running on the OpenCode V2 runtime — for plugin authors bridging the version gap.",
     tech: ["TypeScript", "OpenCode plugin API", "Node.js"],
     highlights: [
       "Bounded challenge, repair, and re-challenge rounds.",
@@ -251,31 +138,77 @@ export const projects: ProjectLore[] = [
     accent: "accent-3",
     stats: [
       { label: "last shipped", value: "2026", accent: "accent-3" },
-      { label: "mode", value: "adversarial loop", accent: "accent-3" },
+      { label: "mode", value: "compatibility bridge", accent: "accent-3" },
       { label: "surface", value: "OpenCode plugin", accent: "accent-3" },
     ],
   },
   {
-    id: "04",
-    name: "OC Collections",
-    dir: "oc-collections",
-    url: "https://github.com/nathwn12/oc-collections",
-    kind: "Tool",
+    id: "01",
+    name: "OC Flight Deck",
+    dir: "oc-flight-deck",
+    url: "https://github.com/nathwn12/oc-flight-deck",
+    kind: "Plugin",
     role: "Own brand",
     year: "2026",
     description:
-      "Turns loose project material into curated, manifest-backed collections: a single source of truth for what belongs together, so a set can be listed, checked, and moved as one unit instead of by hand.",
-    tech: ["TypeScript", "Node.js", "JSON", "CLI"],
+      "Live session telemetry for OpenCode users — a configurable TUI sidebar driven by one JSONC file.",
+    tech: ["TypeScript", "OpenCode plugin API", "JSONC", "Node.js"],
     highlights: [
-      "Manifest as the single source of truth for collection membership.",
-      "List and verify operations answer what a collection contains.",
-      "Moves a whole set atomically instead of file by file.",
+      "Schema-checked JSONC config with per-row visibility and ordering.",
+      "Hot reload: edits land in the running TUI without a restart.",
+      "Caution thresholds let a row change state instead of shouting in colour.",
     ],
-    accent: "accent-4",
+    accent: "accent",
     stats: [
-      { label: "last shipped", value: "2026", accent: "accent-4" },
-      { label: "model", value: "manifest-backed", accent: "accent-4" },
-      { label: "interface", value: "CLI", accent: "accent-4" },
+      { label: "last shipped", value: "2026", accent: "accent" },
+      { label: "runtime", value: "OpenCode TUI", accent: "accent" },
+      { label: "config", value: "one JSONC file", accent: "accent" },
+    ],
+  },
+  {
+    id: "15",
+    name: "Slowburn",
+    dir: "slowburn",
+    url: "https://github.com/nathwn12/slowburn",
+    kind: "App",
+    role: "Own brand",
+    year: "2026",
+    description:
+      "Music practice on Windows with studio-grade Slow + Reverb and A-B loop — for practicing musicians, offline with no account.",
+    tech: ["TypeScript", "Rust", "Tauri", "React", "SQLite"],
+    highlights: [
+      "A-B loop points live on the seek bar and save per track, auto-applying when the track reopens.",
+      "Slow and reverb are fine-stepped with per-track memory and a one-click reset to dry.",
+      "A fork of Museeks; the Slow and Reverb UX, A-B repeat, skins, mini mode, and queue are this fork's own work.",
+    ],
+    accent: "accent-3",
+    stats: [
+      { label: "last shipped", value: "2026", accent: "accent-3" },
+      { label: "surface", value: "Windows desktop", accent: "accent-3" },
+      { label: "base", value: "fork of Museeks", accent: "accent-3" },
+    ],
+  },
+  {
+    id: "14",
+    name: "Potflix",
+    dir: "Potflix",
+    url: "https://github.com/nathwn12/Potflix",
+    kind: "App",
+    role: "Own brand",
+    year: "2026",
+    description:
+      "Whatever plays in PotPlayer mirrored on your Discord card — for listeners who want the card to show the real title.",
+    tech: ["Rust", "Go", "Win32", "Discord IPC", "Cargo"],
+    highlights: [
+      "Cleans codecs, tags, and release groups out of filenames, parenthesizes years, and parses SxxEyy episode tags; the cleaner logic derives from the upstream PotPlayer-DiscordRPC project.",
+      "Resolves series and episode names from keyless sources: TVmaze, AniList, Jikan, and iTunes, under a permanent on-disk cache.",
+      "Carries a parity oracle: the Rust title cleaner must reproduce the frozen Go output byte-for-byte, hashed per corpus.",
+    ],
+    accent: "accent-2",
+    stats: [
+      { label: "last shipped", value: "2026", accent: "accent-2" },
+      { label: "surface", value: "Windows tray", accent: "accent-2" },
+      { label: "implementation", value: "Rust port", accent: "accent-2" },
     ],
   },
   {
@@ -287,7 +220,7 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2025",
     description:
-      "A terminal-first task list built to sit beside a coding session: capture, prioritize, and clear tasks without leaving the editor, with state kept in a plain file that survives restarts.",
+      "Per-session todo lists for your OpenCode terminal — capture, prioritize, and clear tasks without leaving the editor.",
     tech: ["TypeScript", "Node.js", "CLI", "OpenCode"],
     highlights: [
       "Terminal-first: no context switch away from the session.",
@@ -310,7 +243,7 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2025",
     description:
-      "Normalizes per-tab audio loudness in the browser so a background tab can no longer blast past the one being listened to — gain is applied per tab, live, without reloading the page.",
+      "Per-site audio loudness normalized in Chrome and Brave — for listeners tired of a background tab blasting past the active one.",
     tech: ["TypeScript", "Web Audio API", "Chrome Extensions"],
     highlights: [
       "Per-tab gain rather than one global volume.",
@@ -325,6 +258,29 @@ export const projects: ProjectLore[] = [
     ],
   },
   {
+    id: "16",
+    name: "ArcInstaller",
+    dir: "ArcInstaller",
+    url: "https://github.com/nathwn12/ArcInstaller",
+    kind: "Tool",
+    role: "Own brand",
+    year: "2026",
+    description:
+      "The ARC icon theme installed, repaired, and reverted in one step — for Windows themers who want a clean round trip.",
+    tech: ["C#", "PowerShell", "Windows"],
+    highlights: [
+      "One driver for install, repair, and revert instead of by-hand steps.",
+      "Repairs drift instead of duplicating files on re-run.",
+      "Ships the theme payload alongside the installer.",
+    ],
+    accent: "accent-4",
+    stats: [
+      { label: "last shipped", value: "2026", accent: "accent-4" },
+      { label: "surface", value: "Windows installer", accent: "accent-4" },
+      { label: "operations", value: "install, repair, revert", accent: "accent-4" },
+    ],
+  },
+  {
     id: "07",
     name: "Slowed + Reverb Audio",
     dir: "slowed-reverb-audio",
@@ -333,7 +289,7 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2025",
     description:
-      "A web audio playground that renders a slowed, reverb-laden mix from a source clip: tempo, pitch, and reverb are applied through a live audio graph and exported as a finished track.",
+      "YouTube audio slowed with local reverb entirely in the browser — for practice and listening, with the clip never leaving the machine.",
     tech: ["TypeScript", "Web Audio API", "AudioWorklet"],
     highlights: [
       "Live audio graph for tempo, pitch, and reverb.",
@@ -348,49 +304,26 @@ export const projects: ProjectLore[] = [
     ],
   },
   {
-    id: "08",
-    name: "Just FPS",
-    dir: "just-fps",
-    url: "https://github.com/nathwn12/just-fps",
+    id: "17",
+    name: "rea-shim",
+    dir: "rea-shim",
+    url: "https://github.com/nathwn12/rea-shim",
     kind: "Tool",
     role: "Own brand",
-    year: "2025",
+    year: "2026",
     description:
-      "A minimal frame-rate overlay that does one thing: show current FPS and frame time without a game engine, a launcher, or a pile of settings.",
-    tech: ["TypeScript", "Node.js", "Overlay"],
+      "Upstream rea reverse-engineering tools served over MCP from one launch line — resolves your JDK and Ghidra first, for agents (unofficial wrapper).",
+    tech: ["JavaScript", "MCP", "Ghidra", "JDK"],
     highlights: [
-      "Single purpose: FPS and frame time, nothing else.",
-      "Lightweight overlay with no engine dependency.",
-      "Readable at a glance while something else has focus.",
-    ],
-    accent: "accent-4",
-    stats: [
-      { label: "last shipped", value: "2025", accent: "accent-4" },
-      { label: "surface", value: "overlay", accent: "accent-4" },
-      { label: "metrics", value: "FPS + frame time", accent: "accent-4" },
-    ],
-  },
-  {
-    id: "09",
-    name: "nathwn12.github.io",
-    dir: "nathwn12.github.io",
-    url: "https://github.com/nathwn12/nathwn12.github.io",
-    kind: "Site",
-    role: "Own brand",
-    year: "2024",
-    description:
-      "The GitHub Pages home base: a hand-built static site published straight from the repository, with no framework and no build step between a commit and the live page.",
-    tech: ["HTML", "CSS", "JavaScript", "GitHub Pages"],
-    highlights: [
-      "Published directly from the repository with no build step.",
-      "Hand-written, dependency-free front end.",
-      "Serves as the stable landing point for the account's projects.",
+      "One-line launcher: resolves the JDK and Ghidra paths before serving.",
+      "Serves the upstream rea tool surface to an MCP client unchanged.",
+      "Unofficial wrapper around morluto/rea — upstream owns the analysis.",
     ],
     accent: "accent",
     stats: [
-      { label: "last shipped", value: "2024", accent: "accent" },
-      { label: "host", value: "GitHub Pages", accent: "accent" },
-      { label: "build step", value: "none", accent: "accent" },
+      { label: "last shipped", value: "2026", accent: "accent" },
+      { label: "surface", value: "MCP launcher", accent: "accent" },
+      { label: "upstream", value: "morluto/rea", accent: "accent" },
     ],
   },
 ];

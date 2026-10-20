@@ -31,8 +31,7 @@ import { PageFoot } from "./PageFoot";
  *
  * Motion: the title block makes the page's single slow arrival (heroIn); each
  * band settles on the crisp zero-overshoot spring (springSnappy) applied to
- * OPACITY ONLY — no rise, no layout tween. Both run unconditionally: the OS
- * reduced-motion query no longer gates this site (owner order 2026-10-14).
+ * OPACITY ONLY — no rise, no layout tween.
  */
 
 /* The one code-adjacent convention in the system: Body family at Detail size,
@@ -66,13 +65,12 @@ export default function Projects() {
         >
           <h1 className="text-display font-semibold text-text">Projects</h1>
           <p className="mt-4 max-w-[65ch] text-lead text-text">
-            Fifteen open-source projects, ranked newest and most distinctive
-            first.
+            Twelve open-source projects, featured work first.
           </p>
           <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
             Every project below is a public repository on github.com/nathwn12,
-            built and maintained solo. The order is recency first, then how
-            distinctive the work is. No star count is shown: the signal here is
+            built and maintained solo. The order is featured work first, then
+            the supporting tools. No star count is shown: the signal here is
             what each one does.
           </p>
           <RouteLink href="/contact" className={ACTION}>
