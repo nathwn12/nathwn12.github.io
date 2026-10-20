@@ -106,16 +106,16 @@ export const FEATURED: readonly FeaturedProject[] = [
   {
     id: "slowburn",
     name: "slowburn",
-    tagline: "Windows music player for practice, with Slow and A-B loop.",
-    forWho: "for: musicians looping hard passages until they land.",
+    tagline: "a Windows player for slow + reverb, built for listening",
+    forWho:
+      "for: slowed + reverb fans who want their own library that way, offline — slow or speed any track, add reverb, A-B loop a passage.",
     install: null,
-    sourceLabel:
-      "Source only — no release yet. Clone and run with Tauri; releases coming.",
+    sourceLabel: "Source only — no release yet.",
     builtWith: "Built with: TypeScript, Rust, Tauri, React, SQLite.",
     repoUrl: "https://github.com/nathwn12/slowburn",
     docsUrl: "https://github.com/nathwn12/slowburn#use-it",
     docsLabel: "Run docs",
-    preview: ["$ vp run tauri build", "library → loop → practice"],
+    preview: ["$ vp run tauri build", "library → slow + reverb → listening"],
   },
   {
     id: "potflix",
