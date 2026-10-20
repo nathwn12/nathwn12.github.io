@@ -30,10 +30,9 @@ import { WorkTeaser } from "./WorkTeaser";
  * walks in per element (heroIn for the title, fadeUp for the clauses), and the
  * stack seam scrolls continuously — the seam is the one motion this file drives
  * itself, from a MotionValue, so the loop can be held (see
- * {@link TICKER_PX_PER_S}). Nothing here is gated on the visitor's OS (owner
- * order 2026-10-14, src/lib/motionPreference.ts): the typed claim is the
- * page's one piece of character, and it is set in a fixed-length box so the
- * bands below it never move while it types.
+ * {@link TICKER_PX_PER_S}). Both loops honour
+ * `prefers-reduced-motion: reduce`: the typed claim renders static and the
+ * seam stands still, with no timer and no infinite animation scheduled.
  *
  * Authority: fleet brief (senior landing pass) + docs/premium-direction.md
  * § Landing, § Type, § Principles 1 and 5.
@@ -61,8 +60,9 @@ const techStrip: string[] = Array.from(
  * variant's loop has no handle to hold: measured at 1440x900 (2026-10-14) the
  * strip kept running at 40px/s while hovered. WCAG 2.2.2 asks that movement
  * lasting over five seconds can be paused, and hovering or focusing the seam is
- * that mechanism — a hidden document holds it too. Reduced motion is
- * deliberately NOT a gate here (owner order 2026-10-14).
+ * that mechanism — a hidden document holds it too. `prefers-reduced-motion:
+ * reduce` stops it entirely (see {@link usePrefersReducedMotion}): no loop is
+ * scheduled and the seam renders as a static list.
  */
 const TICKER_PX_PER_S = 40;
 
@@ -191,27 +191,65 @@ export function typingDelayMs(
 }
 
 /**
+ * Whether the visitor asks for less motion.
+ *
+ * Reads the OS `prefers-reduced-motion: reduce` query live, so a mid-visit
+ * change settles on the next render. Safe where `matchMedia` is missing
+ * (SSR, jsdom without a stub): reports no preference and the loops animate.
+ */
+export function usePrefersReducedMotion(): boolean {
+  const [reduced, setReduced] = useState<boolean>(() =>
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function"
+      ? window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      : false,
+  );
+
+  useEffect(() => {
+    if (
+      typeof window === "undefined" ||
+      typeof window.matchMedia !== "function"
+    ) {
+      return;
+    }
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduced(query.matches);
+    sync();
+    if (typeof query.addEventListener === "function") {
+      query.addEventListener("change", sync);
+      return () => query.removeEventListener("change", sync);
+    }
+    return;
+  }, []);
+
+  return reduced;
+}
+
+/**
  * The typing loop as a hook. Renders the current frame, waits its beat, steps
- * once with {@link nextTypingState}, and repeats — always: there is no reduced
- * state to opt out to, so the loop owns its timer unconditionally. Exported so
+ * once with {@link nextTypingState}, and repeats — unless the visitor prefers
+ * reduced motion, in which case it renders the opening claim statically and
+ * schedules no timer. Exported so
  * the deterministic pure helpers AND the timer/cleanup behavior can be tested
  * without mounting the whole landing surface.
  */
 export function useHeroTyping(phrases: readonly string[] = HERO_PHRASES) {
+  const reduceMotion = usePrefersReducedMotion();
   const [state, setState] = useState<TypingState>(() =>
     initialTypingState(phrases),
   );
 
   useEffect(() => {
+    if (reduceMotion) return;
     const id = window.setTimeout(() => {
       setState((current) => nextTypingState(current, phrases));
     }, typingDelayMs(state, phrases));
     return () => window.clearTimeout(id);
-  }, [state, phrases]);
+  }, [state, phrases, reduceMotion]);
 
   const phrase = phrases[state.phraseIndex] ?? phrases[0] ?? "";
-  const shown = phrase.slice(0, state.charCount);
-  return { state, phrase, shown };
+  const shown = reduceMotion ? phrase : phrase.slice(0, state.charCount);
+  return { state, phrase, shown, reduceMotion };
 }
 
 /**
@@ -233,7 +271,7 @@ function InsertCaret() {
 }
 
 export function Hero() {
-  const { phrase, shown } = useHeroTyping();
+  const { phrase, shown, reduceMotion } = useHeroTyping();
   /* The same pass reads the loop's length off the track, so the seconds that
      buy the ambient rate come from the rendered strip rather than from a
      constant, and the faces are settled first: a fallback face lays the strip
@@ -247,6 +285,7 @@ export function Hero() {
   const trackX = useMotionValue(0);
   const [tickerSeconds, setTickerSeconds] = useState<number | null>(null);
   useEffect(() => {
+    if (reduceMotion) return;
     let alive = true;
     const arm = () => {
       const track = trackRef.current;
@@ -257,7 +296,7 @@ export function Hero() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [reduceMotion]);
 
   /* The seam's loop: the duplicated track travels exactly half its own width
      (the loop's seconds times the rate) and repeats for as long as the page is
@@ -266,7 +305,7 @@ export function Hero() {
      on resume would jump the strip back to its start. */
   const controlsRef = useRef<AnimationPlaybackControls | null>(null);
   useEffect(() => {
-    if (tickerSeconds === null) return;
+    if (reduceMotion || tickerSeconds === null) return;
     const controls = animate(trackX, [0, -tickerSeconds * TICKER_PX_PER_S], {
       duration: tickerSeconds,
       ease: "linear",
@@ -277,7 +316,7 @@ export function Hero() {
       controlsRef.current = null;
       controls.stop();
     };
-  }, [tickerSeconds, trackX]);
+  }, [tickerSeconds, trackX, reduceMotion]);
 
   /* The hold: hovering the seam, focusing inside it, or hiding the document
      pauses the loop; releasing continues it from where it stopped. The seam
@@ -355,7 +394,7 @@ export function Hero() {
             <RouteLink
               href="/contact"
               data-nav-item
-              className="flex min-h-11 w-fit items-center rounded-xs text-lead font-semibold text-accent-text transition-colors duration-150 hover:underline"
+              className="flex min-h-11 w-fit items-center rounded-xs text-lead font-semibold text-accent-text transition-colors duration-link hover:underline"
             >
               Get in touch about a role
             </RouteLink>
@@ -364,10 +403,11 @@ export function Hero() {
       </div>
 
       {/* The seam between the statement and its evidence: the real stack under
-          two hairlines, always scrolling unless held — hovering, focusing
+          two hairlines, scrolling unless held — hovering, focusing
           inside, or hiding the document pauses it (see
-          {@link TICKER_PX_PER_S}). Each item is separated by a 1px Line rule,
-          never a glyph. */}
+          {@link TICKER_PX_PER_S}). Under `prefers-reduced-motion: reduce`
+          it renders as a static wrapping list with no loop. Each item is
+          separated by a 1px Line rule, never a glyph. */}
       <div
         className="overflow-hidden border-y border-border py-3"
         onMouseEnter={() => setHeld(true)}
@@ -378,18 +418,24 @@ export function Hero() {
         <motion.ul
           ref={trackRef}
           aria-hidden="true"
-          style={{ x: trackX }}
-          className="flex w-max items-center"
+          style={reduceMotion ? undefined : { x: trackX }}
+          className={
+            reduceMotion
+              ? "flex flex-wrap items-center gap-y-2"
+              : "flex w-max items-center"
+          }
         >
-          {[...techStrip, ...techStrip].map((tech, index) => (
-            <li
-              key={`${tech}-${index}`}
-              className="flex items-center gap-6 pr-6 text-detail text-text-muted"
-            >
-              {tech}
-              <span className="h-3 w-px bg-border" aria-hidden="true" />
-            </li>
-          ))}
+          {(reduceMotion ? techStrip : [...techStrip, ...techStrip]).map(
+            (tech, index) => (
+              <li
+                key={`${tech}-${index}`}
+                className="flex items-center gap-6 pr-6 text-detail text-text-muted"
+              >
+                {tech}
+                <span className="h-3 w-px bg-border" aria-hidden="true" />
+              </li>
+            ),
+          )}
         </motion.ul>
       </div>
 
