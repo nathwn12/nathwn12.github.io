@@ -3,6 +3,7 @@ import { animate, motion, useMotionValue } from "framer-motion";
 import type { AnimationPlaybackControls } from "framer-motion";
 import { employer, experience } from "../content/experience";
 import { projects } from "../content/projects";
+import { HERO_INSTALL_HINT, HERO_SENTENCE } from "../content/portfolio";
 import { RouteLink } from "../lib/router";
 import { fadeUp, heroIn, staggerChild, staggerParent } from "../lib/motion";
 import { CredentialsStrip, ProofBand } from "./ProofBand";
@@ -232,6 +233,69 @@ function InsertCaret() {
   );
 }
 
+/**
+ * Terminal install hint — types the one-line install hint unless the
+ * visitor prefers reduced motion, in which case it renders statically
+ * (UX spec accessibility floor). No autoplay beyond this single hint.
+ */
+function InstallHint() {
+  const [reduced, setReduced] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+  );
+  const [count, setCount] = useState(HERO_INSTALL_HINT.length);
+
+  useEffect(() => {
+    const query =
+      typeof window.matchMedia === "function"
+        ? window.matchMedia("(prefers-reduced-motion: reduce)")
+        : null;
+    if (!query) return;
+    const sync = () => {
+      setReduced(query.matches);
+      if (query.matches) setCount(HERO_INSTALL_HINT.length);
+    };
+    sync();
+    query.addEventListener("change", sync);
+    return () => query.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    if (reduced) {
+      setCount(HERO_INSTALL_HINT.length);
+      return;
+    }
+    setCount(0);
+    const id = window.setInterval(() => {
+      setCount((c) => {
+        if (c >= HERO_INSTALL_HINT.length) {
+          window.clearInterval(id);
+          return c;
+        }
+        return c + 1;
+      });
+    }, 45);
+    return () => window.clearInterval(id);
+  }, [reduced]);
+
+  return (
+    <p
+      aria-label={`Try it: ${HERO_INSTALL_HINT}`}
+      className="mt-6 rounded-xs border border-border bg-surface p-3 font-mono text-detail text-text"
+    >
+      <span aria-hidden="true" className="text-text-muted">
+        ${" "}
+      </span>
+      <span aria-hidden="true">{HERO_INSTALL_HINT.slice(0, count)}</span>
+      {!reduced && count < HERO_INSTALL_HINT.length ? (
+        <InsertCaret />
+      ) : null}
+    </p>
+  );
+}
+
 export function Hero() {
   const { phrase, shown } = useHeroTyping();
   /* The same pass reads the loop's length off the track, so the seconds that
@@ -308,6 +372,40 @@ export function Hero() {
           variants={staggerParent}
           className="mx-auto w-full max-w-[68ch]"
         >
+          <motion.p
+            variants={fadeUp}
+            className="font-mono text-detail text-text-muted"
+          >
+            $ whoami
+          </motion.p>
+          <motion.p
+            variants={fadeUp}
+            className="mt-2 max-w-[62ch] text-lead font-semibold text-text"
+          >
+            {HERO_SENTENCE}
+          </motion.p>
+          <motion.div variants={fadeUp}>
+            <InstallHint />
+          </motion.div>
+          <motion.p
+            variants={staggerChild}
+            className="mt-4 flex flex-wrap gap-x-8"
+          >
+            <RouteLink
+              href="/projects"
+              data-nav-item
+              className="flex min-h-11 items-center rounded-xs text-lead font-semibold text-accent-text transition-colors duration-150 hover:underline"
+            >
+              See featured work
+            </RouteLink>
+            <RouteLink
+              href="/contact"
+              data-nav-item
+              className="flex min-h-11 items-center rounded-xs text-lead font-semibold text-accent-text transition-colors duration-150 hover:underline"
+            >
+              Get in touch
+            </RouteLink>
+          </motion.p>
           <motion.h1
             variants={heroIn}
             aria-label={phrase}
