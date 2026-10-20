@@ -1,6 +1,6 @@
-// Static regression test for the Contact page: the keyless fallback
-// (mailto + copy + issue) plus the keyed Web3Forms relay and the /thanks
-// route. Node-only source analysis (no jsdom / DOM / rendering):
+// Static regression test for the keyless Contact page:
+// mailto draft + copy button + issue link, and nothing else.
+// Node-only source analysis (no jsdom / DOM / rendering):
 //   npx vitest run tests/contact-status.test.ts
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -14,16 +14,14 @@ const contentPath = resolve(root, "src", "content", "contact.ts");
 const thanksPath = resolve(root, "src", "components", "Thanks.tsx");
 const routerPath = resolve(root, "src", "lib", "router.tsx");
 const appPath = resolve(root, "src", "App.tsx");
+const navNamesPath = resolve(root, "src", "lib", "navNames.ts");
 
 const contact = readFileSync(contactPath, "utf8");
 const footer = readFileSync(footerPath, "utf8");
 const lib = existsSync(libPath) ? readFileSync(libPath, "utf8") : "";
-const content = existsSync(contentPath)
-  ? readFileSync(contentPath, "utf8")
-  : "";
-const thanks = existsSync(thanksPath) ? readFileSync(thanksPath, "utf8") : "";
 const router = readFileSync(routerPath, "utf8");
 const app = readFileSync(appPath, "utf8");
+const navNames = readFileSync(navNamesPath, "utf8");
 
 const EMAIL = "nathanielnikolai.ladero@gmail.com";
 const ISSUES = "https://github.com/nathwn12/nathwn12/issues/new";
@@ -51,8 +49,7 @@ describe("contact keyless regressions", () => {
     );
     expect(contact).toMatch(/mailto:\$\{CONTACT_EMAIL\}/);
     expect(footer).toMatch(/mailto:\$\{CONTACT_EMAIL\}/);
-    // the raw address may only live in the constant module (and its
-    // single-sourced re-export in content/contact.ts)
+    // the raw address lives only in the constant module
     expect(
       (lib.match(/nathanielnikolai\.ladero@gmail\.com/g) ?? []).length,
     ).toBe(1);
@@ -60,19 +57,12 @@ describe("contact keyless regressions", () => {
     expect(footer.includes(EMAIL)).toBe(false);
   });
 
-  test("single-sources the address through src/content/contact.ts with an empty relay key", () => {
+  test("has no relay scaffolding module left behind", () => {
     expect(
       existsSync(contentPath),
-      "src/content/contact.ts should exist",
-    ).toBe(true);
-    expect(content).toMatch(/export const WEB3FORMS_KEY = ""/);
-    expect(content).toMatch(/CONTACT_EMAIL/);
-    // no second copy of the raw address outside the constant module
-    expect(content.includes(EMAIL)).toBe(false);
-    expect(contact).toMatch(/WEB3FORMS_KEY/);
-    expect(contact).toMatch(
-      /from "\.\.\/content\/contact"/,
-    );
+      "src/content/contact.ts should be deleted",
+    ).toBe(false);
+    expect(contact).not.toMatch(/content\/contact/);
   });
 
   test("prefills the mailto draft with the portfolio subject and a body template", () => {
@@ -95,59 +85,22 @@ describe("contact keyless regressions", () => {
     expect(contact).toMatch(/rel="noopener noreferrer"/);
   });
 
-  test("keeps the copy button and the issue link outside the relay gate", () => {
-    // Both must work regardless of the key: neither may live inside the
-    // relay-only branch.
-    const gate = contact.indexOf("relayEnabled");
-    expect(gate).toBeGreaterThan(-1);
-    expect(contact.indexOf("Copy the email address")).toBeGreaterThan(-1);
-    expect(contact.indexOf(ISSUES)).toBeGreaterThan(-1);
-    const relayForm = contact.indexOf("ContactRelayForm");
-    expect(relayForm).toBeGreaterThan(-1);
-    // the gated render is the form alone — `{relayEnabled && <ContactRelayForm />}`
-    expect(contact).toMatch(/\{relayEnabled && <ContactRelayForm \/>}/);
-  });
-
   test("says what happens next in one honest line", () => {
     expect(contact).toMatch(/usually answer within a day or two/);
   });
 
-  test("renders the Web3Forms relay only when the key is configured", () => {
-    expect(contact).toMatch(/https:\/\/api\.web3forms\.com\/submit/);
-    expect(contact).toMatch(/name="access_key"/);
-    expect(contact).toMatch(/value=\{WEB3FORMS_KEY\}/);
-    expect(contact).toMatch(/name="name"/);
-    expect(contact).toMatch(/name="email"/);
-    expect(contact).toMatch(/name="message"/);
-    expect(contact).toMatch(/name="subject"/);
-    expect(contact).toMatch(/value=\{MAIL_SUBJECT\}/);
-    expect(contact).toMatch(/name="redirect"/);
-    expect(contact).toMatch(/THANKS_PATH = "\/thanks"/);
-    expect(contact).toMatch(/value=\{THANKS_PATH\}/);
-    // the empty key keeps the page on the keyless path
-    expect(contact).toMatch(/WEB3FORMS_KEY\.length > 0/);
+  test("renders no form element anywhere on the page", () => {
+    expect(contact).not.toMatch(/<form[\s>]/);
+    expect(contact).not.toMatch(/ContactRelayForm/);
+    expect(contact).not.toMatch(/relayEnabled/);
+    expect(contact).not.toMatch(/handleSubmit/);
   });
 
-  test("hides the botcheck honeypot from sight and from assistive tech", () => {
-    expect(contact).toMatch(/name="botcheck"/);
-    expect(contact).toMatch(/tabIndex=\{-1\}/);
-    expect(contact).toMatch(/autoComplete="off"/);
-    expect(contact).toMatch(/aria-hidden="true"/);
-    expect(contact).toMatch(/className="hidden"/);
-  });
-
-  test("labels every relay field and associates errors with their controls", () => {
-    for (const id of ["relay-name", "relay-email", "relay-message"]) {
-      expect(contact.includes(`htmlFor="${id}"`)).toBe(true);
-      expect(contact.includes(`id="${id}"`)).toBe(true);
-      expect(contact.includes(`aria-describedby`)).toBe(true);
-      expect(contact.includes(`${id}-error`)).toBe(true);
-    }
-    // required fields, pending + error feedback, never silent
-    expect(contact).toMatch(/required/);
-    expect(contact).toMatch(/Sending your message/);
-    expect(contact).toMatch(/was not sent/);
-    expect(contact).toMatch(/role="alert"/);
+  test("carries no relay credentials or endpoints", () => {
+    expect(contact).not.toMatch(/access_key/);
+    expect(contact).not.toMatch(/api\.web3forms\.com/);
+    expect(contact).not.toMatch(/[Ww]eb3[Ff]orms/);
+    expect(contact).not.toMatch(/WEB3FORMS_KEY/);
   });
 
   test("retires the old FormSubmit relay", () => {
@@ -157,15 +110,16 @@ describe("contact keyless regressions", () => {
     expect(contact).not.toMatch(/_captcha/);
   });
 
-  test("serves /thanks as a confirmation route with a link home", () => {
-    expect(existsSync(thanksPath), "src/components/Thanks.tsx should exist").toBe(
-      true,
-    );
-    expect(thanks).toMatch(/on its way/);
-    expect(thanks).toMatch(/href="\/"/);
-    expect(router).toMatch(/THANKS_ROUTE/);
-    expect(router).toMatch(/path: "\/thanks"/);
-    expect(app).toMatch(/thanks/);
+  test("has no /thanks confirmation route left behind", () => {
+    expect(
+      existsSync(thanksPath),
+      "src/components/Thanks.tsx should be deleted",
+    ).toBe(false);
+    expect(contact).not.toMatch(/\/thanks/);
+    expect(router).not.toMatch(/THANKS_ROUTE/);
+    expect(router).not.toMatch(/\/thanks/);
+    expect(app).not.toMatch(/[Tt]hanks/);
+    expect(navNames).not.toMatch(/thanks/);
   });
 
   test("removes the goodbye filler from the contact page", () => {

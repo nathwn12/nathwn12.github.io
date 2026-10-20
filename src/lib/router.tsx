@@ -96,7 +96,7 @@ export const ROUTES: readonly RouteDef[] = [
     command: "mutt -f inbox",
     description: "Mail user agent",
     metaDescription:
-      "Contact Nathaniel Nikolai Ladero — Backend Developer open to work. Message through the site form, direct email, GitHub, or LinkedIn.",
+      "Contact Nathaniel Nikolai Ladero — Backend Developer open to work. Direct email, GitHub, or LinkedIn.",
     accent: "accent-2",
     title: "contact — NNL",
   },
@@ -133,26 +133,6 @@ export const NOT_FOUND_ROUTE: RouteDef = {
   title: "404 — No such file or directory — NNL",
 };
 
-/**
- * The relay confirmation at `/thanks`. NOT part of ROUTES — the header nav,
- * the PageFoot pager, and the five-route nav test all read ROUTES, and a
- * confirmation is not a destination anyone navigates to. `routeByPath` and
- * `resolveRoute` recognise it explicitly so the Web3Forms hidden `redirect`
- * and the relay form's success path both land on a real page (GitHub Pages
- * serves the SPA via the `404.html` fallback, so a direct visit boots here).
- */
-export const THANKS_ROUTE: RouteDef = {
-  path: "/thanks",
-  id: "thanks",
-  label: "THANKS",
-  command: "echo received",
-  description: "Message received",
-  metaDescription:
-    "Your message is on its way — Nathaniel Nikolai Ladero usually answers within a day or two.",
-  accent: "accent-2",
-  title: "thanks — NNL",
-};
-
 const LEGACY_PATHS: Readonly<Record<string, string>> = {
   "/about": "/",
   /* Deleted pages (phase-2): deep links, inbound shares, and cached SEO
@@ -170,10 +150,7 @@ function canonicalPath(path: string): string {
 
 export function routeByPath(path: string): RouteDef | undefined {
   const canonical = canonicalPath(path);
-  return (
-    ROUTES.find((r) => r.path === canonical) ??
-    (canonical === THANKS_ROUTE.path ? THANKS_ROUTE : undefined)
-  );
+  return ROUTES.find((r) => r.path === canonical);
 }
 
 /**
@@ -185,11 +162,10 @@ export function routeByPath(path: string): RouteDef | undefined {
 export function resolveRoute(path: string): RouteDef {
   const canonical = canonicalPath(path);
   return (
-    ROUTES.find((r) => r.path === canonical) ??
-    (canonical === THANKS_ROUTE.path ? THANKS_ROUTE : {
+    ROUTES.find((r) => r.path === canonical) ?? {
       ...NOT_FOUND_ROUTE,
       path: canonical,
-    })
+    }
   );
 }
 

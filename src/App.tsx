@@ -40,7 +40,6 @@ const PAGES: Record<string, ComponentType> = {
   skills: lazy(() => import("./components/Skills").then((m) => ({ default: m.Skills }))),
   projects: lazy(() => import("./components/Projects")),
   contact: lazy(() => import("./components/Contact").then((m) => ({ default: m.Contact }))),
-  thanks: lazy(() => import("./components/Thanks").then((m) => ({ default: m.Thanks }))),
 };
 
 /** Static, non-animated fallback shown while a page chunk is in flight. */

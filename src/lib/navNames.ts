@@ -13,7 +13,6 @@ const NAV_NAMES: Readonly<Record<string, string>> = {
   skills: "Skills",
   projects: "Projects",
   contact: "Contact",
-  thanks: "Thanks",
 };
 
 export function navName(id: string, label: string): string {
