@@ -14,5 +14,6 @@ jobs:
           node-version: 24
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
+      - run: pnpm run check
       - run: pnpm run build
       - run: pnpm vitest run
