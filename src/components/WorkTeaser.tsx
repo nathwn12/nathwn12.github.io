@@ -18,8 +18,7 @@ import { staggerChild, staggerParent } from "../lib/motion";
  * hover affordance on a true control.
  *
  * Motion: the list is a stagger parent and each band is a stagger child, so the
- * three walk in one short beat apart, unconditionally — the OS reduced-motion
- * query no longer gates this site (owner order 2026-10-14). Every string is
+ * three walk in one short beat apart. Every string is
  * read from src/content/projects.ts, so the copy lives
  * in exactly one place and this file only sequences and shortens it.
  *
@@ -52,13 +51,13 @@ export function WorkTeaser() {
             <RouteLink
               href="/projects"
               data-nav-item
-              className="flex min-h-11 items-center rounded-xs text-label font-medium text-text-muted transition-colors duration-150 hover:text-accent-text hover:underline"
+              className="flex min-h-11 items-center rounded-xs text-label font-medium text-text-muted transition-colors duration-link hover:text-accent-text hover:underline"
             >
-              All fifteen projects
+              All twelve projects
             </RouteLink>
           </div>
           <p className="mt-1 text-detail text-text-muted">
-            Newest and most distinctive first.
+            Featured work first, then the supporting tools.
           </p>
         </div>
 
@@ -83,7 +82,7 @@ export function WorkTeaser() {
                   <RouteLink
                     href="/projects"
                     data-nav-item
-                    className="inline-flex min-h-11 items-center transition-colors duration-150 hover:text-accent-text hover:underline"
+                    className="inline-flex min-h-11 items-center transition-colors duration-link hover:text-accent-text hover:underline"
                   >
                     {project.name}
                   </RouteLink>
