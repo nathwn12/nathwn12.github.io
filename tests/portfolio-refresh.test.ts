@@ -60,7 +60,7 @@ describe("portfolio refresh — UX spec", () => {
     const byId = Object.fromEntries(FEATURED.map((p) => [p.id, p]));
     expect(byId.slowburn.install).toBeNull();
     expect(byId.slowburn.sourceLabel).toBe(
-      "Source only — no release yet. Clone and run with Tauri; releases coming.",
+      "Source only — no release yet.",
     );
     expect(byId.potflix.install).toBeNull();
     expect(byId.potflix.sourceLabel).toBe(
