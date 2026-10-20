@@ -1,15 +1,59 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Nathaniel Nikolai Ladero — backend developer shipping fintech systems and developer tools that hold up in production." />
-    <meta property="og:title" content="Nathaniel Nikolai Ladero | Backend Developer" />
-    <meta property="og:description" content="Selected work, process, and contact — outcomes for recruiters and clients." />
+    <script>
+      (function () {
+        /* Resolve the stored scheme before paint, so a missing, unrecognized,
+           or retired ("auto") value lands on the OS scheme with no FOUC.
+           data-theme only ever holds light or dark — CSS has no "auto" branch,
+           and src/lib/theme.ts resolves a legacy "auto" exactly this way (an
+           unrecognized value is not a pin, so it falls through to the OS).
+           Storage and the OS probe are TWO INDEPENDENT try/catches: a storage
+           throw (Safari private mode / blocked storage) must never suppress OS
+           detection and force a dark-OS visitor onto the light theme. */
+        var stored = null;
+        try {
+          stored = localStorage.getItem("nnl-theme");
+        } catch {
+          /* storage unavailable — fall through to the OS probe */
+        }
+        var prefersDark = false;
+        try {
+          prefersDark =
+            typeof window.matchMedia === "function" &&
+            window.matchMedia("(prefers-color-scheme: dark)").matches;
+        } catch {
+          /* matchMedia unavailable — treat as light */
+        }
+        var theme =
+          stored === "light" || stored === "dark"
+            ? stored
+            : prefersDark
+              ? "dark"
+              : "light";
+        document.documentElement.dataset.theme = theme;
+      })();
+    </script>
+    <meta name="description" content="Backend systems that hold up in production - plus the plugins, MCP servers, and tools built around them." />
+    <meta property="og:title" content="Nathaniel Nikolai Ladero | Systems & Developer Tools" />
+    <meta property="og:description" content="Backend systems that hold up in production - plus the plugins, MCP servers, and tools built around them." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://nathwn12.github.io" />
+    <meta property="og:site_name" content="Nathaniel Nikolai Ladero | Systems & Developer Tools" />
+    <meta property="og:image" content="https://nathwn12.github.io/og-image-2026-10.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Portfolio landing page showing the hook line &quot;Payment backends that hold up under production load.&quot;" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Nathaniel Nikolai Ladero | Systems & Developer Tools" />
+    <meta name="twitter:description" content="Backend systems that hold up in production - plus the plugins, MCP servers, and tools built around them." />
+    <meta name="twitter:image" content="https://nathwn12.github.io/og-image-2026-10.png" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <title>Nathaniel Nikolai Ladero | Backend Developer</title>
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/fraunces-600-latin.woff2" crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/public-sans-latin.woff2" crossorigin />
+    <title>Nathaniel Nikolai Ladero | Systems & Developer Tools</title>
   </head>
   <body>
     <div id="root"></div>

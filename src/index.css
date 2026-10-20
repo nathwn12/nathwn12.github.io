@@ -1,93 +1,369 @@
 @import "tailwindcss";
 
-/* Hiring portfolio tokens — guideline literal.
-   Fg #111111 / bg #FFFFFF (18.9:1 AAA)
-   Muted #595959 / #FFFFFF (7.0:1 AAA)
-   Accent #0B57D0 / #FFFFFF (7.2:1 AAA body)
-   Focus ring 2px solid #0B57D0. Borders hold 3:1 non-text minimum.
-   Type: body 16/1.5/400, H1 40/1.2/700, H2 28/1.25/700, H3 20/1.4/600,
-   small/meta 14/1.45/400. Two faces max. Spacing 4/8/16/24/32/64,
-   section gap 64. One column max 720px, 16px gutters. Motion: 150ms
-   hover only; reduced-motion kills even that. */
+/* =========================================================================
+   TOKEN LAYER — the whole system, in five named tokens.
+   Authority: docs/premium-direction.md § Token plan / § Type. Where this file
+   and that one disagree, that one wins.
+
+   Paper   page ground            Ink     primary text and rules
+   Line    hairlines, dividers    Muted   secondary text only (never < 14px)
+   Claret  the sole accent
+
+   Token NAMES are frozen; only values move. Consumers that break if a name
+   moves: src/content/projects.ts:9 (Token union → Projects.tsx accent maps),
+   src/content/skills.ts TIER_STYLES, src/lib/router.tsx route accents,
+   src/lib/theme.ts (the `data-theme` + `nnl-theme` storage seam).
+
+   :root                   = LIGHT (paper ground, ink text)
+   html[data-theme="dark"] = DARK  (AMOLED black ground, paper text)
+   index.html seeds data-theme before paint, so the dark block always wins for
+   dark users; the light block is the unthemed fallback.
+
+   Components consume SEMANTIC tokens only — never a raw color literal.
+   ========================================================================= */
+
+/* --- TWO FAMILIES, LOADED LOCALLY (public/fonts, both OFL 1.1) -----------
+   Display: Fraunces — page titles and section headings only. Never body,
+   never labels, never code.
+   Body:    Public Sans — everything else, including navigation and controls.
+   No third family, and no system stack as a design choice: the fallback lists
+   below are a safety net for a failed font fetch, not the design. */
+@font-face {
+  font-family: "Fraunces";
+  src: url("/fonts/fraunces-600-latin.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Public Sans";
+  src: url("/fonts/public-sans-latin.woff2") format("woff2");
+  font-weight: 400 600;
+  font-style: normal;
+  font-display: swap;
+}
 
 @theme {
-  --font-sans: ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
-  --font-mono: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  --font-sans:
+    "Public Sans", ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  /* Deliberately an ALIAS of the body face: the system has exactly two
+     families, and code-adjacent strings keep their character through
+     Line-bordered chips and letterspacing 0 — never a third face. */
+  --font-mono: "Public Sans", ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
 
-  --color-bg: #ffffff;
-  --color-text: #111111;
-  --color-muted: #595959;
-  --color-accent: #0b57d0;
-  --color-border: #767676;
-  --color-surface: #ffffff;
+  /* --- LIGHT · paper ground ---------------------------------------------- */
+  --color-bg: #fcfcf9; /* Paper — page ground */
+  --color-text: #191914; /* Ink — primary text and rules */
+  --color-border: #8a8778; /* Line — 1px hairlines and dividers */
+  --color-text-muted: #4e4f47; /* Muted — secondary text only */
+  --color-accent: #7a1e1e; /* Claret — 10.1:1 on Paper; sole accent */
+  --color-accent-2: #7a1e1e; /* alias — see the alias note below */
+  --color-accent-3: #7a1e1e; /* alias */
+  --color-accent-4: #7a1e1e; /* alias */
+  --color-accent-text: #7a1e1e; /* accent as TEXT (links, active nav) — the
+     repo's meaning: ~28 consumers set it as a foreground colour on the page
+     ground, so it must stay a text-safe accent. */
+  --color-accent-2-text: #7a1e1e;
+  --color-accent-3-text: #7a1e1e;
+  --color-accent-4-text: #7a1e1e;
+  --color-selection: rgba(122, 30, 30, 0.14);
+
+  /* Surfaces step away from the ground in LUMINANCE ONLY — same hue, no hue
+     shift between levels, and no sixth token: they are the ground at a lower
+     (light) / higher (dark) luminance. */
+  --color-surface: #f3f1e6;
+  --color-surface-2: #e9e6d9;
+  --color-border-accent: #191914; /* Ink rule — page titles and inputs */
+
+  /* --- Type scale — the direction's named roles ------------------------- */
+  /* Page title 2.5rem/1.1 · Section heading 1.5rem/1.25 · Subheading
+     1.125rem/1.4 · Body 1rem/1.65 · Detail 0.875rem/1.55 · Label
+     0.8125rem/1.4. micro/label/detail keep their frozen names; the smallest
+     step in the system is 0.8125rem (13px), and Muted text is never set
+     below 14px. */
+  --text-micro: 0.8125rem; /* 13px — the floor */
+  --text-micro--line-height: 1.4;
+  --text-label: 0.875rem; /* 14px — controls, nav items, form labels */
+  --text-label--line-height: 1.4;
+  --text-detail: 0.875rem; /* 14px — timestamps, metadata, tech lists */
+  --text-detail--line-height: 1.55;
+  --text-body: 1rem; /* 16px — prose */
+  --text-body--line-height: 1.65;
+  --text-body-lg: 1rem; /* alias of body — pages use it for lead prose */
+  --text-body-lg--line-height: 1.65;
+  --text-lead: 1.125rem; /* 18px — Subheading */
+  --text-lead--line-height: 1.4;
+  --text-title: 1.125rem; /* 18px — entry titles, group names */
+  --text-title--line-height: 1.4;
+  --text-headline: 1.5rem; /* 24px — Section heading */
+  --text-headline--line-height: 1.25;
+  --text-display: 2.5rem; /* 40px — Page title, one per route */
+  --text-display--line-height: 1.1;
+
+  /* --- Spacing scale (8px base) ----------------------------------------
+     Authority: docs/premium-direction.md § Layout — "One column, one
+     container, one rhythm ... Vertical rhythm on an 8px base: section gaps
+     64px, entry gaps 32px, text gaps 16px." The three rhythm gaps are named
+     so a component sets rhythm by INTENT instead of hard-coding a raw number
+     that drifts from the direction. Every step is a multiple of the 8px base;
+     `hairline` and the quarter/half steps are the sub-8px control affordances. */
+  --spacing-hairline: 1px;
+  --spacing-quarter: 0.25rem;
+  --spacing-half: 0.5rem;
+  --spacing-gutter: 1rem; /* 16px — page gutter base */
+  --spacing-text: 1rem; /* 16px — text gaps */
+  --spacing-block: 1.5rem; /* 24px — control-local breathing room */
+  --spacing-entry: 2rem; /* 32px — entry gaps */
+  --spacing-section: 4rem; /* 64px — section gaps */
+  /* Tight rhythmic step: the route intro-block-to-first-content seam. Kept
+     deliberately smaller than --spacing-section (the hero/section rhythm) so a
+     route intro no longer leaves a full-rhythm dead gap before its first
+     content row; inter-row rhythm stays on the section step. */
+  --spacing-section-tight: 1rem;
+  --spacing-page: 4.5rem; /* 72px — full page pad */
+
+  /* --- Border widths (additive) ----------------------------------------
+     One Line hairline carries every structural divider: the chrome bars, the
+     band separators, chips, and inputs all draw the same 1px Line rule
+     (§ Token plan, § Layout: "Rules are 1px Line color"). `rule` is the 2px
+     active-state marker; Ink rules (--color-border-accent) appear only under
+     a page title. Tailwind v4 has no stock border-width namespace, so widths
+     are consumed via `border-[length:var(--border-width-rule)]`. */
+  --border-width-hairline: 1px;
+  --border-width-rule: 2px;
+  --border-width-heavy: 4px;
+
+  /* --- Timing tokens (additive) — one short duration per control context --
+     Authority: docs/premium-direction.md § Principles 4, § Hard-ban list
+     ("One shared duration: each transition names its own short duration").
+     Nav, links, form fields, and submission each name their own value;
+     opacity/color only, never a layout property. The value named here is the
+     value that runs — nothing collapses it (owner order 2026-10-14: the OS
+     reduced-motion query no longer gates this site). */
+  --transition-duration-nav: 120ms;
+  --transition-duration-link: 140ms;
+  --transition-duration-field: 160ms;
+  --transition-duration-submit: 180ms;
+}
+
+/* Radius scale — soft control geometry. `static` keeps every step emitted.
+   Nothing is a zero-radius broadsheet: radius is a control signal, not
+   decoration. */
+@theme static {
+  --radius-none: 0px;
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 24px;
+}
+
+/* DARK · ink ground, paper text — a true inversion, not a tinted overlay.
+   AMOLED: the ground is exactly #000000, not a tinted near-black. Two panels
+   and a page must read as pure black. */
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #000000; /* AMOLED ground */
+  --color-text: #ede9dd; /* Paper text */
+  --color-border: #636052; /* Line */
+  --color-text-muted: #a8a396; /* Muted */
+  --color-accent: #e89b8b; /* Claret — 9.4:1 on the ground */
+  --color-accent-2: #e89b8b;
+  --color-accent-3: #e89b8b;
+  --color-accent-4: #e89b8b;
+  --color-accent-text: #e89b8b; /* accent as text — see the light-block note */
+  --color-accent-2-text: #e89b8b;
+  --color-accent-3-text: #e89b8b;
+  --color-accent-4-text: #e89b8b;
+  --color-selection: rgba(232, 155, 139, 0.22);
+  --color-surface: #141310;
+  --color-surface-2: #1e1c17;
+  --color-border-accent: #ede9dd; /* Paper rule */
 }
 
 html {
-  background: var(--color-bg);
+  height: 100%;
+  color-scheme: light;
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
-  background: var(--color-bg);
+  background-color: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
-  font-size: 1rem;
-  line-height: 1.5;
   font-weight: 400;
+  /* Public Sans ships a full latin set; no synthetic smoothing or tracking
+     tricks are needed for legibility at 16px. */
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* The base text style carries the wrap style, not `p` alone: `text-wrap`
+     inherits, so a credential link or a list item avoids the same stranded last
+     line a paragraph does. Measured at 390 (full Chromium over CDP, 2026-10-14):
+     the "Verify Google IT Automation with Python at Coursera" link computed
+     `wrap` and left a 0.17-fill last line; `pretty` lifts it to 0.22. Engines
+     without `pretty` fall back to plain wrapping. */
   text-wrap: pretty;
+  overflow: hidden;
+  height: 100%;
 }
 
-h1 {
-  font-size: 2.5rem;
-  line-height: 1.2;
-  font-weight: 700;
-  text-wrap: balance;
-}
-
-h2 {
-  font-size: 1.75rem;
-  line-height: 1.25;
-  font-weight: 700;
-  text-wrap: balance;
-}
-
-h3 {
-  font-size: 1.25rem;
-  line-height: 1.4;
+/* Page titles and section headings take the display face. */
+h1, h2 {
+  font-family: var(--font-display);
   font-weight: 600;
   text-wrap: balance;
+}
+
+h3, h4 {
+  font-family: var(--font-sans);
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) var(--color-bg);
+}
+
+/* The page-per-viewport scroller. `keyboardNav.ts` and the skip link both
+   resolve this class by name — it is load-bearing, not cosmetic. */
+.page-scroll {
+  scroll-behavior: auto;
+  overscroll-behavior: contain;
+  /* The keyboard item tour (←/→) and the skip link both land focus with
+     `scrollIntoView`; the header and footer are `fixed` (out of flow), so
+     without scroll padding a stop focused at the top of the scroller hides
+     under the chrome. PageShell measures both heights into these custom
+     properties ON THIS ELEMENT, so the padding always tracks the live chrome
+     (zoom, the opening mobile menu, a footer wrap). Direction § Principles 5:
+     keyboard-only reading without overlap. */
+  scroll-padding-top: var(--page-header-offset, 0px);
+  scroll-padding-bottom: var(--page-footer-offset, 0px);
 }
 
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
 }
 
-/* Restrained monospace accent: eyebrow labels only. */
-.mono-accent {
-  font-family: var(--font-mono);
-  font-size: 0.875rem;
-  line-height: 1.45;
-  font-weight: 400;
-  letter-spacing: 0.01em;
-  color: var(--color-muted);
+/* #main is focused programmatically on page mount (PageShell) to announce the
+   new page to screen readers. It is a container, not an interactive element,
+   so it must never paint the focus ring — the :focus-visible rule above would
+   otherwise draw a full-width accent rule along its top edge on every load. */
+#main:focus {
+  outline: none;
 }
 
-/* 150ms hover only. No other transition in the tree. */
-a,
-button {
-  transition:
-    color 150ms ease,
-    text-decoration-color 150ms ease,
-    border-color 150ms ease;
+.skip-to-content {
+  position: fixed;
+  top: -100%;
+  left: 0.75rem;
+  z-index: 10001;
+  padding: 0.75rem 1rem;
+  background: var(--color-bg);
+  color: var(--color-accent-text); /* 10.0:1 light / 8.8:1 dark */
+  font-size: var(--text-label);
+  font-weight: 500;
+  border: 1px solid var(--color-border-accent);
+  border-radius: var(--radius-sm);
+  /* Opacity only, on its own short duration. The reveal must not animate a
+     layout property, so `top` jumps while the fade carries the state change
+     (docs/premium-direction.md § Principles 4, § Hard-ban list). */
+  opacity: 0;
+  transition: opacity 0.12s ease-out;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    transition: none !important;
-    animation: none !important;
+.skip-to-content:focus {
+  top: 0.75rem;
+  opacity: 1;
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--color-bg); }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: var(--radius-xs);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+::selection {
+  background: var(--color-selection);
+  color: var(--color-text);
+}
+
+/* Theme flips must be atomic: while the `theme-flip` guard is on <html>,
+   no element may transition colors — otherwise some elements lag behind
+   the instant variable swap and the page looks half-dark/half-light. */
+.theme-flip,
+.theme-flip *,
+.theme-flip *::before,
+.theme-flip *::after {
+  transition: none !important;
+}
+
+/* =========================================================================
+   MOTION LAYER (additive) — tokens and keyframes for `src/lib/motion.ts`.
+   Authority: docs/premium-direction.md § Principles 4-5, § Hard-ban list.
+   Contextual durations, opacity/transform only, never a layout property.
+   These are the CSS half of the frozen motion contract; the framer-motion
+   half (fadeUp, fadeIn, staggerParent, staggerChild, springSnappy, heroIn,
+   marqueeX) lives in src/lib/motion.ts and names the same values.
+
+   Every keyframe here runs unconditionally: the OS reduced-motion query no
+   longer gates this site (owner order 2026-10-14), so nothing in the tree
+   collapses a duration or a keyframe.
+   ========================================================================= */
+:root {
+  --motion-duration-fast: 160ms;
+  --motion-duration-base: 280ms;
+  --motion-duration-slow: 480ms;
+  --motion-ease-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --motion-marquee-duration: 32s;
+}
+
+@keyframes nnl-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes nnl-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes nnl-hero-in {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes nnl-marquee-x {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
   }
 }
