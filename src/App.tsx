@@ -28,7 +28,7 @@ import {
  * on the critical path instead of a serial fetch after the entry (est.
  * +200–350 ms mobile LCP). It also removes the `Loading…` flash on first paint.
  *
- * The other four routes stay `React.lazy`-loaded so their JS ships in its own
+ * The other routes stay `React.lazy`-loaded so their JS ships in its own
  * chunk rather than the first-paint bundle; the shared shell (Header/Footer/
  * PageShell) and the router stay in the entry chunk too.
  */
@@ -40,6 +40,7 @@ const PAGES: Record<string, ComponentType> = {
   skills: lazy(() => import("./components/Skills").then((m) => ({ default: m.Skills }))),
   projects: lazy(() => import("./components/Projects")),
   contact: lazy(() => import("./components/Contact").then((m) => ({ default: m.Contact }))),
+  thanks: lazy(() => import("./components/Thanks").then((m) => ({ default: m.Thanks }))),
 };
 
 /** Static, non-animated fallback shown while a page chunk is in flight. */

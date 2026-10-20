@@ -33,6 +33,7 @@ import { WorkTeaser } from "./WorkTeaser";
  * {@link TICKER_PX_PER_S}). Both loops honour
  * `prefers-reduced-motion: reduce`: the typed claim renders static and the
  * seam stands still, with no timer and no infinite animation scheduled.
+ * When motion is allowed the seam carries its own Pause/Play control.
  *
  * Authority: fleet brief (senior landing pass) + docs/premium-direction.md
  * § Landing, § Type, § Principles 1 and 5.
@@ -60,7 +61,8 @@ const techStrip: string[] = Array.from(
  * variant's loop has no handle to hold: measured at 1440x900 (2026-10-14) the
  * strip kept running at 40px/s while hovered. WCAG 2.2.2 asks that movement
  * lasting over five seconds can be paused, and hovering or focusing the seam is
- * that mechanism — a hidden document holds it too. `prefers-reduced-motion:
+ * one mechanism — a hidden document or the Pause/Play control below holds it
+ * too. `prefers-reduced-motion:
  * reduce` stops it entirely (see {@link usePrefersReducedMotion}): no loop is
  * scheduled and the seam renders as a static list.
  */
@@ -272,6 +274,10 @@ function InsertCaret() {
 
 export function Hero() {
   const { phrase, shown, reduceMotion } = useHeroTyping();
+  /* The visitor's own pause switch for the seam (WCAG 2.2.2). Hover/focus
+     hold still applies on top of it. Not offered under reduced motion —
+     the strip is already static then. */
+  const [paused, setPaused] = useState(false);
   /* The same pass reads the loop's length off the track, so the seconds that
      buy the ambient rate come from the rendered strip rather than from a
      constant, and the faces are settled first: a fallback face lays the strip
@@ -292,7 +298,7 @@ export function Hero() {
       if (!alive || !track) return;
       setTickerSeconds(track.getBoundingClientRect().width / 2 / TICKER_PX_PER_S);
     };
-    document.fonts.ready.then(arm, arm);
+    document.fonts?.ready.then(arm, arm);
     return () => {
       alive = false;
     };
@@ -318,9 +324,9 @@ export function Hero() {
     };
   }, [tickerSeconds, trackX, reduceMotion]);
 
-  /* The hold: hovering the seam, focusing inside it, or hiding the document
-     pauses the loop; releasing continues it from where it stopped. The seam
-     carries no control of its own, so the gesture IS the control. */
+  /* The hold: hovering the seam, focusing inside it, hiding the document,
+     or pressing the pause control below pauses the loop; releasing
+     continues it from where it stopped. */
   const [held, setHeld] = useState(false);
   const [tabHidden, setTabHidden] = useState(false);
   useEffect(() => {
@@ -332,9 +338,9 @@ export function Hero() {
   useEffect(() => {
     const controls = controlsRef.current;
     if (!controls) return;
-    if (held || tabHidden) controls.pause();
+    if (held || tabHidden || paused) controls.pause();
     else controls.play();
-  }, [held, tabHidden, tickerSeconds]);
+  }, [held, tabHidden, paused, tickerSeconds]);
 
   return (
     <section id="hero" className="flex flex-col">
@@ -403,11 +409,11 @@ export function Hero() {
       </div>
 
       {/* The seam between the statement and its evidence: the real stack under
-          two hairlines, scrolling unless held — hovering, focusing
-          inside, or hiding the document pauses it (see
-          {@link TICKER_PX_PER_S}). Under `prefers-reduced-motion: reduce`
-          it renders as a static wrapping list with no loop. Each item is
-          separated by a 1px Line rule, never a glyph. */}
+          two hairlines, scrolling unless held or paused — hovering, focusing
+          inside, or hiding the document pauses it, as does the pause control
+          below (see {@link TICKER_PX_PER_S}). Under `prefers-reduced-motion:
+          reduce` it renders as a static wrapping list with no loop. Each item
+          is separated by a 1px Line rule, never a glyph. */}
       <div
         className="overflow-hidden border-y border-border py-3"
         onMouseEnter={() => setHeld(true)}
@@ -438,6 +444,22 @@ export function Hero() {
           )}
         </motion.ul>
       </div>
+
+      {/* The seam's pause control (WCAG 2.2.2): a native toggle that stops the
+          loop where it stands and resumes it. Not offered when the OS asks for
+          reduced motion — the strip is already static then. */}
+      {!reduceMotion && (
+        <div className="flex justify-end px-6 lg:px-10">
+          <button
+            type="button"
+            onClick={() => setPaused((p) => !p)}
+            aria-pressed={paused}
+            className="inline-flex min-h-6 items-center px-1 text-detail text-text-muted underline-offset-2 hover:underline"
+          >
+            {paused ? "Play ticker" : "Pause ticker"}
+          </button>
+        </div>
+      )}
 
       <SystemAtlas />
 
