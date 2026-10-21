@@ -124,7 +124,9 @@ describe("printed strip", () => {
     const band = stripBand();
     expect(band).not.toBeNull();
     expect(band!.className).toMatch(/border-y-\[3px\]/);
-    const items = Array.from(band!.querySelectorAll("li"));
+    // Aria-hidden spacers lead each half (`li.w-14`); the real items
+    // carry `.strip-text`, so order/duplication is proven on those.
+    const items = Array.from(band!.querySelectorAll("li.strip-text"));
     expect(items.length).toBeGreaterThan(0);
     expect(items.length % 2).toBe(0);
     const half = items.length / 2;

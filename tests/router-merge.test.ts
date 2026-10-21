@@ -157,7 +157,7 @@ describe("home dossier route merge", () => {
     const resolved = router.resolveRoute("/definitely-not-a-page");
     expect(resolved.id).toBe("notfound");
     expect(resolved.path).toBe("/definitely-not-a-page");
-    expect(resolved.title).toContain("404");
+    expect(resolved.title).toContain("Not found");
 
     // Known paths still resolve to themselves via the same helper.
     expect(router.resolveRoute("/skills").id).toBe("skills");

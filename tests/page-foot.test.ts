@@ -58,10 +58,16 @@ afterEach(() => {
 describe("page foot", () => {
   test("résumé control is root-absolute with the premium action phrase + download", async () => {
     const foot = read("src/components/PageFoot.tsx");
+    const contact = read("src/lib/contact.ts");
 
     // ROOT-ABSOLUTE: a relative href silently serves the SPA fallback from
-    // sub-routes, so the link must carry the leading slash.
-    expect(foot).toContain(`href="/${RESUME_NAME}"`);
+    // sub-routes, so the link must carry the leading slash. The href now
+    // resolves via RESUME_PATH (single source in src/lib/contact.ts) — the
+    // root PDF (scripts/copy-404.mjs ships it to dist/) is the ground truth.
+    expect(contact).toContain(`RESUME_PATH = "/${RESUME_NAME}"`);
+    expect(foot).toContain("RESUME_PATH");
+    expect(foot).toContain(`from "../lib/contact"`);
+    expect(foot).toContain("href={RESUME_PATH}");
     expect(foot).not.toMatch(new RegExp(`href="${RESUME_NAME}"`));
     expect(foot).toContain(`download="${RESUME_NAME}"`);
 

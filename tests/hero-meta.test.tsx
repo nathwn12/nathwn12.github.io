@@ -73,7 +73,15 @@ describe("hero meta rail", () => {
     await act(async () => {
       root!.render(createElement(Hero));
     });
-    const rail = host.querySelector('dl[aria-label="Profile summary"]');
+    const rails = Array.from(
+      host.querySelectorAll('dl[aria-label="Profile summary"]'),
+    );
+    expect(rails.length, "desktop + mobile profile rails render").toBe(2);
+    // The desktop rail (`hidden lg:flex`) carries all five readings; the
+    // mobile proof row (`lg:hidden`) carries only IMPACT + STATUS.
+    const rail =
+      rails.find((dl) => (dl.textContent ?? "").includes("LOCATION")) ??
+      rails[0];
     expect(rail, "meta rail renders").not.toBeNull();
     const text = rail!.textContent ?? "";
     // IMPACT from the payments entry (id "02"): the percentage figure lifted
