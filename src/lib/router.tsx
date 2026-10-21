@@ -36,6 +36,9 @@ export interface RouteDef {
   title: string;
 }
 
+/** Full name — single source for every document.title suffix. */
+const FULL_NAME = "Nathaniel Nikolai Ladero";
+
 /** index.html default meta content — kept verbatim for home-route parity.
    Keep in sync with index.html's <head> if either is edited. */
 export const HOME_META_DESCRIPTION =
@@ -54,7 +57,7 @@ export const ROUTES: readonly RouteDef[] = [
     description: "Identity & system profile",
     metaDescription: HOME_META_DESCRIPTION,
     accent: "accent",
-    title: "Nathaniel Nikolai Ladero | Systems & Developer Tools",
+    title: `Home — ${FULL_NAME}`,
   },
   {
     path: "/experience",
@@ -65,7 +68,7 @@ export const ROUTES: readonly RouteDef[] = [
     metaDescription:
       "Production backend engineering at Xentra Infotech Solutions Inc. — ASP.NET Web APIs, gRPC, SignalR, and RabbitMQ, including a 98% payment-query latency cut.",
     accent: "accent",
-    title: "experience — NNL",
+    title: `Experience — ${FULL_NAME}`,
   },
   {
     path: "/skills",
@@ -76,7 +79,7 @@ export const ROUTES: readonly RouteDef[] = [
     metaDescription:
       "Backend and DevOps skill set — C#, ASP.NET Core, .NET, MySQL/Redis/RabbitMQ, AWS, Docker, GitHub Actions, security and auth, plus AI-assisted development workflow.",
     accent: "accent-3",
-    title: "skills — NNL",
+    title: `Skills — ${FULL_NAME}`,
   },
   {
     path: "/projects",
@@ -87,7 +90,7 @@ export const ROUTES: readonly RouteDef[] = [
     metaDescription:
       "Open-source work on github.com/nathwn12 — MCP tool servers, OpenCode plugins, and solo-built apps and tools, featured work first.",
     accent: "accent-4",
-    title: "projects — NNL",
+    title: `Projects — ${FULL_NAME}`,
   },
   {
     path: "/contact",
@@ -98,7 +101,7 @@ export const ROUTES: readonly RouteDef[] = [
     metaDescription:
       "Contact Nathaniel Nikolai Ladero — Backend Developer open to work. Direct email, GitHub, or LinkedIn.",
     accent: "accent-2",
-    title: "contact — NNL",
+    title: `Contact — ${FULL_NAME}`,
   },
 ] as const;
 
@@ -130,7 +133,7 @@ export const NOT_FOUND_ROUTE: RouteDef = {
   metaDescription:
     "This path doesn't exist on nathwn12.github.io — return to the portfolio home for the index of pages.",
   accent: "accent-3",
-  title: "404 — No such file or directory — NNL",
+  title: `Not found — ${FULL_NAME}`,
 };
 
 /**
@@ -150,7 +153,7 @@ export const THANKS_ROUTE: RouteDef = {
   metaDescription:
     "Your message is on its way — Nathaniel Nikolai Ladero usually answers within a day or two.",
   accent: "accent-2",
-  title: "thanks — NNL",
+  title: `Thanks — ${FULL_NAME}`,
 };
 
 const LEGACY_PATHS: Readonly<Record<string, string>> = {
