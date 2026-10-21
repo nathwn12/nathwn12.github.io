@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ROUTES, navigate, useRoute } from "../lib/router";
+import { RESUME_PATH } from "../lib/contact";
 import { requestPaletteOpen } from "../lib/palette";
 import { navName } from "../lib/navNames";
 import { fadeIn } from "../lib/motion";
@@ -167,7 +168,7 @@ export function Header() {
           </button>
 
           <div className="flex items-center gap-2">
-            <nav className="hidden items-center gap-1 md:flex" aria-label="Pages">
+            <nav className="hidden items-center gap-1 lg:flex" aria-label="Pages">
               {navItems.map((item) => {
                 const active = route.path === item.path;
                 return (
@@ -190,12 +191,20 @@ export function Header() {
               })}
             </nav>
 
+            <a
+              href={RESUME_PATH}
+              download="Nathaniel-Nikolai-Ladero-Resume.pdf"
+              className="hidden min-h-11 items-center px-3 text-label font-medium text-text hover:text-accent-text hover:underline lg:flex"
+            >
+              Résumé
+            </a>
+
             <button
               type="button"
               onClick={() => requestPaletteOpen()}
               aria-label="Open command palette (Control K)"
               title="Open command palette (Ctrl K)"
-              className="hidden min-h-11 items-center gap-2 rounded-xs px-3 text-label text-text-muted transition-colors duration-nav hover:text-accent-text hover:underline md:flex"
+              className="hidden min-h-11 items-center gap-2 rounded-xs px-3 text-label text-text-muted transition-colors duration-nav hover:text-accent-text hover:underline lg:flex"
             >
               <span className="font-medium">Command</span>
               <kbd className="rounded-xs border border-border px-1.5 py-0.5 font-medium">
@@ -210,7 +219,7 @@ export function Header() {
               aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={menuOpen}
               aria-controls="mobile-nav"
-              className="flex min-h-11 items-center gap-2 rounded-xs px-3 text-label font-medium text-text transition-colors duration-nav hover:text-accent-text hover:underline md:hidden"
+              className="flex min-h-11 items-center gap-2 rounded-xs px-3 text-label font-medium text-text transition-colors duration-nav hover:text-accent-text hover:underline lg:hidden"
             >
               <svg
                 width="16"
@@ -257,7 +266,7 @@ export function Header() {
             initial="hidden"
             animate="visible"
             exit="hidden"
-            className="border-t border-border bg-bg md:hidden"
+            className="border-t border-border bg-bg lg:hidden"
           >
             <div className={GUTTER}>
               <div className={`${CONTAINER} flex flex-col`}>
@@ -281,6 +290,13 @@ export function Header() {
                     </button>
                   );
                 })}
+                <a
+                  href={RESUME_PATH}
+                  download="Nathaniel-Nikolai-Ladero-Resume.pdf"
+                  className="flex min-h-11 items-center border-b border-border text-left text-label font-medium text-text transition-colors duration-nav hover:text-accent-text"
+                >
+                  Résumé — PDF
+                </a>
                 <button
                   type="button"
                   onClick={() => {
