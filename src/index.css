@@ -483,9 +483,8 @@ html[data-theme="dark"] .folio-numeral {
    The sheet is the viewport minus a fluid gutter per side, capped at 80rem;
    at 1600px+ the cap rises to 96rem. The gutter token is the single source:
    `.sheet` spends it as width (auto margins), `.sheet-pad` spends it as
-   inner padding once the cap binds (min-width 1376px = 80rem + 2x3rem, where
-   the capped width would otherwise jump the content edge to the cap edge;
-   at the bind point the auto margins are zero, so the handoff is continuous).
+   inner padding at every width (border-box), so content is min(100vw - 2g, cap) minus 2g with no step
+   at the 1376px bind.
    Route sections keep their own px-6/lg:px-10 (untouched files) — the vw-based
    width resolves against the viewport, not the padded content box, so every
    pattern lands within ~8px of today's edges at 1440 (composition identical).
@@ -512,11 +511,10 @@ html[data-theme="dark"] .folio-numeral {
   margin-inline: auto;
 }
 
-/* Inner gutter once the cap binds — continuous at the 1376px handoff. */
-@media (min-width: 1376px) {
-  .sheet-pad {
-    padding-inline: var(--sheet-gutter);
-  }
+/* Inner gutter at every width (same fluid token): content is
+   min(100vw - 2g, cap) - 2g, continuous through the 1376px bind. */
+.sheet-pad {
+  padding-inline: var(--sheet-gutter);
 }
 
 /* Wide sheet: cap rises to 96rem, gaps widen into the added track. */
