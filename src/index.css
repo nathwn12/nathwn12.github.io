@@ -264,6 +264,19 @@ h3, h4 {
   outline-offset: 2px;
 }
 
+/* The command palette's input is framed by its wrapper, not by a ring on the
+   field: the wrapper paints one 2px bottom rule and brightens it to the accent
+   on :focus-within. This rule is unlayered and later in source than the global
+   :focus-visible above, so it is the one place the ring is suppressed — the
+   `outline-none` utility on the input cannot win (layered utilities lose to
+   unlayered author CSS, the same mechanism as the earlier radius bug). The
+   wrapper's :focus-within accent rule remains the sole focus indicator, so
+   keyboard users still see focus. Scoped to this class: every other control
+   keeps the global ring. */
+.command-palette-input:focus-visible {
+  outline: none;
+}
+
 /* #main is focused programmatically on page mount (PageShell) to announce the
    new page to screen readers. It is a container, not an interactive element,
    so it must never paint the focus ring — the :focus-visible rule above would
