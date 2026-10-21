@@ -28,6 +28,8 @@ interface PageFootProps {
   accentResume?: boolean;
 }
 
+const YEAR = new Date().getFullYear();
+
 const directionControl =
   "flex min-h-11 items-center rounded-xs text-label font-medium text-text transition-colors duration-nav hover:underline";
 
@@ -40,7 +42,8 @@ export function PageFoot({ accentResume = false }: PageFootProps) {
   const next = routeAtOffset(route.path, 1);
 
   return (
-    <div className="mt-section flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-border pt-block">
+    <div className="mt-section border-t border-border pt-block">
+      <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
       <a
         href={RESUME_PATH}
         download="Nathaniel-Nikolai-Ladero-Resume.pdf"
@@ -80,6 +83,19 @@ export function PageFoot({ accentResume = false }: PageFootProps) {
           </button>
         )}
       </nav>
+      </div>
+      <p className="mt-4 text-micro text-text-muted">
+        Colophon — © {YEAR} Nathaniel Nikolai Ladero. Set in Fraunces and
+        Public Sans.{" "}
+        <a
+          href="https://github.com/nathwn12/nathwn12.github.io"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-text-muted underline hover:text-text"
+        >
+          Source on GitHub.
+        </a>
+      </p>
     </div>
   );
 }
