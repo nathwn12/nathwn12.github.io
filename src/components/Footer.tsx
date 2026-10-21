@@ -8,8 +8,8 @@ import { cycleTheme, useTheme } from "../lib/theme";
  * Footer — the persistent one-row chrome bar, in normal flow after the page
  * scroller.
  *
- * One row at every width (`h-11` + the 3px top rule ≈ 47px, `whitespace-nowrap`,
- * no `flex-wrap`, `overflow-hidden` so the bar can never scroll horizontally):
+ * One row at every width (`min-h-11` + `py-1` ≈ 52px, `whitespace-nowrap`,
+ * no `flex-wrap`, no horizontal scroll container):
  * `© YEAR NNL` on the left, route links (hidden below `lg`) plus
  * Email/GitHub/LinkedIn/Theme on the right. The long colophon sentence lives
  * in the end-of-page `PageFoot`, not here.
@@ -66,7 +66,7 @@ export function Footer() {
     <footer className="relative z-40 shrink-0 border-t-[3px] border-text bg-bg pb-[env(safe-area-inset-bottom)]">
       <div className="px-6 lg:px-10">
         <div className="mx-auto w-full max-w-[80rem]">
-          <div className="flex h-11 w-full items-center justify-between gap-x-2 overflow-hidden whitespace-nowrap">
+          <div className="flex min-h-11 w-full items-center justify-between gap-x-2 whitespace-nowrap py-1">
             <span className="shrink-0 text-micro text-text-muted">
               © {YEAR} NNL
             </span>
