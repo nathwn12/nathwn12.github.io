@@ -139,13 +139,13 @@ export default function Projects() {
                   {project.kind} · {project.role} · shipped {project.year}
                 </p>
 
-                <div className="mt-6 grid grid-cols-1 gap-x-10 gap-y-6 lg:grid-cols-2">
-                  <div>
+                <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-6 lg:grid-cols-[minmax(0,1fr)_14rem]">
+                  <div className="min-w-0 max-w-[62ch]">
                     <p className={PART_LABEL}>What it does</p>
-                    <p className="mt-2 max-w-[65ch] text-body text-text">
+                    <p className="mt-2 text-body text-text">
                       {project.description}
                     </p>
-                    <ul className="mt-4 max-w-[65ch] space-y-2">
+                    <ul className="mt-4 space-y-2">
                       {project.highlights.map((highlight) => (
                         <li key={highlight} className="text-detail text-text-muted">
                           {highlight}
@@ -154,7 +154,7 @@ export default function Projects() {
                     </ul>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <p className={PART_LABEL}>Facts</p>
                     <ul className="mt-2">
                       {project.stats.map((stat) => (

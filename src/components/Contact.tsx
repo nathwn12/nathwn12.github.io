@@ -53,11 +53,11 @@ const ACTION =
 /* The band's primary control wears the old send control's solid treatment:
    accent ground, primary weight, same 44px minimum target. */
 const PRIMARY_BUTTON =
-  "inline-flex min-h-11 items-center rounded-sm bg-accent px-6 py-3 text-label font-semibold text-bg transition-colors duration-submit";
+  "inline-flex min-h-11 items-center rounded-none bg-accent px-6 py-3 text-label font-semibold text-bg transition-colors duration-submit";
 /* Secondary controls are bordered chips: quieter than the primary, still
    full 44px targets with visible text labels. */
 const SECONDARY_BUTTON =
-  "inline-flex min-h-11 items-center rounded-sm border border-border px-6 py-3 text-label font-semibold text-text transition-colors duration-submit hover:border-border-accent";
+  "inline-flex min-h-11 items-center rounded-none border border-border px-6 py-3 text-label font-semibold text-text transition-colors duration-submit hover:border-border-accent";
 
 const MAIL_SUBJECT = "Portfolio enquiry";
 const MAIL_BODY = `Hi Nathaniel,
@@ -81,8 +81,9 @@ const KICKER = "09 / Contact";
 /* Relay-form field chrome: quiet bordered controls on the page ground. */
 const FIELD_LABEL = "block text-label font-medium text-text";
 const FIELD_CONTROL =
-  "mt-2 w-full rounded-sm border border-border bg-bg px-4 py-3 text-body text-text transition-colors duration-field";
-const FIELD_ERROR_TEXT = "mt-2 text-detail font-medium text-text";
+  "mt-2 w-full rounded-none border border-border bg-bg px-4 py-3 text-body text-text transition-colors duration-field focus-visible:border-border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-text";
+const FIELD_INPUT = `${FIELD_CONTROL} min-h-11`;
+const FIELD_ERROR_TEXT = "mt-2 min-h-[1.25rem] text-detail font-medium text-text";
 const FIELD_WRAP = "mb-6";
 
 /* Name needs at least 2 characters, the message at least 10; the address
@@ -243,13 +244,11 @@ function ContactForm() {
             autoComplete="name"
             aria-invalid={errors.name ? "true" : undefined}
             aria-describedby={errors.name ? "contact-name-error" : undefined}
-            className={FIELD_CONTROL}
+            className={FIELD_INPUT}
           />
-          {errors.name && (
-            <p id="contact-name-error" className={FIELD_ERROR_TEXT}>
-              {errors.name}
-            </p>
-          )}
+          <p id="contact-name-error" className={FIELD_ERROR_TEXT}>
+            {errors.name ?? ""}
+          </p>
         </div>
 
         <div className={FIELD_WRAP}>
@@ -266,13 +265,11 @@ function ContactForm() {
             autoComplete="email"
             aria-invalid={errors.email ? "true" : undefined}
             aria-describedby={errors.email ? "contact-email-error" : undefined}
-            className={FIELD_CONTROL}
+            className={FIELD_INPUT}
           />
-          {errors.email && (
-            <p id="contact-email-error" className={FIELD_ERROR_TEXT}>
-              {errors.email}
-            </p>
-          )}
+          <p id="contact-email-error" className={FIELD_ERROR_TEXT}>
+            {errors.email ?? ""}
+          </p>
         </div>
 
         <div className={FIELD_WRAP}>
@@ -293,17 +290,15 @@ function ContactForm() {
             }
             className={`${FIELD_CONTROL} resize-y`}
           />
-          {errors.message && (
-            <p id="contact-message-error" className={FIELD_ERROR_TEXT}>
-              {errors.message}
-            </p>
-          )}
+          <p id="contact-message-error" className={FIELD_ERROR_TEXT}>
+            {errors.message ?? ""}
+          </p>
         </div>
 
         <button
           type="submit"
           disabled={submitting}
-          className="inline-flex min-h-11 items-center rounded-sm bg-accent px-6 py-3 text-label font-semibold text-bg transition-colors duration-submit disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex min-h-11 items-center rounded-none bg-accent px-6 py-3 text-label font-semibold text-bg transition-colors duration-submit disabled:cursor-not-allowed disabled:opacity-60"
         >
           {submitting ? "Sending…" : "Send the message"}
         </button>
