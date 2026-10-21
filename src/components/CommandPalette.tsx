@@ -250,7 +250,7 @@ export function CommandPalette() {
         </h2>
         {copyState === "idle" ? (
           <>
-            <div className="border-b-2 border-text px-4">
+            <div className="border-b-2 border-text px-4 focus-within:border-accent">
               <label htmlFor={INPUT_ID} className="sr-only">
                 {INPUT_LABEL}
               </label>
@@ -274,7 +274,7 @@ export function CommandPalette() {
                   setQuery(e.target.value);
                   setActiveIndex(0);
                 }}
-                className="w-full bg-transparent py-4 text-body text-text outline-none placeholder:text-text-muted"
+                className="w-full border-0 bg-transparent py-4 text-body text-text outline-none placeholder:text-text-muted"
               />
             </div>
             {filtered.length === 0 ? (
