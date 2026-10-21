@@ -10,9 +10,9 @@ import {
 } from "framer-motion";
 import type { AnimationPlaybackControls } from "framer-motion";
 import { heroClaim, coreStack, availability } from "../content/hero";
+import { CONTACT_EMAIL } from "../lib/contact";
 import { employer, experience } from "../content/experience";
 import { projects } from "../content/projects";
-import { RouteLink } from "../lib/router";
 import {
   bandEnter,
   fadeUp,
@@ -70,12 +70,26 @@ import { GUTTER_CONTAINER, Marginalia } from "./InstrumentBand";
 
 /* The seam's index: real identifiers from the shipped work, de-duplicated and
    order-preserved. Read-only from content. */
-const techStrip: string[] = Array.from(
+const _baseStrip: string[] = Array.from(
   new Set([
     ...projects.flatMap((project) => project.tech),
     ...experience.flatMap((entry) => entry.tech),
   ]),
 );
+
+/* Lead with the recognizable core stack (case-insensitive match against the
+   derived base), then the rest in existing order — still de-duplicated. */
+const CORE_FIRST = ["C#", "ASP.NET", "MySQL", "Redis", "RabbitMQ", "AWS"];
+
+const techStrip: string[] = [
+  ...CORE_FIRST.map((core) =>
+    _baseStrip.find((tech) => tech.toLowerCase() === core.toLowerCase()),
+  ).filter((tech): tech is string => typeof tech === "string"),
+  ..._baseStrip.filter(
+    (tech) =>
+      !CORE_FIRST.some((core) => core.toLowerCase() === tech.toLowerCase()),
+  ),
+];
 
 /**
  * The seam's rate: an ambient ticker reads at 35–45 px/s. The strip is laid out
@@ -121,10 +135,10 @@ export const HERO_PHRASES: readonly string[] = [
     longest so it is read before the rotation begins), and a short gap before
     the next phrase starts. */
 export const TYPING_CADENCE = {
-  type: 55,
-  delete: 30,
-  hold: 2000,
-  holdFirst: 2600,
+  type: 42,
+  delete: 26,
+  hold: 2200,
+  holdFirst: 3200,
   gap: 400,
 } as const;
 
@@ -554,19 +568,49 @@ export function Hero() {
               {employer.period}.
             </motion.p>
 
-            <motion.p variants={staggerChild} className="mt-6 lg:mt-8">
-              <RouteLink
-                href="/contact"
-                data-nav-item
-                className="flex min-h-11 w-fit items-center rounded-xs text-lead font-semibold text-accent-text transition-colors duration-link hover:underline"
+            <motion.div
+              variants={staggerChild}
+              className="mt-6 flex flex-wrap gap-3 lg:mt-8"
+            >
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                className="flex min-h-11 items-center rounded-xs bg-accent px-6 text-label font-semibold text-bg"
               >
-                Get in touch about a role
-              </RouteLink>
-            </motion.p>
+                Email me
+              </a>
+              <a
+                href="/Nathaniel-Nikolai-Ladero-Resume.pdf"
+                download
+                className="flex min-h-11 items-center rounded-xs border border-text px-6 text-label font-semibold text-text"
+              >
+                Résumé — PDF
+              </a>
+            </motion.div>
+
+            <motion.dl
+              variants={fadeUp}
+              aria-label="Profile summary"
+              className="mt-6 grid grid-cols-2 gap-4 border-t border-border pt-3 lg:hidden"
+            >
+              {IMPACT_META ? (
+                <div>
+                  <dt className="sr-only">Impact</dt>
+                  <dd className="font-mono text-micro uppercase text-text-muted">
+                    IMPACT — {IMPACT_META} faster payments
+                  </dd>
+                </div>
+              ) : null}
+              <div>
+                <dt className="sr-only">Status</dt>
+                <dd className="font-mono text-micro uppercase text-text-muted">
+                  STATUS — {STATUS_META}
+                </dd>
+              </div>
+            </motion.dl>
 
             <motion.p
               variants={fadeUp}
-              className="mt-2 text-detail text-text-muted lg:mt-3"
+              className="mt-3 text-detail text-text-muted"
             >
               {availability}
             </motion.p>
@@ -651,19 +695,26 @@ export function Hero() {
               : "flex w-max items-center"
           }
         >
-          {(reduceMotion ? techStrip : [...techStrip, ...techStrip]).map(
-            (tech, index) => (
+          {(reduceMotion ? [techStrip] : [techStrip, techStrip]).flatMap(
+            (half, halfIndex) => [
               <li
-                key={`${tech}-${index}`}
-                className="strip-text flex items-center gap-8 pr-8 font-display font-semibold whitespace-nowrap"
-              >
-                {tech}
-                <span
-                  className="inline-block h-[3px] w-8 bg-accent"
-                  aria-hidden="true"
-                />
-              </li>
-            ),
+                key={`spacer-${halfIndex}`}
+                aria-hidden="true"
+                className="w-14 shrink-0"
+              />,
+              ...half.map((tech, index) => (
+                <li
+                  key={`${tech}-${halfIndex}-${index}`}
+                  className="strip-text flex items-center gap-8 pr-8 font-display font-semibold whitespace-nowrap"
+                >
+                  {tech}
+                  <span
+                    className="inline-block h-[3px] w-8 bg-accent"
+                    aria-hidden="true"
+                  />
+                </li>
+              )),
+            ],
           )}
         </motion.ul>
       </div>
