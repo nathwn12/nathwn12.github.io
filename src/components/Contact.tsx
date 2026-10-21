@@ -83,7 +83,7 @@ const FIELD_LABEL = "block text-label font-medium text-text";
 const FIELD_CONTROL =
   "mt-2 w-full rounded-none border border-border bg-bg px-4 py-3 text-body text-text transition-colors duration-field focus-visible:border-border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-text";
 const FIELD_INPUT = `${FIELD_CONTROL} min-h-11`;
-const FIELD_ERROR_TEXT = "mt-2 min-h-[1.25rem] text-detail font-medium text-text";
+const FIELD_ERROR_TEXT = "mt-2 min-h-[2.75rem] text-detail font-medium text-text";
 const FIELD_WRAP = "mb-6";
 
 /* Name needs at least 2 characters, the message at least 10; the address
