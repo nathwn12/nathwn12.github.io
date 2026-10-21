@@ -1,22 +1,19 @@
 import { useCallback, useEffect } from "react";
 import { CONTACT_EMAIL } from "../lib/contact";
+import { coreStack } from "../content/hero";
+import { ROUTES, navigate } from "../lib/router";
+import { navName } from "../lib/navNames";
 import { cycleTheme, useTheme } from "../lib/theme";
 
 /**
- * Footer — the colophon, the theme control, and the safe-area pad.
+ * Footer — the printed colophon, in normal flow after the page scroller.
  *
- * It is `fixed` (never scrolls with page content) and its height is
- * auto-measured by PageShell into `--page-footer-offset`, which the page
- * scroller reserves — so the wrap at 375px, a text zoom, and the iOS safe-area
- * inset all stay accounted for instead of being pinned to a magic constant.
- *
- * Every control is at least 44pt tall and carries a visible text label: no
- * icon-only affordance, no status readouts, no decorative glyphs. Contact is
- * plain text links (color + underline on hover); the appearance control is the
- * one Line-bordered chip in the footer, so the two groups read apart without a
- * vertical stripe (§ Hard-ban list: the only vertical accent is the 1px gutter
- * marker). The credit is a colophon, not a build log: it names the two faces
- * the page is set in, never the framework list.
+ * Static (never fixed): it sits below the scroller in the app's flex column
+ * so it can never cover content. A single 48px-tall scrolling row holds the
+ * colophon line, the route list, and the contact/appearance controls in one
+ * line with horizontal overflow — the wrap that once grew it past 200px on
+ * phones is gone. Its height needs no live measurement: the scroller sizes
+ * itself from the remaining flex space.
  */
 
 const YEAR = new Date().getFullYear();
@@ -31,9 +28,6 @@ export function Footer() {
     cycleTheme();
   }, []);
 
-  /* F2 switches the color scheme: light ↔ dark. Never hijack keys while typing
-     or while the mobile menu is open — the footer is the control's home, so the
-     shortcut is registered here beside it. */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "F2" || e.repeat) return;
@@ -47,7 +41,7 @@ export function Footer() {
       ) {
         return;
       }
-      if (document.querySelector("[data-mobile-menu]")) return;
+      if (document.querySelector("[data-mobile-menu], [data-command-palette]")) return;
       e.preventDefault();
       cycleThemeHandler();
     };
@@ -58,20 +52,33 @@ export function Footer() {
   const themeLabel = `${themePreference[0].toUpperCase()}${themePreference.slice(1)}`;
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-bg pb-[env(safe-area-inset-bottom)]">
-      {/* Gutters sit outside the 68ch measure, matching the page container
-          (Hero.tsx:71-72) and the header, so the chrome rule spans the
-          viewport while the content keeps one edge. */}
+    <footer className="relative z-40 shrink-0 border-t-[3px] border-text bg-bg pb-[env(safe-area-inset-bottom)]">
       <div className="px-6 lg:px-10">
-        <div className="mx-auto flex w-full max-w-[68ch] flex-wrap items-center justify-between gap-x-6 gap-y-1 py-2">
-          <p className="py-2 text-detail text-text-muted">
-            © {YEAR} Nathaniel Nikolai Ladero — designed and built by hand.
-            Set in Fraunces and Public Sans.
+        <div className="mx-auto flex h-12 w-full max-w-[80rem] items-center justify-between gap-x-8 overflow-x-auto whitespace-nowrap">
+          <p className="flex shrink-0 items-center py-2 font-display text-body font-semibold text-text">
+            Colophon — © {YEAR} Nathaniel Nikolai Ladero. Set in Fraunces
+            and Public Sans. {coreStack} Source on GitHub.
           </p>
 
           <nav
+            aria-label="Sections"
+            className="flex shrink-0 items-center gap-x-4"
+          >
+            {ROUTES.map((item) => (
+              <button
+                key={item.path}
+                type="button"
+                onClick={() => navigate(item.path)}
+                className="flex min-h-11 items-center rounded-xs font-mono text-micro uppercase tracking-[0.08em] text-text-muted transition-colors duration-nav hover:text-accent-text hover:underline"
+              >
+                {navName(item.id, item.label)}
+              </button>
+            ))}
+          </nav>
+
+          <nav
             aria-label="Contact and appearance"
-            className="flex flex-wrap items-center gap-x-6"
+            className="flex shrink-0 items-center gap-x-6"
           >
             <a
               href="https://github.com/nathwn12"

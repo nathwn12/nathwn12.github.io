@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
-import { fadeUp, staggerParent } from "../lib/motion";
+import { fadeUp } from "../lib/motion";
+import { BandShell } from "./InstrumentBand";
 
 /**
  * SystemAtlas — the landing's living system diagram.
@@ -12,7 +13,7 @@ import { fadeUp, staggerParent } from "../lib/motion";
  * curves cross in the channel between the two sides. The web is the story — a
  * change leaves a named service and reaches a named agent, and each agent is
  * wired to the work it actually takes. Selecting a node updates the reading
- * below. Every label and sentence is grounded in the delivered record
+ * beside the diagram (below it under `lg`). Every label and sentence is grounded in the delivered record
  * (src/content/experience.ts, src/content/projects.ts, src/content/skills.ts) —
  * generic capability phrasing, no metric claimed that the record does not
  * already carry.
@@ -78,9 +79,9 @@ import { fadeUp, staggerParent } from "../lib/motion";
  * 0.640x and dropped card labels to 8.96px, under the site's 13px floor (a 980px
  * cap fails the same way at 11.8px). So the geometry was redrawn at the measure
  * instead: `VIEW_W` (666) is the page measure in pixels, the two columns and the
- * channel are laid out to fill it, and `PLATE_W` stays the page's own `68ch` rather
- * than a copy of the number that can drift. Heading, lede, rule, diagram and reading
- * then share one left edge — the header's and the footer's — and the drawing's
+ * channel are laid out to fill it, and the plate fills the band's content
+ * column rather than a copy of the number that can drift. Heading, lede,
+ * rule, diagram and reading then share one left edge — the content column's — and the drawing's
  * frame sits just inside the plate's, so the atlas is a plate set into the page
  * rather than a diagram floating past every text section. The section heading's
  * measure is deliberately NOT widened to match — the prose keeps the page's 68ch —
@@ -169,25 +170,17 @@ interface AtlasCluster {
 const VIEW_W = 666;
 
 /**
- * The plate's cap: the page's own content measure, measured — not assumed.
- *
- * Route: full Chromium (Chromium 148, `--headless=new`) over CDP against the
- * live dev server at a 1440x900 viewport, 2026-10-14. Both the header's inner
- * column (`CONTAINER` in src/components/Header.tsx) and the footer's inner
- * column (src/components/Footer.tsx) render 665.84px, and a bare `68ch` probe
- * at the 16px body size renders 665.84px — so 68ch IS the page-wide measure, and
- * the plate takes it from the same unit the page declares rather than a copy of
- * the number that can drift when the body face or size changes. Re-measured
- * 2026-10-14: `68ch` and the rendered plate both 665.84px, so the drawing sits in
- * the plate at 0.9998x. `min(980px, …)` holds the plate inside the 980 step.
+ * The plate's cap: the band content column's own measure — the plate fills
+ * the content column, so the drawing sits in it at ~1:1 with no separate
+ * cap to drift (previously `min(980px, 68ch)`, measured 665.84px at a 1440
+ * viewport, 2026-10-14; the content column carries that same 68ch now).
  */
-const PLATE_W = "min(980px, 68ch)";
 
 /** The plate's framing: the page's 1px Line hairline opens the plate, 40px above
-    the drawing, and the reading sits 40px below it — the same step either side,
-    so the plate is framed evenly inside the section's unchanged rhythm. */
+    the drawing — the same step either side, so the plate is framed evenly
+    inside the section's unchanged rhythm. The legend and the selected-node
+    reading sit beside the diagram at `lg` and stack below it under. */
 const PLATE_ABOVE = "mt-10 border-t border-border pt-10";
-const PLATE_BELOW = "mt-10";
 
 /** A card: one uniform height for every card — hero included — and a width that
     follows its label. `CARD_PAD_X` is the breathing room either side of the
@@ -480,13 +473,13 @@ const localNodes: readonly AtlasNode[] = anchorLeft(
 const clusters: readonly AtlasCluster[] = [
   {
     id: "zdr",
-    heading: "PRIVATE · ZDR AGENTS",
+    heading: "Private agents",
     box: boxAround(zdrNodes),
     nodes: zdrNodes,
   },
   {
     id: "local",
-    heading: "LOCAL · ON-MACHINE AGENTS",
+    heading: "Local agents",
     box: boxAround(localNodes),
     nodes: localNodes,
   },
@@ -643,7 +636,7 @@ const links: readonly AtlasLink[] = LINK_PAIRS.map((pair) => ({
 }));
 
 const outcome =
-  "The same backend discipline, now run through local AI tooling: production systems carried forward into an agent-assisted workflow.";
+  "The same backend discipline, sustained in production: versioned contracts, reviewed changes, and delivery standards held across every service.";
 
 /** viewBox unit → percentage of the diagram box. */
 function pct(value: number, total: number): string {
@@ -673,7 +666,7 @@ function useDiagramLayout(): boolean {
  * The pulse's rate for the diagram's links: one pace for every link, in viewBox
  * units per second — mid-band of the 110–140 px/s a travelling connection reads
  * at, and 1u is 1px here because the drawing sits in the plate at 0.9998x (see
- * {@link VIEW_W}, {@link PLATE_W}). The pulse's seconds are its own measured
+ * {@link VIEW_W}). The pulse's seconds are its own measured
  * length over this rate (`duration = pathLength / speed`), so the pace is a
  * property of the path, not of its order in the list: the fixed
  * `2.6s + index * 0.35s` it replaced made the pace an accident of link order —
@@ -854,40 +847,30 @@ export function SystemAtlas() {
   };
 
   return (
-    <section aria-labelledby="atlas-heading" className="px-6 pt-14 lg:px-10">
-      <motion.div
-        variants={staggerParent}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-10% 0px" }}
-        className="mx-auto w-full"
-        style={{ maxWidth: PLATE_W }}
-      >
-        {/* The prose keeps the page's 68ch measure and the plate takes it too, so
-            heading, rule, diagram and reading all hold the header's left edge. */}
-        <div className="mx-auto w-full max-w-[68ch]">
-          <motion.h2
-            id="atlas-heading"
-            variants={fadeUp}
-            className="text-headline font-semibold text-text"
-          >
-            System atlas
-          </motion.h2>
+    <BandShell
+      kicker="03 / System atlas"
+      title="System atlas"
+      headingId="atlas-heading"
+      band={2}
+      contentClass="lg:col-span-10"
+    >
+      {/* The plate keeps the page's own measure: heading, rule, diagram and
+          reading share the content column's left edge. The diagram takes the
+          wide column (7 of 10); the legend and the selected-node reading sit
+          in the remaining three as marginalia — stacked below the diagram
+          under `lg`. */}
+      <motion.p variants={fadeUp} className="mt-4 text-detail text-text-muted">
+        Production services on the left; the agent tooling now running
+        alongside them on the right — private first, then the local ones.
+      </motion.p>
 
-          <motion.p
-            variants={fadeUp}
-            className="mt-2 text-detail text-text-muted"
-          >
-            Production services on the left; the agent tooling now running
-            alongside them on the right — private first, then the local ones.
-          </motion.p>
-        </div>
-
-        <motion.div variants={fadeUp} className={PLATE_ABOVE}>
+      <motion.div variants={fadeUp} className={PLATE_ABOVE}>
+        <div className="lg:grid lg:grid-cols-10 lg:gap-x-6">
+          <div className="min-w-0 lg:col-span-7">
           <div
             role="group"
             aria-label="System nodes"
-            className="relative w-full"
+            className="relative min-h-[320px] w-full lg:min-h-[440px]"
           >
             {/* The two-dimensional diagram, from 768px up. */}
             {wide ? (
@@ -904,11 +887,11 @@ export function SystemAtlas() {
                     x={LEFT_COL_LEFT}
                     y={HEADING_Y}
                     textAnchor="start"
-                    fontSize={11}
+                    fontSize={12}
                     letterSpacing="0.08em"
                     className="fill-text-muted"
                   >
-                    PRODUCTION · C#/.NET
+                    Production services
                   </text>
 
                   {/* The two tooling clusters: a hairline box with the heading
@@ -930,7 +913,7 @@ export function SystemAtlas() {
                         x={cluster.box.x}
                         y={cluster.box.y - HEADING_GAP}
                         textAnchor="start"
-                        fontSize={11}
+                        fontSize={12}
                         letterSpacing="0.08em"
                         className="fill-text-muted"
                       >
@@ -943,17 +926,33 @@ export function SystemAtlas() {
                     const isSelected = node.id === selectedId;
                     /* The accent is the hero cards' and the pulses' alone: a
                        selected node takes it too, everything else stays
-                       hairline `border` in muted `text`. */
+                       hairline `border` in muted `text`. Selection never rests
+                       on colour alone: the selected card carries a triple-width
+                       stroke, a second outer hairline, and a bold label
+                       against every other card's single hairline and regular
+                       label. */
                     const accent = isSelected || node.hero === true;
                     return (
                       <g key={`shape-${node.id}`}>
+                        {isSelected ? (
+                          <rect
+                            x={node.x - cardWidth(node) / 2 - 4}
+                            y={node.y - CARD_H / 2 - 4}
+                            width={cardWidth(node) + 8}
+                            height={CARD_H + 8}
+                            rx={9}
+                            fill="none"
+                            strokeWidth={1}
+                            className="stroke-accent"
+                          />
+                        ) : null}
                         <rect
                           x={node.x - cardWidth(node) / 2}
                           y={node.y - CARD_H / 2}
                           width={cardWidth(node)}
                           height={CARD_H}
                           rx={6}
-                          strokeWidth={isSelected ? 2 : 1}
+                          strokeWidth={isSelected ? 3 : 1}
                           className={
                             accent
                               ? "fill-bg stroke-accent"
@@ -966,7 +965,9 @@ export function SystemAtlas() {
                           textAnchor="middle"
                           dominantBaseline="central"
                           fontSize={14}
-                          fontWeight={node.hero ? 600 : 400}
+                          fontWeight={
+                            isSelected ? 700 : node.hero ? 600 : 400
+                          }
                           className={accent ? "fill-accent-text" : "fill-text"}
                         >
                           {node.label}
@@ -980,9 +981,9 @@ export function SystemAtlas() {
                       key={`base-${link.from}-${link.to}`}
                       d={link.d}
                       fill="none"
-                      strokeWidth={1.5}
+                      strokeWidth={2}
                       strokeLinecap="round"
-                      strokeOpacity={0.14}
+                      strokeOpacity={0.45}
                       className="stroke-text"
                     />
                   ))}
@@ -1003,8 +1004,8 @@ export function SystemAtlas() {
                  production, then the private cluster, then the local one, with
                  the two connectors that carry the flow still pulsing. */
               <div className="flex flex-col">
-                <p className="text-micro font-semibold tracking-[0.08em] text-text-muted">
-                  PRODUCTION · C#/.NET
+                <p className="text-micro font-semibold tracking-[0.08em] text-text-muted text-balance">
+                  Production services
                 </p>
                 {productionNodes.map((node) => renderNodeButton(node, true))}
 
@@ -1012,7 +1013,7 @@ export function SystemAtlas() {
 
                 {clusters.map((cluster, clusterIndex) => (
                   <div key={`stack-${cluster.id}`} className="flex flex-col">
-                    <p className="mt-3 text-micro font-semibold tracking-[0.08em] text-text-muted">
+                    <p className="mt-3 text-micro font-semibold tracking-[0.08em] text-text-muted text-balance">
                       {cluster.heading}
                     </p>
                     {cluster.nodes.map((node) => renderNodeButton(node, true))}
@@ -1024,24 +1025,52 @@ export function SystemAtlas() {
               </div>
             )}
           </div>
-        </motion.div>
-
-        <div className={`mx-auto w-full max-w-[68ch] ${PLATE_BELOW}`}>
-          <div aria-live="polite" className="mt-6 border-l-2 border-accent pl-4">
-            <p className="text-title font-semibold text-text">{selected.label}</p>
-            <p className="mt-1 text-body text-text-muted">{selected.detail}</p>
           </div>
 
-          <p className="mt-3 text-detail text-text-muted">
-            The travelling pulse marks a change moving through the loop. It is not
-            decoration.
-          </p>
+          {/* Marginalia: the legend and the selected-node reading beside the
+              diagram at `lg`, stacked below it under — so the diagram is the
+              band's dominant element and the reading never sits under empty
+              paper. */}
+          <aside
+            aria-label="Diagram notes"
+            className="mt-8 min-w-0 lg:col-span-3 lg:mt-0"
+          >
+            <div className="border-t border-border pt-3">
+              <p className="font-mono text-micro font-medium uppercase tracking-[0.14em] text-text-muted">
+                Legend
+              </p>
+              <ul className="mt-2 space-y-1 text-detail text-text-muted">
+                <li>Production services — left column</li>
+                <li>Private agents — right, upper box</li>
+                <li>Local agents — right, lower box</li>
+                <li>
+                  {links.length} links — each leaves a service edge and reaches
+                  an agent edge
+                </li>
+              </ul>
+              <p className="mt-2 text-detail text-text-muted">
+                Select a node to read it.
+              </p>
+            </div>
 
-          <motion.p variants={fadeUp} className="mt-4 text-detail text-text-muted">
+            <div
+              aria-live="polite"
+              className="mt-6 border-l-2 border-accent pl-4"
+            >
+              <p className="text-title font-semibold text-text">
+                {selected.label}
+              </p>
+              <p className="mt-1 text-body text-text-muted">
+                {selected.detail}
+              </p>
+            </div>
+          </aside>
+        </div>
+
+          <motion.p variants={fadeUp} className="mt-8 text-detail text-text-muted">
             {outcome}
           </motion.p>
-        </div>
-      </motion.div>
-    </section>
+        </motion.div>
+    </BandShell>
   );
 }

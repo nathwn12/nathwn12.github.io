@@ -3,6 +3,14 @@ import { employer, experience, provenance } from "../content/experience";
 import { fadeUp, staggerChild, staggerParent } from "../lib/motion";
 import { RouteLink } from "../lib/router";
 import { PageFoot } from "./PageFoot";
+import {
+  Folio,
+  GUTTER_CELL,
+  GUTTER_CONTAINER,
+  GUTTER_GRID,
+  Kicker,
+  folioFromKicker,
+} from "./InstrumentBand";
 
 /**
  * Experience — the career record as a dated time rail.
@@ -43,9 +51,11 @@ import { PageFoot } from "./PageFoot";
  * the route error boundary in App.tsx).
  */
 
-/* One rail, declared once: the title block and every entry share this width, so
-   the vertical line is a fact of the page rather than a per-row decision. */
-const RAIL = "lg:grid lg:grid-cols-[7rem_minmax(0,1fr)] lg:items-start lg:gap-x-8";
+/* One rail, declared once: the title block and every entry share it — a
+   3-column date rail against a 7-column record inside the sheet's 12. */
+const RAIL = "lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-6";
+const RAIL_DATE = "lg:col-span-3";
+const RAIL_BODY = "lg:col-span-7";
 
 /* The one code-adjacent convention in the system: Body family at Detail size,
    letterspacing 0, distinguished by a Line border rather than a third face. */
@@ -55,42 +65,56 @@ const CHIP =
 const ACTION =
   "mt-8 inline-flex min-h-11 items-center rounded-xs text-label font-semibold text-accent-text transition-colors duration-link hover:underline";
 
+/** The route's kicker — the folio's only source (see folioFromKicker). */
+const KICKER = "06 / Experience";
+
 export function Experience() {
   return (
-    <section id="experience" className="px-6 py-16 lg:px-10">
-      <div className="mx-auto w-full max-w-[68ch] lg:max-w-[calc(68ch_+_9rem)]">
-        {/* Title block: the era marker takes the rail, the title and claim take
-            the content edge every entry below will share. */}
-        <div className={RAIL}>
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            className="lg:col-start-2 lg:row-start-1"
-          >
-            <h1 className="text-display font-semibold text-text">Experience</h1>
-            <p className="mt-4 max-w-[65ch] text-lead text-text">
-              Three years of production fintech work in C# and ASP.NET Core,
-              from payment APIs and data layers down to the Ubuntu servers they
-              run on.
-            </p>
-            <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
-              {employer.role}, {employer.company}, {employer.location}.
-            </p>
-            <RouteLink href="/contact" className={ACTION}>
-              Ask about this work
-            </RouteLink>
-          </motion.div>
-
-          <motion.p
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            className="mt-2 text-detail tabular-nums text-text-muted lg:col-start-1 lg:row-start-1 lg:mt-0 lg:pt-2"
-          >
-            {employer.period}
-          </motion.p>
+    <section id="experience" className="px-6 py-16 lg:px-10 lg:py-24">
+      <div className={`${GUTTER_CONTAINER} ${GUTTER_GRID}`}>
+        <div aria-hidden="true" className={GUTTER_CELL}>
+          <div className="lg:sticky lg:top-32">
+            <Folio index={folioFromKicker(KICKER)} />
+          </div>
         </div>
+        <div className="relative min-w-0 lg:col-span-8">
+          {/* Masthead title block: 3px bars, folio kicker, nameplate title. */}
+          <div aria-hidden="true" className="h-[3px] w-full bg-text" />
+          <div className={`${RAIL} pt-4`}>
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              className={RAIL_BODY}
+            >
+              <div className="flex items-baseline gap-3">
+                <Kicker>{KICKER}</Kicker>
+              </div>
+              <h1 className="masthead-name mt-3 text-text">Experience</h1>
+              <p className="mt-4 max-w-[65ch] text-lead text-text">
+                Three years of production fintech work in C# and ASP.NET Core,
+                from payment APIs and data layers down to the Ubuntu servers they
+                run on.
+              </p>
+              <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
+                {employer.role}, {employer.company}, {employer.location}.
+              </p>
+              <RouteLink href="/contact" className={ACTION}>
+                Ask about this work
+              </RouteLink>
+            </motion.div>
+
+            <motion.p
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              className={`mt-2 text-detail tabular-nums text-text-muted ${RAIL_DATE} lg:mt-0 lg:pt-2`}
+            >
+              {employer.period}
+            </motion.p>
+          </div>
+
+          <div aria-hidden="true" className="mt-8 h-[3px] w-full bg-text" />
 
         <motion.ol
           variants={staggerParent}
@@ -104,11 +128,11 @@ export function Experience() {
               variants={staggerChild}
               className={`mt-16 border-t border-border pt-8 ${RAIL}`}
             >
-              <p className="text-detail tabular-nums text-text-muted lg:pt-1">
+              <p className={`text-detail tabular-nums text-text-muted ${RAIL_DATE} lg:pt-1`}>
                 {entry.date}
               </p>
 
-              <div className="mt-4 lg:mt-0">
+              <div className={`mt-4 ${RAIL_BODY} lg:mt-0`}>
                 <h2 className="text-title font-semibold text-text">
                   {entry.name}
                 </h2>
@@ -147,6 +171,7 @@ export function Experience() {
         </p>
 
         <PageFoot />
+        </div>
       </div>
     </section>
   );

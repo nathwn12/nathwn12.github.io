@@ -48,29 +48,6 @@ export interface ExperienceEntry {
 
 export const experience: ExperienceEntry[] = [
   {
-    id: "06",
-    name: "AI-assisted development workflow",
-    date: "February 2026",
-    status: "In daily use",
-    outcome:
-      "Brought AI into every phase of the lifecycle, from investigation to refactor.",
-    description:
-      "Uses LM Studio, OpenCode, and Codex daily for coding, refactoring, investigative development, and prompt engineering. Works with preferred local models including DeepSeek V4 Flash (9B, MTP), Gemma 4 (26B, A4B), and Qwen 3.8 (35B, A3B) for local LLM workflows, keeping prompts and code off hosted services.",
-    highlights: [
-      "Standardized a local-model workflow so investigation and refactoring happen without a network round trip.",
-      "Wrote and maintained reusable prompt libraries for review, migration, and test scaffolding.",
-      "Used agent workflows for investigative coding across unfamiliar repositories.",
-    ],
-    tech: [
-      "LM Studio",
-      "OpenCode",
-      "Codex",
-      "DeepSeek V4 Flash (9B, MTP)",
-      "Gemma 4 (26B, A4B)",
-      "Qwen 3.8 (35B, A3B)",
-    ],
-  },
-  {
     id: "07",
     name: "Release and environment automation",
     date: "November 2025",

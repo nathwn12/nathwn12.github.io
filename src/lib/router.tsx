@@ -83,9 +83,9 @@ export const ROUTES: readonly RouteDef[] = [
     id: "projects",
     label: "PROJECTS",
     command: "ls -la projects/",
-    description: "Production highlights",
+    description: "Open-source work",
     metaDescription:
-      "Production projects — payments latency migration (98% cut), fintech service platform, auth hardening with zero high/critical Snyk findings, and a Redis-backed read cache layer.",
+      "Open-source work on github.com/nathwn12 — MCP tool servers, OpenCode plugins, and solo-built apps and tools, featured work first.",
     accent: "accent-4",
     title: "projects — NNL",
   },

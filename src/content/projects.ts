@@ -46,9 +46,10 @@ export interface ProjectLore {
 }
 
 // Open-source work published under github.com/nathwn12: featured work first
-// in the stated order, then the supporting tools. Twelve entries, every one
-// public and verified 2026-10-20. Descriptions follow the current GitHub
+// in the stated order, then the supporting tools. Eleven live entries, every
+// one public and verified 2026-10-20. Descriptions follow the current GitHub
 // repository descriptions. No star counts: the signal is what each one does.
+// Retired work lives separately in `archived` below — history, not current work.
 export const projects: ProjectLore[] = [
   {
     id: "10",
@@ -212,29 +213,6 @@ export const projects: ProjectLore[] = [
     ],
   },
   {
-    id: "05",
-    name: "OC Todo",
-    dir: "oc-todo",
-    url: "https://github.com/nathwn12/oc-todo",
-    kind: "App",
-    role: "Own brand",
-    year: "2025",
-    description:
-      "Per-session todo lists for your OpenCode terminal — capture, prioritize, and clear tasks without leaving the editor.",
-    tech: ["TypeScript", "Node.js", "CLI", "OpenCode"],
-    highlights: [
-      "Terminal-first: no context switch away from the session.",
-      "Plain-file storage that is readable and diffable.",
-      "Capture and close flows designed for one-keystroke use.",
-    ],
-    accent: "accent",
-    stats: [
-      { label: "last shipped", value: "2025", accent: "accent" },
-      { label: "surface", value: "terminal", accent: "accent" },
-      { label: "storage", value: "plain file", accent: "accent" },
-    ],
-  },
-  {
     id: "06",
     name: "Tab Audio Normalizer",
     dir: "tab-audio-normalizer",
@@ -325,6 +303,33 @@ export const projects: ProjectLore[] = [
       { label: "surface", value: "MCP launcher", accent: "accent" },
       { label: "upstream", value: "morluto/rea", accent: "accent" },
     ],
+  },
+];
+
+/**
+ * Retired work — history, never current work. `oc-todo` was archived on
+ * 2026-10-21 and stays listed here so the record is complete without reading
+ * as live. Typed plainly, not projected through ProjectSchema: that schema
+ * describes live production entries (it demands a description, tech, stats,
+ * and a PRODUCTION/SHIPPED status), and forcing a retired one-line record
+ * through it would be model work for no validation gain.
+ */
+export interface ArchivedProject {
+  name: string;
+  dir: string;
+  url: string;
+  year: string;
+  reason: string;
+}
+
+export const archived: ArchivedProject[] = [
+  {
+    name: "OC Todo",
+    dir: "oc-todo",
+    url: "https://github.com/nathwn12/oc-todo",
+    year: "2025",
+    reason:
+      "Deprecated 2026-10-21 — OpenCode 2.1 restored the built-in todowrite. See EOL.md.",
   },
 ];
 

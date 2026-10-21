@@ -94,13 +94,26 @@
   --text-body-lg: 1rem; /* alias of body — pages use it for lead prose */
   --text-body-lg--line-height: 1.65;
   --text-lead: 1.125rem; /* 18px — Subheading */
-  --text-lead--line-height: 1.4;
+  --text-lead--line-height: 1.5;
   --text-title: 1.125rem; /* 18px — entry titles, group names */
   --text-title--line-height: 1.4;
   --text-headline: 1.5rem; /* 24px — Section heading */
   --text-headline--line-height: 1.25;
   --text-display: 2.5rem; /* 40px — Page title, one per route */
   --text-display--line-height: 1.1;
+
+  /* --- Broadsheet scale (additive, 2026-10-21) ---------------------------
+     Authority: docs/premium-direction.md § Type. Masthead, folio, pull
+     quote, and the printed strip — the four loud moves. Everything else
+     keeps the direction's quiet roles above. */
+  --text-masthead: clamp(3rem, 8vw, 7.5rem);
+  --text-masthead--line-height: 0.98;
+  --text-folio: clamp(4rem, 10vw, 12rem);
+  --text-folio--line-height: 0.9;
+  --text-pullquote: clamp(1.75rem, 3.5vw, 2.75rem);
+  --text-pullquote--line-height: 1.2;
+  --text-strip: clamp(2rem, 4vw, 3.5rem);
+  --text-strip--line-height: 1.1;
 
   /* --- Spacing scale (8px base) ----------------------------------------
      Authority: docs/premium-direction.md § Layout — "One column, one
@@ -235,10 +248,11 @@ h3, h4 {
   scroll-behavior: auto;
   overscroll-behavior: contain;
   /* The keyboard item tour (←/→) and the skip link both land focus with
-     `scrollIntoView`; the header and footer are `fixed` (out of flow), so
-     without scroll padding a stop focused at the top of the scroller hides
-     under the chrome. PageShell measures both heights into these custom
-     properties ON THIS ELEMENT, so the padding always tracks the live chrome
+     `scrollIntoView`; the header is `fixed` (out of flow), so without scroll
+     padding a stop focused at the top of the scroller hides under it, and the
+     bottom padding keeps a stop focused at the end clear of the colophon.
+     PageShell measures both heights into these custom properties ON THIS
+     ELEMENT, so the padding always tracks the live chrome
      (zoom, the opening mobile menu, a footer wrap). Direction § Principles 5:
      keyboard-only reading without overlap. */
   scroll-padding-top: var(--page-header-offset, 0px);
@@ -365,5 +379,100 @@ h3, h4 {
   }
   to {
     transform: translateX(-50%);
+  }
+}
+
+/* =========================================================================
+   BROADSHEET LAYER (additive, 2026-10-21).
+   Authority: docs/premium-direction.md §§ Type/Layout/Motion/Chrome.
+   The printed sheet: masthead, folios, heavy bars, marginalia, the strip.
+   ========================================================================= */
+
+/* Oversized folio numeral — clipped by its column edge, never a label. */
+.folio-numeral {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-folio);
+  line-height: var(--text-folio--line-height);
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  opacity: 0.12;
+  user-select: none;
+}
+
+/* Dark: 12% paper-on-black vanishes (~1.2:1), so the folio steps up to 45% —
+   still a ghost behind the content, now ~3.8:1 against the ground (large
+   text needs 3:1). The light 12% ink-on-paper ghost is untouched. */
+html[data-theme="dark"] .folio-numeral {
+  opacity: 0.45;
+}
+
+/* Masthead name: enormous, tight, tracked in. */
+.masthead-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-masthead);
+  line-height: var(--text-masthead--line-height);
+  letter-spacing: -0.015em;
+  word-spacing: 0.04em;
+  text-wrap: balance;
+}
+
+/* Below `lg` the masthead floor drops one step: at phone widths three lines
+   at 3rem push the printed strip below the first screen, and the direction's
+   quiet roles are untouched — desktop keeps the full clamp. */
+@media (max-width: 1023.98px) {
+  .masthead-name {
+    font-size: clamp(2.5rem, 8vw, 7.5rem);
+  }
+}
+
+/* One mask line of the masthead reveal. */
+.masthead-mask {
+  display: block;
+  overflow: hidden;
+}
+
+/* Marginalia: small mono notes in the outer margin. */
+.marginalia {
+  font-size: var(--text-micro);
+  line-height: var(--text-micro--line-height);
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+
+/* Running head: the 32px mono bar under the header. */
+.running-head {
+  height: 2rem;
+  font-size: var(--text-micro);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+/* Printed strip: full-bleed, uppercase, ink on cream, claret bars. */
+.strip-text {
+  font-size: var(--text-strip);
+  line-height: var(--text-strip--line-height);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--color-text);
+}
+
+/* Pull quote: one display-size claim with a claret rule. */
+.pullquote-text {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: var(--text-pullquote);
+  line-height: var(--text-pullquote--line-height);
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+
+/* The new motion honours the visitor: everything static when asked. */
+@media (prefers-reduced-motion: reduce) {
+  .masthead-mask > * {
+    clip-path: none !important;
+    transform: none !important;
+    opacity: 1 !important;
   }
 }

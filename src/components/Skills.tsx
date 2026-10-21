@@ -3,6 +3,14 @@ import { GROUP_NOTES, repos, TIER_WORDS } from "../content/skills";
 import { fadeUp } from "../lib/motion";
 import { RouteLink } from "../lib/router";
 import { PageFoot } from "./PageFoot";
+import {
+  Folio,
+  GUTTER_CELL,
+  GUTTER_CONTAINER,
+  GUTTER_GRID,
+  Kicker,
+  folioFromKicker,
+} from "./InstrumentBand";
 
 /**
  * Skills — the capability record as a two-edge index.
@@ -42,21 +50,36 @@ const CHIP =
 const ACTION =
   "mt-8 inline-flex min-h-11 items-center rounded-xs text-label font-semibold text-accent-text transition-colors duration-link hover:underline";
 
+/** The route's kicker — the folio's only source (see folioFromKicker). */
+const KICKER = "07 / Skills";
+
 export function Skills() {
   return (
-    <section id="skills" className="px-6 py-16 lg:px-10">
-      <div className="mx-auto w-full max-w-[68ch]">
-        <motion.div variants={fadeUp} initial="hidden" animate="visible">
-          <h1 className="text-display font-semibold text-text">Skills</h1>
-          <p className="mt-4 max-w-[65ch] text-lead text-text">
-            Six groups in the order I reach for them: backend and languages,
-            data and messaging, cloud and DevOps, security and auth, AI-assisted
-            development, and testing and tools.
-          </p>
-          <RouteLink href="/contact" className={ACTION}>
-            Ask about a specific stack
-          </RouteLink>
-        </motion.div>
+    <section id="skills" className="px-6 py-16 lg:px-10 lg:py-24">
+      <div className={`${GUTTER_CONTAINER} ${GUTTER_GRID}`}>
+        <div aria-hidden="true" className={GUTTER_CELL}>
+          <div className="lg:sticky lg:top-32">
+            <Folio index={folioFromKicker(KICKER)} />
+          </div>
+        </div>
+        <div className="relative min-w-0 lg:col-span-8">
+          <motion.div variants={fadeUp} initial="hidden" animate="visible">
+            <div aria-hidden="true" className="h-[3px] w-full bg-text" />
+            <div className="flex items-baseline gap-3 pt-4">
+              <Kicker>{KICKER}</Kicker>
+            </div>
+            <h1 className="masthead-name mt-3 text-text">Skills</h1>
+            <p className="mt-4 max-w-[65ch] text-lead text-text">
+              Six groups in the order I reach for them: backend and languages,
+              data and messaging, cloud and DevOps, security and auth, AI-assisted
+              development, and testing and tools.
+            </p>
+            <RouteLink href="/contact" className={ACTION}>
+              Ask about a specific stack
+            </RouteLink>
+          </motion.div>
+
+          <div aria-hidden="true" className="mt-8 h-[3px] w-full bg-text" />
 
         {repos.map((group, index) => {
           const count = group.packages.length;
@@ -94,9 +117,9 @@ export function Skills() {
                 {group.packages.map((pkg) => (
                   <li
                     key={pkg.slug}
-                    className="grid grid-cols-1 gap-x-6 gap-y-1 border-b border-border py-4 sm:grid-cols-[minmax(0,1fr)_auto]"
+                    className="grid grid-cols-1 gap-x-6 gap-y-1 border-b border-border py-4 sm:grid-cols-12"
                   >
-                    <div>
+                    <div className="sm:col-span-8">
                       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                         <h3 className="text-body font-semibold text-text">
                           {pkg.name}
@@ -110,7 +133,7 @@ export function Skills() {
                       </p>
                     </div>
 
-                    <p className="text-detail font-medium text-text sm:text-right">
+                    <p className="text-detail font-medium text-text sm:col-span-4 sm:text-right">
                       {TIER_WORDS[pkg.tier]}
                     </p>
                   </li>
@@ -121,6 +144,7 @@ export function Skills() {
         })}
 
         <PageFoot />
+        </div>
       </div>
     </section>
   );

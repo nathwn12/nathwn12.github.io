@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { AnimatePresence, MotionConfig } from "framer-motion";
+import { CommandPalette } from "./components/CommandPalette";
 import { PageShell } from "./components/PageShell";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
@@ -129,7 +130,7 @@ export default function App() {
   const Content = routeByPath(route.path) ? (PAGES[route.id] ?? PAGES.hero) : NotFound;
 
   return (
-    <div className="bg-bg min-h-screen relative">
+    <div className="bg-bg relative flex h-dvh flex-col">
       <MotionConfig reducedMotion={motionPreferenceToMode(motionPreference)}>
         <a
           href="#main"
@@ -144,6 +145,8 @@ export default function App() {
         </a>
 
         <Header />
+
+        <CommandPalette />
 
         <AnimatePresence mode="wait" initial={false}>
           <PageShell key={route.path} route={route} direction={direction}>

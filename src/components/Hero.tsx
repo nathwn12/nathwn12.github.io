@@ -1,42 +1,71 @@
 import { useEffect, useRef, useState } from "react";
-import { animate, motion, useMotionValue } from "framer-motion";
+import {
+  animate,
+  motion,
+  useAnimationFrame,
+  useMotionValue,
+  useMotionValueEvent,
+  useScroll,
+  useVelocity,
+} from "framer-motion";
 import type { AnimationPlaybackControls } from "framer-motion";
+import { heroClaim, coreStack, availability } from "../content/hero";
 import { employer, experience } from "../content/experience";
 import { projects } from "../content/projects";
 import { RouteLink } from "../lib/router";
-import { fadeUp, heroIn, staggerChild, staggerParent } from "../lib/motion";
-import { CredentialsStrip, ProofBand } from "./ProofBand";
+import {
+  bandEnter,
+  fadeUp,
+  mastheadLine,
+  mastheadParent,
+  staggerChild,
+  staggerParent,
+} from "../lib/motion";
+import {
+  MARQUEE_EASE_BACK_MS,
+  marqueeRateForVelocity,
+} from "../lib/motion";
+import { CredentialsStrip } from "./ProofBand";
+import { ExperienceBand } from "./ExperienceBand";
+import { ForwardBand } from "./ForwardBand";
 import { PageFoot } from "./PageFoot";
 import { SystemAtlas } from "./SystemAtlas";
 import { WorkTeaser } from "./WorkTeaser";
+import { GUTTER_CONTAINER, Marginalia } from "./InstrumentBand";
 
 /**
  * Hero — the landing page, read as one statement followed by its evidence.
  *
- * Bands run in the direction's order (docs/premium-direction.md § Landing
- * wireframe): the title block carries the page's single moment of character
- * (weight and size, no second spectacle), the current role sits adjacent to it
- * in Detail, the real stack runs as a hairline-bounded seam, then the proof
- * marker, the selected work, and the credentials strip close the page — one
- * band after another, separated by 1px Line rules, so position carries
- * hierarchy instead of colour or cards.
+ * The title block carries the page's single moment of character: the opening
+ * claim typing itself through a rotating set of identities, then the role
+ * stated in words, the primary action phrase, and one plain prose line naming
+ * the stack the career was actually built on. Directly after the title block
+ * comes the seam — the real stack under two hairlines, scrolling unless held —
+ * then the backend experience band, the selected work, the forward band, and
+ * the credentials strip close the page, so position carries hierarchy instead
+ * of colour or cards.
  *
  * Copy is read from src/content/*.ts — this file states the claim and sequences
- * the evidence, it never authors a fact. Depth lives on the routes, not here:
+ * the evidence, it never authors a fact. The opening hook lives in
+ * src/content/hero.ts ({@link heroClaim}) and leads {@link HERO_PHRASES} so
+ * the claim has one home. Depth lives on the routes, not here:
  * there is no metric wall, no card grid, and no credentials list dressed as
  * decoration.
  *
  * Motion comes from src/lib/motion only (frozen token names): the statement
- * walks in per element (heroIn for the title, fadeUp for the clauses), and the
- * stack seam scrolls continuously — the seam is the one motion this file drives
- * itself, from a MotionValue, so the loop can be held (see
- * {@link TICKER_PX_PER_S}). Both loops honour
- * `prefers-reduced-motion: reduce`: the typed claim renders static and the
- * seam stands still, with no timer and no infinite animation scheduled.
- * When motion is allowed the seam carries its own Pause/Play control.
+ * walks in per element (heroIn for the title, fadeUp for the clauses), the
+ * claim types itself through the identities, and the stack seam scrolls
+ * continuously — the seam is the one motion this file drives itself, from a
+ * MotionValue, so the loop can be held (see {@link TICKER_PX_PER_S}). Both
+ * loops honour `prefers-reduced-motion: reduce`: the typed claim renders
+ * static and the seam stands still, with no timer and no infinite animation
+ * scheduled. The seam holds while hovered, while focus is inside it, and
+ * while the document is hidden. By owner decision there is no pause control:
+ * the hold mechanisms are the whole gate, no knob is offered.
  *
- * Authority: fleet brief (senior landing pass) + docs/premium-direction.md
- * § Landing, § Type, § Principles 1 and 5.
+ * Authority: owner brief 2026-10-21 (recruiter-first landing, motion restored
+ * without a pause control) + docs/premium-direction.md § Landing, § Type,
+ * § Principles 1 and 5.
  */
 
 /* The seam's index: real identifiers from the shipped work, de-duplicated and
@@ -60,9 +89,9 @@ const techStrip: string[] = Array.from(
  * The loop is driven from a MotionValue rather than from a variant, because a
  * variant's loop has no handle to hold: measured at 1440x900 (2026-10-14) the
  * strip kept running at 40px/s while hovered. WCAG 2.2.2 asks that movement
- * lasting over five seconds can be paused, and hovering or focusing the seam is
- * one mechanism — a hidden document or the Pause/Play control below holds it
- * too. `prefers-reduced-motion:
+ * lasting over five seconds can be paused, and hovering or focusing the seam
+ * is one mechanism — a hidden document holds it too.
+ * `prefers-reduced-motion:
  * reduce` stops it entirely (see {@link usePrefersReducedMotion}): no loop is
  * scheduled and the seam renders as a static list.
  */
@@ -75,11 +104,13 @@ const TICKER_PX_PER_S = 40;
  * fintech systems, an AI-equipped builder — so the claim opens on the payments
  * work before the identities rotate. After the opener, the remaining entries
  * rotate from a shuffled bag ({@link nextTypingState}) rather than in fixed
- * order, so the h1 varies without repeating the previous phrase. Kept here, in
- * the Hero surface, because the copy is the page's one bold move.
+ * order, so the h1 varies without repeating the previous phrase. The opener is
+ * read from src/content/hero.ts so the claim has one home; the rotation
+ * entries are kept here, in the Hero surface, because the copy is the page's
+ * one bold move.
  */
 export const HERO_PHRASES: readonly string[] = [
-  "Payment backends that hold up under production load.",
+  heroClaim,
   "A backend developer building fintech systems.",
   "An AI-equipped builder who ships measured change.",
   "An engineer who reads production before the diagram.",
@@ -272,12 +303,81 @@ function InsertCaret() {
   );
 }
 
+/**
+ * The hero meta rail — five instrument readings beside the statement at `lg`
+ * only. Below `lg` it is hidden: the same facts already stand in the title
+ * block lines and the bands beneath, and the rail's five rows would push the
+ * printed strip below the first screen on phones. Every value is read from an
+ * existing content module; nothing here is authored:
+ *
+ *  · IMPACT from src/content/experience.ts (payments entry id "02": its
+ *    percentage figure lifted out of its own `outcome` string, followed by
+ *    "faster payments"; omitted when the figure cannot be derived).
+ *  · LOCATION from the Contact address plate ("Hagonoy, Bulacan, Philippines").
+ *  · STATUS from src/content/hero.ts (`availability`), minus the remote tail.
+ *  · EXPERIENCE from src/content/experience.ts (`employer.period`).
+ *  · LAST SHIP from src/content/projects.ts (the latest project year).
+ *
+ * Labels and values only — no boxes, no icons.
+ */
+const LOCATION_META = "Philippines";
+
+const STATUS_META = availability.replace(/\s*[—–-]\s*remote\.?\s*$/i, "");
+
+const LAST_SHIP_META = String(
+  Math.max(...projects.map((project) => Number(project.year))),
+);
+
+/* The hero's proof line — derived, never typed. Reads the payments entry
+   (id "02") and lifts its percentage figure out of its own `outcome`
+   sentence with the same extraction the landing's ExperienceBand uses, so
+   the rail and the band can never disagree. Null when the entry or its
+   figure is absent — the rail row is then omitted, never hardcoded. */
+const paymentsEntry = experience.find((entry) => entry.id === "02");
+
+function impactFigure(outcome: string): string | null {
+  const match = outcome.match(/\d[\d,]*(?:\.\d+)?%/);
+  return match ? match[0] : null;
+}
+
+const IMPACT_META = paymentsEntry
+  ? impactFigure(paymentsEntry.outcome)
+  : null;
+
+const MONTH_INDEX: Record<string, number> = {
+  january: 0,
+  february: 1,
+  march: 2,
+  april: 3,
+  may: 4,
+  june: 5,
+  july: 6,
+  august: 7,
+  september: 8,
+  october: 9,
+  november: 10,
+  december: 11,
+};
+
+/** "March 2023 to May 2026" → "3 yrs 2 mos", straight off `employer.period`. */
+function tenureShort(period: string): string {
+  const match = period.match(
+    /([A-Za-z]+)\s+(\d{4})\s+to\s+([A-Za-z]+)\s+(\d{4})/,
+  );
+  if (!match) return "3 yrs 2 mos";
+  const start = MONTH_INDEX[match[1].toLowerCase()] ?? 0;
+  const end = MONTH_INDEX[match[3].toLowerCase()] ?? 0;
+  const total =
+    (Number(match[4]) - Number(match[2])) * 12 + (end - start);
+  const years = Math.floor(total / 12);
+  const months = total % 12;
+  return months === 0 ? `${years} yrs` : `${years} yrs ${months} mos`;
+}
+
+const EXPERIENCE_META = tenureShort(employer.period);
+
 export function Hero() {
   const { phrase, shown, reduceMotion } = useHeroTyping();
-  /* The visitor's own pause switch for the seam (WCAG 2.2.2). Hover/focus
-     hold still applies on top of it. Not offered under reduced motion —
-     the strip is already static then. */
-  const [paused, setPaused] = useState(false);
   /* The same pass reads the loop's length off the track, so the seconds that
      buy the ambient rate come from the rendered strip rather than from a
      constant, and the faces are settled first: a fallback face lays the strip
@@ -286,7 +386,7 @@ export function Hero() {
      what makes it holdable: the root's
      `<AnimatePresence mode="wait" initial={false}>` (src/App.tsx) suppresses an
      element's first declarative pass, which is what left the strip parked at the
-     loop's final keyframe, and a variant loop has no handle to pause. */
+     loop's final keyframe, and a variant loop has no handle to hold. */
   const trackRef = useRef<HTMLUListElement>(null);
   const trackX = useMotionValue(0);
   const [tickerSeconds, setTickerSeconds] = useState<number | null>(null);
@@ -306,9 +406,9 @@ export function Hero() {
 
   /* The seam's loop: the duplicated track travels exactly half its own width
      (the loop's seconds times the rate) and repeats for as long as the page is
-     up. `animate` hands back the playback controls, and they are kept — pausing
+     up. `animate` hands back the playback controls, and they are kept — holding
      the loop where it stands is what the hold below needs; re-creating the loop
-     on resume would jump the strip back to its start. */
+     would jump the strip back to its start. */
   const controlsRef = useRef<AnimationPlaybackControls | null>(null);
   useEffect(() => {
     if (reduceMotion || tickerSeconds === null) return;
@@ -324,9 +424,9 @@ export function Hero() {
     };
   }, [tickerSeconds, trackX, reduceMotion]);
 
-  /* The hold: hovering the seam, focusing inside it, hiding the document,
-     or pressing the pause control below pauses the loop; releasing
-     continues it from where it stopped. */
+  /* The hold: hovering the seam, focusing inside it, or hiding the document
+     pauses the loop where it stands; releasing continues it. No control is
+     offered — by owner decision the hold mechanisms are the whole gate. */
   const [held, setHeld] = useState(false);
   const [tabHidden, setTabHidden] = useState(false);
   useEffect(() => {
@@ -338,84 +438,204 @@ export function Hero() {
   useEffect(() => {
     const controls = controlsRef.current;
     if (!controls) return;
-    if (held || tabHidden || paused) controls.pause();
+    if (held || tabHidden) controls.pause();
     else controls.play();
-  }, [held, tabHidden, paused, tickerSeconds]);
+  }, [held, tabHidden, tickerSeconds]);
+
+  /* Scroll coupling — mass responds. The loop above keeps the resting rate;
+     scroll velocity lends it a clamped boost through the controls' playback
+     speed, so the strip itself never jumps: changing speed only changes how
+     fast the same clock advances, and the boost is always forward (rate >=
+     base > 0), capped at 2.5x. The hold above still wins — a paused clock
+     does not advance at any speed. Under reduced motion there is no loop to
+     couple, so there is nothing to do. */
+  const { scrollY } = useScroll();
+  const scrollVelocity = useVelocity(scrollY);
+  const couplingRef = useRef({
+    rate: TICKER_PX_PER_S,
+    lastVelocity: 0,
+    lastScrollAt: 0,
+  });
+  useMotionValueEvent(scrollVelocity, "change", (latest) => {
+    couplingRef.current.lastVelocity = latest;
+    couplingRef.current.lastScrollAt = performance.now();
+  });
+  useAnimationFrame((_, deltaMs) => {
+    const controls = controlsRef.current;
+    if (reduceMotion || tickerSeconds === null || !controls) return;
+    const coupling = couplingRef.current;
+    const settled =
+      performance.now() - coupling.lastScrollAt > MARQUEE_EASE_BACK_MS;
+    const target = settled
+      ? TICKER_PX_PER_S
+      : marqueeRateForVelocity(coupling.lastVelocity);
+    /* Exponential approach: fast enough to feel the scroll, settled back to
+       base well inside the ease-back window once scrolling stops. */
+    const alpha = 1 - Math.exp(-deltaMs / 140);
+    coupling.rate += (target - coupling.rate) * alpha;
+    if (Math.abs(target - coupling.rate) < 0.005) coupling.rate = target;
+    controls.speed = coupling.rate / TICKER_PX_PER_S;
+  });
 
   return (
-    <section id="hero" className="flex flex-col">
-      {/* Title block — the one bold move on the page. Left aligned, one claim
-          sentence, then the role stated in words with no separator glyphs. */}
-      <div className="px-6 pt-14 pb-block lg:px-10 lg:pt-20">
-        <motion.div
-          initial="hidden"
+    <section id="hero" className="flex flex-col overflow-x-clip">
+      {/* Masthead — the name set as a newspaper nameplate: a 3px ink rule,
+          a mono dateline, the name at masthead scale, another 3px rule.
+          The typing loop is the deck below it; the role, status, and CTA
+          sit in the 12-column band under the deck. */}
+      <div className={`${GUTTER_CONTAINER} px-6 pt-4 lg:px-10 lg:pt-8`}>
+        <div aria-hidden="true" className="h-[3px] w-full bg-text" />
+        <motion.p
+          initial={reduceMotion ? "visible" : "hidden"}
           animate="visible"
-          variants={staggerParent}
-          className="mx-auto w-full max-w-[68ch]"
+          variants={fadeUp}
+          className="flex flex-wrap gap-x-3 py-2 font-mono text-micro uppercase tracking-[0.14em] text-text-muted lg:py-3"
         >
-          <motion.h1
-            variants={heroIn}
-            aria-label={phrase}
-            className="grid max-w-[16ch] grid-cols-1 text-[clamp(2.5rem,6vw,4rem)] leading-[1.04] font-semibold text-text"
-          >
-            {/* Fixed-length Insert: every identity is laid out invisibly in the
-                SAME grid cell as the typed one, so the h1 is always exactly as
-                tall as the longest identity — including its caret — and the
-                claim can type itself out without ever reflowing the bands
-                below. No reserved magic height, and no drift at any breakpoint. */}
+          <span>NATHWN12</span>
+          <span aria-hidden="true">—</span>
+          <span>Backend systems</span>
+          <span aria-hidden="true">—</span>
+          <span>Designed and built by hand</span>
+        </motion.p>
+        <motion.h1
+          initial={reduceMotion ? "visible" : "hidden"}
+          animate="visible"
+          variants={mastheadParent}
+          aria-label="Nathaniel Nikolai Ladero"
+          className="masthead-name py-2 text-text"
+        >
+          <span className="masthead-mask">
+            <motion.span variants={mastheadLine} className="block">
+              Nathaniel Nikolai
+            </motion.span>
+          </span>
+          <span className="masthead-mask">
+            <motion.span variants={mastheadLine} className="block">
+              Ladero
+            </motion.span>
+          </span>
+        </motion.h1>
+        <div aria-hidden="true" className="mt-2 h-[3px] w-full bg-text" />
+
+        {/* Deck — the typing loop as standfirst, set in the display face. */}
+        <motion.p
+          initial={reduceMotion ? "visible" : "hidden"}
+          animate="visible"
+          variants={fadeUp}
+          aria-label={phrase}
+          className="max-w-[62ch] py-4 font-display text-[clamp(1.25rem,2.5vw,1.75rem)] leading-snug text-text lg:py-6"
+        >
+          <span aria-hidden="true" className="grid grid-cols-1">
             {HERO_PHRASES.map((identity) => (
-              <span
-                key={identity}
-                aria-hidden="true"
-                className="col-start-1 row-start-1 invisible"
-              >
+              <span key={identity} className="invisible col-start-1 row-start-1">
                 {identity}
                 <InsertCaret />
               </span>
             ))}
-            <span aria-hidden="true" className="col-start-1 row-start-1">
+            <span className="col-start-1 row-start-1">
               {shown}
               <InsertCaret />
             </span>
-          </motion.h1>
+          </span>
+        </motion.p>
 
-
-          <motion.p
-            variants={fadeUp}
-            className="mt-6 max-w-[62ch] text-lead text-text"
+        <div className="pb-2 lg:grid lg:grid-cols-12 lg:gap-x-6 lg:pb-10">
+          <motion.div
+            initial={reduceMotion ? "visible" : "hidden"}
+            animate="visible"
+            variants={staggerParent}
+            className="min-w-0 lg:col-span-7"
           >
-            C# and ASP.NET Core, Ubuntu servers, Docker, and CI/CD, measured by
-            what changed in production rather than by the size of the stack.
-          </motion.p>
-
-          <motion.p
-            variants={fadeUp}
-            className="mt-5 max-w-[62ch] text-detail text-text-muted text-balance"
-          >
-            {employer.role}, {employer.company}. {employer.location},{" "}
-            {employer.period}.
-          </motion.p>
-
-          <motion.p variants={staggerChild} className="mt-8">
-            <RouteLink
-              href="/contact"
-              data-nav-item
-              className="flex min-h-11 w-fit items-center rounded-xs text-lead font-semibold text-accent-text transition-colors duration-link hover:underline"
+            <motion.p
+              variants={fadeUp}
+              className="max-w-[62ch] text-lead text-text"
             >
-              Get in touch about a role
-            </RouteLink>
-          </motion.p>
-        </motion.div>
+              {employer.role} at {employer.company}, {employer.location},{" "}
+              {employer.period}.
+            </motion.p>
+
+            <motion.p variants={staggerChild} className="mt-6 lg:mt-8">
+              <RouteLink
+                href="/contact"
+                data-nav-item
+                className="flex min-h-11 w-fit items-center rounded-xs text-lead font-semibold text-accent-text transition-colors duration-link hover:underline"
+              >
+                Get in touch about a role
+              </RouteLink>
+            </motion.p>
+
+            <motion.p
+              variants={fadeUp}
+              className="mt-2 text-detail text-text-muted lg:mt-3"
+            >
+              {availability}
+            </motion.p>
+
+            <motion.p
+              variants={fadeUp}
+              className="mt-4 max-w-[60ch] text-detail text-text-muted lg:mt-6"
+            >
+              {coreStack}
+            </motion.p>
+          </motion.div>
+
+          <motion.dl
+            initial={reduceMotion ? "visible" : "hidden"}
+            animate="visible"
+            variants={fadeUp}
+            aria-label="Profile summary"
+            className="mt-6 hidden flex-col gap-1 border-t border-border pt-4 lg:col-span-5 lg:mt-0 lg:flex lg:gap-2 lg:border-t-0 lg:pt-0"
+          >
+            {IMPACT_META ? (
+              <div>
+                <dt className="sr-only">Impact</dt>
+                <dd className="font-mono text-micro whitespace-nowrap text-text-muted">
+                  IMPACT — {IMPACT_META} faster payments
+                </dd>
+              </div>
+            ) : null}
+            <div>
+              <dt className="sr-only">Location</dt>
+              <dd className="font-mono text-micro whitespace-nowrap text-text-muted">
+                LOCATION — {LOCATION_META}
+              </dd>
+            </div>
+            <div>
+              <dt className="sr-only">Status</dt>
+              <dd className="font-mono text-micro whitespace-nowrap text-text-muted">
+                STATUS — {STATUS_META}
+              </dd>
+            </div>
+            <div>
+              <dt className="sr-only">Experience</dt>
+              <dd className="font-mono text-micro whitespace-nowrap text-text-muted">
+                EXPERIENCE — {EXPERIENCE_META}
+              </dd>
+            </div>
+            <div>
+              <dt className="sr-only">Last ship</dt>
+              <dd className="font-mono text-micro whitespace-nowrap text-text-muted">
+                LAST SHIP — {LAST_SHIP_META}
+              </dd>
+            </div>
+          </motion.dl>
+        </div>
       </div>
 
-      {/* The seam between the statement and its evidence: the real stack under
-          two hairlines, scrolling unless held or paused — hovering, focusing
-          inside, or hiding the document pauses it, as does the pause control
-          below (see {@link TICKER_PX_PER_S}). Under `prefers-reduced-motion:
-          reduce` it renders as a static wrapping list with no loop. Each item
-          is separated by a 1px Line rule, never a glyph. */}
+      {/* The printed strip: full-bleed, uppercase, ink on cream, claret
+          bars between items. Keeps its mask and hover/focus hold. */}
       <div
-        className="overflow-hidden border-y border-border py-3"
+        className="overflow-hidden border-y-[3px] border-text py-4"
+        style={
+          reduceMotion
+            ? undefined
+            : {
+                maskImage:
+                  "linear-gradient(to right, transparent, black 56px, black calc(100% - 56px), transparent)",
+                WebkitMaskImage:
+                  "linear-gradient(to right, transparent, black 56px, black calc(100% - 56px), transparent)",
+              }
+        }
         onMouseEnter={() => setHeld(true)}
         onMouseLeave={() => setHeld(false)}
         onFocus={() => setHeld(true)}
@@ -435,45 +655,83 @@ export function Hero() {
             (tech, index) => (
               <li
                 key={`${tech}-${index}`}
-                className="flex items-center gap-6 pr-6 text-detail text-text-muted"
+                className="strip-text flex items-center gap-8 pr-8 font-display font-semibold whitespace-nowrap"
               >
                 {tech}
-                <span className="h-3 w-px bg-border" aria-hidden="true" />
+                <span
+                  className="inline-block h-[3px] w-8 bg-accent"
+                  aria-hidden="true"
+                />
               </li>
             ),
           )}
         </motion.ul>
       </div>
 
-      {/* The seam's pause control (WCAG 2.2.2): a native toggle that stops the
-          loop where it stands and resumes it. Not offered when the OS asks for
-          reduced motion — the strip is already static then. */}
-      {!reduceMotion && (
-        <div className="flex justify-end px-6 lg:px-10">
-          <button
-            type="button"
-            onClick={() => setPaused((p) => !p)}
-            aria-pressed={paused}
-            className="inline-flex min-h-6 items-center px-1 text-detail text-text-muted underline-offset-2 hover:underline"
-          >
-            {paused ? "Play ticker" : "Pause ticker"}
-          </button>
-        </div>
-      )}
+      <ExperienceBand
+        marginalia={
+          <>
+            <Marginalia>Tenure — {employer.period}</Marginalia>
+            <Marginalia>{experience.length} entries, newest first</Marginalia>
+          </>
+        }
+      />
+
+      <PullQuote />
+
+      <WorkTeaser
+        marginalia={
+          <>
+            <Marginalia>
+              {projects.length} projects, featured first
+            </Marginalia>
+            <Marginalia>Full notes live on the projects page</Marginalia>
+          </>
+        }
+      />
 
       <SystemAtlas />
 
-      <ProofBand />
-
-      <WorkTeaser />
+      <ForwardBand />
 
       <CredentialsStrip />
 
-      <div className="px-6 pb-section lg:px-10">
-        <div className="mx-auto w-full max-w-[68ch]">
+      <div className={`${GUTTER_CONTAINER} px-6 pt-10 pb-16 lg:px-10 lg:pb-24`}>
+        <div aria-hidden="true" className="h-[3px] w-full bg-text" />
+        <div className="pt-6">
           <PageFoot accentResume />
         </div>
       </div>
     </section>
+  );
+}
+
+/**
+ * Pull quote — the page's single display-size claim, drawn from the
+ * payments entry's own outcome sentence, with a claret rule. Placed
+ * between the experience and work bands so the number lands before
+ * the project list.
+ */
+function PullQuote() {
+  const reduceMotion = usePrefersReducedMotion();
+  const entry = experience.find((item) => item.id === "02");
+  if (!entry) return null;
+  return (
+    <aside
+      aria-label="Pull quote"
+      className={`${GUTTER_CONTAINER} px-6 pt-12 lg:grid lg:grid-cols-12 lg:gap-x-6 lg:px-10 lg:pt-16`}
+    >
+      <motion.blockquote
+        initial={reduceMotion ? "visible" : "hidden"}
+        whileInView="visible"
+        viewport={{ once: true, margin: "-15% 0px" }}
+        variants={bandEnter}
+        className="border-l-[3px] border-accent pl-6 lg:col-span-7 lg:col-start-5"
+      >
+        <p className="pullquote-text max-w-[30ch] text-text">
+          {entry.outcome}
+        </p>
+      </motion.blockquote>
+    </aside>
   );
 }

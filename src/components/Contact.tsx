@@ -6,6 +6,14 @@ import { credentials } from "../content/credentials";
 import { fadeIn, fadeUp } from "../lib/motion";
 import { navigate } from "../lib/router";
 import { PageFoot } from "./PageFoot";
+import {
+  Folio,
+  GUTTER_CELL,
+  GUTTER_CONTAINER,
+  GUTTER_GRID,
+  Kicker,
+  folioFromKicker,
+} from "./InstrumentBand";
 
 /**
  * Contact — the conversion point, and the quietest page on the site.
@@ -66,6 +74,9 @@ const MAILTO_HREF =
 const ISSUES_HREF = "https://github.com/nathwn12/nathwn12/issues/new";
 
 const THANKS_PATH = "/thanks";
+
+/** The route's kicker — the folio's only source (see folioFromKicker). */
+const KICKER = "09 / Contact";
 
 /* Relay-form field chrome: quiet bordered controls on the page ground. */
 const FIELD_LABEL = "block text-label font-medium text-text";
@@ -355,21 +366,33 @@ export function Contact() {
   }
 
   return (
-    <section id="contact" className="px-6 py-16 lg:px-10">
-      <div className="mx-auto w-full max-w-[68ch]">
-        <motion.div variants={fadeUp} initial="hidden" animate="visible">
-          <h1 className="text-display font-semibold text-text">Contact</h1>
-          <p className="mt-4 max-w-[65ch] text-lead text-text">
-            Send a note about a role, a system, or a problem worth solving — it
-            reaches my inbox directly and I answer from Hagonoy, Bulacan.
-          </p>
-          {/* The page's one primary action phrase, at the end of the title
-              block (docs/premium-direction.md § Layout): it opens the
-              prefilled draft, not a second copy of the address. */}
-          <a href={MAILTO_HREF} className={ACTION}>
-            Write an email
-          </a>
-        </motion.div>
+    <section id="contact" className="px-6 py-16 lg:px-10 lg:py-24">
+      <div className={`${GUTTER_CONTAINER} ${GUTTER_GRID}`}>
+        <div aria-hidden="true" className={GUTTER_CELL}>
+          <div className="lg:sticky lg:top-32">
+            <Folio index={folioFromKicker(KICKER)} />
+          </div>
+        </div>
+        <div className="relative min-w-0 lg:col-span-7">
+          <motion.div variants={fadeUp} initial="hidden" animate="visible">
+            <div aria-hidden="true" className="h-[3px] w-full bg-text" />
+            <div className="flex items-baseline gap-3 pt-4">
+              <Kicker>{KICKER}</Kicker>
+            </div>
+            <h1 className="masthead-name mt-3 text-text">Contact</h1>
+            <p className="mt-4 max-w-[65ch] text-lead text-text">
+              Send a note about a role, a system, or a problem worth solving — it
+              reaches my inbox directly and I answer from Hagonoy, Bulacan.
+            </p>
+            {/* The page's one primary action phrase, at the end of the title
+                block (docs/premium-direction.md § Layout): it opens the
+                prefilled draft, not a second copy of the address. */}
+            <a href={MAILTO_HREF} className={ACTION}>
+              Write an email
+            </a>
+          </motion.div>
+
+          <div aria-hidden="true" className="mt-8 h-[3px] w-full bg-text" />
 
         {/* Relay form first; the mailto block stays unchanged beneath it as
             the secondary path. */}
@@ -377,8 +400,8 @@ export function Contact() {
 
         {/* Address plate: the direct email link phrase and the location in
             words, side by side as labelled pairs. */}
-        <dl className="mt-16 grid grid-cols-1 gap-x-10 gap-y-6 border-t border-border pt-8 sm:grid-cols-2">
-          <div>
+        <dl className="mt-16 grid grid-cols-1 gap-x-6 gap-y-6 border-t border-border pt-8 lg:grid-cols-12">
+          <div className="lg:col-span-7">
             <dt className="text-label font-medium text-text-muted">
               Direct email
             </dt>
@@ -391,7 +414,7 @@ export function Contact() {
               </a>
             </dd>
           </div>
-          <div>
+          <div className="lg:col-span-5">
             <dt className="text-label font-medium text-text-muted">Location</dt>
             <dd className="mt-2 max-w-[65ch] text-body text-text">
               Hagonoy, Bulacan, Philippines, UTC+8 (Philippine time)
@@ -499,6 +522,7 @@ export function Contact() {
         </div>
 
         <PageFoot />
+        </div>
       </div>
     </section>
   );
