@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { GROUP_NOTES, repos, TIER_WORDS } from "../content/skills";
+import { GROUP_NOTES, groupSizeNote, repos, skillsLede, TIER_WORDS } from "../content/skills";
 import { fadeUp } from "../lib/motion";
 import { RouteLink } from "../lib/router";
 import { PageFoot } from "./PageFoot";
@@ -70,9 +70,7 @@ export function Skills() {
             </div>
             <h1 className="masthead-name mt-3 text-text">Skills</h1>
             <p className="mt-4 max-w-[65ch] text-lead text-text">
-              Six groups in the order I reach for them: backend and languages,
-              data and messaging, cloud and DevOps, security and auth, AI-assisted
-              development, and testing and tools.
+              {skillsLede}
             </p>
             <RouteLink href="/contact" className={ACTION}>
               Ask about a specific stack
@@ -95,15 +93,14 @@ export function Skills() {
               {/* Heading row: the group's place in the reading order, its name,
                   and its size in words. The rule grows to the right of them. */}
               <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                <span className="text-detail tabular-nums text-text-muted">
-                  {String(index + 1).padStart(2, "0")}
+                <span className="text-micro tabular-nums text-text-muted opacity-70">
+                  {String(index + 1)}
                 </span>
                 <h2 className="text-title font-semibold text-text">
                   {group.label}
                 </h2>
                 <span className="text-detail text-text-muted">
-                  {count} {count === 1 ? "package" : "packages"}, in the order I
-                  reach for them
+                  {groupSizeNote(count)}
                 </span>
               </div>
 

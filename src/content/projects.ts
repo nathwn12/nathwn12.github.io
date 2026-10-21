@@ -23,6 +23,40 @@ import { ProjectSchema } from "../types/models";
 
 export type Token = "accent" | "accent-2" | "accent-3" | "accent-4";
 
+/** Small-count words, so a numeral never sits beside a folio or rank numeral.
+    Falls back to the digits for counts outside the table. */
+const COUNT_WORDS: Record<number, string> = {
+  0: "zero",
+  1: "one",
+  2: "two",
+  3: "three",
+  4: "four",
+  5: "five",
+  6: "six",
+  7: "seven",
+  8: "eight",
+  9: "nine",
+  10: "ten",
+  11: "eleven",
+  12: "twelve",
+  13: "thirteen",
+  14: "fourteen",
+  15: "fifteen",
+  16: "sixteen",
+  17: "seventeen",
+  18: "eighteen",
+  19: "nineteen",
+  20: "twenty",
+};
+
+export function countWords(n: number): string {
+  return COUNT_WORDS[n] ?? String(n);
+}
+
+function cap(word: string): string {
+  return word.charAt(0).toUpperCase() + word.slice(1);
+}
+
 export interface ProjectLore {
   id: string;
   /** Entry title of the project band */
@@ -332,6 +366,25 @@ export const archived: ArchivedProject[] = [
       "Deprecated 2026-10-21 — OpenCode 2.1 restored the built-in todowrite. See EOL.md.",
   },
 ];
+
+/** Route lede: selection criteria (public repos under the owner) and reading
+    order (featured first). Never restates the title. */
+export const projectsLede = `${cap(countWords(projects.length))} public repositories under github.com/nathwn12 — featured work first, then the supporting tools.`;
+
+/** Route support line: what lives on the page (case-study facts, retired foot). */
+export const projectsSupport =
+  "Each band pairs what the project does with its case-study facts — every entry built and maintained solo, no star counts; retired work sits at the foot of the page.";
+
+/** Landing teaser lede: the sequence rationale, stated once — featured first,
+    one line each, full notes on the route page. */
+export const workTeaserLede =
+  "Featured first, one line each — titles link to the full case notes on the projects page.";
+
+/** Landing marginalia: the count in words, no rationale repeat. */
+export const projectsMarginalia = `${countWords(projects.length)} projects`;
+
+/** Landing link to the route page: the count in words. */
+export const allProjectsLabel = `All ${countWords(projects.length)} projects`;
 
 /* Dormant zod models wired in: token → palette hex (dark theme) so the real
    data can be validated against ProjectSchema at module load. */

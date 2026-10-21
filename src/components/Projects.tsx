@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { archived, projects } from "../content/projects";
+import { archived, projects, projectsLede, projectsSupport } from "../content/projects";
 import { heroIn, springSnappy } from "../lib/motion";
 import { RouteLink } from "../lib/router";
 import { PageFoot } from "./PageFoot";
@@ -86,14 +86,10 @@ export default function Projects() {
             </div>
             <h1 className="masthead-name mt-3 text-text">Projects</h1>
             <p className="mt-4 max-w-[65ch] text-lead text-text">
-              {projects.length} selected open-source projects on this page,
-              featured work first.
+              {projectsLede}
             </p>
             <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
-              Each project below is a public repository on github.com/nathwn12,
-              built and maintained solo. The order is featured work first, then
-              the supporting tools. No star count is shown: the signal here is
-              what each one does.
+              {projectsSupport}
             </p>
             <RouteLink href="/contact" className={ACTION}>
               Start a conversation about this work
@@ -115,8 +111,8 @@ export default function Projects() {
                   : `mt-16 border-t border-border pt-8 ${RAIL}`
               }
             >
-              <p className={`text-detail tabular-nums text-text-muted ${RAIL_RANK} lg:pt-1`}>
-                {String(index + 1).padStart(2, "0")}
+              <p className={`text-micro tabular-nums text-text-muted opacity-70 ${RAIL_RANK} lg:pt-1`}>
+                {String(index + 1)}
               </p>
 
               <div className={`mt-4 ${RAIL_BODY} lg:mt-0`}>

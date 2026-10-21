@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
-import { projects } from "../content/projects";
+import { allProjectsLabel, projects, workTeaserLede } from "../content/projects";
 import { RouteLink } from "../lib/router";
 import { staggerChild } from "../lib/motion";
 import { BandShell } from "./InstrumentBand";
@@ -8,9 +8,10 @@ import { BandShell } from "./InstrumentBand";
 /**
  * WorkTeaser — the landing's selected work, three ranked bands.
  *
- * The teaser is deliberately a teaser: a large muted rank numeral in the left
- * gutter (a real sequence, stated once per row at display size, never a 12px
- * label), the entry title, one derived line per row read straight from the
+ * The teaser is deliberately a teaser: a small unpadded rank numeral in the
+ * left gutter (a real sequence, one step below the folio in size and a step
+ * further muted — never 12px, never leading-zero, never standing without its
+ * rationale, which the lede states once), the entry title, one derived line per row read straight from the
  * project's own record (`role · kind · year`), the two headline measures
  * stated as labelled sentences beside the name they belong to, and the stack
  * inline as Line-bordered chips. The full notes stay on /projects, and each
@@ -66,14 +67,14 @@ export function WorkTeaser({ marginalia }: { marginalia?: ReactNode }) {
     >
       <div className="mt-3 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1">
         <p className="text-detail text-text-muted">
-          Open-source work following the experience record, featured work first.
+          {workTeaserLede}
         </p>
         <RouteLink
           href="/projects"
           data-nav-item
           className="flex min-h-11 items-center rounded-xs text-label font-medium text-text-muted transition-colors duration-link hover:text-accent-text hover:underline"
         >
-          All {projects.length} projects
+          {allProjectsLabel}
         </RouteLink>
       </div>
 
@@ -84,8 +85,8 @@ export function WorkTeaser({ marginalia }: { marginalia?: ReactNode }) {
               variants={staggerChild}
               className={`grid gap-x-6 gap-y-2 border-b border-border py-6 lg:grid-cols-[5rem_minmax(0,1fr)]`}
             >
-              <p className="font-display text-[clamp(2rem,3.5vw,3.5rem)] leading-none font-semibold tabular-nums text-text-muted">
-                {String(index + 1).padStart(2, "0")}
+              <p className="font-display text-[clamp(1.5rem,2.5vw,2.5rem)] leading-none font-semibold tabular-nums text-text-muted opacity-70">
+                {String(index + 1)}
               </p>
 
               <div className="min-w-0">

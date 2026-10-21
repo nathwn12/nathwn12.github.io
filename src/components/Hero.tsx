@@ -11,8 +11,8 @@ import {
 import type { AnimationPlaybackControls } from "framer-motion";
 import { heroClaim, coreStack, availability } from "../content/hero";
 import { CONTACT_EMAIL } from "../lib/contact";
-import { employer, experience } from "../content/experience";
-import { projects } from "../content/projects";
+import { employer, experience, experienceMarginalia } from "../content/experience";
+import { projects, projectsMarginalia } from "../content/projects";
 import {
   bandEnter,
   fadeUp,
@@ -114,9 +114,9 @@ const TICKER_PX_PER_S = 40;
 /**
  * The hero identities. The first entry is the fixed opening hook — it leads
  * every visit and is the static default (first paint, no-JS),
- * never randomized; the rest state what he is — a backend developer building
- * fintech systems, an AI-equipped builder — so the claim opens on the payments
- * work before the identities rotate. After the opener, the remaining entries
+ * never randomized; the rest state what he is in varied cadence — a clipped
+ * fragment, an em-dash clause, a colon-led turn — so the rotation never
+ * settles into one sentence shape. After the opener, the remaining entries
  * rotate from a shuffled bag ({@link nextTypingState}) rather than in fixed
  * order, so the h1 varies without repeating the previous phrase. The opener is
  * read from src/content/hero.ts so the claim has one home; the rotation
@@ -125,9 +125,9 @@ const TICKER_PX_PER_S = 40;
  */
 export const HERO_PHRASES: readonly string[] = [
   heroClaim,
-  "A backend developer building fintech systems.",
-  "An AI-equipped builder who ships measured change.",
-  "An engineer who reads production before the diagram.",
+  "Backend developer, fintech systems in production.",
+  "An AI-equipped builder — every change measured before it ships.",
+  "Production first, diagrams second: I read the live system.",
 ];
 
 /** Typing cadence in ms: one beat per keystroke, a longer hold on a finished
@@ -723,7 +723,7 @@ export function Hero() {
         marginalia={
           <>
             <Marginalia>Tenure — {employer.period}</Marginalia>
-            <Marginalia>{experience.length} entries, newest first</Marginalia>
+            <Marginalia>{experienceMarginalia}</Marginalia>
           </>
         }
       />
@@ -734,7 +734,7 @@ export function Hero() {
         marginalia={
           <>
             <Marginalia>
-              {projects.length} projects, featured first
+              {projectsMarginalia}
             </Marginalia>
             <Marginalia>Full notes live on the projects page</Marginalia>
           </>

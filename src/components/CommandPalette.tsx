@@ -243,14 +243,14 @@ export function CommandPalette() {
         role="dialog"
         aria-modal="true"
         aria-labelledby={TITLE_ID}
-        className="relative w-full max-w-[68ch] animate-[nnl-fade-in_160ms_ease-out] rounded-sm border border-border bg-bg motion-reduce:animate-none"
+        className="relative w-full max-w-[68ch] animate-[nnl-fade-in_160ms_ease-out] rounded-none border border-border bg-bg motion-reduce:animate-none"
       >
         <h2 id={TITLE_ID} className="sr-only">
           Command palette
         </h2>
         {copyState === "idle" ? (
           <>
-            <div className="border-b border-border px-4">
+            <div className="border-b-2 border-text px-4">
               <label htmlFor={INPUT_ID} className="sr-only">
                 {INPUT_LABEL}
               </label>
@@ -289,7 +289,7 @@ export function CommandPalette() {
                     setActiveIndex(0);
                     inputRef.current?.focus();
                   }}
-                  className="mt-4 inline-flex min-h-11 items-center rounded-sm border border-border px-6 py-3 text-label font-semibold text-text transition-colors duration-submit hover:border-border-accent"
+                  className="mt-4 inline-flex min-h-11 items-center rounded-none border border-border px-6 py-3 text-label font-semibold text-text transition-colors duration-submit hover:border-border-accent"
                 >
                   Clear the query
                 </button>
@@ -299,13 +299,13 @@ export function CommandPalette() {
                 role="listbox"
                 id={LISTBOX_ID}
                 aria-label="Results"
-                className="max-h-[60vh] overflow-y-auto py-2"
+                className="max-h-[60vh] overflow-y-auto py-1"
               >
                 {sections.map((section) => (
                   <li key={section.group} role="presentation">
                     <p
                       id={`palette-group-${section.group}`}
-                      className="px-4 pt-3 pb-1 text-label font-medium text-text-muted"
+                      className="px-4 pt-2 pb-1 text-label font-medium text-text-muted"
                     >
                       {section.group}
                     </p>
@@ -322,7 +322,7 @@ export function CommandPalette() {
                             onMouseDown={(e) => e.preventDefault()}
                             onMouseEnter={() => setActiveIndex(index)}
                             onClick={() => activate(item)}
-                            className={`flex min-h-11 cursor-pointer items-baseline justify-between gap-4 px-4 py-2 text-body transition-colors duration-nav ${
+                            className={`flex min-h-11 cursor-pointer items-baseline justify-between gap-4 px-4 py-1 text-body transition-colors duration-nav ${
                               selected ? "bg-surface" : "bg-transparent"
                             }`}
                           >
@@ -331,7 +331,7 @@ export function CommandPalette() {
                             >
                               {item.label}
                             </span>
-                            <span className="shrink-0 text-detail text-text-muted">
+                            <span className="shrink-0 text-detail text-text">
                               {item.hint}
                             </span>
                           </li>
@@ -342,6 +342,9 @@ export function CommandPalette() {
                 ))}
               </ul>
             )}
+            <p className="border-t border-border px-4 py-2 text-detail text-text">
+              ↑↓ navigate · ↵ open · esc close
+            </p>
             <p role="status" className="sr-only">
               {countText}
             </p>
@@ -372,7 +375,7 @@ export function CommandPalette() {
               ref={doneRef}
               type="button"
               onClick={closePalette}
-              className="mt-6 inline-flex min-h-11 items-center rounded-sm border border-border px-6 py-3 text-label font-semibold text-text transition-colors duration-submit hover:border-border-accent"
+              className="mt-6 inline-flex min-h-11 items-center rounded-none border border-border px-6 py-3 text-label font-semibold text-text transition-colors duration-submit hover:border-border-accent"
             >
               Done
             </button>

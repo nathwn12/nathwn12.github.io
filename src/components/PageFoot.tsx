@@ -84,14 +84,14 @@ export function PageFoot({ accentResume = false }: PageFootProps) {
         )}
       </nav>
       </div>
-      <p className="mt-4 text-micro text-text-muted">
+      <p className="mt-4 text-[0.75rem] font-normal not-italic leading-snug text-text-muted">
         Colophon — © {YEAR} Nathaniel Nikolai Ladero. Set in Fraunces and
         Public Sans.{" "}
         <a
           href="https://github.com/nathwn12/nathwn12.github.io"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-text-muted underline hover:text-text"
+          className="text-text-muted no-underline hover:text-text hover:underline"
         >
           Source on GitHub.
         </a>

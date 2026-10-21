@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { employer, experience, provenance } from "../content/experience";
+import { employer, experience, experienceLede, provenance } from "../content/experience";
 import { fadeUp, staggerChild, staggerParent } from "../lib/motion";
 import { RouteLink } from "../lib/router";
 import { PageFoot } from "./PageFoot";
@@ -92,9 +92,7 @@ export function Experience() {
               </div>
               <h1 className="masthead-name mt-3 text-text">Experience</h1>
               <p className="mt-4 max-w-[65ch] text-lead text-text">
-                Three years of production fintech work in C# and ASP.NET Core,
-                from payment APIs and data layers down to the Ubuntu servers they
-                run on.
+                {experienceLede}
               </p>
               <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
                 {employer.role}, {employer.company}, {employer.location}.
