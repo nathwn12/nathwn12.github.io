@@ -9,6 +9,8 @@ import { z } from "zod";
  */
 export const CONTACT_EMAIL = "nathanielnikolai.ladero@gmail.com";
 
+export const RESUME_PATH = "/Nathaniel-Nikolai-Ladero-Resume.pdf";
+
 /**
  * Pre-submit validation schema for the compose form fields. Mirrors the
  * HTML5 constraints on the inputs (required, maxLength) so invalid payloads

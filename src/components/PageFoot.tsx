@@ -1,4 +1,5 @@
 import { navigate, routeAtOffset, useRoute } from "../lib/router";
+import { RESUME_PATH } from "../lib/contact";
 import { navName } from "../lib/navNames";
 
 /**
@@ -28,10 +29,10 @@ interface PageFootProps {
 }
 
 const directionControl =
-  "flex min-h-11 items-center whitespace-nowrap rounded-xs text-label font-medium text-text transition-colors duration-nav hover:underline";
+  "flex min-h-11 items-center rounded-xs text-label font-medium text-text transition-colors duration-nav hover:underline";
 
 const resumeBase =
-  "flex min-h-11 items-center whitespace-nowrap rounded-xs text-body font-semibold transition-colors duration-link";
+  "flex min-h-11 items-center rounded-xs text-body font-semibold transition-colors duration-link";
 
 export function PageFoot({ accentResume = false }: PageFootProps) {
   const { route } = useRoute();
@@ -41,7 +42,7 @@ export function PageFoot({ accentResume = false }: PageFootProps) {
   return (
     <div className="mt-section flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-border pt-block">
       <a
-        href="/Nathaniel-Nikolai-Ladero-Resume.pdf"
+        href={RESUME_PATH}
         download="Nathaniel-Nikolai-Ladero-Resume.pdf"
         data-nav-item
         className={
