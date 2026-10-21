@@ -41,6 +41,13 @@ function derivedLine(project: (typeof projects)[number]): string {
   return `${project.role} · ${project.kind} · ${project.year}`;
 }
 
+/** One row's definition — the project's own `description`, never invented copy:
+    truncated at the first sentence boundary (`.` followed by whitespace). */
+function firstSentence(description: string): string {
+  const boundary = description.search(/\.\s/);
+  return boundary === -1 ? description : description.slice(0, boundary + 1);
+}
+
 /** A stat as a labelled sentence — never a standalone tile or a bare number. */
 function statSentence(stat: { label: string; value: string }): string {
   return `${stat.label.charAt(0).toUpperCase()}${stat.label.slice(1)}: ${stat.value}.`;
@@ -96,7 +103,11 @@ export function WorkTeaser({ marginalia }: { marginalia?: ReactNode }) {
                   {derivedLine(project)}
                 </p>
 
-                <p className="mt-2 max-w-[65ch] text-body text-text">
+                <p className="mt-2 max-w-[62ch] text-body text-text">
+                  {firstSentence(project.description)}
+                </p>
+
+                <p className="mt-1 text-detail text-text-muted">
                   {project.stats
                     .slice(0, 2)
                     .map((stat) => statSentence(stat))

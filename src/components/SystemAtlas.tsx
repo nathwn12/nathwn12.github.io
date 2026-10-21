@@ -238,7 +238,7 @@ const PITCH = 88;
 /** The cluster boxes: padding around the cards inside them, and the height a box
     around `CLUSTER_CARDS` pitched cards works out to. */
 const BOX_PAD = 20;
-const BOX_RADIUS = 12;
+const BOX_RADIUS = 0;
 const CLUSTER_CARDS = 3;
 const BOX_H = (CLUSTER_CARDS - 1) * PITCH + CARD_H + 2 * BOX_PAD;
 
@@ -566,7 +566,7 @@ const LEFT_COL_LEFT = Math.min(
 
 /** One stacked node chip, below the breakpoint: the same node, legible width. */
 const stackChip =
-  "mt-2 flex min-h-11 w-full items-center rounded-xs border border-border px-4 py-2 text-left text-[13px] text-text cursor-pointer aria-pressed:border-accent aria-pressed:text-accent-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-text focus-visible:outline-offset-2";
+  "mt-2 flex min-h-11 w-full items-center rounded-none border border-border px-4 py-2 text-left text-[13px] text-text cursor-pointer aria-pressed:border-accent aria-pressed:text-accent-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent-text focus-visible:outline-offset-2";
 
 /** Node lookup for the link table below: a link names its two ends by id. */
 const nodeById = new Map(nodes.map((node) => [node.id, node]));
@@ -940,7 +940,7 @@ export function SystemAtlas() {
                             y={node.y - CARD_H / 2 - 4}
                             width={cardWidth(node) + 8}
                             height={CARD_H + 8}
-                            rx={9}
+                            rx={0}
                             fill="none"
                             strokeWidth={1}
                             className="stroke-accent"
@@ -951,7 +951,7 @@ export function SystemAtlas() {
                           y={node.y - CARD_H / 2}
                           width={cardWidth(node)}
                           height={CARD_H}
-                          rx={6}
+                          rx={0}
                           strokeWidth={isSelected ? 3 : 1}
                           className={
                             accent
