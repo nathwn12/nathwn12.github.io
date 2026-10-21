@@ -10,9 +10,13 @@ import { BandRule } from "./BandRule";
 
 /**
  * Broadsheet — the shared printed-sheet grammar for every band and route
- * title block (2026-10-21).
+ * title block (2026-10-21; responsive measures 2026-10-21).
  *
- * One sheet container (`max-w-[80rem]`) split at `lg` into a real 12-column
+ * One sheet container (`.sheet` in src/index.css: the viewport minus a fluid
+ * `clamp(1.5rem, 4vw, 3rem)` gutter per side, capped at 80rem — 96rem at
+ * 1600px+, where ALL added width lands in the outer grid columns and gaps
+ * while text columns keep their ch measures) split at `lg` into a real
+ * 12-column
  * grid: a 2-column folio margin carrying the oversized section numeral
  * (clipped by the column edge), a content column whose span varies per band
  * (7 / 8 / 5 — never the same centred column twice running), and the
@@ -25,14 +29,22 @@ import { BandRule } from "./BandRule";
  * (`ColumnRule`, rail rows). Prose keeps its 60–72ch measure inside its own
  * column, however wide the column is.
  *
+ * Short viewports compress through `.band-top`/`.band-grid` (src/index.css):
+ * type steps down and rhythm loses a quarter — nothing hides, order holds.
+ *
  * Authority: docs/premium-direction.md §§ Type/Layout/Motion.
  */
 
-/** The sheet measure — a large-format page, not a centred column. */
-export const GUTTER_CONTAINER = "mx-auto w-full max-w-[80rem]";
+/** The sheet measure — a large-format page, not a centred column. `.sheet`
+    (src/index.css) is the viewport minus the fluid `--sheet-gutter` per side,
+    capped at 80rem (96rem at 1600px+). `mx-auto` stays on the constant: the
+    instrument-panel test reads it off the DOM. */
+export const GUTTER_CONTAINER = "sheet mx-auto";
 
-/** The 12-column grid at `lg`; single column below. */
-export const GUTTER_GRID = "lg:grid lg:grid-cols-12 lg:gap-x-6";
+/** The 12-column grid at `lg`; single column below. `.sheet-grid` widens the
+    column gap at 1600px+ so added width lands in gaps and outer columns —
+    text columns keep their ch measures. The `lg` breakpoint never moves. */
+export const GUTTER_GRID = "sheet-grid lg:grid lg:grid-cols-12 lg:gap-x-6";
 
 /** The folio margin: numeral only, clipped by its own column edge. */
 export const GUTTER_CELL =
@@ -163,8 +175,8 @@ export function BandShell({
 
   return (
     <section aria-labelledby={headingId} className="relative">
-      <div className={`${GUTTER_CONTAINER} px-6 lg:px-10`}>
-        <div className="pt-10 lg:pt-14">
+      <div className={`${GUTTER_CONTAINER} sheet-pad`}>
+        <div className="band-top">
           <HeavyRule />
         </div>
         <motion.div
@@ -173,7 +185,7 @@ export function BandShell({
           viewport={{ once: true, margin: "-15% 0px" }}
           variants={bandEnter}
         >
-          <div className={`${GUTTER_GRID} pt-8 lg:pt-10`}>
+          <div className={`${GUTTER_GRID} band-grid`}>
             <div aria-hidden="true" className={GUTTER_CELL}>
               <div className="lg:sticky lg:top-32">
                 <Folio index={folio} />

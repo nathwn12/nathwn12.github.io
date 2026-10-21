@@ -497,13 +497,13 @@ export function Hero() {
           a mono dateline, the name at masthead scale, another 3px rule.
           The typing loop is the deck below it; the role, status, and CTA
           sit in the 12-column band under the deck. */}
-      <div className={`${GUTTER_CONTAINER} px-6 pt-4 lg:px-10 lg:pt-8`}>
+      <div className={`${GUTTER_CONTAINER} sheet-pad hero-top`}>
         <div aria-hidden="true" className="h-[3px] w-full bg-text" />
         <motion.p
           initial={reduceMotion ? "visible" : "hidden"}
           animate="visible"
           variants={fadeUp}
-          className="flex flex-wrap gap-x-3 py-2 font-mono text-micro uppercase tracking-[0.14em] text-text-muted lg:py-3"
+          className="flex flex-wrap gap-x-3 hero-dateline font-mono text-micro uppercase tracking-[0.14em] text-text-muted"
         >
           <span>NATHWN12</span>
           <span aria-hidden="true">—</span>
@@ -516,7 +516,7 @@ export function Hero() {
           animate="visible"
           variants={mastheadParent}
           aria-label="Nathaniel Nikolai Ladero"
-          className="masthead-name py-2 text-text"
+          className="masthead-name hero-name text-text"
         >
           <span className="masthead-mask">
             <motion.span variants={mastheadLine} className="block">
@@ -537,7 +537,7 @@ export function Hero() {
           animate="visible"
           variants={fadeUp}
           aria-label={phrase}
-          className="max-w-[62ch] py-4 font-display text-[clamp(1.25rem,2.5vw,1.75rem)] leading-snug text-text lg:py-6"
+          className="max-w-[62ch] hero-deck font-display text-[clamp(1.25rem,2.5vw,1.75rem)] leading-snug text-text"
         >
           <span aria-hidden="true" className="grid grid-cols-1">
             {HERO_PHRASES.map((identity) => (
@@ -553,7 +553,7 @@ export function Hero() {
           </span>
         </motion.p>
 
-        <div className="pb-2 lg:grid lg:grid-cols-12 lg:gap-x-6 lg:pb-10">
+        <div className="hero-cta lg:grid lg:grid-cols-12 lg:gap-x-6">
           <motion.div
             initial={reduceMotion ? "visible" : "hidden"}
             animate="visible"
@@ -747,7 +747,7 @@ export function Hero() {
 
       <CredentialsStrip />
 
-      <div className={`${GUTTER_CONTAINER} px-6 pt-10 pb-16 lg:px-10 lg:pb-24`}>
+      <div className={`${GUTTER_CONTAINER} sheet-pad hero-foot`}>
         <div aria-hidden="true" className="h-[3px] w-full bg-text" />
         <div className="pt-6">
           <PageFoot accentResume />
@@ -770,7 +770,7 @@ function PullQuote() {
   return (
     <aside
       aria-label="Pull quote"
-      className={`${GUTTER_CONTAINER} px-6 pt-12 lg:grid lg:grid-cols-12 lg:gap-x-6 lg:px-10 lg:pt-16`}
+      className={`${GUTTER_CONTAINER} sheet-pad pullquote-pad lg:grid lg:grid-cols-12 lg:gap-x-6`}
     >
       <motion.blockquote
         initial={reduceMotion ? "visible" : "hidden"}

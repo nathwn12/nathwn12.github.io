@@ -475,3 +475,196 @@ html[data-theme="dark"] .folio-numeral {
     opacity: 1 !important;
   }
 }
+
+/* =========================================================================
+   RESPONSIVE SHEET LAYER (additive, 2026-10-21).
+   Authority: polish/responsive brief — fix the measures, never the composition.
+
+   The sheet is the viewport minus a fluid gutter per side, capped at 80rem;
+   at 1600px+ the cap rises to 96rem. The gutter token is the single source:
+   `.sheet` spends it as width (auto margins), `.sheet-pad` spends it as
+   inner padding once the cap binds (min-width 1376px = 80rem + 2x3rem, where
+   the capped width would otherwise jump the content edge to the cap edge;
+   at the bind point the auto margins are zero, so the handoff is continuous).
+   Route sections keep their own px-6/lg:px-10 (untouched files) — the vw-based
+   width resolves against the viewport, not the padded content box, so every
+   pattern lands within ~8px of today's edges at 1440 (composition identical).
+
+   At 1600px+ ALL added width goes to the outer grid columns and gaps: the
+   12-col grid keeps its spans and the text columns keep their ch measures
+   (62ch/65ch/68ch caps in the components), so the extra track lands in the
+   folio/marginalia columns and a wider column gap — never in prose width.
+
+   Height awareness only ever shrinks type and padding — never hides content
+   (hiding for fit is forbidden) and never changes order or copy.
+   ========================================================================= */
+
+:root {
+  --sheet-gutter: clamp(1.5rem, 4vw, 3rem);
+}
+
+/* Sheet measure: fluid gutters, 80rem cap. `mx-auto`/`w-full` stay on the
+   constant (tests read them); this unlayered width wins over the layered
+   utility. `100vw` (not `100%`) so route sections with their own padding
+   still resolve the gutter against the viewport. */
+.sheet {
+  width: min(100vw - (var(--sheet-gutter) * 2), 80rem);
+  margin-inline: auto;
+}
+
+/* Inner gutter once the cap binds — continuous at the 1376px handoff. */
+@media (min-width: 1376px) {
+  .sheet-pad {
+    padding-inline: var(--sheet-gutter);
+  }
+}
+
+/* Wide sheet: cap rises to 96rem, gaps widen into the added track. */
+@media (min-width: 1600px) {
+  .sheet {
+    width: min(100vw - (var(--sheet-gutter) * 2), 96rem);
+  }
+  .sheet-grid {
+    column-gap: 2rem;
+  }
+}
+
+/* Band rhythm hooks (consumed by BandShell): section top pad and grid top
+   pad, with their lg steps. */
+.band-top {
+  padding-top: 2.5rem;
+}
+.band-grid {
+  padding-top: 2rem;
+}
+@media (min-width: 1024px) {
+  .band-top {
+    padding-top: 3.5rem;
+  }
+  .band-grid {
+    padding-top: 2.5rem;
+  }
+}
+
+/* Hero rhythm hooks (consumed by Hero.tsx): top pad, dateline pad, nameplate
+   pad, deck pad, CTA bottom pad — each carrying its lg step. */
+.hero-top {
+  padding-top: 1rem;
+}
+.hero-dateline {
+  padding-block: 0.5rem;
+}
+.hero-name {
+  padding-block: 0.5rem;
+}
+.hero-deck {
+  padding-block: 1rem;
+}
+.hero-cta {
+  padding-bottom: 0.5rem;
+}
+.hero-foot {
+  padding-top: 2.5rem;
+  padding-bottom: 4rem;
+}
+.pullquote-pad {
+  padding-top: 3rem;
+}
+@media (min-width: 1024px) {
+  .hero-top {
+    padding-top: 2rem;
+  }
+  .hero-dateline {
+    padding-block: 0.75rem;
+  }
+  .hero-deck {
+    padding-block: 1.5rem;
+  }
+  .hero-cta {
+    padding-bottom: 2.5rem;
+  }
+  .hero-foot {
+    padding-bottom: 6rem;
+  }
+  .pullquote-pad {
+    padding-top: 4rem;
+  }
+}
+
+/* --- Short viewports: compress, never hide --------------------------------
+   max-height 800px: masthead clamp max one step down (7.5rem -> 6rem), deck
+   one step down, section vertical padding and band gaps -25%.
+   Placed after the width-based masthead rule so ties resolve here. */
+@media (max-height: 800px) {
+  .masthead-name {
+    font-size: clamp(2.5rem, 8vw, 6rem);
+  }
+  .hero-deck {
+    font-size: clamp(1.125rem, 2.5vw, 1.5rem);
+  }
+  .band-top {
+    padding-top: 1.875rem;
+  }
+  .band-grid {
+    padding-top: 1.5rem;
+  }
+  .hero-foot {
+    padding-top: 1.875rem;
+    padding-bottom: 3rem;
+  }
+  .pullquote-pad {
+    padding-top: 2.25rem;
+  }
+}
+@media (min-width: 1024px) and (max-height: 800px) {
+  .band-top {
+    padding-top: 2.625rem;
+  }
+  .band-grid {
+    padding-top: 1.875rem;
+  }
+  .hero-foot {
+    padding-bottom: 4.5rem;
+  }
+  .pullquote-pad {
+    padding-top: 3rem;
+  }
+}
+
+/* --- Very short viewports: compress once more ------------------------------
+   max-height 640px: masthead max one more step down (6rem -> 4.5rem), hero
+   paddings halved. Type and order unchanged; nothing hidden. */
+@media (max-height: 640px) {
+  .masthead-name {
+    font-size: clamp(2rem, 8vw, 4.5rem);
+  }
+  .hero-top {
+    padding-top: 0.5rem;
+  }
+  .hero-dateline {
+    padding-block: 0.25rem;
+  }
+  .hero-name {
+    padding-block: 0.25rem;
+  }
+  .hero-deck {
+    padding-block: 0.5rem;
+  }
+  .hero-cta {
+    padding-bottom: 0.25rem;
+  }
+}
+@media (min-width: 1024px) and (max-height: 640px) {
+  .hero-top {
+    padding-top: 1rem;
+  }
+  .hero-dateline {
+    padding-block: 0.375rem;
+  }
+  .hero-deck {
+    padding-block: 0.75rem;
+  }
+  .hero-cta {
+    padding-bottom: 1.25rem;
+  }
+}

@@ -13,6 +13,10 @@ import { cycleTheme, useTheme } from "../lib/theme";
  * `© YEAR NNL` on the left, route links (hidden below `lg`) plus
  * Email/GitHub/LinkedIn/Theme on the right. The long colophon sentence lives
  * in the end-of-page `PageFoot`, not here.
+ *
+ * Narrow viewports (below 25rem) only tighten the two gaps one step — the row
+ * itself never wraps, scrolls, or clips, and the 52px bar keeps the focus
+ * ring's clearance.
  */
 
 const YEAR = new Date().getFullYear();
@@ -66,7 +70,7 @@ export function Footer() {
     <footer className="relative z-40 shrink-0 border-t-[3px] border-text bg-bg pb-[env(safe-area-inset-bottom)]">
       <div className="px-6 lg:px-10">
         <div className="mx-auto w-full max-w-[80rem]">
-          <div className="flex min-h-11 w-full items-center justify-between gap-x-2 whitespace-nowrap py-1">
+          <div className="flex min-h-11 w-full items-center justify-between gap-x-2 whitespace-nowrap py-1 max-[25rem]:gap-x-1">
             <span className="shrink-0 text-micro text-text-muted">
               © {YEAR} NNL
             </span>
@@ -88,7 +92,7 @@ export function Footer() {
               </nav>
               <nav
                 aria-label="Contact and appearance"
-                className="flex shrink-0 items-center gap-x-2"
+                className="flex shrink-0 items-center gap-x-2 max-[25rem]:gap-x-1"
               >
                 <a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>
                   Email
