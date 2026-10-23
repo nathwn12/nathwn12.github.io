@@ -1,7 +1,5 @@
 import { useCallback, useEffect } from "react";
 import { CONTACT_EMAIL } from "../lib/contact";
-import { ROUTES, navigate } from "../lib/router";
-import { navName } from "../lib/navNames";
 import { cycleTheme, useTheme } from "../lib/theme";
 
 /**
@@ -10,9 +8,11 @@ import { cycleTheme, useTheme } from "../lib/theme";
  *
  * One row at every width (`min-h-11` + `py-1` ≈ 52px, `whitespace-nowrap`,
  * no `flex-wrap`, no horizontal scroll container):
- * `© YEAR NNL` on the left, route links (hidden below `lg`) plus
- * Email/GitHub/LinkedIn/Theme on the right. The long colophon sentence lives
- * in the end-of-page `PageFoot`, not here.
+ * `© YEAR NNL` on the left, then the four actions that live nowhere else in
+ * the chrome - Email, GitHub, LinkedIn, and the theme control. Page
+ * destinations belong to the header and the end-of-page pager; the footer
+ * does not repeat them. The long colophon sentence lives in the end-of-page
+ * `PageFoot`, not here.
  *
  * Narrow viewports (below 25rem) only tighten the two gaps one step — the row
  * itself never wraps, scrolls, or clips, and the 52px bar keeps the focus
@@ -74,48 +74,31 @@ export function Footer() {
             <span className="shrink-0 text-micro text-text-muted">
               © {YEAR} NNL
             </span>
-            <div className="flex min-w-0 items-center gap-x-5">
-              <nav
-                aria-label="Sections"
-                className="hidden items-center gap-x-4 lg:flex"
+            <nav
+              aria-label="Contact and appearance"
+              className="flex shrink-0 items-center gap-x-2 max-[25rem]:gap-x-1"
+            >
+              <a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>
+                Email
+              </a>
+              <a
+                href="https://github.com/nathwn12"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={linkClass}
               >
-                {ROUTES.map((item) => (
-                  <button
-                    key={item.path}
-                    type="button"
-                    onClick={() => navigate(item.path)}
-                    className="flex min-h-11 shrink-0 items-center rounded-xs font-mono text-micro uppercase tracking-[0.08em] text-text-muted transition-colors duration-nav hover:text-accent-text hover:underline"
-                  >
-                    {navName(item.id, item.label)}
-                  </button>
-                ))}
-              </nav>
-              <nav
-                aria-label="Contact and appearance"
-                className="flex shrink-0 items-center gap-x-2 max-[25rem]:gap-x-1"
+                GitHub
+              </a>
+              <a
+                href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={linkClass}
               >
-                <a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>
-                  Email
-                </a>
-                <a
-                  href="https://github.com/nathwn12"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={linkClass}
-                >
-                  GitHub
-                </a>
-                <a
-                  href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={linkClass}
-                >
-                  LinkedIn
-                </a>
-                {themeButton}
-              </nav>
-            </div>
+                LinkedIn
+              </a>
+              {themeButton}
+            </nav>
           </div>
         </div>
       </div>

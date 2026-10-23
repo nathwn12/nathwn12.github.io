@@ -226,11 +226,12 @@ export const provenance =
   "Commit ledger recovered from 21 scanned internal repositories after Xentra closed in May 2026: 1,182 commits across 17 repositories from 2023 to 2026.";
 
 /** Route lede: tenure, count in words, reading order (newest first), and what
-    each entry carries — never a restatement of the title. */
-export const experienceLede = `Three years of production fintech work, ${countWords(experience.length)} entries newest first — each pairs its outcome with the moves behind it.`;
+    each entry carries - never a restatement of the title. */
+export const experienceLede = `Three years building and running fintech systems in production — ${countWords(experience.length)} entries, newest first, each pairing its outcome with the moves behind it.`;
 
-/** Landing marginalia: the count in words with the reading order. */
-export const experienceMarginalia = `${countWords(experience.length)} entries, newest first`;
+/** Landing marginalia: the credibility of the figures, not a repeat of the
+    reading order or the tenure already stated above. */
+export const experienceMarginalia = "Every figure traced to the delivered record";
 
 /* Dormant zod models wired in: validate a domain projection (employer merged
    into every entry) at module load. Throws a descriptive error on mismatch. */

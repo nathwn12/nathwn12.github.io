@@ -90,7 +90,7 @@ export function Experience() {
               <div className="flex items-baseline gap-3">
                 <Kicker>{KICKER}</Kicker>
               </div>
-              <h1 className="masthead-name mt-3 text-text">Experience</h1>
+              <h1 className="masthead-name route-title mt-3 text-text">Experience</h1>
               <p className="mt-4 max-w-[65ch] text-lead text-text">
                 {experienceLede}
               </p>

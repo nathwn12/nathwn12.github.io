@@ -16,9 +16,9 @@
 export const heroClaim: string =
   "Payment backends that hold up under production load.";
 
-/** The one prose line naming the stack the career was built on. */
+/** The one prose line naming the systems the stack carried. */
 export const coreStack: string =
-  "Built on C#, ASP.NET, MySQL, Redis, RabbitMQ, and AWS.";
+  "C# and ASP.NET services for payments, cash management, and access control.";
 
 /** The availability status line shown directly under the contact CTA. */
 export const availability: string = "Open to backend roles — remote.";

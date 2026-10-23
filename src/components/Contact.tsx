@@ -189,8 +189,7 @@ function ContactForm() {
     <div className="mt-16 border-t border-border pt-8">
       <h2 className="text-headline font-semibold text-text">Send a message</h2>
       <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
-        The fastest path to my inbox — I usually answer within a day or two.
-        Prefer your own mail client?{" "}
+        Send it from this page. Prefer your own mail client?{" "}
         <a href={MAILTO_HREF} className={LINK}>
           Or email me directly
         </a>{" "}
@@ -374,10 +373,10 @@ export function Contact() {
             <div className="flex items-baseline gap-3 pt-4">
               <Kicker>{KICKER}</Kicker>
             </div>
-            <h1 className="masthead-name mt-3 text-text">Contact</h1>
+            <h1 className="masthead-name route-title mt-3 text-text">Contact</h1>
             <p className="mt-4 max-w-[65ch] text-lead text-text">
-              Send a note about a role, a system, or a problem worth solving — it
-              reaches my inbox directly and I answer from Hagonoy, Bulacan.
+              Tell me about the role, the system, or the problem. Notes reach my
+              inbox directly, and I answer from Hagonoy, Bulacan.
             </p>
             {/* The page's one primary action phrase, at the end of the title
                 block (docs/premium-direction.md § Layout): it opens the
@@ -426,13 +425,13 @@ export function Contact() {
         >
           <h2 className="text-headline font-semibold text-text">Reach me</h2>
           <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
-            No account, no form, nothing in between: your mail client opens
-            with the subject and a short template already filled in.
+            No account needed: your mail client opens with the subject and a
+            short template already written.
           </p>
 
           <div className="mt-6 flex flex-col items-start gap-4">
             <a href={MAILTO_HREF} className={PRIMARY_BUTTON}>
-              Write an email
+              Open a prefilled draft
             </a>
             <button
               type="button"

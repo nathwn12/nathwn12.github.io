@@ -200,9 +200,9 @@ const groupCountWord =
   countWords(repos.length).charAt(0).toUpperCase() +
   countWords(repos.length).slice(1);
 
-/** Route lede: reading order and what each package carries — never a
+/** Route lede: reading order and what each package carries - never a
     restatement of the title. */
-export const skillsLede = `${groupCountWord} groups in the order the work reaches for them — every package carries its version and its tier in words.`;
+export const skillsLede = `${groupCountWord} groups, ordered by how often I reach for them — every package with its version and its tier in words.`;
 
 /** Group size note: the count in words. The reading order already lives in
     the route lede and the group's rank, so it is not repeated here. */

@@ -860,8 +860,8 @@ export function SystemAtlas() {
           in the remaining three as marginalia — stacked below the diagram
           under `lg`. */}
       <motion.p variants={fadeUp} className="mt-4 text-detail text-text-muted">
-        Production services on the left; the agent tooling now running
-        alongside them on the right — private first, then the local ones.
+        The production surface, and the agent workflows built around it —
+        private first, then the local ones.
       </motion.p>
 
       <motion.div variants={fadeUp} className={PLATE_ABOVE}>
@@ -1040,12 +1040,11 @@ export function SystemAtlas() {
                 Legend
               </p>
               <ul className="mt-2 space-y-1 text-detail text-text-muted">
-                <li>Production services — left column</li>
-                <li>Private agents — right, upper box</li>
-                <li>Local agents — right, lower box</li>
+                <li>Hairline — a service</li>
+                <li>Accent — the selected card</li>
                 <li>
-                  {links.length} links — each leaves a service edge and reaches
-                  an agent edge
+                  {links.length} links — each leaves a service and reaches an
+                  agent
                 </li>
               </ul>
               <p className="mt-2 text-detail text-text-muted">

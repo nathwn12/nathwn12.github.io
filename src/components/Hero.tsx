@@ -328,7 +328,8 @@ function InsertCaret() {
  *    percentage figure lifted out of its own `outcome` string, followed by
  *    "faster payments"; omitted when the figure cannot be derived).
  *  · LOCATION from the Contact address plate ("Hagonoy, Bulacan, Philippines").
- *  · STATUS from src/content/hero.ts (`availability`), minus the remote tail.
+ *  · STATUS from src/content/hero.ts (`availability`): the open-to-work line,
+ *    with its remote tail folded in as a second clause.
  *  · EXPERIENCE from src/content/experience.ts (`employer.period`).
  *  · LAST SHIP from src/content/projects.ts (the latest project year).
  *
@@ -336,7 +337,10 @@ function InsertCaret() {
  */
 const LOCATION_META = "Philippines";
 
-const STATUS_META = availability.replace(/\s*[—–-]\s*remote\.?\s*$/i, "");
+const STATUS_META = availability.replace(
+  /\s*[—–-]\s*remote\.?\s*$/i,
+  ", remote",
+);
 
 const LAST_SHIP_META = String(
   Math.max(...projects.map((project) => Number(project.year))),
@@ -564,8 +568,13 @@ export function Hero() {
               variants={fadeUp}
               className="max-w-[62ch] text-lead text-text"
             >
-              {employer.role} at {employer.company}, {employer.location},{" "}
-              {employer.period}.
+              {employer.role} at {employer.company}
+            </motion.p>
+            <motion.p
+              variants={fadeUp}
+              className="mt-1 max-w-[62ch] text-detail text-text-muted"
+            >
+              {employer.location} — {employer.period}
             </motion.p>
 
             <motion.div
@@ -607,13 +616,6 @@ export function Hero() {
                 </dd>
               </div>
             </motion.dl>
-
-            <motion.p
-              variants={fadeUp}
-              className="mt-3 text-detail text-text-muted"
-            >
-              {availability}
-            </motion.p>
 
             <motion.p
               variants={fadeUp}
@@ -722,7 +724,6 @@ export function Hero() {
       <ExperienceBand
         marginalia={
           <>
-            <Marginalia>Tenure — {employer.period}</Marginalia>
             <Marginalia>{experienceMarginalia}</Marginalia>
           </>
         }
@@ -733,10 +734,8 @@ export function Hero() {
       <WorkTeaser
         marginalia={
           <>
-            <Marginalia>
-              {projectsMarginalia}
-            </Marginalia>
-            <Marginalia>Full notes live on the projects page</Marginalia>
+            <Marginalia>{projectsMarginalia}</Marginalia>
+            <Marginalia>All public on GitHub</Marginalia>
           </>
         }
       />
@@ -758,14 +757,14 @@ export function Hero() {
 }
 
 /**
- * Pull quote — the page's single display-size claim, drawn from the
- * payments entry's own outcome sentence, with a claret rule. Placed
- * between the experience and work bands so the number lands before
- * the project list.
+ * Pull quote — the page's single display-size claim, drawn from the API
+ * contracts entry's own outcome sentence, with a claret rule. Chosen because
+ * its claim is not repeated anywhere else on the landing; the payments
+ * percentage already carries the experience band's dominant figure.
  */
 function PullQuote() {
   const reduceMotion = usePrefersReducedMotion();
-  const entry = experience.find((item) => item.id === "02");
+  const entry = experience.find((item) => item.id === "08");
   if (!entry) return null;
   return (
     <aside

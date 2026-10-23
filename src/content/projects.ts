@@ -371,17 +371,17 @@ export const archived: ArchivedProject[] = [
     order (featured first). Never restates the title. */
 export const projectsLede = `${cap(countWords(projects.length))} public repositories under github.com/nathwn12 — featured work first, then the supporting tools.`;
 
-/** Route support line: what lives on the page (case-study facts, retired foot). */
+/** Route support line: what each band carries, and the two rules that keep it
+    honest (no star counts, retired work separated). */
 export const projectsSupport =
-  "Each band pairs what the project does with its case-study facts — every entry built and maintained solo, no star counts; retired work sits at the foot of the page.";
+  "Each band pairs what the project does with the facts behind it: stack, role, and ship year. No star counts; retired work sits at the foot of the page.";
 
-/** Landing teaser lede: the sequence rationale, stated once — featured first,
-    one line each, full notes on the route page. */
+/** Landing teaser lede: what the three rows are and where a title leads. */
 export const workTeaserLede =
-  "Featured first, one line each — titles link to the full case notes on the projects page.";
+  "A first look at the current work — each title opens its full case notes.";
 
-/** Landing marginalia: the count in words, no rationale repeat. */
-export const projectsMarginalia = `${countWords(projects.length)} projects`;
+/** Landing marginalia: authorship, stated once. */
+export const projectsMarginalia = "Built and maintained solo";
 
 /** Landing link to the route page: the count in words. */
 export const allProjectsLabel = `All ${countWords(projects.length)} projects`;

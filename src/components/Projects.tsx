@@ -84,7 +84,7 @@ export default function Projects() {
             <div className="flex items-baseline gap-3 pt-4">
               <Kicker>{KICKER}</Kicker>
             </div>
-            <h1 className="masthead-name mt-3 text-text">Projects</h1>
+            <h1 className="masthead-name route-title mt-3 text-text">Projects</h1>
             <p className="mt-4 max-w-[65ch] text-lead text-text">
               {projectsLede}
             </p>
