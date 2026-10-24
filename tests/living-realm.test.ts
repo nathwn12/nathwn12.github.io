@@ -30,8 +30,8 @@ describe("living realm rebuild", () => {
     expect(atlas).toContain("review");
   });
 
-  test("the landing wires the living diagram before its proof band", () => {
+  test("the landing wires the living diagram with its marginalia", () => {
     expect(hero).toMatch(/import \{ SystemAtlas \} from "\.\/SystemAtlas"/);
-    expect(hero).toMatch(/<SystemAtlas\s*\/>/);
+    expect(hero).toMatch(/<SystemAtlas[\s>]/);
   });
 });

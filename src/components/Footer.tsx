@@ -3,26 +3,35 @@ import { CONTACT_EMAIL } from "../lib/contact";
 import { cycleTheme, useTheme } from "../lib/theme";
 
 /**
- * Footer — the colophon, the theme control, and the safe-area pad.
+ * Footer — the persistent one-row chrome bar, in normal flow after the page
+ * scroller.
  *
- * It is `fixed` (never scrolls with page content) and its height is
- * auto-measured by PageShell into `--page-footer-offset`, which the page
- * scroller reserves — so the wrap at 375px, a text zoom, and the iOS safe-area
- * inset all stay accounted for instead of being pinned to a magic constant.
+ * One row at every width (`min-h-11` + `py-1` ≈ 52px, `whitespace-nowrap`,
+ * no `flex-wrap`, no horizontal scroll container):
+ * `© YEAR NNL` on the left, then the four actions that live nowhere else in
+ * the chrome - Email, GitHub, LinkedIn, and the theme control. Page
+ * destinations belong to the header and the end-of-page pager; the footer
+ * does not repeat them. The long colophon sentence lives in the end-of-page
+ * `PageFoot`, not here.
  *
- * Every control is at least 44pt tall and carries a visible text label: no
- * icon-only affordance, no status readouts, no decorative glyphs. Contact is
- * plain text links (color + underline on hover); the appearance control is the
- * one Line-bordered chip in the footer, so the two groups read apart without a
- * vertical stripe (§ Hard-ban list: the only vertical accent is the 1px gutter
- * marker). The credit is a colophon, not a build log: it names the two faces
- * the page is set in, never the framework list.
+ * Narrow viewports (below 25rem) only tighten the two gaps one step — the row
+ * itself never wraps, scrolls, or clips, and the 52px bar keeps the focus
+ * ring's clearance.
  */
 
 const YEAR = new Date().getFullYear();
 
+/**
+ * The three text links carry both target axes as a floor, not as text width:
+ * `min-h-11` is the 44px height, and `min-w-11` is the 44px width the labels
+ * cannot supply on their own ("Email" measured 33px wide and "GitHub" 43px
+ * before this floor). `justify-center` keeps each label centred in the 44px
+ * box instead of hugging its left edge. Measured in Chromium at 393x852 and
+ * 2560x1440: 44x44 for both, every edge probe landing on the anchor; removing
+ * either floor drops a real hit area below 44 on that axis.
+ */
 const linkClass =
-  "flex min-h-11 items-center rounded-xs text-detail font-medium text-text-muted transition-colors duration-link hover:text-text hover:underline";
+  "flex min-h-11 min-w-11 items-center justify-center rounded-xs text-micro font-medium text-text-muted transition-colors duration-link hover:text-text hover:underline";
 
 export function Footer() {
   const [themePreference] = useTheme();
@@ -31,9 +40,6 @@ export function Footer() {
     cycleTheme();
   }, []);
 
-  /* F2 switches the color scheme: light ↔ dark. Never hijack keys while typing
-     or while the mobile menu is open — the footer is the control's home, so the
-     shortcut is registered here beside it. */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "F2" || e.repeat) return;
@@ -47,7 +53,7 @@ export function Footer() {
       ) {
         return;
       }
-      if (document.querySelector("[data-mobile-menu]")) return;
+      if (document.querySelector("[data-mobile-menu], [data-command-palette]")) return;
       e.preventDefault();
       cycleThemeHandler();
     };
@@ -57,51 +63,52 @@ export function Footer() {
 
   const themeLabel = `${themePreference[0].toUpperCase()}${themePreference.slice(1)}`;
 
-  return (
-    <footer className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-bg pb-[env(safe-area-inset-bottom)]">
-      {/* Gutters sit outside the 68ch measure, matching the page container
-          (Hero.tsx:71-72) and the header, so the chrome rule spans the
-          viewport while the content keeps one edge. */}
-      <div className="px-6 lg:px-10">
-        <div className="mx-auto flex w-full max-w-[68ch] flex-wrap items-center justify-between gap-x-6 gap-y-1 py-2">
-          <p className="py-2 text-detail text-text-muted">
-            © {YEAR} Nathaniel Nikolai Ladero — designed and built by hand.
-            Set in Fraunces and Public Sans.
-          </p>
+  const themeButton = (
+    <button
+      type="button"
+      onClick={cycleThemeHandler}
+      title="Switch the color scheme: light or dark (F2)"
+      aria-label={`Color scheme: ${themePreference}. Activate to switch to the other scheme (F2).`}
+      className="flex min-h-11 shrink-0 items-center rounded-sm border border-border px-1.5 text-micro font-medium text-text transition-colors duration-field hover:border-border-accent hover:text-accent-text"
+    >
+      Theme: {themeLabel}
+    </button>
+  );
 
-          <nav
-            aria-label="Contact and appearance"
-            className="flex flex-wrap items-center gap-x-6"
-          >
-            <a
-              href="https://github.com/nathwn12"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={linkClass}
+  return (
+    <footer className="relative z-40 shrink-0 border-t-[3px] border-text bg-bg pb-[env(safe-area-inset-bottom)]">
+      <div className="px-6 lg:px-10">
+        <div className="mx-auto w-full max-w-[80rem]">
+          <div className="flex min-h-11 w-full items-center justify-between gap-x-2 whitespace-nowrap py-1 max-[25rem]:gap-x-1">
+            <span className="shrink-0 text-micro text-text-muted">
+              © {YEAR} NNL
+            </span>
+            <nav
+              aria-label="Contact and appearance"
+              className="flex shrink-0 items-center gap-x-2 max-[25rem]:gap-x-1"
             >
-              GitHub
-            </a>
-            <a
-              href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className={linkClass}
-            >
-              LinkedIn
-            </a>
-            <a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>
-              Email
-            </a>
-            <button
-              type="button"
-              onClick={cycleThemeHandler}
-              title="Switch the color scheme: light or dark (F2)"
-              aria-label={`Color scheme: ${themePreference}. Activate to switch to the other scheme (F2).`}
-              className="flex min-h-11 items-center rounded-sm border border-border px-3 text-detail font-medium text-text transition-colors duration-field hover:border-border-accent hover:text-accent-text"
-            >
-              Theme: {themeLabel}
-            </button>
-          </nav>
+              <a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>
+                Email
+              </a>
+              <a
+                href="https://github.com/nathwn12"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={linkClass}
+              >
+                GitHub
+              </a>
+              <a
+                href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={linkClass}
+              >
+                LinkedIn
+              </a>
+              {themeButton}
+            </nav>
+          </div>
         </div>
       </div>
     </footer>

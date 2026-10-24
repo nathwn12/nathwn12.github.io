@@ -41,12 +41,14 @@ export function PageShell({ route, direction, children }: PageShellProps) {
       dispatches a second click, toggling the reveal closed). */
   const stepLandedRef = useRef(false);
 
-  /* The header and footer are `fixed`, so they are out of flow and this
-     scroller must reserve their heights. Neither is a constant — zoom, large
-     fonts, the opening mobile menu, a footer wrap at 375px, and the iOS
-     safe-area inset all change them — so measure them live instead of
-     hard-coding magic offsets that content can slide under. Runs in a layout
-     effect so the reserved space exists before the first paint.
+  /* The header is `fixed`, so it is out of flow and this scroller must
+     reserve the header height. The footer is static flow below — content can
+     never slide under it — but the scroller still reserves the footer's live
+     height as bottom padding, so the last line of content never ends flush
+     against the colophon and a wrapped footer (zoom, large fonts, safe-area)
+     cannot crowd it. Both are measured live instead of hard-coding magic
+     offsets. Runs in a layout effect so the reserved space exists before the
+     first paint.
 
      These two custom properties are the shell's public chrome metrics: the
      scroller's own padding consumes them, and `.page-scroll`
@@ -73,8 +75,8 @@ export function PageShell({ route, direction, children }: PageShellProps) {
     if (typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(measure);
     const header = document.querySelector("header");
-    const footer = document.querySelector("footer");
     if (header) observer.observe(header);
+    const footer = document.querySelector("footer");
     if (footer) observer.observe(footer);
     return () => observer.disconnect();
   }, []);
@@ -166,7 +168,7 @@ export function PageShell({ route, direction, children }: PageShellProps) {
       initial="hidden"
       animate="visible"
       exit="hidden"
-      className="page-scroll relative h-screen h-[100dvh] overflow-y-auto overflow-x-hidden pt-[var(--page-header-offset,0px)] pb-[var(--page-footer-offset,2rem)] bg-transparent"
+      className="page-scroll relative min-h-0 w-full flex-1 overflow-y-auto overflow-x-hidden pt-[var(--page-header-offset,0px)] pb-[var(--page-footer-offset,0px)] bg-transparent"
     >
       <div className="relative z-10 min-h-full flex flex-col">{children}</div>
     </motion.div>

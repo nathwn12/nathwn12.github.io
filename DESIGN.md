@@ -1,20 +1,22 @@
 # DESIGN.md — brutalist system for nathwn12-portfolio
 
-> **SUPERSEDED (2026-10-13).** This document records the **brutalist pass**, which
-> the premium rewrite replaced. The binding design spec is now
-> `docs/premium-direction.md`. Where this file and that direction disagree —
-> palette, type families, radius, motion policy, and the film-grain evaluation —
-> the premium direction wins. Read this file for the reasoning behind the
-> retired system, not as current instruction.
-
-Historical record of the ultra-minimalist / brutalist restyle. The token layer
-in `src/index.css` implemented exactly what is written here during that pass; if
-the two disagree today, the premium direction above is authoritative.
+> **HISTORICAL RECORD — the brutalist pass (2026-10-13).** This document
+> records the brutalist system the premium rewrite replaced. It is kept for the
+> reasoning behind the retired system, not as current instruction. The living
+> snapshot of the current UI is `docs/premium-direction.md` (updated
+> 2026-10-24: Newsreader + Inter, warm paper/ink palette). Neither file is an
+> approval gate, and newer owner direction always wins. Where this file and the
+> source disagree — palette, type families, radius, motion policy, and the
+> film-grain section — `src/index.css` and that snapshot describe what ships.
+>
+> The token layer in `src/index.css` implemented exactly what is written here
+> during that pass; if the two disagree today, the current snapshot above is
+> authoritative.
 
 Scope of this document: palette, type scale, spacing scale, radius scale,
 border rule, motion policy, the banned-pattern list, and the content contract.
 It is a **system** spec — not a component inventory. Component-level rewrites
-belong to later passes and must obey every rule below.
+belonged to later passes; the rules below governed that pass only.
 
 Sources (treated as data, cited inline as `[S1]`…`[S4]`):
 
@@ -91,7 +93,7 @@ Every name below is **frozen** (§8). Values are the brutalist palette.
 | `--color-accent-glow` | `rgba(224, 60, 0, 0)` | `rgba(255, 77, 0, 0)` | **alpha 0** — glow banned (`[S1]`, `[S2] C5`, `[S3]`) |
 | `--color-grid-line` | `rgba(0, 0, 0, 0)` | `rgba(255, 255, 255, 0)` | **alpha 0** — decorative grid banned (`[S1]`) |
 | `--color-selection` | `rgba(224, 60, 0, 0.18)` | `rgba(255, 77, 0, 0.22)` | `::selection` background |
-| `--font-mono` | legacy slot: `--font-sans` (Public Sans) | same | retired single-face slot — now an alias of the body face |
+| `--font-mono` | alias of the body face (Inter since 2026-10-24) | same | retired single-face slot — never a third family |
 
 ### 2.3 One accent, three places
 
@@ -124,18 +126,26 @@ The retired single-face system, kept for the record: one family (`--font-mono`,
 Hack/Cascadia/IBM Plex Mono) — the product's voice, not a garnish; no second
 face, no italic-serif accent word (`[S2]` T3), no mixed serif/sans (`[S3]`).
 
-**Superseded by the premium rewrite: two self-hosted families.** `--font-display`
-(Fraunces — page titles and section headings only) and `--font-sans` (Public Sans —
-body copy, labels, navigation, form controls, code-adjacent identifiers), loaded
-from `public/fonts/*.woff2` through `@font-face` in `src/index.css` and preloaded
-from `index.html`; no Google Fonts request remains. `--font-mono` survives only as
-an alias of `--font-sans`, so code-adjacent strings keep their character through
-Line-bordered chips and letterspacing 0, never a third face
-(`docs/premium-direction.md` §Type).
+**Superseded — current families (2026-10-24).** Two local, OFL 1.1 families:
+`--font-display` (Newsreader — page titles and section headings only; variable
+weight 300–700 with a 6–72 optical-size axis) and `--font-sans` (Inter — body
+copy, labels, navigation, form controls, code-adjacent identifiers; variable
+weight 400–700). Both WOFF2s load from `public/fonts/` through `@font-face` in
+`src/index.css` and are preloaded from `index.html`; no remote font request
+remains. `--font-mono` survives only as an alias of `--font-sans`, so
+code-adjacent strings keep their character through Line-bordered chips and
+letterspacing 0, never a third face (`docs/premium-direction.md` § Type).
+Newsreader + Inter replaced the previous display/body pair by owner decision on
+2026-10-24.
 
 **Retired — logo mark face.** `public/fonts/OpenCode.otf` and `--font-logo` are
 gone from `src/index.css`: the premium rewrite ships exactly two families and
 applies neither to a logo mark.
+
+**Brutalist scale — kept for the record.** The live scale is a 13px floor,
+16px body, 44px display, plus the masthead / folio / pull-quote / strip clamps,
+recorded in `docs/premium-direction.md` § Type; the table below is the retired
+brutalist one.
 
 | Token | Size | Line-height | Role |
 | --- | --- | --- | --- |
@@ -225,9 +235,12 @@ Rules:
 
 Measured with WCAG 2.1 relative-luminance math against `--color-bg` (bg),
 `--color-surface` (s), `--color-surface-2` (s2). Body threshold **4.5:1**,
-UI/graphic threshold **3:1**. Ratios below are **the un-grained values** — they
-assume the pure-white light paper (`#ffffff` / `#f7f7f6` / `#efefee`, §2.2)
-with §13's film grain **off** (or before it existed); the dark rows are
+UI/graphic threshold **3:1**. These ratios belong to the brutalist palette
+recorded in §2; the live warm paper/ink tokens and their measured ratios are
+`docs/premium-direction.md` § Token plan. Ratios below are **the un-grained
+values** — they assume the pure-white light paper (`#ffffff` / `#f7f7f6` /
+`#efefee`, §2.2) with §13's film grain **off** (or before it existed); the dark
+rows are
 unchanged. The grain-specific bound, which is the one the shipped build must
 meet, is the **addendum below**. Every light ratio is higher than it was on the
 previous off-white ground (`#fbfbfa` / `#f4f4f1` / `#ebebe7`), because white is
@@ -260,7 +273,8 @@ rules, and glyphs use `--color-accent*`.** The base accent is not text-safe in
 light (4.36 ÷ surface-2 3.79), which is why the split exists.
 
 **Addendum — the accepted grain lowers the effective ground (measured
-2026-09-20; recomputed for the shipped opacity 2026-09-20).** The rows above are
+2026-09-20; recomputed for the shipped opacity 2026-09-20). Retired with §13 on
+2026-10-24 and kept as the record of the accepted tuning.** The rows above are
 the **un-grained** case: with §13's grain off (or before it existed) the light
 paper is exactly those values, and that table stays the correct evidence for it.
 §13's **accepted** grain composites a `multiply` film over the **whole page**, so
@@ -456,13 +470,13 @@ Restraint executed well is not slop (`[S2]`). The following stay, deliberately:
   copy of it is removed by the component pass. The caret is a functional
   affordance, not decoration — and it carries the `[S1]`
   "Decorative blinking cursor" exemption only under that test.
-- **`prefers-reduced-motion` is honored.** Reversed from the decision recorded
-  here earlier: the premium direction's Principle 5 requires that reduced motion
-  disable all nonessential movement. `src/App.tsx` reads `useReducedMotion()` and
-  passes `reduceMotion` into the nav handler, `<MotionConfig reducedMotion="user">`
-  wraps the tree, and `src/index.css` carries a
-  `@media (prefers-reduced-motion: reduce)` block that collapses animation and
-  transition durations and pins `scroll-behavior: auto`.
+- **`prefers-reduced-motion` no longer gates the site (owner order 2026-10-14).**
+  Reversed twice from the decisions recorded here earlier. `src/lib/motionPreference.ts`
+  pins one always-animated intent: `<MotionConfig reducedMotion="never">` wraps the
+  tree and every in-tree gate reads `false`; no app runtime code reads the OS query,
+  not even to discard it. The only `@media (prefers-reduced-motion: reduce)` rule
+  left in `src/index.css` clears the masthead mask's clip-path, transform, and
+  opacity as a safety net — it is not a site-wide static mode.
 - Entrance animations must never gate visibility: content is visible by
   default so a failed animation cannot hide it (`[S1]` "Content stuck waiting
   to appear").
@@ -532,6 +546,11 @@ caret class is gone too — the premium rewrite removed it with the blink budget
 ---
 
 ## 13. TEMPORARY — film grain (operator-pending, NOT a system decision)
+
+> **RETIRED 2026-10-24 — the effect is gone, not merely re-tuned.** The grain
+> block no longer exists in `src/index.css` and no `grain` identifier remains in
+> `src/`. This section and §7's grain addendum are kept as the record of the
+> accepted tuning; they describe nothing the site currently ships.
 
 > **This section is an evaluation, not a spec.** It is the only place in this
 > document that describes something the restyle has not committed to. If the

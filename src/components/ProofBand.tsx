@@ -1,17 +1,15 @@
 import { motion } from "framer-motion";
 import { experience, provenance } from "../content/experience";
-import { projects } from "../content/projects";
 import { credentials } from "../content/credentials";
 import { fadeUp, staggerChild, staggerParent } from "../lib/motion";
+import { BandShell } from "./InstrumentBand";
 
 /**
  * ProofBand — the landing's page proof marker, then the delivery provenance.
  *
- * What the data actually carries, stated plainly: the top-ranked open-source
- * project's own description sentence (the strongest shipped artifact, read
- * verbatim), then the delivery ledger line in Detail beside its provenance.
- * No project on this page has a measured production number, so none is claimed
- * here — the proof is that the work shipped and the ledger behind it. Values,
+ * What the data actually carries, stated plainly: the payments delivery's own
+ * outcome sentence (the strongest measured backend result, read verbatim),
+ * then the delivery ledger line in Detail beside its provenance. Values,
  * labels, and the ledger entry are read from src/content/*.ts — this file
  * formats and sequences, it never authors a fact.
  *
@@ -25,14 +23,15 @@ import { fadeUp, staggerChild, staggerParent } from "../lib/motion";
  * ("hero metric walls").
  */
 
+/** The payments entry carrying the strongest measured backend result. */
+const payments = experience.find((entry) => entry.id === "02");
+
 /** The one commit-ledger entry that carries the delivery numbers. */
 const ledger = experience.find((entry) => entry.id === "01");
 
 const LINK = "font-medium text-accent-text hover:underline";
 
 export function ProofBand() {
-  const [lead] = projects;
-
   return (
     <section aria-labelledby="proof-heading" className="px-6 pt-14 lg:px-10">
       <motion.div
@@ -45,7 +44,7 @@ export function ProofBand() {
         <motion.h2
           id="proof-heading"
           variants={fadeUp}
-          className="text-headline font-semibold text-text"
+          className="text-headline font-semibold text-text text-balance"
         >
           Built and shipped
         </motion.h2>
@@ -54,7 +53,7 @@ export function ProofBand() {
           variants={staggerChild}
           className="mt-4 max-w-[65ch] text-lead text-text"
         >
-          {lead.description}
+          {payments ? payments.outcome : ""}
         </motion.p>
 
         <motion.p
@@ -70,8 +69,10 @@ export function ProofBand() {
 }
 
 /**
- * CredentialsStrip — the landing's closing band: the four verified credentials
- * as plain inline items, each a verify link phrased as a full phrase.
+ * CredentialsStrip — the landing's closing band, with the same structural
+ * weight as Forward: the four verified credentials as a two-column list, each
+ * with a rule, the title, the issuer with its year, and the verify link —
+ * every word read from src/content/credentials.ts.
  *
  * No stack of cards, no heading-level decoration beyond the one section
  * heading, and no icon standing in for the link's own words. The four verify
@@ -83,40 +84,43 @@ export function ProofBand() {
  */
 export function CredentialsStrip() {
   return (
-    <section
-      aria-labelledby="credentials-heading"
-      className="px-6 pt-14 lg:px-10"
+    <BandShell
+      kicker="05 / Credentials"
+      title="Credentials"
+      headingId="credentials-heading"
+      band={4}
     >
-      <motion.div
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-15% 0px" }}
+      <motion.ul
         variants={fadeUp}
-        className="mx-auto w-full max-w-[68ch]"
+        className="mt-6 grid grid-cols-1 gap-x-8 lg:grid-cols-2"
       >
-        <h2
-          id="credentials-heading"
-          className="text-headline font-semibold text-text"
-        >
-          Credentials
-        </h2>
-
-        <ul className="mt-4 flex flex-wrap gap-x-8">
-          {credentials.map((cert) => (
-            <li key={cert.id}>
-              <a
-                href={cert.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                data-nav-item
-                className={`${LINK} flex min-h-11 items-center text-label`}
+          {credentials.map((cert) => {
+            const year = cert.date ? cert.date.split(" ").pop() : undefined;
+            return (
+              <li
+                key={cert.id}
+                className="border-t border-border py-4"
               >
-                Verify {cert.title} at {cert.issuer}
-              </a>
-            </li>
-          ))}
-        </ul>
-      </motion.div>
-    </section>
+                <p className="text-body font-semibold text-text">
+                  {cert.title}
+                </p>
+                <p className="mt-1 font-mono text-micro uppercase tracking-[0.14em] text-text-muted">
+                  {cert.issuer}
+                  {year ? ` · ${year}` : ""}
+                </p>
+                <a
+                  href={cert.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-nav-item
+                  className={`${LINK} mt-1 flex min-h-11 w-fit items-center text-label`}
+                >
+                  Verify {cert.title} at {cert.issuer}
+                </a>
+              </li>
+            );
+          })}
+        </motion.ul>
+    </BandShell>
   );
 }

@@ -17,9 +17,10 @@
  * The guard (judge condition 3 / C3) is factored here so it is unit-testable
  * without a full React mount: the handler never fires while the event target
  * is editable (INPUT/TEXTAREA/SELECT/contentEditable — an editable surface
- * keeps its own caret and ↑/↓ behaviour) nor while a [data-mobile-menu]
- * overlay is in the DOM (mirrors the pre-existing ←/→ guard in App.tsx and
- * the F2 handler in Header.tsx).
+ * keeps its own caret and ↑/↓ behaviour) nor while an overlay is in the DOM
+ * ([data-mobile-menu] for the Header's mobile menu, [data-command-palette]
+ * for the command palette — mirrors the pre-existing ←/→ guard in App.tsx
+ * and the F2 handler in Header.tsx).
  */
 
 import { resolveRoute, routeAtOffset } from "./router";
@@ -44,9 +45,12 @@ export function isEditableTarget(target: EventTarget | null): boolean {
 }
 
 /** True while an overlay is mounted. The Header's mobile menu sets
-    [data-mobile-menu] — load-bearing, do not rename. */
+    [data-mobile-menu] and the command palette sets [data-command-palette]
+    while open — both are load-bearing, do not rename. */
 export function isOverlayOpen(): boolean {
-  return Boolean(document.querySelector("[data-mobile-menu]"));
+  return Boolean(
+    document.querySelector("[data-mobile-menu], [data-command-palette]"),
+  );
 }
 
 /** Map a raw keydown to its intent, applying the editable/overlay guard. */

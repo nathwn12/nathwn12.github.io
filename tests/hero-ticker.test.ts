@@ -1,18 +1,22 @@
 // @vitest-environment jsdom
 /**
- * Hero ticker motion gate (WCAG 2.2.2) — the tech-strip seam in
- * src/components/Hero.tsx.
+ * Hero strip gate — the printed tech strip in src/components/Hero.tsx.
  *
- *  1. By default the seam offers a native pause toggle: a button named
- *     "Pause ticker" with `aria-pressed="false"` that flips to "Play ticker"
- *     / `aria-pressed="true"` when pressed.
+ *  1. While motion is allowed the strip renders the tech as one duplicated
+ *     track (second half repeats the first) inside a full-bleed 3px-bounded
+ *     band, set uppercase with claret bar separators — and offers NO
+ *     pause/play/ticker control: by owner decision the
+ *     hover/focus/hidden-tab hold is the whole gate.
  *  2. When the OS asks for reduced motion, the loop never starts: the strip
- *     renders static and no pause control is offered (nothing to pause).
+ *     renders as a static wrapping list with no mask, and still no control
+ *     is offered (nothing to pause, no knob either way).
  *
  * Mounts the real Hero with the heavy bands stubbed out — this file owns the
- * seam and its control, not the atlas/proof/work sections.
+ * strip and the absence of its control, not the atlas/proof/work sections.
  */
 import { act, createElement } from "react";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Hero } from "../src/components/Hero";
@@ -29,6 +33,12 @@ vi.mock("../src/components/WorkTeaser", () => ({
 }));
 vi.mock("../src/components/PageFoot", () => ({
   PageFoot: () => null,
+}));
+vi.mock("../src/components/ExperienceBand", () => ({
+  ExperienceBand: () => null,
+}));
+vi.mock("../src/components/ForwardBand", () => ({
+  ForwardBand: () => null,
 }));
 
 let host: HTMLDivElement;
@@ -70,8 +80,25 @@ async function mount() {
   });
 }
 
-function pauseButton(): HTMLButtonElement | null {
-  return host.querySelector("button");
+function pauseLikeControls(): Element[] {
+  const controls = host.querySelectorAll(
+    "button, a, input, select, textarea, [role='button']",
+  );
+  return Array.from(controls).filter((element) => {
+    const name = (
+      element.getAttribute("aria-label") ??
+      element.textContent ??
+      ""
+    ).toLowerCase();
+    return /pause|play|ticker/.test(name);
+  });
+}
+
+function stripBand(): HTMLElement | null {
+  const bands = Array.from(
+    host.querySelectorAll<HTMLElement>("#hero div.overflow-hidden"),
+  );
+  return bands.find((band) => band.querySelector("ul") !== null) ?? null;
 }
 
 beforeEach(() => {
@@ -89,28 +116,56 @@ afterEach(async () => {
   host?.remove();
 });
 
-describe("ticker pause control", () => {
-  it("offers a Pause ticker toggle that flips pressed state and label", async () => {
+describe("printed strip", () => {
+  it("renders the tech as one duplicated uppercase track with claret bars", async () => {
     stubMatchMedia(false);
     await mount();
 
-    const button = pauseButton();
-    expect(button?.textContent).toBe("Pause ticker");
-    expect(button?.getAttribute("aria-pressed")).toBe("false");
+    const band = stripBand();
+    expect(band).not.toBeNull();
+    expect(band!.className).toMatch(/border-y-\[3px\]/);
+    // Aria-hidden spacers lead each half (`li.w-14`); the real items
+    // carry `.strip-text`, so order/duplication is proven on those.
+    const items = Array.from(band!.querySelectorAll("li.strip-text"));
+    expect(items.length).toBeGreaterThan(0);
+    expect(items.length % 2).toBe(0);
+    const half = items.length / 2;
+    const first = items.slice(0, half).map((li) => li.textContent);
+    const second = items.slice(half).map((li) => li.textContent);
+    expect(second).toEqual(first);
+    for (const item of items) {
+      expect(item.className).toMatch(/strip-text/);
+      expect(
+        item.querySelector("span.bg-accent"),
+        "each strip item carries its claret bar",
+      ).not.toBeNull();
+    }
+    // The mask itself is a CSS property jsdom does not serialize, so the
+    // gradient and the hold are asserted at the source — the behavior the
+    // gate pins, not the engine's CSSOM.
+    const source = readFileSync(
+      resolve(import.meta.dirname, "..", "src/components/Hero.tsx"),
+      "utf8",
+    );
+    expect(source).toMatch(/maskImage/);
+    expect(source).toMatch(/linear-gradient\(to right, transparent/);
+    expect(source).toMatch(/onMouseEnter/);
+    expect(source).toMatch(/onFocus/);
 
-    await act(async () => {
-      button!.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    });
-
-    const after = pauseButton();
-    expect(after?.textContent).toBe("Play ticker");
-    expect(after?.getAttribute("aria-pressed")).toBe("true");
+    expect(pauseLikeControls()).toHaveLength(0);
   });
 
-  it("stays static with no pause control when the OS asks for reduced motion", async () => {
+  it("stays static with no mask and no control under reduced motion", async () => {
     stubMatchMedia(true);
     await mount();
 
-    expect(pauseButton()).toBeNull();
+    const band = stripBand();
+    expect(band).not.toBeNull();
+    const track = band!.querySelector("ul");
+    expect(track?.className).toContain("flex-wrap");
+    expect(band!.querySelectorAll("li").length).toBeGreaterThan(0);
+    expect(band!.style.maskImage).toBe("");
+
+    expect(pauseLikeControls()).toHaveLength(0);
   });
 });
