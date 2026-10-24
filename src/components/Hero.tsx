@@ -734,7 +734,7 @@ export function Hero() {
         }
       />
 
-      <PullQuote />
+      <ClosingClaim />
 
       <WorkTeaser
         marginalia={
@@ -762,31 +762,31 @@ export function Hero() {
 }
 
 /**
- * Pull quote — the page's single display-size claim, drawn from the API
- * contracts entry's own outcome sentence, with a claret rule. Chosen because
- * its claim is not repeated anywhere else on the landing; the payments
- * percentage already carries the experience band's dominant figure.
+ * Closing claim — the API contracts entry's own outcome sentence, set as
+ * ordinary body copy in the experience band's prose column (owner review,
+ * 2026-10-24: the display-size pull quote with its claret rule read as a
+ * bespoke callout competing with the record it belonged to). The sentence is
+ * unchanged and still read verbatim from content/experience.ts; only the
+ * treatment is body type, at the same measure as every other band line, so it
+ * closes the experience section instead of interrupting it.
  */
-function PullQuote() {
+function ClosingClaim() {
   const reduceMotion = usePrefersReducedMotion();
   const entry = experience.find((item) => item.id === "08");
   if (!entry) return null;
   return (
-    <aside
-      aria-label="Pull quote"
+    <div
       className={`${GUTTER_CONTAINER} sheet-pad pullquote-pad lg:grid lg:grid-cols-12 lg:gap-x-6`}
     >
-      <motion.blockquote
+      <motion.p
         initial={reduceMotion ? "visible" : "hidden"}
         whileInView="visible"
         viewport={{ once: true, margin: "-15% 0px" }}
         variants={bandEnter}
-        className="border-l-[3px] border-accent pl-6 lg:col-span-7 lg:col-start-5"
+        className="max-w-[65ch] text-body text-text lg:col-span-7 lg:col-start-3"
       >
-        <p className="pullquote-text max-w-[30ch] text-text">
-          {entry.outcome}
-        </p>
-      </motion.blockquote>
-    </aside>
+        {entry.outcome}
+      </motion.p>
+    </div>
   );
 }

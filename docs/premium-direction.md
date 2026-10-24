@@ -22,8 +22,8 @@ what it changed in measurable terms, and what it was built with.
 Reading of the current site: the content is strong (production fintech
 systems, measured latency wins, verifiable credentials). The system now
 spends its boldness the way a front page does — one enormous masthead,
-one oversized folio per section, one pull quote — and keeps everything
-around those moves quiet.
+one oversized folio per section — and keeps everything around those moves
+quiet.
 
 ## Mode
 
@@ -88,7 +88,6 @@ of Inter, not a third face.
 | Masthead | clamp(3rem, 8vw, 7.5rem), 0.98, −0.02em tracking | site nameplate |
 | Route title | clamp(2.5rem, 6vw, 4.75rem), 0.98, −0.025em | inner-route nameplate, one per route |
 | Folio | clamp(4rem, 10vw, 12rem), 0.9 | section numerals, clipped by the margin |
-| Pull quote | clamp(1.75rem, 3.5vw, 2.75rem), 1.2 | the page's single display claim |
 | Printed strip | clamp(2rem, 4vw, 3.5rem), 1.1, uppercase | the full-bleed marquee band |
 | Page title | 2.75rem, 1.06 | `--text-display`, reserved — the masthead carries the scale |
 | Section heading | 1.75rem, 1.18 | band headings under the folio |
@@ -141,8 +140,9 @@ Per-section furniture:
    count, or hardcode — so the margin numeral and the kicker cannot diverge.
 4. The marquee is a band: full-bleed printed strip, uppercase ink on
    cream, claret bar separators, mask and hover-hold kept.
-5. One pull quote between the experience and work bands, with a claret
-   rule, drawn from a real content claim.
+5. The experience band closes on the API-contract outcome sentence as
+   ordinary body copy: body size at the band's 65ch measure, in the band's
+   own prose column (columns 3–9). No display size, no rule, no accent.
 6. Marginalia: small Inter micro notes in the outer margin beside two or
    three entries — real facts only, hidden below `lg`.
 7. End-of-page band (`PageFoot`, inside the page measure): a 1px Line rule
@@ -172,8 +172,7 @@ Wireframe (landing):
 | THE PRINTED STRIP — FULL-BLEED, UPPERCASE, CLARET BARS         |
 +================================================================+
 | 01 | Backend experience (7)              | marginalia (3)        |
-+----------------------------------------------------------------+
-|        "payments outcome" (pull quote, claret rule)             |
+|    |   closing claim: body copy, no rule or accent              |
 +----------------------------------------------------------------+
 | 02 | Selected work (8)                  | marginalia (2)        |
 +----------------------------------------------------------------+
@@ -196,8 +195,8 @@ composition changes. `/thanks` and 404 stay untouched.
 
 ## Principles
 
-1. One loud move per screen. The masthead, the folio, the strip, the
-   pull quote — each screen gets its moment; everything else is quiet.
+1. One loud move per screen. The masthead, the folio, the strip — each
+   screen gets its moment; everything else is quiet.
 2. Claims ship with evidence. Every outcome sentence keeps its number,
    scope, or verifier adjacent.
 3. Position carries hierarchy. Asymmetric spans and rules do the work
