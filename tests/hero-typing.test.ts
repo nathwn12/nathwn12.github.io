@@ -6,9 +6,9 @@
  *  1. The pure state machine (src/components/Hero.tsx: nextTypingState /
  *     typingDelayMs / initialTypingState) — driven step by step, no timers.
  *  2. useHeroTyping — the loop itself, mounted on a bare probe with fake
- *     timers: it advances through the cadence, keeps animating even when the OS
- *     asks for less motion (owner order 2026-10-14 — there is no reduced state
- *     to opt out to), and clears its timer on unmount.
+ *     timers: it advances through the cadence, honours
+ *     `prefers-reduced-motion: reduce` with static text and no timer,
+ *     and clears its timer on unmount.
  *
  * The probe renders no framer-motion nodes, so the scheduled-timer count is
  * the hook's alone.
@@ -303,9 +303,8 @@ describe("useHeroTyping — loop, always-animated, cleanup", () => {
     expect(probeText()).toBe(`${phrase[0]}|${phrase}|${phraseIndex}|1|false`);
   });
 
-  it("always animates: the loop runs even when the OS reports reduce", () => {
-    /* Owner order 2026-10-14 — the OS reduced-motion query no longer holds this
-       loop still (src/lib/motionPreference.ts pins the animated path). */
+  it("honours reduce: static text with no timer when the OS reports reduce", () => {
+    /* prefers-reduced-motion: reduce — the claim stands still. */
     const media = ((query: string) =>
       ({
         matches: query.includes("prefers-reduced-motion"),
@@ -324,10 +323,10 @@ describe("useHeroTyping — loop, always-animated, cleanup", () => {
       window.matchMedia("(prefers-reduced-motion: reduce)").matches,
     ).toBe(true);
     expect(probeText()).toBe(`${FIRST}|${FIRST}|0|${FIRST_LEN}|false`);
-    expect(vi.getTimerCount()).toBe(1);
+    expect(vi.getTimerCount()).toBe(0);
 
     act(() => vi.advanceTimersByTime(TYPING_CADENCE.holdFirst));
-    expect(probeText()).toBe(`${FIRST}|${FIRST}|0|${FIRST_LEN}|true`);
+    expect(probeText()).toBe(`${FIRST}|${FIRST}|0|${FIRST_LEN}|false`);
   });
 
   it("clears its pending timer on unmount", () => {

@@ -1,4 +1,5 @@
 import { SkillCategorySchema } from "../types/models";
+import { countWords } from "./projects";
 
 /**
  * Content module: Skills section data, moved verbatim out of
@@ -194,6 +195,20 @@ export const repos: RepoGroup[] = [
     ],
   },
 ];
+
+const groupCountWord =
+  countWords(repos.length).charAt(0).toUpperCase() +
+  countWords(repos.length).slice(1);
+
+/** Route lede: reading order and what each package carries - never a
+    restatement of the title. */
+export const skillsLede = `${groupCountWord} groups, ordered by how often I reach for them — every package with its version and its tier in words.`;
+
+/** Group size note: the count in words. The reading order already lives in
+    the route lede and the group's rank, so it is not repeated here. */
+export function groupSizeNote(count: number): string {
+  return `${countWords(count)} packages`;
+}
 
 /* Dormant zod models wired in: validate a domain projection (tier → level,
    mirroring the historical 90/80/70 skill-bar legend) at module load. */

@@ -1,8 +1,16 @@
 import { motion } from "framer-motion";
-import { projects } from "../content/projects";
+import { archived, projects, projectsLede, projectsSupport } from "../content/projects";
 import { heroIn, springSnappy } from "../lib/motion";
 import { RouteLink } from "../lib/router";
 import { PageFoot } from "./PageFoot";
+import {
+  Folio,
+  GUTTER_CELL,
+  GUTTER_CONTAINER,
+  GUTTER_GRID,
+  Kicker,
+  folioFromKicker,
+} from "./InstrumentBand";
 
 /**
  * Projects — ranked open-source case studies, each band split into what the
@@ -39,12 +47,16 @@ import { PageFoot } from "./PageFoot";
 const CHIP =
   "inline-flex items-center rounded-xs border border-border px-2 py-1 text-detail text-text-muted";
 
-/* The rank column is narrower than Experience's date rail by design: a rank is
-   two digits, a date is not. */
-const RAIL = "lg:grid lg:grid-cols-[3rem_minmax(0,1fr)] lg:items-start lg:gap-x-6";
+/* The rank rail against the case: 2 columns of rank, 8 of case. */
+const RAIL = "lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-6";
+const RAIL_RANK = "lg:col-span-2";
+const RAIL_BODY = "lg:col-span-8";
 
 const ACTION =
   "mt-8 inline-flex min-h-11 items-center rounded-xs text-label font-semibold text-accent-text transition-colors duration-link hover:underline";
+
+/** The route's kicker — the folio's only source (see folioFromKicker). */
+const KICKER = "08 / Projects";
 
 const PART_LABEL = "text-label font-medium text-text-muted";
 
@@ -55,43 +67,55 @@ function statSentence(stat: { label: string; value: string }): string {
 
 export default function Projects() {
   return (
-    <section id="projects" className="px-6 py-16 lg:px-10">
-      <div className="mx-auto w-full max-w-[68ch] lg:max-w-[calc(68ch_+_4.5rem)]">
-        <motion.div
-          variants={heroIn}
-          initial="hidden"
-          animate="visible"
-          className="lg:pl-[4.5rem]"
-        >
-          <h1 className="text-display font-semibold text-text">Projects</h1>
-          <p className="mt-4 max-w-[65ch] text-lead text-text">
-            Twelve open-source projects, featured work first.
-          </p>
-          <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
-            Every project below is a public repository on github.com/nathwn12,
-            built and maintained solo. The order is featured work first, then
-            the supporting tools. No star count is shown: the signal here is
-            what each one does.
-          </p>
-          <RouteLink href="/contact" className={ACTION}>
-            Start a conversation about this work
-          </RouteLink>
-        </motion.div>
+    <section id="projects" className="px-6 py-16 lg:px-10 lg:py-24">
+      <div className={`${GUTTER_CONTAINER} ${GUTTER_GRID}`}>
+        <div aria-hidden="true" className={GUTTER_CELL}>
+          <div className="lg:sticky lg:top-32">
+            <Folio index={folioFromKicker(KICKER)} />
+          </div>
+        </div>
+        <div className="relative min-w-0 lg:col-span-7">
+          <motion.div
+            variants={heroIn}
+            initial="hidden"
+            animate="visible"
+          >
+            <div aria-hidden="true" className="h-[3px] w-full bg-text" />
+            <div className="flex items-baseline gap-3 pt-4">
+              <Kicker>{KICKER}</Kicker>
+            </div>
+            <h1 className="masthead-name route-title mt-3 text-text">Projects</h1>
+            <p className="mt-4 max-w-[65ch] text-lead text-text">
+              {projectsLede}
+            </p>
+            <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
+              {projectsSupport}
+            </p>
+            <RouteLink href="/contact" className={ACTION}>
+              Start a conversation about this work
+            </RouteLink>
+          </motion.div>
 
-        <ol className="mt-16">
+          <div aria-hidden="true" className="mt-8 h-[3px] w-full bg-text" />
+
+        <ol className="mt-8">
           {projects.map((project, index) => (
             <motion.li
               key={project.id}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={springSnappy}
-              className={`mt-16 border-t border-border pt-8 ${RAIL}`}
+              className={
+                index === 0
+                  ? `mt-8 pt-0 ${RAIL}`
+                  : `mt-16 border-t border-border pt-8 ${RAIL}`
+              }
             >
-              <p className="text-detail tabular-nums text-text-muted lg:pt-1">
-                {String(index + 1).padStart(2, "0")}
+              <p className={`text-micro tabular-nums text-text-muted opacity-70 ${RAIL_RANK} lg:pt-1`}>
+                {String(index + 1)}
               </p>
 
-              <div className="mt-4 lg:mt-0">
+              <div className={`mt-4 ${RAIL_BODY} lg:mt-0`}>
                 <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
                   <h2 className="text-title font-semibold text-text">
                     <a
@@ -111,13 +135,13 @@ export default function Projects() {
                   {project.kind} · {project.role} · shipped {project.year}
                 </p>
 
-                <div className="mt-6 grid grid-cols-1 gap-x-10 gap-y-6 lg:grid-cols-2">
-                  <div>
+                <div className="mt-6 grid grid-cols-1 gap-x-8 gap-y-6 lg:grid-cols-[minmax(0,1fr)_14rem]">
+                  <div className="min-w-0 max-w-[62ch]">
                     <p className={PART_LABEL}>What it does</p>
-                    <p className="mt-2 max-w-[65ch] text-body text-text">
+                    <p className="mt-2 text-body text-text">
                       {project.description}
                     </p>
-                    <ul className="mt-4 max-w-[65ch] space-y-2">
+                    <ul className="mt-4 space-y-2">
                       {project.highlights.map((highlight) => (
                         <li key={highlight} className="text-detail text-text-muted">
                           {highlight}
@@ -126,7 +150,7 @@ export default function Projects() {
                     </ul>
                   </div>
 
-                  <div>
+                  <div className="min-w-0">
                     <p className={PART_LABEL}>Facts</p>
                     <ul className="mt-2">
                       {project.stats.map((stat) => (
@@ -153,7 +177,29 @@ export default function Projects() {
           ))}
         </ol>
 
+        <div className="mt-16 border-t border-border pt-8">
+          <h2 className="text-title font-semibold text-text">Retired</h2>
+          <ul className="mt-4 space-y-2">
+            {archived.map((entry) => (
+              <li key={entry.dir} className="text-detail text-text-muted">
+                <a
+                  href={entry.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-nav-item
+                  className="font-medium text-text transition-colors duration-link hover:text-accent-text hover:underline"
+                >
+                  {entry.name}
+                </a>{" "}
+                ({entry.dir}/, {entry.year}): retired, not deleted.{" "}
+                {entry.reason}
+              </li>
+            ))}
+          </ul>
+        </div>
+
         <PageFoot />
+        </div>
       </div>
     </section>
   );

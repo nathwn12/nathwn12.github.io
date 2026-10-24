@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { AnimatePresence, MotionConfig } from "framer-motion";
+import { CommandPalette } from "./components/CommandPalette";
 import { PageShell } from "./components/PageShell";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
@@ -28,7 +29,7 @@ import {
  * on the critical path instead of a serial fetch after the entry (est.
  * +200–350 ms mobile LCP). It also removes the `Loading…` flash on first paint.
  *
- * The other four routes stay `React.lazy`-loaded so their JS ships in its own
+ * The other routes stay `React.lazy`-loaded so their JS ships in its own
  * chunk rather than the first-paint bundle; the shared shell (Header/Footer/
  * PageShell) and the router stay in the entry chunk too.
  */
@@ -40,6 +41,7 @@ const PAGES: Record<string, ComponentType> = {
   skills: lazy(() => import("./components/Skills").then((m) => ({ default: m.Skills }))),
   projects: lazy(() => import("./components/Projects")),
   contact: lazy(() => import("./components/Contact").then((m) => ({ default: m.Contact }))),
+  thanks: lazy(() => import("./components/Thanks").then((m) => ({ default: m.Thanks }))),
 };
 
 /** Static, non-animated fallback shown while a page chunk is in flight. */
@@ -128,7 +130,7 @@ export default function App() {
   const Content = routeByPath(route.path) ? (PAGES[route.id] ?? PAGES.hero) : NotFound;
 
   return (
-    <div className="bg-bg min-h-screen relative">
+    <div className="app-sheet bg-bg relative flex h-dvh flex-col">
       <MotionConfig reducedMotion={motionPreferenceToMode(motionPreference)}>
         <a
           href="#main"
@@ -143,6 +145,8 @@ export default function App() {
         </a>
 
         <Header />
+
+        <CommandPalette />
 
         <AnimatePresence mode="wait" initial={false}>
           <PageShell key={route.path} route={route} direction={direction}>

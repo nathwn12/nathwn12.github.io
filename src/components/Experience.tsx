@@ -1,8 +1,25 @@
 import { motion } from "framer-motion";
-import { employer, experience, provenance } from "../content/experience";
+import {
+  employer,
+  experience,
+  experienceLede,
+  formerRoleLine,
+  latestRecordDate,
+  provenance,
+  tenureEnd,
+  tenureSpan,
+} from "../content/experience";
 import { fadeUp, staggerChild, staggerParent } from "../lib/motion";
 import { RouteLink } from "../lib/router";
 import { PageFoot } from "./PageFoot";
+import {
+  Folio,
+  GUTTER_CELL,
+  GUTTER_CONTAINER,
+  GUTTER_GRID,
+  Kicker,
+  folioFromKicker,
+} from "./InstrumentBand";
 
 /**
  * Experience — the career record as a dated time rail.
@@ -13,13 +30,14 @@ import { PageFoot } from "./PageFoot";
  * the direction wins.
  *
  * Route identity (this route's alone): ONE persistent left rail carrying the
- * date of every entry, so chronology is the spine and the eye travels a single
- * vertical line down the page. That rail IS the resolved asymmetry — at wide
- * widths the column widens past the 68ch measure and each date sits offset into
- * the left gutter, aligned with the era marker the title block puts in the same
- * rail; below `lg` the rail collapses and the date stacks above its entry. No
- * other route has a left rail of its own: Skills runs its rail on the right
- * (tier), Projects ranks in a narrow numeric column.
+ * date of every selected contribution, so chronology is the spine and the eye
+ * travels a single vertical line down the page. That rail IS the resolved
+ * asymmetry — at wide widths the column widens past the 68ch measure and each
+ * date sits offset into the left gutter; below `lg` the rail collapses and the
+ * date stacks above its entry. The continuous tenure is a separate labeled
+ * band above the list, so the employment span can never be mistaken for one
+ * more dated milestone. No other route has a left rail of its own: Skills runs
+ * its rail on the right (tier), Projects ranks in a narrow numeric column.
  *
  * Rhythm: the direction's 8px base held strictly — section gaps 64px (mt-16),
  * entry gaps 32px (mt-8), text gaps 16px (mt-4). Bands are full width and
@@ -43,9 +61,12 @@ import { PageFoot } from "./PageFoot";
  * the route error boundary in App.tsx).
  */
 
-/* One rail, declared once: the title block and every entry share this width, so
-   the vertical line is a fact of the page rather than a per-row decision. */
-const RAIL = "lg:grid lg:grid-cols-[7rem_minmax(0,1fr)] lg:items-start lg:gap-x-8";
+/* One grid, declared once: the title block and every entry share it — the
+   entries pair a 3-column date rail with a 7-column record inside the
+   sheet's 12. */
+const RAIL = "lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-6";
+const RAIL_DATE = "lg:col-span-3";
+const RAIL_BODY = "lg:col-span-7";
 
 /* The one code-adjacent convention in the system: Body family at Detail size,
    letterspacing 0, distinguished by a Line border rather than a third face. */
@@ -55,60 +76,100 @@ const CHIP =
 const ACTION =
   "mt-8 inline-flex min-h-11 items-center rounded-xs text-label font-semibold text-accent-text transition-colors duration-link hover:underline";
 
+/** The route's kicker — the folio's only source (see folioFromKicker). */
+const KICKER = "06 / Experience";
+
 export function Experience() {
   return (
-    <section id="experience" className="px-6 py-16 lg:px-10">
-      <div className="mx-auto w-full max-w-[68ch] lg:max-w-[calc(68ch_+_9rem)]">
-        {/* Title block: the era marker takes the rail, the title and claim take
-            the content edge every entry below will share. */}
-        <div className={RAIL}>
+    <section id="experience" className="px-6 py-16 lg:px-10 lg:py-24">
+      <div className={`${GUTTER_CONTAINER} ${GUTTER_GRID}`}>
+        <div aria-hidden="true" className={GUTTER_CELL}>
+          <div className="lg:sticky lg:top-32">
+            <Folio index={folioFromKicker(KICKER)} />
+          </div>
+        </div>
+        <div className="relative min-w-0 lg:col-span-8">
+          {/* Masthead title block: 3px bars, folio kicker, nameplate title. */}
+          <div aria-hidden="true" className="h-[3px] w-full bg-text" />
+          <div className={`${RAIL} pt-4`}>
+            <motion.div
+              variants={fadeUp}
+              initial="hidden"
+              animate="visible"
+              className={RAIL_BODY}
+            >
+              <div className="flex items-baseline gap-3">
+                <Kicker>{KICKER}</Kicker>
+              </div>
+              <h1 className="masthead-name route-title mt-3 text-text">Experience</h1>
+              <p className="mt-4 max-w-[65ch] text-lead text-text">
+                {experienceLede}
+              </p>
+              <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
+                {formerRoleLine}, {employer.location}.
+              </p>
+              <RouteLink href="/contact" className={ACTION}>
+                Ask about this work
+              </RouteLink>
+            </motion.div>
+          </div>
+
+          <div aria-hidden="true" className="mt-8 h-[3px] w-full bg-text" />
+
+          {/* The continuous tenure is its own labeled span, never one more
+              dated record: the span runs March 2023 – May 2026 while the
+              selected contributions below stop at the last shipped milestone.
+              Both facts are derived from content — no milestone is implied
+              for the gap. */}
           <motion.div
+            data-tenure-span
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            className="lg:col-start-2 lg:row-start-1"
+            className="mt-8 border-t border-border pt-8"
           >
-            <h1 className="text-display font-semibold text-text">Experience</h1>
-            <p className="mt-4 max-w-[65ch] text-lead text-text">
-              Three years of production fintech work in C# and ASP.NET Core,
-              from payment APIs and data layers down to the Ubuntu servers they
-              run on.
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
+              <p className="font-mono text-micro font-medium uppercase tracking-[0.14em] text-text-muted">
+                Tenure
+              </p>
+              <p className="text-title font-semibold tabular-nums text-text">
+                {tenureSpan}
+              </p>
+            </div>
+            <p className="mt-2 max-w-[65ch] text-detail text-text-muted">
+              Continuous employment at {employer.company}
             </p>
-            <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
-              {employer.role}, {employer.company}, {employer.location}.
-            </p>
-            <RouteLink href="/contact" className={ACTION}>
-              Ask about this work
-            </RouteLink>
           </motion.div>
 
-          <motion.p
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            className="mt-2 text-detail tabular-nums text-text-muted lg:col-start-1 lg:row-start-1 lg:mt-0 lg:pt-2"
-          >
-            {employer.period}
-          </motion.p>
-        </div>
+          {/* The dated list is a selection, not an exhaustive event log. */}
+          <div className="mt-16 border-t border-border pt-8">
+            <h2 className="text-headline font-semibold text-text">
+              Selected contributions
+            </h2>
+            <p className="mt-2 max-w-[65ch] text-detail text-text-muted">
+              {experience.length} dated records, newest first — a selection,
+              not an exhaustive log. The latest is {latestRecordDate}; the
+              tenure ran to {tenureEnd}.
+            </p>
+          </div>
 
         <motion.ol
           variants={staggerParent}
           initial="hidden"
           animate="visible"
-          className="mt-16"
+          className="mt-8"
         >
           {experience.map((entry) => (
             <motion.li
               key={entry.id}
               variants={staggerChild}
-              className={`mt-16 border-t border-border pt-8 ${RAIL}`}
+              className={`mt-8 border-t border-border pt-8 ${RAIL}`}
             >
-              <p className="text-detail tabular-nums text-text-muted lg:pt-1">
+              <p className={`text-detail tabular-nums text-text-muted ${RAIL_DATE} lg:pt-1`}>
                 {entry.date}
               </p>
 
-              <div className="mt-4 lg:mt-0">
+              <div className={`mt-4 ${RAIL_BODY} lg:mt-0`}>
                 <h2 className="text-title font-semibold text-text">
                   {entry.name}
                 </h2>
@@ -147,6 +208,7 @@ export function Experience() {
         </p>
 
         <PageFoot />
+        </div>
       </div>
     </section>
   );

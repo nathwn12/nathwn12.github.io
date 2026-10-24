@@ -1,467 +1,479 @@
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import {
-  CONTACT_EMAIL,
-  validateContactFields,
-  type ContactField,
-  type ContactFieldError,
-} from "../lib/contact";
-import { credentials } from "../content/credentials";
+import { CONTACT_EMAIL } from "../lib/contact";
+import { WEB3FORMS_ENDPOINT, WEB3FORMS_KEY } from "../content/contact";
 import { fadeIn, fadeUp } from "../lib/motion";
-import { PageFoot } from "./PageFoot";
+import { navigate } from "../lib/router";
+import {
+  Folio,
+  GUTTER_CELL,
+  GUTTER_CONTAINER,
+  GUTTER_GRID,
+  Kicker,
+  folioFromKicker,
+} from "./InstrumentBand";
 
 /**
  * Contact — the conversion point, and the quietest page on the site.
  *
  * Authority: docs/premium-direction.md § Per-route application, Contact.
- * Order is fixed and this file follows it literally: title block, address block
- * (email link phrase, location in words), one stacked form with a visible label
- * above every field, then the four verified credentials inline with
- * verification links.
+ * Order: title block, the relay form, the direct email address, then one
+ * "Reach me" band with the three keyless actions in fixed order. Contact is
+ * the contact-method page only: the credentials, degree, and location live on
+ * the landing proof band and in the résumé, never repeated here. The shared
+ * PageFoot (résumé download, adjacent-page pager, site colophon) is not
+ * mounted on this route — it is navigation and credentials chrome, not a way
+ * to reach the owner (owner order 2026-10-24: "literally just make the
+ * contacts page as contacts page").
  *
- * Route identity (this route's alone): a two-column address plate. The email
- * link phrase and the location sit side by side at `sm` as labelled pairs, so
- * the page opens on a plate rather than a paragraph, and the one primary action
- * phrase in the title block jumps straight to the form rather than imitating
- * the address below it. Every field is genuinely EMPTY on load: labels sit above
- * each control and no placeholder imitates a filled value, so nothing reads as
- * prefilled and nothing is mistaken for an answer. Errors are linked twice over:
- * one sentence beside the offending field, and a focused summary whose links
- * return to each field.
+ * Form first, mailto beneath. The relay form posts JSON to Web3Forms (the
+ * endpoint and the public access key live in src/content/contact.ts) and, on
+ * `{"success":true}`, clears itself and navigates to `/thanks` — no
+ * `redirect` field, since this is a SPA. A refused send (network failure or
+ * `success:false`) keeps every word in the form and says so in an assertive
+ * region with the direct address beside it, so the path never dead-ends. The
+ * mailto draft, the copy-address button, and the public-issue link stay
+ * unchanged beneath the form as the secondary path: or email me directly.
  *
  * Rhythm: the direction's 8px base held strictly — section gaps 64px (mt-16),
- * text gaps 16px (mt-4); credentials are the one dense list (py-4).
+ * text gaps 16px (mt-4).
  *
- * Motion: the title block rises once (fadeUp) and the compose block settles a
- * beat later (fadeIn) — unconditionally, since the OS reduced-motion query no
- * longer gates this site (owner order 2026-10-14).
+ * Motion: the title block rises once (fadeUp) and the reach-me block settles
+ * a beat later (fadeIn) — unconditionally, since the OS reduced-motion query
+ * no longer gates this site (owner order 2026-10-14).
  *
- * The form owns five visible states, never one-at-a-time guesses:
- *   loading     — the send control is disabled and the status line reads
- *                 "Sending your message…" (aria-busy on the form)
- *   validation  — one sentence beside each offending field, plus an error
- *                 summary that takes focus and links back to every field
- *   error       — the mail service refused: the message stays in the form, the
- *                 send control is live again, and the direct address is offered
- *   disabled    — the send control while a request is in flight
- *   recovery    — nothing is cleared on failure, so retry is one activation
- *
- * Two live regions, both mounted from the first render so a state change is
- * announced instead of re-created: one polite status role for progress and
- * success, one assertive alert role for the validation summary and the send
- * failure (only one of those can be current, so they share a region and never
- * double-announce).
- *
- * The send contract is unchanged from the previous UI: the same FormSubmit
- * action, `_subject` / `_captcha` / `_honey` fields, field names, HTML5
- * constraints, and JSON POST. Only the presentation and the pre-submit
- * messages moved.
+ * The copy control owns two visible states, announced through one
+ * always-mounted polite live region: the address on the button, and the
+ * confirmation once it is on the clipboard. A failed copy keeps the address
+ * on screen and says so in the same region, so the visitor is never left
+ * guessing.
  */
 
-type FormStatus =
-  | { kind: "idle" }
-  | { kind: "sending" }
-  | { kind: "sent"; message: string }
-  | { kind: "failed"; detail?: string };
-
-const FIELD =
-  "w-full rounded-sm border border-border-accent bg-bg px-4 py-3 text-body text-text transition-colors duration-field";
-const FIELD_LABEL = "block text-label font-medium text-text";
-const FIELD_ERROR = "mt-2 text-detail font-medium text-text";
-const FIELD_WRAP = "mb-6";
 const LINK = "font-medium text-accent-text hover:underline";
 const ACTION =
   "mt-8 inline-flex min-h-11 items-center rounded-xs text-label font-semibold text-accent-text transition-colors duration-link hover:underline";
+/* The band's primary control wears the old send control's solid treatment:
+   accent ground, primary weight, same 44px minimum target. */
+const PRIMARY_BUTTON =
+  "inline-flex min-h-11 items-center rounded-none bg-accent px-6 py-3 text-label font-semibold text-bg transition-colors duration-submit focus:rounded-none focus-visible:rounded-none active:rounded-none";
+/* Secondary controls are bordered chips: quieter than the primary, still
+   full 44px targets with visible text labels. */
+const SECONDARY_BUTTON =
+  "inline-flex min-h-11 items-center rounded-none border border-border px-6 py-3 text-label font-semibold text-text transition-colors duration-submit hover:border-border-accent focus:rounded-none focus-visible:rounded-none active:rounded-none";
 
-/* The error-summary links are Ink, not Claret: the accent budget above the
-   fold is the email phrase and the send control (docs/premium-direction.md
-   § Token plan, "Usage budget"), and a summary link is still a link by weight
-   and underline. */
-const SUMMARY_LINK = "font-medium text-text hover:underline";
+const MAIL_SUBJECT = "Portfolio enquiry";
+const MAIL_BODY = `Hi Nathaniel,
 
-export function Contact() {
-  const [errors, setErrors] = useState<ContactFieldError[]>([]);
-  const [status, setStatus] = useState<FormStatus>({ kind: "idle" });
-  const alertRef = useRef<HTMLDivElement>(null);
-  const isSubmitting = status.kind === "sending";
+I found your portfolio and wanted to talk about [a role / a system / a problem worth solving].
 
-  const errorFor = (field: ContactField) =>
-    errors.find((error) => error.field === field)?.message;
+— [Your name]`;
+
+const MAILTO_HREF =
+  `mailto:${CONTACT_EMAIL}` +
+  `?subject=${encodeURIComponent(MAIL_SUBJECT)}` +
+  `&body=${encodeURIComponent(MAIL_BODY)}`;
+
+const ISSUES_HREF = "https://github.com/nathwn12/nathwn12/issues/new";
+
+const THANKS_PATH = "/thanks";
+
+/** The route's kicker — the folio's only source (see folioFromKicker). */
+const KICKER = "09 / Contact";
+
+/* Relay-form field chrome: quiet bordered controls on the page ground. */
+const FIELD_LABEL = "block text-label font-medium text-text";
+const FIELD_CONTROL =
+  "mt-2 w-full rounded-none border border-border bg-bg px-4 py-3 text-body text-text transition-colors duration-field focus:rounded-none focus-visible:rounded-none active:rounded-none focus-visible:border-border-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent-text";
+const FIELD_INPUT = `${FIELD_CONTROL} min-h-11`;
+const FIELD_ERROR_TEXT = "mt-2 min-h-[2.75rem] text-detail font-medium text-text";
+const FIELD_WRAP = "mb-6";
+
+/* Name needs at least 2 characters, the message at least 10; the address
+   check stays deliberately simple — the relay validates for real. */
+const EMAIL_RE = /^\S+@\S+\.\S+$/;
+
+type FormStatus = "idle" | "submitting" | "error";
+
+interface ContactFieldErrors {
+  name?: string;
+  email?: string;
+  message?: string;
+}
+
+/**
+ * The relay form, rendered above the mailto block. Posts JSON to
+ * WEB3FORMS_ENDPOINT with the public access key; there is no `redirect`
+ * field — this is a SPA, so the `{"success":true}` path clears the form and
+ * calls `navigate(THANKS_PATH)` instead.
+ */
+function ContactForm() {
+  const [status, setStatus] = useState<FormStatus>("idle");
+  const [errors, setErrors] = useState<ContactFieldErrors>({});
+  const nameRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const messageRef = useRef<HTMLTextAreaElement>(null);
+
+  const submitting = status === "submitting";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (isSubmitting) return;
+    if (submitting) return;
 
     const form = event.currentTarget;
     const data = new FormData(form);
+    const name = String(data.get("name") ?? "");
+    const email = String(data.get("email") ?? "");
+    const message = String(data.get("message") ?? "");
 
-    /* Honeypot guard — unchanged: a filled `_honey` field is accepted
-       silently without POSTing, so bots get no signal either way. */
-    if (String(data.get("_honey") ?? "").length > 0) {
-      form.reset();
-      setErrors([]);
-      setStatus({
-        kind: "sent",
-        message: "A confirmation is on its way to your email address.",
-      });
+    /* Honeypot: a checked `botcheck` is a bot — abort silently, no POST,
+       no error, no navigation. */
+    if (data.get("botcheck")) return;
+
+    const next: ContactFieldErrors = {};
+    if (name.trim().length < 2) {
+      next.name = "Enter your name (at least 2 characters).";
+    }
+    if (!EMAIL_RE.test(email.trim())) {
+      next.email = "Enter an email address in the form name@example.com.";
+    }
+    if (message.trim().length < 10) {
+      next.message = "Write your message (at least 10 characters).";
+    }
+    setErrors(next);
+    if (next.name ?? next.email ?? next.message) {
+      /* Focus the first invalid field, in form order. */
+      (next.name ? nameRef : next.email ? emailRef : messageRef).current?.focus();
       return;
     }
 
-    const fieldErrors = validateContactFields({
-      name: data.get("name"),
-      email: data.get("email"),
-      subject: data.get("subject"),
-      message: data.get("message"),
-    });
-
-    if (fieldErrors.length > 0) {
-      setErrors(fieldErrors);
-      setStatus({ kind: "idle" });
-      /* Focus the summary, not the first field: it lists every problem in form
-         order and links each one, which is the read-back a screen reader needs
-         (focus jumps to the field from the link, not from here). */
-      requestAnimationFrame(() => alertRef.current?.focus());
-      return;
-    }
-
-    setErrors([]);
-    setStatus({ kind: "sending" });
-
+    setStatus("submitting");
     try {
-      const payload = Object.fromEntries(data.entries());
-      const res = await fetch(form.action, {
+      const res = await fetch(WEB3FORMS_ENDPOINT, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: `Portfolio contact — ${name.trim()}`,
+          from_name: name.trim(),
+          botcheck: String(data.get("botcheck") ?? ""),
+          name: name.trim(),
+          email: email.trim(),
+          message: message.trim(),
+        }),
       });
 
-      let payloadJson: { message?: string } | null = null;
+      let ok = res.ok;
       try {
         const body: unknown = await res.json();
-        if (typeof body === "object" && body !== null) {
-          payloadJson = body as { message?: string };
+        if (typeof body === "object" && body !== null && "success" in body) {
+          ok = res.ok && (body as { success?: boolean }).success === true;
         }
       } catch {
-        /* Non-JSON body (proxy or gateway error page) — report a generic
-           failure instead of leaking raw response bytes to the visitor. */
+        /* Non-JSON body (proxy or gateway error page) — fall back to the
+           HTTP status already read above. */
       }
 
-      if (!res.ok) {
-        throw new Error(payloadJson?.message || "Something went wrong.");
-      }
-
+      if (!ok) throw new Error("relay refused");
+      /* Success clears the form before leaving for the confirmation. */
       form.reset();
-      setStatus({
-        kind: "sent",
-        message: "A confirmation is on its way to your email address.",
-      });
-    } catch (error: unknown) {
-      setStatus({
-        kind: "failed",
-        detail: error instanceof Error ? error.message : undefined,
-      });
-      requestAnimationFrame(() => alertRef.current?.focus());
+      navigate(THANKS_PATH);
+    } catch {
+      /* Recovery is one activation: nothing is cleared, the words stay in
+         the form, and the send control is live again. */
+      setStatus("error");
     }
   }
 
-  const alertVisible = errors.length > 0 || status.kind === "failed";
+  return (
+    <div className="mt-16 border-t border-border pt-8">
+      <h2 className="text-headline font-semibold text-text">Send a message</h2>
+      <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
+        Send it from this page. Prefer your own mail client?{" "}
+        <a href={MAILTO_HREF} className={LINK}>
+          Or email me directly
+        </a>{" "}
+        below.
+      </p>
+
+      {status === "error" && (
+        <div
+          role="alert"
+          className="mt-6 max-w-[65ch] rounded-sm border border-border bg-surface p-4 text-body text-text"
+        >
+          <p>
+            Could not send.{" "}
+            <a href={MAILTO_HREF} className={`${LINK} break-words`}>
+              Email me directly instead.
+            </a>
+          </p>
+        </div>
+      )}
+
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        aria-busy={submitting}
+        className="mt-6"
+      >
+        {/* Honeypot: a checkbox bots fill and people never meet — off the
+            tab order, no autocomplete, hidden from sight and assistive tech.
+            A checked box aborts the submit silently (see handleSubmit). */}
+        <input
+          type="checkbox"
+          name="botcheck"
+          className="sr-only"
+          tabIndex={-1}
+          autoComplete="off"
+          aria-hidden="true"
+        />
+
+        <div className={FIELD_WRAP}>
+          <label htmlFor="contact-name" className={FIELD_LABEL}>
+            Your name
+          </label>
+          <input
+            ref={nameRef}
+            id="contact-name"
+            name="name"
+            type="text"
+            required
+            minLength={2}
+            maxLength={100}
+            autoComplete="name"
+            aria-invalid={errors.name ? "true" : undefined}
+            aria-describedby={errors.name ? "contact-name-error" : undefined}
+            className={FIELD_INPUT}
+          />
+          <p id="contact-name-error" className={FIELD_ERROR_TEXT}>
+            {errors.name ?? ""}
+          </p>
+        </div>
+
+        <div className={FIELD_WRAP}>
+          <label htmlFor="contact-email" className={FIELD_LABEL}>
+            Your email address
+          </label>
+          <input
+            ref={emailRef}
+            id="contact-email"
+            name="email"
+            type="email"
+            required
+            maxLength={254}
+            autoComplete="email"
+            aria-invalid={errors.email ? "true" : undefined}
+            aria-describedby={errors.email ? "contact-email-error" : undefined}
+            className={FIELD_INPUT}
+          />
+          <p id="contact-email-error" className={FIELD_ERROR_TEXT}>
+            {errors.email ?? ""}
+          </p>
+        </div>
+
+        <div className={FIELD_WRAP}>
+          <label htmlFor="contact-message" className={FIELD_LABEL}>
+            Message
+          </label>
+          <textarea
+            ref={messageRef}
+            id="contact-message"
+            name="message"
+            required
+            rows={5}
+            minLength={10}
+            maxLength={5000}
+            aria-invalid={errors.message ? "true" : undefined}
+            aria-describedby={
+              errors.message ? "contact-message-error" : undefined
+            }
+            className={`${FIELD_CONTROL} resize-y`}
+          />
+          <p id="contact-message-error" className={FIELD_ERROR_TEXT}>
+            {errors.message ?? ""}
+          </p>
+        </div>
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="inline-flex min-h-11 items-center rounded-none bg-accent px-6 py-3 text-label font-semibold text-bg transition-colors duration-submit focus:rounded-none focus-visible:rounded-none active:rounded-none disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {submitting ? "Sending…" : "Send the message"}
+        </button>
+      </form>
+    </div>
+  );
+}
+
+const COPY_RESET_MS = 3000;
+
+export function Contact() {
+  const [copied, setCopied] = useState(false);
+  const [copyFailed, setCopyFailed] = useState(false);
+  const resetTimer = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (resetTimer.current !== null) {
+        window.clearTimeout(resetTimer.current);
+      }
+    };
+  }, []);
+
+  async function handleCopy() {
+    try {
+      if (
+        typeof navigator !== "undefined" &&
+        navigator.clipboard &&
+        typeof navigator.clipboard.writeText === "function"
+      ) {
+        await navigator.clipboard.writeText(CONTACT_EMAIL);
+      } else {
+        /* Clipboard API absent (old client, locked-down permissions):
+           select a temporary field and copy the old way. */
+        const field = document.createElement("textarea");
+        field.value = CONTACT_EMAIL;
+        field.setAttribute("readonly", "");
+        field.style.position = "fixed";
+        field.style.opacity = "0";
+        document.body.appendChild(field);
+        field.select();
+        const ok = document.execCommand("copy");
+        document.body.removeChild(field);
+        if (!ok) throw new Error("copy refused");
+      }
+      setCopyFailed(false);
+      setCopied(true);
+    } catch {
+      setCopyFailed(true);
+      setCopied(false);
+      return;
+    }
+    if (resetTimer.current !== null) {
+      window.clearTimeout(resetTimer.current);
+    }
+    resetTimer.current = window.setTimeout(() => {
+      setCopied(false);
+      resetTimer.current = null;
+    }, COPY_RESET_MS);
+  }
 
   return (
-    <section id="contact" className="px-6 py-16 lg:px-10">
-      <div className="mx-auto w-full max-w-[68ch]">
-        <motion.div variants={fadeUp} initial="hidden" animate="visible">
-          <h1 className="text-display font-semibold text-text">Contact</h1>
-          <p className="mt-4 max-w-[65ch] text-lead text-text">
-            Send a note about a role, a system, or a problem worth solving — it
-            reaches my inbox directly and I answer from Hagonoy, Bulacan.
-          </p>
-          {/* The page's one primary action phrase, at the end of the title
-              block (docs/premium-direction.md § Layout). It is a jump to the
-              form below, not a second copy of the address. */}
-          <a href="#contactForm" className={ACTION}>
-            Send a message
-          </a>
-        </motion.div>
+    <section id="contact" className="px-6 py-16 lg:px-10 lg:py-24">
+      <div className={`${GUTTER_CONTAINER} ${GUTTER_GRID}`}>
+        <div aria-hidden="true" className={GUTTER_CELL}>
+          <div className="lg:sticky lg:top-32">
+            <Folio index={folioFromKicker(KICKER)} />
+          </div>
+        </div>
+        <div className="relative min-w-0 lg:col-span-7">
+          <motion.div variants={fadeUp} initial="hidden" animate="visible">
+            <div aria-hidden="true" className="h-[3px] w-full bg-text" />
+            <div className="flex items-baseline gap-3 pt-4">
+              <Kicker>{KICKER}</Kicker>
+            </div>
+            <h1 className="masthead-name route-title mt-3 text-text">Contact</h1>
+            <p className="mt-4 max-w-[65ch] text-lead text-text">
+              Tell me about the role, the system, or the problem. Notes reach my
+              inbox directly.
+            </p>
+            {/* The page's one primary action phrase, at the end of the title
+                block (docs/premium-direction.md § Layout): it opens the
+                prefilled draft, not a second copy of the address. */}
+            <a href={MAILTO_HREF} className={ACTION}>
+              Write an email
+            </a>
+          </motion.div>
 
-        {/* Address plate: the direct email link phrase and the location in
-            words, side by side as labelled pairs. */}
-        <dl className="mt-16 grid grid-cols-1 gap-x-10 gap-y-6 border-t border-border pt-8 sm:grid-cols-2">
-          <div>
+          <div aria-hidden="true" className="mt-8 h-[3px] w-full bg-text" />
+
+        {/* Relay form first; the mailto block stays unchanged beneath it as
+            the secondary path. */}
+        <ContactForm />
+
+        {/* Address plate: the direct email link phrase as a labelled pair.
+            Location is deliberately absent — this route is the ways to reach
+            the owner, not a second profile. */}
+        <dl className="mt-16 grid grid-cols-1 gap-x-6 gap-y-6 border-t border-border pt-8 lg:grid-cols-12">
+          <div className="lg:col-span-7">
             <dt className="text-label font-medium text-text-muted">
               Direct email
             </dt>
             <dd className="mt-2">
               <a
-                href={`mailto:${CONTACT_EMAIL}`}
+                href={MAILTO_HREF}
                 className="break-words text-body font-semibold text-accent-text transition-colors duration-link hover:underline"
               >
                 Write to {CONTACT_EMAIL}
               </a>
             </dd>
           </div>
-          <div>
-            <dt className="text-label font-medium text-text-muted">Location</dt>
-            <dd className="mt-2 max-w-[65ch] text-body text-text">
-              Hagonoy, Bulacan, Philippines, UTC+8 (Philippine time)
-            </dd>
-          </div>
         </dl>
 
-        {/* Compose form */}
+        {/* Reach me: the three keyless actions, most direct first. */}
         <motion.div
           variants={fadeIn}
           initial="hidden"
           animate="visible"
           className="mt-16 border-t border-border pt-8"
         >
-          <h2 className="text-headline font-semibold text-text">
-            Send a message
-          </h2>
+          <h2 className="text-headline font-semibold text-text">Reach me</h2>
+          <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
+            No account needed: your mail client opens with the subject and a
+            short template already written.
+          </p>
+
+          <div className="mt-6 flex flex-col items-start gap-4">
+            <a href={MAILTO_HREF} className={PRIMARY_BUTTON}>
+              Open a prefilled draft
+            </a>
+            <button
+              type="button"
+              onClick={handleCopy}
+              className={SECONDARY_BUTTON}
+            >
+              {copied ? "Copied to the clipboard" : "Copy the email address"}
+            </button>
+            <a
+              href={ISSUES_HREF}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${LINK} flex min-h-11 items-center text-label`}
+            >
+              Open a GitHub issue for a non-private message
+            </a>
+          </div>
 
           <div
-            ref={alertRef}
-            tabIndex={-1}
-            role="alert"
+            role="status"
             className={
-              alertVisible
-                ? "mt-6 rounded-sm border border-border-accent bg-surface p-4"
+              copied || copyFailed
+                ? "mt-6 max-w-[65ch] rounded-sm border border-border bg-surface p-4 text-body text-text"
                 : "sr-only"
             }
           >
-            {errors.length > 0 && (
-              <>
-                <p className="text-label font-semibold text-text">
-                  There is a problem with{" "}
-                  {errors.length === 1 ? "one field" : `${errors.length} fields`}
-                </p>
-                <ul className="mt-2 list-disc pl-4">
-                  {errors.map((error) => (
-                    <li key={error.field} className="text-detail text-text">
-                      <a
-                        href={`#form-${error.field}`}
-                        className={SUMMARY_LINK}
-                        onClick={(event) => {
-                          event.preventDefault();
-                          document.getElementById(`form-${error.field}`)?.focus();
-                        }}
-                      >
-                        {error.message}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </>
+            {copied && (
+              <p>
+                <span className="font-semibold">Copied.</span> {CONTACT_EMAIL}{" "}
+                is on your clipboard.
+              </p>
             )}
-
-            {status.kind === "failed" && (
-              <>
-                <p className="text-body font-semibold text-text">
-                  Your message was not sent.
-                </p>
-                <p className="mt-2 max-w-[65ch] text-detail text-text-muted">
-                  It is still in the form below. Check your connection and send
-                  it again, or reach me directly at{" "}
-                  <a
-                    href={`mailto:${CONTACT_EMAIL}`}
-                    className={`${LINK} break-words`}
-                  >
-                    {CONTACT_EMAIL}
-                  </a>
-                  .
-                </p>
-                {status.detail && (
-                  <p className="mt-2 max-w-[65ch] text-detail text-text-muted">
-                    The mail service reported: {status.detail}
-                  </p>
-                )}
-              </>
+            {copyFailed && (
+              <p>
+                Copying did not work here — the address is shown above, ready
+                to select.
+              </p>
             )}
           </div>
 
-          <form
-            id="contactForm"
-            action={`https://formsubmit.co/ajax/${CONTACT_EMAIL}`}
-            method="POST"
-            noValidate
-            aria-busy={isSubmitting}
-            onSubmit={handleSubmit}
-            className="mt-6"
-          >
-            <input type="hidden" name="_subject" value="New resume site contact submission" />
-            <input type="hidden" name="_captcha" value="true" />
-            <input
-              type="text"
-              name="_honey"
-              tabIndex={-1}
-              autoComplete="off"
-              style={{ display: "none" }}
-            />
-
-            <div className={FIELD_WRAP}>
-              <label htmlFor="form-name" className={FIELD_LABEL}>
-                Your name
-              </label>
-              <input
-                id="form-name"
-                name="name"
-                type="text"
-                required
-                maxLength={100}
-                autoComplete="name"
-                aria-invalid={errorFor("name") ? true : undefined}
-                aria-describedby={errorFor("name") ? "form-name-error" : undefined}
-                className={`mt-2 ${FIELD}`}
-              />
-              {errorFor("name") && (
-                <p id="form-name-error" className={FIELD_ERROR}>
-                  {errorFor("name")}
-                </p>
-              )}
-            </div>
-
-            <div className={FIELD_WRAP}>
-              <label htmlFor="form-email" className={FIELD_LABEL}>
-                Your email address
-              </label>
-              <input
-                id="form-email"
-                name="email"
-                type="email"
-                required
-                maxLength={254}
-                autoComplete="email"
-                aria-invalid={errorFor("email") ? true : undefined}
-                aria-describedby={
-                  errorFor("email") ? "form-email-error" : undefined
-                }
-                className={`mt-2 ${FIELD}`}
-              />
-              {errorFor("email") && (
-                <p id="form-email-error" className={FIELD_ERROR}>
-                  {errorFor("email")}
-                </p>
-              )}
-            </div>
-
-            <div className={FIELD_WRAP}>
-              <label htmlFor="form-subject" className={FIELD_LABEL}>
-                Subject
-              </label>
-              <input
-                id="form-subject"
-                name="subject"
-                type="text"
-                required
-                maxLength={300}
-                aria-invalid={errorFor("subject") ? true : undefined}
-                aria-describedby={
-                  errorFor("subject") ? "form-subject-error" : undefined
-                }
-                className={`mt-2 ${FIELD}`}
-              />
-              {errorFor("subject") && (
-                <p id="form-subject-error" className={FIELD_ERROR}>
-                  {errorFor("subject")}
-                </p>
-              )}
-            </div>
-
-            <div className={FIELD_WRAP}>
-              <label htmlFor="form-message" className={FIELD_LABEL}>
-                Message
-              </label>
-              <textarea
-                id="form-message"
-                name="message"
-                required
-                rows={6}
-                maxLength={5000}
-                aria-invalid={errorFor("message") ? true : undefined}
-                aria-describedby={
-                  errorFor("message") ? "form-message-error" : undefined
-                }
-                className={`mt-2 resize-y ${FIELD}`}
-              />
-              {errorFor("message") && (
-                <p id="form-message-error" className={FIELD_ERROR}>
-                  {errorFor("message")}
-                </p>
-              )}
-            </div>
-
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="flex min-h-11 items-center rounded-sm bg-accent px-6 py-3 text-label font-semibold text-bg transition-colors duration-submit disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isSubmitting ? "Sending your message…" : "Send the message"}
-            </button>
-
-            <div
-              role="status"
-              className={
-                status.kind === "sent"
-                  ? "mt-6 max-w-[65ch] rounded-sm border border-border bg-surface p-4 text-body text-text"
-                  : "sr-only"
-              }
-            >
-              {status.kind === "sending" && (
-                <p className="text-body text-text-muted">
-                  Sending your message…
-                </p>
-              )}
-              {status.kind === "sent" && (
-                <>
-                  <span className="font-semibold">Message sent.</span>{" "}
-                  {status.message}
-                </>
-              )}
-            </div>
-          </form>
-        </motion.div>
-
-        {/* Verified credentials — four real, externally verifiable entries,
-            each with a link phrased as a full phrase */}
-        <div className="mt-16 border-t border-border pt-8">
-          <h2 className="text-headline font-semibold text-text">
-            Credentials and degree
-          </h2>
-          <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
-            Four certificates, each with a public verification link. BS
-            Information Technology, La Consolacion University Philippines, 2017
-            to 2023.
+          <p className="mt-6 max-w-[65ch] text-detail text-text-muted">
+            I read every note and usually answer within a day or two.
           </p>
-
-          <ul className="mt-6 border-t border-border">
-            {credentials.map((cert) => (
-              <li
-                key={cert.id}
-                className="grid grid-cols-1 gap-x-6 gap-y-1 border-b border-border py-4"
-              >
-                <p className="text-body font-semibold text-text">
-                  {cert.title}
-                </p>
-                <p className="text-detail text-text-muted">
-                  {cert.issuer}
-                  {cert.date ? `, ${cert.date}` : ""}. Credential ID {cert.id}.
-                </p>
-                <a
-                  href={cert.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${LINK} mt-1 flex min-h-11 w-fit items-center text-label`}
-                >
-                  Verify {cert.title} at {cert.issuer}
-                </a>
-              </li>
-            ))}
-          </ul>
+        </motion.div>
         </div>
-
-        <PageFoot />
       </div>
     </section>
   );

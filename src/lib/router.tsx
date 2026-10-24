@@ -36,6 +36,9 @@ export interface RouteDef {
   title: string;
 }
 
+/** Full name — single source for every document.title suffix. */
+const FULL_NAME = "Nathaniel Nikolai Ladero";
+
 /** index.html default meta content — kept verbatim for home-route parity.
    Keep in sync with index.html's <head> if either is edited. */
 export const HOME_META_DESCRIPTION =
@@ -54,7 +57,7 @@ export const ROUTES: readonly RouteDef[] = [
     description: "Identity & system profile",
     metaDescription: HOME_META_DESCRIPTION,
     accent: "accent",
-    title: "Nathaniel Nikolai Ladero | Systems & Developer Tools",
+    title: `Home — ${FULL_NAME}`,
   },
   {
     path: "/experience",
@@ -63,9 +66,9 @@ export const ROUTES: readonly RouteDef[] = [
     command: "journalctl -u career.service --no-pager",
     description: "Service journal",
     metaDescription:
-      "Production backend engineering at Xentra Infotech Solutions Inc. — ASP.NET Web APIs, gRPC, SignalR, and RabbitMQ, including a 98% payment-query latency cut.",
+      "Formerly a Backend Developer at Xentra Infotech Solutions Inc. — ASP.NET Web APIs, gRPC, SignalR, and RabbitMQ, including a 98% payment-query latency cut.",
     accent: "accent",
-    title: "experience — NNL",
+    title: `Experience — ${FULL_NAME}`,
   },
   {
     path: "/skills",
@@ -76,18 +79,18 @@ export const ROUTES: readonly RouteDef[] = [
     metaDescription:
       "Backend and DevOps skill set — C#, ASP.NET Core, .NET, MySQL/Redis/RabbitMQ, AWS, Docker, GitHub Actions, security and auth, plus AI-assisted development workflow.",
     accent: "accent-3",
-    title: "skills — NNL",
+    title: `Skills — ${FULL_NAME}`,
   },
   {
     path: "/projects",
     id: "projects",
     label: "PROJECTS",
     command: "ls -la projects/",
-    description: "Production highlights",
+    description: "Open-source work",
     metaDescription:
-      "Production projects — payments latency migration (98% cut), fintech service platform, auth hardening with zero high/critical Snyk findings, and a Redis-backed read cache layer.",
+      "Open-source work on github.com/nathwn12 — MCP tool servers, OpenCode plugins, and solo-built apps and tools, featured work first.",
     accent: "accent-4",
-    title: "projects — NNL",
+    title: `Projects — ${FULL_NAME}`,
   },
   {
     path: "/contact",
@@ -96,9 +99,9 @@ export const ROUTES: readonly RouteDef[] = [
     command: "mutt -f inbox",
     description: "Mail user agent",
     metaDescription:
-      "Contact Nathaniel Nikolai Ladero — Backend Developer open to work. Message through the site form, direct email, GitHub, or LinkedIn.",
+      "Contact Nathaniel Nikolai Ladero — Backend Developer open to work. Direct email, GitHub, or LinkedIn.",
     accent: "accent-2",
-    title: "contact — NNL",
+    title: `Contact — ${FULL_NAME}`,
   },
 ] as const;
 
@@ -130,7 +133,27 @@ export const NOT_FOUND_ROUTE: RouteDef = {
   metaDescription:
     "This path doesn't exist on nathwn12.github.io — return to the portfolio home for the index of pages.",
   accent: "accent-3",
-  title: "404 — No such file or directory — NNL",
+  title: `Not found — ${FULL_NAME}`,
+};
+
+/**
+ * The relay confirmation at `/thanks`. NOT part of ROUTES — the header nav,
+ * the PageFoot pager, and the five-route nav test all read ROUTES, and a
+ * confirmation is not a destination anyone navigates to. `routeByPath` and
+ * `resolveRoute` recognise it explicitly so the relay form's success path
+ * lands on a real page (GitHub Pages serves the SPA via the `404.html`
+ * fallback, so a direct visit boots here too).
+ */
+export const THANKS_ROUTE: RouteDef = {
+  path: "/thanks",
+  id: "thanks",
+  label: "THANKS",
+  command: "echo received",
+  description: "Message received",
+  metaDescription:
+    "Your message is on its way — Nathaniel Nikolai Ladero usually answers within a day or two.",
+  accent: "accent-2",
+  title: `Thanks — ${FULL_NAME}`,
 };
 
 const LEGACY_PATHS: Readonly<Record<string, string>> = {
@@ -149,7 +172,11 @@ function canonicalPath(path: string): string {
 }
 
 export function routeByPath(path: string): RouteDef | undefined {
-  return ROUTES.find((r) => r.path === canonicalPath(path));
+  const canonical = canonicalPath(path);
+  return (
+    ROUTES.find((r) => r.path === canonical) ??
+    (canonical === THANKS_ROUTE.path ? THANKS_ROUTE : undefined)
+  );
 }
 
 /**
@@ -161,10 +188,11 @@ export function routeByPath(path: string): RouteDef | undefined {
 export function resolveRoute(path: string): RouteDef {
   const canonical = canonicalPath(path);
   return (
-    ROUTES.find((r) => r.path === canonical) ?? {
+    ROUTES.find((r) => r.path === canonical) ??
+    (canonical === THANKS_ROUTE.path ? THANKS_ROUTE : {
       ...NOT_FOUND_ROUTE,
       path: canonical,
-    }
+    })
   );
 }
 

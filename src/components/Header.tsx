@@ -1,17 +1,91 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ROUTES, navigate, useRoute } from "../lib/router";
+import { requestPaletteOpen } from "../lib/palette";
 import { navName } from "../lib/navNames";
 import { fadeIn } from "../lib/motion";
 
 const navItems = ROUTES.filter((route) => route.path !== "/");
 
-/* Chrome container, declared once: the gutters sit OUTSIDE the 68ch measure,
-   matching the page container (Hero.tsx:48) and the footer, so the chrome rule
-   spans the viewport while the content keeps one edge. Shared by the top bar
-   and the mobile menu so the two chrome edges cannot drift apart. */
+/** Running-head folio per section — the sheet number of the live page. */
+const FOLIOS: Record<string, string> = {
+  hero: "00",
+  experience: "06",
+  skills: "07",
+  projects: "08",
+  contact: "09",
+  thanks: "—",
+  notfound: "404",
+};
+
+/* Chrome container, declared once: the gutters sit OUTSIDE the page measure,
+   matching the band containers (src/components/InstrumentBand.tsx), so the
+   chrome rule spans the viewport while the chrome text shares the bands'
+   content edge: at `lg` the text sits past the 3rem gutter plus the 2rem
+   hairline clearance (5rem; 6rem at `xl`). Shared by the top bar and the
+   mobile menu so the two chrome edges cannot drift apart. */
 const GUTTER = "px-6 lg:px-10";
-const CONTAINER = "mx-auto w-full max-w-[68ch]";
+const CONTAINER = "mx-auto w-full max-w-[80rem]";
+
+/**
+ * ScrollProgress — the 1px instrument reading pinned above the header,
+ * filling left→right with the page's scroll progress.
+ *
+ * Driven by `transform: scaleX()` on a single fill element (compositor only —
+ * never width, never layout), updated from the PageShell scroller's scroll
+ * position on scroll/resize via rAF. The scroller is resolved live on every
+ * sync (capture-phase document listener), so route remounts need no
+ * re-subscription. Under `prefers-reduced-motion: reduce` the line is
+ * static: track only, fill parked at zero, no listener attached.
+ */
+function ScrollProgress() {
+  const fillRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const fill = fillRef.current;
+    if (!fill) return;
+    if (
+      typeof window !== "undefined" &&
+      typeof window.matchMedia === "function" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
+      fill.style.transform = "scaleX(0)";
+      return;
+    }
+    let raf = 0;
+    const sync = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const scroller = document.querySelector(".page-scroll");
+        if (!(scroller instanceof HTMLElement)) return;
+        const max = scroller.scrollHeight - scroller.clientHeight;
+        const progress =
+          max > 0
+            ? Math.min(1, Math.max(0, scroller.scrollTop / max))
+            : 0;
+        fill.style.transform = `scaleX(${progress})`;
+      });
+    };
+    sync();
+    document.addEventListener("scroll", sync, { capture: true, passive: true });
+    window.addEventListener("resize", sync);
+    return () => {
+      cancelAnimationFrame(raf);
+      document.removeEventListener("scroll", sync, { capture: true });
+      window.removeEventListener("resize", sync);
+    };
+  }, []);
+
+  return (
+    <div aria-hidden="true" className="fixed inset-x-0 top-0 z-[60] h-px">
+      <div
+        ref={fillRef}
+        className="h-px w-full origin-left bg-accent-text"
+        style={{ transform: "scaleX(0)" }}
+      />
+    </div>
+  );
+}
 
 /**
  * Header — the wordmark and the page nav, on a solid ground.
@@ -72,9 +146,10 @@ export function Header() {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b border-border bg-bg">
-      {/* Gutters sit outside the 68ch measure, matching the page container
-          (Hero.tsx:48): the chrome edge and the content edge are one and
-          the same at wide widths. */}
+      <ScrollProgress />
+      {/* Gutters sit outside the page measure, matching the band containers
+          (InstrumentBand.tsx): the chrome rule spans the viewport while the
+          chrome text keeps the bands' content edge. */}
       <div className={GUTTER}>
         <div className={`${CONTAINER} flex items-center justify-between gap-6`}>
           <button
@@ -92,7 +167,7 @@ export function Header() {
           </button>
 
           <div className="flex items-center gap-2">
-            <nav className="hidden items-center gap-1 md:flex" aria-label="Pages">
+            <nav className="hidden items-center gap-1 lg:flex" aria-label="Pages">
               {navItems.map((item) => {
                 const active = route.path === item.path;
                 return (
@@ -116,13 +191,26 @@ export function Header() {
             </nav>
 
             <button
+              type="button"
+              onClick={() => requestPaletteOpen()}
+              aria-label="Open command palette (Control K)"
+              title="Open command palette (Ctrl K)"
+              className="hidden min-h-11 items-center gap-2 rounded-xs px-3 text-label text-text-muted transition-colors duration-nav hover:text-accent-text hover:underline lg:flex"
+            >
+              <span className="font-medium">Command</span>
+              <kbd className="rounded-xs border border-border px-1.5 py-0.5 font-medium">
+                ⌘K
+              </kbd>
+            </button>
+
+            <button
               ref={menuButtonRef}
               type="button"
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={menuOpen ? "Close navigation menu" : "Open navigation menu"}
               aria-expanded={menuOpen}
               aria-controls="mobile-nav"
-              className="flex min-h-11 items-center gap-2 rounded-xs px-3 text-label font-medium text-text transition-colors duration-nav hover:text-accent-text hover:underline md:hidden"
+              className="flex min-h-11 items-center gap-2 rounded-xs px-3 text-label font-medium text-text transition-colors duration-nav hover:text-accent-text hover:underline lg:hidden"
             >
               <svg
                 width="16"
@@ -146,6 +234,19 @@ export function Header() {
         </div>
       </div>
 
+      {/* Running head: the 32px mono bar under the header, naming the
+          live section and its folio. Static chrome — no motion. */}
+      <div className="running-head flex items-center border-t border-border bg-bg">
+        <div className={GUTTER}>
+          <div className={CONTAINER}>
+            <p className="truncate font-mono text-micro uppercase text-text-muted">
+              {navName(route.id, route.label)} —{" "}
+              {FOLIOS[route.id] ?? "—"}
+            </p>
+          </div>
+        </div>
+      </div>
+
       <AnimatePresence>
         {menuOpen && (
           <motion.nav
@@ -156,7 +257,7 @@ export function Header() {
             initial="hidden"
             animate="visible"
             exit="hidden"
-            className="border-t border-border bg-bg md:hidden"
+            className="border-t border-border bg-bg lg:hidden"
           >
             <div className={GUTTER}>
               <div className={`${CONTAINER} flex flex-col`}>
@@ -180,6 +281,20 @@ export function Header() {
                     </button>
                   );
                 })}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    menuButtonRef.current?.focus();
+                    requestPaletteOpen();
+                  }}
+                  className="flex min-h-11 items-center justify-between border-b border-border text-left text-label font-medium text-text transition-colors duration-nav last:border-b-0 hover:text-accent-text"
+                >
+                  <span>Command palette</span>
+                  <kbd className="rounded-xs border border-border px-1.5 py-0.5">
+                    ⌘K
+                  </kbd>
+                </button>
               </div>
             </div>
           </motion.nav>
