@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ROUTES, navigate, useRoute } from "../lib/router";
-import { RESUME_PATH } from "../lib/contact";
 import { requestPaletteOpen } from "../lib/palette";
 import { navName } from "../lib/navNames";
 import { fadeIn } from "../lib/motion";
@@ -191,14 +190,6 @@ export function Header() {
               })}
             </nav>
 
-            <a
-              href={RESUME_PATH}
-              download="Nathaniel-Nikolai-Ladero-Resume.pdf"
-              className="hidden min-h-11 items-center px-3 text-label font-medium text-text hover:text-accent-text hover:underline lg:flex"
-            >
-              Résumé
-            </a>
-
             <button
               type="button"
               onClick={() => requestPaletteOpen()}
@@ -290,13 +281,6 @@ export function Header() {
                     </button>
                   );
                 })}
-                <a
-                  href={RESUME_PATH}
-                  download="Nathaniel-Nikolai-Ladero-Resume.pdf"
-                  className="flex min-h-11 items-center border-b border-border text-left text-label font-medium text-text transition-colors duration-nav hover:text-accent-text"
-                >
-                  Résumé — PDF
-                </a>
                 <button
                   type="button"
                   onClick={() => {

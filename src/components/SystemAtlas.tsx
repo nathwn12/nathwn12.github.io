@@ -194,7 +194,7 @@ const CARD_W_MIN = 170;
 const CARD_W_MAX = 195;
 /** The estimated advance of one character at the card's 14px label — the fit's
     only input, since the width is computed before any label is laid out. Measured
-    against Public Sans at 14px in the browser, 7.2 sits above every label's real
+    against Inter at 14px in the browser, 7.2 sits above every label's real
     advance (the worst is `Local model workflows` at 150.11u for 21 characters =
     7.15/char), so the estimate never under-fits a label. */
 const EST_CHAR_W = 7.2;

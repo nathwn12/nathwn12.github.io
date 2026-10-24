@@ -130,7 +130,7 @@ export default function App() {
   const Content = routeByPath(route.path) ? (PAGES[route.id] ?? PAGES.hero) : NotFound;
 
   return (
-    <div className="bg-bg relative flex h-dvh flex-col">
+    <div className="app-sheet bg-bg relative flex h-dvh flex-col">
       <MotionConfig reducedMotion={motionPreferenceToMode(motionPreference)}>
         <a
           href="#main"

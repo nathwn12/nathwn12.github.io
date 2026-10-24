@@ -102,6 +102,66 @@ describe("page foot", () => {
     },
   );
 
+  test("the colophon link owns a real 44px target and keeps the 12px imprint", async () => {
+    const foot = read("src/components/PageFoot.tsx");
+    const markup = await renderFoot("/");
+
+    // The imprint's wording and type are untouched: one muted 12px sentence,
+    // normal weight, roman, snug, in the colophon paragraph's own voice.
+    const imprint = foot.match(/<p className="([^"]*text-\[0\.75rem\][^"]*)">/);
+    expect(imprint, "colophon paragraph").not.toBeNull();
+    const imprintClass = imprint![1];
+    for (const token of [
+      "font-normal",
+      "not-italic",
+      "leading-snug",
+      "text-text-muted",
+    ]) {
+      expect(imprintClass, token).toContain(token);
+    }
+    expect(markup).toContain("Source on GitHub.");
+
+    // THE ANCHOR OWNS THE BOX. The earlier shape — an inline text run with an
+    // aria-hidden, absolutely positioned 44px span inside it — measured
+    // 103x15 in the browser: the overlay was clickable, but the link element
+    // itself was not 44px tall, so hit-testing, the focus ring, and automated
+    // target checks all saw a 15px control. The link's own class list must now
+    // carry both floors, and the overlay shape must not come back.
+    const anchor = foot.match(
+      /<a\s+href="https:\/\/github\.com\/nathwn12\/nathwn12\.github\.io"[\s\S]*?className="([^"]*)"/,
+    );
+    expect(anchor, "colophon anchor").not.toBeNull();
+    const anchorClass = anchor![1];
+    expect(anchorClass).toContain("inline-block");
+    for (const token of ["min-h-11", "min-w-11"]) {
+      expect(anchorClass, token).toContain(token);
+    }
+    expect(markup).not.toMatch(/Source on GitHub\.[\s\S]{0,200}aria-hidden/);
+    expect(foot).not.toMatch(/absolute left-0 top-0 h-11 min-w-11 w-full/);
+    // Keyboard focus is the document's global :focus-visible ring; the link
+    // must never opt out of it.
+    expect(anchorClass).not.toMatch(/(?:^| )outline-none(?: |$)/);
+
+    // Arithmetic, not vibes. 11 steps = 2.75rem = 44px of target; the imprint
+    // line box is 12px x 1.375 = 16.5px. The negative bottom margin cancels the
+    // difference exactly (2.75rem - 1.03125rem = 1.71875rem), so the paragraph
+    // does not move, and the 27.5px the box adds hangs downward only - into the
+    // foot band's 4rem bottom padding, never up into the pager row's 16px gap.
+    expect(anchorClass).toContain("-mb-[1.71875rem]");
+    const target = 11 * 0.25 * 16;
+    const lineBox = 0.75 * 16 * 1.375;
+    const overhang = target - lineBox;
+    expect(target).toBe(44);
+    expect(lineBox).toBeCloseTo(16.5, 5);
+    expect(overhang).toBeCloseTo(27.5, 5);
+    expect(overhang).toBeCloseTo(1.71875 * 16, 5);
+    const css = read("src/index.css");
+    const heroFootPad = css.match(/\.hero-foot\s*\{[^}]*padding-bottom:\s*4rem/);
+    expect(heroFootPad, "the 4rem band the overhang lands in").not.toBeNull();
+    expect(overhang).toBeLessThan(4 * 16);
+    expect(overhang).toBeLessThan(target);
+  });
+
   test("termini omit the missing direction entirely — no disabled controls", async () => {
     const home = await renderFoot("/");
     const contact = await renderFoot("/contact");
@@ -125,13 +185,16 @@ describe("page foot", () => {
     }
 
     // Page wiring: exactly Hero passes accentResume; NotFound never mounts the
-    // foot.
+    // foot, and Contact is a contact-method page only — the shared foot's
+    // résumé/pager/colophon chrome is not mounted there (owner order
+    // 2026-10-24).
     expect(read("src/components/Hero.tsx").match(/accentResume/g)?.length).toBe(1);
-    for (const page of ["Experience", "Skills", "Projects", "Contact"]) {
+    for (const page of ["Experience", "Skills", "Projects"]) {
       const src = read(`src/components/${page}.tsx`);
       expect(src).toContain("<PageFoot />");
       expect(src).not.toContain("accentResume");
     }
+    expect(read("src/components/Contact.tsx")).not.toMatch(/<PageFoot\b/);
     expect(read("src/components/NotFound.tsx")).not.toContain("PageFoot");
   });
 });

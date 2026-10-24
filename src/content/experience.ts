@@ -28,6 +28,12 @@ export const employer = {
   period: "March 2023 to May 2026",
 };
 
+/** Past-tense framing for the delivered record. Xentra is historical — the role
+    ended in May 2026 — so every surface states it as former employment and none
+    may read as a current role or partnership. */
+export const formerRoleLine =
+  `Formerly a ${employer.role} at ${employer.company}`;
+
 export interface ExperienceEntry {
   /** Stable id — feeds the schema projection below, never rendered. */
   id: string;
@@ -117,7 +123,7 @@ export const experience: ExperienceEntry[] = [
     date: "January 2025",
     status: "Shipped in production",
     outcome:
-      "Stabilized a public contract so downstream services upgraded without a coordinated release.",
+      "Stabilized the public API contract so downstream services upgraded independently.",
     description:
       "Introduced versioned ASP.NET Web API contracts with an explicit compatibility policy: additive changes were shipped in place, breaking changes waited for a new version. Documented every endpoint with Swagger/OpenAPI and added contract tests so a schema drift failed the build instead of a consumer.",
     highlights: [
@@ -224,6 +230,17 @@ export const experience: ExperienceEntry[] = [
 /** One line of provenance for the delivery numbers above. */
 export const provenance =
   "Commit ledger recovered from 21 scanned internal repositories after Xentra closed in May 2026: 1,182 commits across 17 repositories from 2023 to 2026.";
+
+/** Tenure end, read off the one period string — never typed twice. */
+export const tenureEnd = employer.period.split(" to ")[1] ?? employer.period;
+
+/** The continuous span as a range, read off the same period string. */
+export const tenureSpan = employer.period.replace(" to ", " – ");
+
+/** Newest dated work record (entries run newest first). The tenure continues
+    past it to `tenureEnd`, so the route states both rather than letting the
+    last dated entry read as the end of employment. */
+export const latestRecordDate = experience[0]?.date ?? "";
 
 /** Route lede: tenure, count in words, reading order (newest first), and what
     each entry carries - never a restatement of the title. */

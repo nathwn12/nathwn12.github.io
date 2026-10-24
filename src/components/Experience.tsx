@@ -1,5 +1,14 @@
 import { motion } from "framer-motion";
-import { employer, experience, experienceLede, provenance } from "../content/experience";
+import {
+  employer,
+  experience,
+  experienceLede,
+  formerRoleLine,
+  latestRecordDate,
+  provenance,
+  tenureEnd,
+  tenureSpan,
+} from "../content/experience";
 import { fadeUp, staggerChild, staggerParent } from "../lib/motion";
 import { RouteLink } from "../lib/router";
 import { PageFoot } from "./PageFoot";
@@ -21,13 +30,14 @@ import {
  * the direction wins.
  *
  * Route identity (this route's alone): ONE persistent left rail carrying the
- * date of every entry, so chronology is the spine and the eye travels a single
- * vertical line down the page. That rail IS the resolved asymmetry — at wide
- * widths the column widens past the 68ch measure and each date sits offset into
- * the left gutter, aligned with the era marker the title block puts in the same
- * rail; below `lg` the rail collapses and the date stacks above its entry. No
- * other route has a left rail of its own: Skills runs its rail on the right
- * (tier), Projects ranks in a narrow numeric column.
+ * date of every selected contribution, so chronology is the spine and the eye
+ * travels a single vertical line down the page. That rail IS the resolved
+ * asymmetry — at wide widths the column widens past the 68ch measure and each
+ * date sits offset into the left gutter; below `lg` the rail collapses and the
+ * date stacks above its entry. The continuous tenure is a separate labeled
+ * band above the list, so the employment span can never be mistaken for one
+ * more dated milestone. No other route has a left rail of its own: Skills runs
+ * its rail on the right (tier), Projects ranks in a narrow numeric column.
  *
  * Rhythm: the direction's 8px base held strictly — section gaps 64px (mt-16),
  * entry gaps 32px (mt-8), text gaps 16px (mt-4). Bands are full width and
@@ -51,8 +61,9 @@ import {
  * the route error boundary in App.tsx).
  */
 
-/* One rail, declared once: the title block and every entry share it — a
-   3-column date rail against a 7-column record inside the sheet's 12. */
+/* One grid, declared once: the title block and every entry share it — the
+   entries pair a 3-column date rail with a 7-column record inside the
+   sheet's 12. */
 const RAIL = "lg:grid lg:grid-cols-12 lg:items-start lg:gap-x-6";
 const RAIL_DATE = "lg:col-span-3";
 const RAIL_BODY = "lg:col-span-7";
@@ -95,36 +106,64 @@ export function Experience() {
                 {experienceLede}
               </p>
               <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
-                {employer.role}, {employer.company}, {employer.location}.
+                {formerRoleLine}, {employer.location}.
               </p>
               <RouteLink href="/contact" className={ACTION}>
                 Ask about this work
               </RouteLink>
             </motion.div>
-
-            <motion.p
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              className={`mt-2 text-detail tabular-nums text-text-muted ${RAIL_DATE} lg:mt-0 lg:pt-2`}
-            >
-              {employer.period}
-            </motion.p>
           </div>
 
           <div aria-hidden="true" className="mt-8 h-[3px] w-full bg-text" />
+
+          {/* The continuous tenure is its own labeled span, never one more
+              dated record: the span runs March 2023 – May 2026 while the
+              selected contributions below stop at the last shipped milestone.
+              Both facts are derived from content — no milestone is implied
+              for the gap. */}
+          <motion.div
+            data-tenure-span
+            variants={fadeUp}
+            initial="hidden"
+            animate="visible"
+            className="mt-8 border-t border-border pt-8"
+          >
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-baseline sm:justify-between">
+              <p className="font-mono text-micro font-medium uppercase tracking-[0.14em] text-text-muted">
+                Tenure
+              </p>
+              <p className="text-title font-semibold tabular-nums text-text">
+                {tenureSpan}
+              </p>
+            </div>
+            <p className="mt-2 max-w-[65ch] text-detail text-text-muted">
+              Continuous employment at {employer.company}
+            </p>
+          </motion.div>
+
+          {/* The dated list is a selection, not an exhaustive event log. */}
+          <div className="mt-16 border-t border-border pt-8">
+            <h2 className="text-headline font-semibold text-text">
+              Selected contributions
+            </h2>
+            <p className="mt-2 max-w-[65ch] text-detail text-text-muted">
+              {experience.length} dated records, newest first — a selection,
+              not an exhaustive log. The latest is {latestRecordDate}; the
+              tenure ran to {tenureEnd}.
+            </p>
+          </div>
 
         <motion.ol
           variants={staggerParent}
           initial="hidden"
           animate="visible"
-          className="mt-16"
+          className="mt-8"
         >
           {experience.map((entry) => (
             <motion.li
               key={entry.id}
               variants={staggerChild}
-              className={`mt-16 border-t border-border pt-8 ${RAIL}`}
+              className={`mt-8 border-t border-border pt-8 ${RAIL}`}
             >
               <p className={`text-detail tabular-nums text-text-muted ${RAIL_DATE} lg:pt-1`}>
                 {entry.date}

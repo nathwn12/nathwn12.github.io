@@ -2,10 +2,8 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import { CONTACT_EMAIL } from "../lib/contact";
 import { WEB3FORMS_ENDPOINT, WEB3FORMS_KEY } from "../content/contact";
-import { credentials } from "../content/credentials";
 import { fadeIn, fadeUp } from "../lib/motion";
 import { navigate } from "../lib/router";
-import { PageFoot } from "./PageFoot";
 import {
   Folio,
   GUTTER_CELL,
@@ -19,10 +17,14 @@ import {
  * Contact — the conversion point, and the quietest page on the site.
  *
  * Authority: docs/premium-direction.md § Per-route application, Contact.
- * Order: title block, the relay form, address block (email link phrase,
- * location in words), one "Reach me" band with the three keyless actions in
- * fixed order, then the four verified credentials inline with verification
- * links.
+ * Order: title block, the relay form, the direct email address, then one
+ * "Reach me" band with the three keyless actions in fixed order. Contact is
+ * the contact-method page only: the credentials, degree, and location live on
+ * the landing proof band and in the résumé, never repeated here. The shared
+ * PageFoot (résumé download, adjacent-page pager, site colophon) is not
+ * mounted on this route — it is navigation and credentials chrome, not a way
+ * to reach the owner (owner order 2026-10-24: "literally just make the
+ * contacts page as contacts page").
  *
  * Form first, mailto beneath. The relay form posts JSON to Web3Forms (the
  * endpoint and the public access key live in src/content/contact.ts) and, on
@@ -34,7 +36,7 @@ import {
  * unchanged beneath the form as the secondary path: or email me directly.
  *
  * Rhythm: the direction's 8px base held strictly — section gaps 64px (mt-16),
- * text gaps 16px (mt-4); credentials are the one dense list (py-4).
+ * text gaps 16px (mt-4).
  *
  * Motion: the title block rises once (fadeUp) and the reach-me block settles
  * a beat later (fadeIn) — unconditionally, since the OS reduced-motion query
@@ -376,7 +378,7 @@ export function Contact() {
             <h1 className="masthead-name route-title mt-3 text-text">Contact</h1>
             <p className="mt-4 max-w-[65ch] text-lead text-text">
               Tell me about the role, the system, or the problem. Notes reach my
-              inbox directly, and I answer from Hagonoy, Bulacan.
+              inbox directly.
             </p>
             {/* The page's one primary action phrase, at the end of the title
                 block (docs/premium-direction.md § Layout): it opens the
@@ -392,8 +394,9 @@ export function Contact() {
             the secondary path. */}
         <ContactForm />
 
-        {/* Address plate: the direct email link phrase and the location in
-            words, side by side as labelled pairs. */}
+        {/* Address plate: the direct email link phrase as a labelled pair.
+            Location is deliberately absent — this route is the ways to reach
+            the owner, not a second profile. */}
         <dl className="mt-16 grid grid-cols-1 gap-x-6 gap-y-6 border-t border-border pt-8 lg:grid-cols-12">
           <div className="lg:col-span-7">
             <dt className="text-label font-medium text-text-muted">
@@ -406,12 +409,6 @@ export function Contact() {
               >
                 Write to {CONTACT_EMAIL}
               </a>
-            </dd>
-          </div>
-          <div className="lg:col-span-5">
-            <dt className="text-label font-medium text-text-muted">Location</dt>
-            <dd className="mt-2 max-w-[65ch] text-body text-text">
-              Hagonoy, Bulacan, Philippines, UTC+8 (Philippine time)
             </dd>
           </div>
         </dl>
@@ -476,46 +473,6 @@ export function Contact() {
             I read every note and usually answer within a day or two.
           </p>
         </motion.div>
-
-        {/* Verified credentials — four real, externally verifiable entries,
-            each with a link phrased as a full phrase */}
-        <div className="mt-16 border-t border-border pt-8">
-          <h2 className="text-headline font-semibold text-text">
-            Credentials and degree
-          </h2>
-          <p className="mt-4 max-w-[65ch] text-detail text-text-muted">
-            Four certificates, each with a public verification link. BS
-            Information Technology, La Consolacion University Philippines, 2017
-            to 2023.
-          </p>
-
-          <ul className="mt-6 border-t border-border">
-            {credentials.map((cert) => (
-              <li
-                key={cert.id}
-                className="grid grid-cols-1 gap-x-6 gap-y-1 border-b border-border py-4"
-              >
-                <p className="text-body font-semibold text-text">
-                  {cert.title}
-                </p>
-                <p className="text-detail text-text-muted">
-                  {cert.issuer}
-                  {cert.date ? `, ${cert.date}` : ""}. Credential ID {cert.id}.
-                </p>
-                <a
-                  href={cert.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`${LINK} mt-1 flex min-h-11 w-fit items-center text-label`}
-                >
-                  Verify {cert.title} at {cert.issuer}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <PageFoot />
         </div>
       </div>
     </section>

@@ -15,10 +15,19 @@ import { ProjectSchema } from "../types/models";
  * Senior-flex pass (fleet brief): the band is now driven by the real public
  * repositories on github.com/nathwn12, each carrying its canonical `url`, plus
  * case-study fields (`kind`, `role`, `year`, `highlights`) for the expanded
- * notes. Every repo below is public and freshly verified (2026-10-20) — but popularity
- * is not the signal, so NO star count is stored or rendered anywhere here
- * (anti-flex). The flex is honest instead: recency (what shipped, and when),
- * the technology actually used, and own-brand authorship.
+ * notes. Every repo below is public and re-verified against its local source on
+ * 2026-10-24; forks state their upstream in `role`, and no star count is stored
+ * or rendered anywhere here (anti-flex). The flex is honest instead: recency
+ * (what shipped, and when), the technology actually used, and own-brand
+ * authorship where the work is the owner's.
+ *
+ * Language order is a fact, not a flavour: `tech[0]` is the repository's
+ * primary language as GitHub reports it (inventory read 2026-10-24), and any
+ * further language named belongs to the source. oc-collections leads Rust
+ * because GitHub primary is Rust and the two imported MCP crates carry the
+ * larger share of the code (about 42k Rust lines across 59 files, against
+ * about 30k TypeScript lines across 81 files in the seven packages); TypeScript
+ * stays named because the packages are TypeScript.
  */
 
 export type Token = "accent" | "accent-2" | "accent-3" | "accent-4";
@@ -81,8 +90,8 @@ export interface ProjectLore {
 
 // Open-source work published under github.com/nathwn12: featured work first
 // in the stated order, then the supporting tools. Eleven live entries, every
-// one public and verified 2026-10-20. Descriptions follow the current GitHub
-// repository descriptions. No star counts: the signal is what each one does.
+// one public and re-verified against the local source on 2026-10-24. Forks
+// say so in `role`; no star counts, because the signal is what each one does.
 // Retired work lives separately in `archived` below — history, not current work.
 export const projects: ProjectLore[] = [
   {
@@ -94,17 +103,17 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2026",
     description:
-      "Windows desktop control for any MCP client — screenshot, window, input, and cursor — for automation that needs the real screen.",
-    tech: ["Rust", "MCP", "JSON-RPC 2.0", "Win32", "DXGI"],
+      "Windows desktop control for any MCP client — screenshot, windows, input, and cursor — for automation that needs the real screen.",
+    tech: ["Rust", "MCP", "JSON-RPC 2.0", "Win32", "UIA"],
     highlights: [
       "Six tools only: screenshot, list_windows, window, do, cursor, and elements.",
-      "Capture runs on the native DXGI path with a GDI fallback in a single shipped binary.",
-      "An opt-in hidden-desktop mode drives a target through PostMessage without moving the cursor or stealing focus.",
+      "Every call is target-locked: the window is revalidated before each action, with no focus stealing and no foreground fallback.",
+      "Clipboard writes are deny-by-default and need `allow_clipboard:true`; a refused write touches nothing.",
     ],
     accent: "accent-2",
     stats: [
       { label: "last shipped", value: "2026", accent: "accent-2" },
-      { label: "runtime", value: "one Rust binary", accent: "accent-2" },
+      { label: "runtime", value: "one native Rust binary", accent: "accent-2" },
       { label: "tools", value: "six", accent: "accent-2" },
     ],
   },
@@ -118,109 +127,40 @@ export const projects: ProjectLore[] = [
     year: "2026",
     description:
       "Headless Chrome driven over CDP for any MCP client — browser automation with no Node.js or Playwright in the runtime path.",
-    tech: ["Rust", "CDP", "WebSocket", "MCP", "JSON-RPC 2.0"],
+    tech: ["Rust", "CDP", "WebSocket", "MCP", "chrome-headless-shell"],
     highlights: [
-      "Fifteen tools over the active page, from AX snapshots with stable refs to tabs, uploads, and console capture.",
-      "Drives the owned Obscura engine over CDP; the browser lifecycle is spawned and reaped inside the binary.",
-      "Every owned spawn is RAII-guarded, so a startup failure kills the whole process tree instead of leaving survivors.",
+      "25 tools over the active page, from accessibility snapshots with stable refs to frames, network, storage, and layout proofs.",
+      "Pinned chrome-headless-shell is hash-verified and provisioned on the first serve run; the browser starts only when a tool needs it.",
+      "No OS input: clicks, typing, and keys ride CDP, so no cursor moves and no window is focused or raised.",
     ],
     accent: "accent-3",
     stats: [
       { label: "last shipped", value: "2026", accent: "accent-3" },
       { label: "runtime", value: "native Rust binary", accent: "accent-3" },
-      { label: "tools", value: "fifteen", accent: "accent-3" },
+      { label: "tools", value: "25", accent: "accent-3" },
     ],
   },
   {
     id: "02",
-    name: "OC Harness Setup",
-    dir: "oc-harness-setup",
-    url: "https://github.com/nathwn12/oc-harness-setup",
-    kind: "Tool",
+    name: "OC Collections",
+    dir: "oc-collections",
+    url: "https://github.com/nathwn12/oc-collections",
+    kind: "Collection",
     role: "Own brand",
     year: "2026",
     description:
-      "The whole OpenCode harness installed and orchestrated in one command — for a fresh machine that should start in the same working environment every time.",
-    tech: ["PowerShell", "TypeScript", "Node.js", "Git"],
+      "The nathwn12 OpenCode family in one place — plugins, harness setup, and MCP launchers, each installable on its own.",
+    tech: ["Rust", "TypeScript", "npm workspaces", "OpenCode plugin API", "MCP"],
     highlights: [
-      "One command reproduces the full harness layout on a clean machine.",
-      "Idempotent: re-running repairs drift instead of duplicating files.",
-      "Versioned with the harness, so setup and config never diverge.",
+      "Six installable packages plus the index: oc-bifrost, oc-flight-deck, oc-harness-setup, rea-shim, gladius-mcp, and puppet-mcp.",
+      "Plugins install from npm; the two MCP servers keep their own engine release lanes.",
+      "One npm-workspaces monorepo develops the TypeScript packages and the Rust crates together.",
     ],
     accent: "accent-2",
     stats: [
       { label: "last shipped", value: "2026", accent: "accent-2" },
-      { label: "scope", value: "full harness", accent: "accent-2" },
-      { label: "run count", value: "one", accent: "accent-2" },
-    ],
-  },
-  {
-    id: "03",
-    name: "OC Bifrost",
-    dir: "oc-bifrost",
-    url: "https://github.com/nathwn12/oc-bifrost",
-    kind: "Plugin",
-    role: "Own brand",
-    year: "2026",
-    description:
-      "V1-era OpenCode plugin hooks running on the OpenCode V2 runtime — for plugin authors bridging the version gap.",
-    tech: ["TypeScript", "OpenCode plugin API", "Node.js"],
-    highlights: [
-      "Bounded challenge, repair, and re-challenge rounds.",
-      "Every round produces a concrete case, not a vague opinion.",
-      "Stops on a stable finding set instead of looping forever.",
-    ],
-    accent: "accent-3",
-    stats: [
-      { label: "last shipped", value: "2026", accent: "accent-3" },
-      { label: "mode", value: "compatibility bridge", accent: "accent-3" },
-      { label: "surface", value: "OpenCode plugin", accent: "accent-3" },
-    ],
-  },
-  {
-    id: "01",
-    name: "OC Flight Deck",
-    dir: "oc-flight-deck",
-    url: "https://github.com/nathwn12/oc-flight-deck",
-    kind: "Plugin",
-    role: "Own brand",
-    year: "2026",
-    description:
-      "Live session telemetry for OpenCode users — a configurable TUI sidebar driven by one JSONC file.",
-    tech: ["TypeScript", "OpenCode plugin API", "JSONC", "Node.js"],
-    highlights: [
-      "Schema-checked JSONC config with per-row visibility and ordering.",
-      "Hot reload: edits land in the running TUI without a restart.",
-      "Caution thresholds let a row change state instead of shouting in colour.",
-    ],
-    accent: "accent",
-    stats: [
-      { label: "last shipped", value: "2026", accent: "accent" },
-      { label: "runtime", value: "OpenCode TUI", accent: "accent" },
-      { label: "config", value: "one JSONC file", accent: "accent" },
-    ],
-  },
-  {
-    id: "15",
-    name: "Slowburn",
-    dir: "slowburn",
-    url: "https://github.com/nathwn12/slowburn",
-    kind: "App",
-    role: "Own brand",
-    year: "2026",
-    description:
-      "Music practice on Windows with studio-grade Slow + Reverb and A-B loop — for practicing musicians, offline with no account.",
-    tech: ["TypeScript", "Rust", "Tauri", "React", "SQLite"],
-    highlights: [
-      "A-B loop points live on the seek bar and save per track, auto-applying when the track reopens.",
-      "Slow and reverb are fine-stepped with per-track memory and a one-click reset to dry.",
-      "A fork of Museeks; the Slow and Reverb UX, A-B repeat, skins, mini mode, and queue are this fork's own work.",
-    ],
-    accent: "accent-3",
-    stats: [
-      { label: "last shipped", value: "2026", accent: "accent-3" },
-      { label: "surface", value: "Windows desktop", accent: "accent-3" },
-      { label: "base", value: "fork of Museeks", accent: "accent-3" },
+      { label: "packages", value: "six plus the index", accent: "accent-2" },
+      { label: "install", value: "npm and npx", accent: "accent-2" },
     ],
   },
   {
@@ -233,11 +173,11 @@ export const projects: ProjectLore[] = [
     year: "2026",
     description:
       "Whatever plays in PotPlayer mirrored on your Discord card — for listeners who want the card to show the real title.",
-    tech: ["Rust", "Go", "Win32", "Discord IPC", "Cargo"],
+    tech: ["Rust", "Win32", "Discord IPC", "TVmaze", "AniList"],
     highlights: [
-      "Cleans codecs, tags, and release groups out of filenames, parenthesizes years, and parses SxxEyy episode tags; the cleaner logic derives from the upstream PotPlayer-DiscordRPC project.",
-      "Resolves series and episode names from keyless sources: TVmaze, AniList, Jikan, and iTunes, under a permanent on-disk cache.",
-      "Carries a parity oracle: the Rust title cleaner must reproduce the frozen Go output byte-for-byte, hashed per corpus.",
+      "Cleans codecs, tags, and release groups out of filenames, parenthesizes years, and parses SxxEyy episode tags.",
+      "Resolves series and episode titles from keyless TVmaze, AniList, Jikan, and iTunes through an on-disk cache whose hits and misses both expire after 30 days.",
+      "Carries a parity oracle: the Rust title cleaner must reproduce the frozen Go output byte-for-byte.",
     ],
     accent: "accent-2",
     stats: [
@@ -247,26 +187,118 @@ export const projects: ProjectLore[] = [
     ],
   },
   {
+    id: "15",
+    name: "Slowburn",
+    dir: "slowburn",
+    url: "https://github.com/nathwn12/slowburn",
+    kind: "App",
+    role: "Own brand",
+    year: "2026",
+    description:
+      "Music practice on Windows with studio-grade Slow + Reverb and A-B loop — for practicing musicians, offline with no account.",
+    tech: ["TypeScript", "Rust", "Tauri", "React", "TanStack Router"],
+    highlights: [
+      "A-B loop points live on the seek bar and save per track, auto-applying when the track reopens.",
+      "Slow and reverb stay set per track, with a one-click reset to dry.",
+      "A fork of Museeks; the Slow and Reverb UX, A-B repeat, queue, skins, and mini mode are this fork's own work.",
+    ],
+    accent: "accent-3",
+    stats: [
+      { label: "last shipped", value: "2026", accent: "accent-3" },
+      { label: "surface", value: "Windows desktop", accent: "accent-3" },
+      { label: "base", value: "fork of Museeks", accent: "accent-3" },
+    ],
+  },
+  {
+    id: "18",
+    name: "AIMP Discord Presence",
+    dir: "aimp-discord-presence2",
+    url: "https://github.com/nathwn12/aimp-discord-presence2",
+    kind: "Plugin",
+    role: "Fork of Exle",
+    year: "2026",
+    description:
+      "AIMP playback as a Discord Rich Presence — track, artist, and cover art on your profile, the way Spotify does it.",
+    tech: ["C++", "AIMP SDK", "Discord IPC", "Win32"],
+    highlights: [
+      "Fork of Exle's aimp-discord-presence; this fork adds the multi-layer cover-art chain and the presence card.",
+      "Publishes local and looked-up covers through keyless hosts by default, with an optional GitHub host behind a token.",
+      "Ini-only configuration keeps the plugin to one DLL, and updates throttle under Discord's rate cap.",
+    ],
+    accent: "accent-4",
+    stats: [
+      { label: "last shipped", value: "2026", accent: "accent-4" },
+      { label: "surface", value: "AIMP on Windows x64", accent: "accent-4" },
+      { label: "base", value: "fork of Exle", accent: "accent-4" },
+    ],
+  },
+  {
+    id: "19",
+    name: "Pear Desktop",
+    dir: "pear-desktop",
+    url: "https://github.com/nathwn12/pear-desktop",
+    kind: "App",
+    role: "Fork of pear-devs",
+    year: "2026",
+    description:
+      "A nathwn12-maintained build of Pear Desktop — its own update channel and installer identity, with the Slowed Reverb and Section Repeat player plugins ahead of upstream.",
+    tech: ["TypeScript", "Electron", "SolidJS", "Vite"],
+    highlights: [
+      "Fork of pear-devs/pear-desktop; all upstream credit stays with pear-devs.",
+      "Updater, installer, and Discord links point at nathwn12/pear-desktop, so the build updates from its own channel.",
+      "Carries the Slowed Reverb and Section Repeat player plugins ahead of upstream.",
+    ],
+    accent: "accent",
+    stats: [
+      { label: "last shipped", value: "2026", accent: "accent" },
+      { label: "surface", value: "desktop app", accent: "accent" },
+      { label: "base", value: "fork of pear-devs", accent: "accent" },
+    ],
+  },
+  {
+    id: "20",
+    name: "Installer2",
+    dir: "Installer2",
+    url: "https://github.com/nathwn12/Installer2",
+    kind: "Tool",
+    role: "Fork of Vencord/Installer",
+    year: "2026",
+    description:
+      "Vencord installed or repaired on every Discord install with one line — an unofficial driver around the official installer engine.",
+    tech: ["PowerShell", "Vencord Installer", "Windows"],
+    highlights: [
+      "Detects stable, PTB, Canary, and Development installs and installs or repairs each one.",
+      "Pulls the officially released installer engine at run time, so the driver never pins a stale copy.",
+      "Flags for OpenAsar, one branch, one location, no-launch, and a dry run that prints the plan.",
+    ],
+    accent: "accent-2",
+    stats: [
+      { label: "last shipped", value: "2026", accent: "accent-2" },
+      { label: "surface", value: "Windows PowerShell", accent: "accent-2" },
+      { label: "install", value: "one line", accent: "accent-2" },
+    ],
+  },
+  {
     id: "06",
     name: "Tab Audio Normalizer",
     dir: "tab-audio-normalizer",
     url: "https://github.com/nathwn12/tab-audio-normalizer",
     kind: "App",
     role: "Own brand",
-    year: "2025",
+    year: "2026",
     description:
-      "Per-site audio loudness normalized in Chrome and Brave — for listeners tired of a background tab blasting past the active one.",
-    tech: ["TypeScript", "Web Audio API", "Chrome Extensions"],
+      "Every site at one comfortable loudness in Chrome and Brave — per-site levelling toward a fixed program target.",
+    tech: ["JavaScript", "Web Audio API", "Chrome Extensions", "ITU-R BS.1770-4"],
     highlights: [
-      "Per-tab gain rather than one global volume.",
-      "Live adjustment without reloading the page.",
-      "Runs entirely client-side, with no audio leaving the browser.",
+      "One Active toggle and gain trim per site, remembered across tabs.",
+      "Levels toward a -20 LUFS program target, with a true-peak limiter at or below -1 dBTP.",
+      "Processes audio locally in the browser; nothing leaves the machine.",
     ],
     accent: "accent-2",
     stats: [
-      { label: "last shipped", value: "2025", accent: "accent-2" },
+      { label: "last shipped", value: "2026", accent: "accent-2" },
       { label: "surface", value: "browser", accent: "accent-2" },
-      { label: "scope", value: "per tab", accent: "accent-2" },
+      { label: "scope", value: "per site", accent: "accent-2" },
     ],
   },
   {
@@ -278,18 +310,18 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2026",
     description:
-      "The ARC icon theme installed, repaired, and reverted in one step — for Windows themers who want a clean round trip.",
-    tech: ["C#", "PowerShell", "Windows"],
+      "The ARC icon theme applied, repaired, and reverted from one window — for Windows themers who want a clean round trip.",
+    tech: ["PowerShell", "C#", "Windows"],
     highlights: [
-      "One driver for install, repair, and revert instead of by-hand steps.",
-      "Repairs drift instead of duplicating files on re-run.",
-      "Ships the theme payload alongside the installer.",
+      "Four ARC variants in one self-contained exe, with apply, repair, revert, refresh, and status actions.",
+      "Merge, not swap: stock resources stay and only icon images change; originals are captured before the first write.",
+      "Optional auto-repair task reapplies the theme when Windows replaces a payload.",
     ],
     accent: "accent-4",
     stats: [
       { label: "last shipped", value: "2026", accent: "accent-4" },
       { label: "surface", value: "Windows installer", accent: "accent-4" },
-      { label: "operations", value: "install, repair, revert", accent: "accent-4" },
+      { label: "operations", value: "apply, repair, revert", accent: "accent-4" },
     ],
   },
   {
@@ -299,43 +331,20 @@ export const projects: ProjectLore[] = [
     url: "https://github.com/nathwn12/slowed-reverb-audio",
     kind: "App",
     role: "Own brand",
-    year: "2025",
+    year: "2026",
     description:
-      "YouTube audio slowed with local reverb entirely in the browser — for practice and listening, with the clip never leaving the machine.",
-    tech: ["TypeScript", "Web Audio API", "AudioWorklet"],
+      "YouTube audio slowed and washed in plate reverb entirely in the browser — settings per site, the clip never leaving the machine.",
+    tech: ["JavaScript", "Web Audio API", "AudioWorklet", "Chrome Extensions"],
     highlights: [
-      "Live audio graph for tempo, pitch, and reverb.",
-      "Export path that renders the mix to a finished file.",
-      "Runs locally — the source clip never leaves the machine.",
+      "Speed from 0.7x to 1.3x in 0.01 steps without pitch distortion.",
+      "Dattorro plate reverb from 0 to 100 percent, with per-site speed, reverb, and Active state remembered.",
+      "Runs locally in the tab; the source audio never leaves the browser.",
     ],
     accent: "accent-3",
     stats: [
-      { label: "last shipped", value: "2025", accent: "accent-3" },
-      { label: "surface", value: "web audio", accent: "accent-3" },
-      { label: "output", value: "rendered track", accent: "accent-3" },
-    ],
-  },
-  {
-    id: "17",
-    name: "rea-shim",
-    dir: "rea-shim",
-    url: "https://github.com/nathwn12/rea-shim",
-    kind: "Tool",
-    role: "Own brand",
-    year: "2026",
-    description:
-      "Upstream rea reverse-engineering tools served over MCP from one launch line — resolves your JDK and Ghidra first, for agents (unofficial wrapper).",
-    tech: ["JavaScript", "MCP", "Ghidra", "JDK"],
-    highlights: [
-      "One-line launcher: resolves the JDK and Ghidra paths before serving.",
-      "Serves the upstream rea tool surface to an MCP client unchanged.",
-      "Unofficial wrapper around morluto/rea — upstream owns the analysis.",
-    ],
-    accent: "accent",
-    stats: [
-      { label: "last shipped", value: "2026", accent: "accent" },
-      { label: "surface", value: "MCP launcher", accent: "accent" },
-      { label: "upstream", value: "morluto/rea", accent: "accent" },
+      { label: "last shipped", value: "2026", accent: "accent-3" },
+      { label: "surface", value: "browser extension", accent: "accent-3" },
+      { label: "output", value: "live audio", accent: "accent-3" },
     ],
   },
 ];
@@ -368,8 +377,9 @@ export const archived: ArchivedProject[] = [
 ];
 
 /** Route lede: selection criteria (public repos under the owner) and reading
-    order (featured first). Never restates the title. */
-export const projectsLede = `${cap(countWords(projects.length))} public repositories under github.com/nathwn12 — featured work first, then the supporting tools.`;
+    order (featured first). Never restates the title, and counts the projects
+    the page actually renders. */
+export const projectsLede = `${cap(countWords(projects.length))} projects published under github.com/nathwn12 — featured work first, then the supporting tools.`;
 
 /** Route support line: what each band carries, and the two rules that keep it
     honest (no star counts, retired work separated). */

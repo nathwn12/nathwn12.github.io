@@ -24,9 +24,11 @@ import { BandRule } from "./BandRule";
  * collapses and the kicker alone carries the number — no separate inline
  * folio renders, so the numeral can never print twice.
  *
- * Heavy 3px ink bars separate major bands and sit exactly at the container
- * width — never viewport-bleed; 1px hairlines live only inside a band
- * (`ColumnRule`, rail rows). Prose keeps its 60–72ch measure inside its own
+ * The page frame owns the 3px ink bar: masthead top and under-name, the
+ * printed strip's edges, the route nameplates, and the end-of-page foot. A
+ * band opens on that same ink at hairline weight — one 1px rule at the
+ * container width, never viewport-bleed — so eight bands read as one paper,
+ * not eight competing bars. Prose keeps its 60–72ch measure inside its own
  * column, however wide the column is.
  *
  * Short viewports compress through `.band-top`/`.band-grid` (src/index.css):
@@ -115,10 +117,19 @@ export function ColumnRule() {
   );
 }
 
-/** The 3px ink bar between major bands — container width, never bleed. */
-export function HeavyRule() {
+/** The band's opening rule: one hairline of the page's ink, exactly the
+    container width. The 3px bar belongs to the frame only (owner review
+    2026-10-24: eight identical heavy bars competed with the masthead), so the
+    weight is declared HERE as `h-px` — the markup is the single source of
+    truth and no rule in src/index.css re-heights `[data-band-rule]`.
+    tests/instrument-panel.test.tsx fails if the two ever disagree. */
+export function BandTopRule() {
   return (
-    <div aria-hidden="true" className="h-[3px] w-full bg-text" />
+    <div
+      aria-hidden="true"
+      data-band-rule=""
+      className="h-px w-full bg-text"
+    />
   );
 }
 
@@ -155,9 +166,9 @@ interface BandShellProps {
 }
 
 /**
- * One broadsheet band: heavy bar, folio margin, asymmetric content column,
- * optional marginalia. The band arrives whole (0.98 → 1) while its children
- * keep their own stagger — mass, not slide.
+ * One broadsheet band: hairline opening rule, folio margin, asymmetric content
+ * column, optional marginalia. The band arrives whole (0.98 → 1) while its
+ * children keep their own stagger — mass, not slide.
  */
 export function BandShell({
   kicker,
@@ -177,7 +188,7 @@ export function BandShell({
     <section aria-labelledby={headingId} className="relative">
       <div className={`${GUTTER_CONTAINER} sheet-pad`}>
         <div className="band-top">
-          <HeavyRule />
+          <BandTopRule />
         </div>
         <motion.div
           initial={reduceMotion ? "visible" : "hidden"}

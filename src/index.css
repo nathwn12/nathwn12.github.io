@@ -23,41 +23,48 @@
    ========================================================================= */
 
 /* --- TWO FAMILIES, LOADED LOCALLY (public/fonts, both OFL 1.1) -----------
-   Display: Fraunces - page titles and section headings only. Never body,
-   never labels, never code.
-   Body:    Public Sans - everything else, including navigation and controls.
+   Display: Newsreader - page titles and section headings only. Never body,
+   never labels, never code. Variable weight 300-700 with an optical-size axis
+   (6-72), so `font-optical-sizing: auto` fits the large settings by itself.
+   Body:    Inter - everything else, including navigation and controls.
+   Variable weight 400-700.
    No third family, and no system stack as a design choice: the fallback lists
    below are a safety net for a failed font fetch, not the design.
 
-   Font decision (2026-10-24): Newsreader + Inter were evaluated as a warmer
-   serif / neutral sans pairing. Neither file exists in public/fonts, and this
-   source-only pass may not add binary assets or a remote font request, so the
-   two shipped OFL faces stay. Hierarchy, tracking, and weight carry the pass
-   instead; a future asset pass can swap families without touching consumers. */
+   Font decision (2026-10-24, owner-approved): Newsreader + Inter replace
+   Fraunces + Public Sans. Both latin WOFF2s and their OFL 1.1 licences ship in
+   public/fonts; there is no remote font request and no package dependency. The
+   unicode-range below is the latin subset each Google Fonts file declares. */
 @font-face {
-  font-family: "Fraunces";
-  src: url("/fonts/fraunces-600-latin.woff2") format("woff2");
-  font-weight: 600;
+  font-family: "Newsreader";
+  src: url("/fonts/newsreader-latin.woff2") format("woff2");
+  font-weight: 300 700;
   font-style: normal;
   font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @font-face {
-  font-family: "Public Sans";
-  src: url("/fonts/public-sans-latin.woff2") format("woff2");
-  font-weight: 400 600;
+  font-family: "Inter";
+  src: url("/fonts/inter-latin.woff2") format("woff2");
+  font-weight: 400 700;
   font-style: normal;
   font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
 @theme {
   --font-sans:
-    "Public Sans", ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
-  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+    "Inter", ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
+  --font-display: "Newsreader", Georgia, "Times New Roman", serif;
   /* Deliberately an ALIAS of the body face: the system has exactly two
      families, and code-adjacent strings keep their character through
      Line-bordered chips and letterspacing 0 — never a third face. */
-  --font-mono: "Public Sans", ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
+  --font-mono: "Inter", ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
 
   /* --- LIGHT · paper ground ---------------------------------------------- */
   --color-bg: #faf6ec; /* Paper - warm ivory ground */
@@ -217,7 +224,7 @@ body {
   color: var(--color-text);
   font-family: var(--font-sans);
   font-weight: 400;
-  /* Public Sans ships a full latin set; no synthetic smoothing or tracking
+  /* Inter ships a full latin set; no synthetic smoothing or tracking
      tricks are needed for legibility at 16px. */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -449,9 +456,9 @@ html[data-theme="dark"] .folio-numeral {
   line-height: var(--text-masthead--line-height);
   letter-spacing: -0.02em;
   word-spacing: 0.04em;
-  /* Fraunces carries an optical size axis in the full family; the shipped
-     static cut is 600, so the large-size fitting is done with tracking rather
-     than a second face. */
+  /* Newsreader carries a variable optical-size axis (6-72), so the browser
+     fits the large settings with `font-optical-sizing: auto`; tracking still
+     carries the masthead's extra fitting. */
   text-wrap: balance;
 }
 
@@ -713,3 +720,129 @@ html[data-theme="dark"] .folio-numeral {
     padding-bottom: 1.25rem;
   }
 }
+
+/* =========================================================================
+   REFINEMENT LAYER (additive, 2026-10-24) — owner review pass; substrate
+   redistributed evenly (owner review, 2026-10-24: "the texture should be
+   uniform"). Two changes, one system: the sheet gains a substrate, and the
+   rule grammar gains a hierarchy. No content, route, geometry, or token value
+   moves.
+
+   1. THE ENGRAVED SECURITY SCREEN, EVENLY LAID.
+   The page is read as security-printed stock: an engraved wave screen — the
+   fine parallel linework a share certificate or banknote is tinted with. It
+   now covers the whole sheet at ONE density instead of running down the right
+   edge and dissolving toward the reading columns. Uniformity is the point: the
+   same ink on every column, so the eye never reads a direction, a fade, or a
+   soft edge as composition. One sine, repeated at a 7-unit pitch, used as a
+   CSS mask, so the mark paints in `--color-text` (ink on paper, paper on ink)
+   with no second asset, no colour literal, and no theme fork. Geometry only:
+   no raster, no request, no dependency, no DOM. It is the root's `::before`,
+   `pointer-events: none`, behind every content layer (`main` paints at z-10,
+   the header at z-50, the footer at z-40 — nothing real shares its z-0 plane),
+   and outside the accessibility tree, and it never moves, so there is nothing
+   for `prefers-reduced-motion` to gate.
+
+   The mask is a SOLID field — no gradient, no stops, no `mask-composite` — so
+   density is identical edge to edge; the old left-to-right gradient was what
+   made the screen directional. The mark IS the mask: the box paints ink, and
+   only the mask cuts the waves out of it. So an engine without `mask-image`
+   would ship a flat tinted rectangle across the sheet, which is not a degraded
+   screen but a visible bug — the underlay is gated behind `@supports` and
+   renders NOTHING without mask support (`content: none` is the unsupported
+   default).
+
+   Held at 9% on paper and 7.5% on ink: one step under the previous 11%/8.5%
+   corner tint, because the same ink now covers the whole sheet instead of one
+   edge, so the average tone has to stay a substrate rather than a veil. The
+   underlay sits behind every content layer and never composites into a glyph,
+   so text contrast stays the token pair's own.
+
+   2. BAND SEPARATORS — 3px is the page frame, hairline is the band.
+   Before this pass every band opened on its own full-width 3px ink bar, so
+   eight identical heavy rules competed with the masthead and the printed
+   strip (owner review, 2026-10-24: overused strong horizontal separators).
+   The 3px bar now belongs to the frame only — masthead top and under-name,
+   the strip's edges, the route nameplates, and the end-of-page foot. A band
+   opens on the same ink at hairline weight, keeping the sheet segmented
+   without a second heavy mark; the folio numeral, kicker, and band spacing
+   carry the rest of the hierarchy. The weight is the markup's own `h-px`
+   (InstrumentBand's `BandTopRule`, hooked by `data-band-rule`): no stylesheet
+   rule re-heights that element, so what the component declares is what paints
+   and a markup/stylesheet disagreement is a test failure rather than a silent
+   override.
+   ========================================================================= */
+
+.app-sheet {
+  --sheet-tint-opacity: 0.09;
+  --sheet-tint-mark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1200' preserveAspectRatio='none'%3E%3Cdefs%3E%3Cpath id='w' d='M0 30.0L5 33.1L10 36.1L15 38.9L20 41.3L25 43.3L30 44.8L35 45.7L40 46.0L45 45.7L50 44.8L55 43.3L60 41.3L65 38.9L70 36.1L75 33.1L80 30.0L85 26.9L90 23.9L95 21.1L100 18.7L105 16.7L110 15.2L115 14.3L120 14.0L125 14.3L130 15.2L135 16.7L140 18.7L145 21.1L150 23.9L155 26.9L160 30.0L165 33.1L170 36.1L175 38.9L180 41.3L185 43.3L190 44.8L195 45.7L200 46.0L205 45.7L210 44.8L215 43.3L220 41.3L225 38.9L230 36.1L235 33.1L240 30.0L245 26.9L250 23.9L255 21.1L260 18.7L265 16.7L270 15.2L275 14.3L280 14.0L285 14.3L290 15.2L295 16.7L300 18.7L305 21.1L310 23.9L315 26.9L320 30.0L325 33.1L330 36.1L335 38.9L340 41.3L345 43.3L350 44.8L355 45.7L360 46.0L365 45.7L370 44.8L375 43.3L380 41.3L385 38.9L390 36.1L395 33.1L400 30.0L405 26.9L410 23.9L415 21.1L420 18.7L425 16.7L430 15.2L435 14.3L440 14.0L445 14.3L450 15.2L455 16.7L460 18.7L465 21.1L470 23.9L475 26.9L480 30.0L485 33.1L490 36.1L495 38.9L500 41.3L505 43.3L510 44.8L515 45.7L520 46.0L525 45.7L530 44.8L535 43.3L540 41.3L545 38.9L550 36.1L555 33.1L560 30.0L565 26.9L570 23.9L575 21.1L580 18.7L585 16.7L590 15.2L595 14.3L600 14.0L605 14.3L610 15.2L615 16.7L620 18.7L625 21.1L630 23.9L635 26.9L640 30.0L645 33.1L650 36.1L655 38.9L660 41.3L665 43.3L670 44.8L675 45.7L680 46.0L685 45.7L690 44.8L695 43.3L700 41.3L705 38.9L710 36.1L715 33.1L720 30.0L725 26.9L730 23.9L735 21.1L740 18.7L745 16.7L750 15.2L755 14.3L760 14.0L765 14.3L770 15.2L775 16.7L780 18.7L785 21.1L790 23.9L795 26.9L800 30.0L805 33.1L810 36.1L815 38.9L820 41.3L825 43.3L830 44.8L835 45.7L840 46.0L845 45.7L850 44.8L855 43.3L860 41.3L865 38.9L870 36.1L875 33.1L880 30.0L885 26.9L890 23.9L895 21.1L900 18.7L905 16.7L910 15.2L915 14.3L920 14.0L925 14.3L930 15.2L935 16.7L940 18.7L945 21.1L950 23.9L955 26.9L960 30.0L965 33.1L970 36.1L975 38.9L980 41.3L985 43.3L990 44.8L995 45.7L1000 46.0L1005 45.7L1010 44.8L1015 43.3L1020 41.3L1025 38.9L1030 36.1L1035 33.1L1040 30.0L1045 26.9L1050 23.9L1055 21.1L1060 18.7L1065 16.7L1070 15.2L1075 14.3L1080 14.0L1085 14.3L1090 15.2L1095 16.7L1100 18.7L1105 21.1L1110 23.9L1115 26.9L1120 30.0L1125 33.1L1130 36.1L1135 38.9L1140 41.3L1145 43.3L1150 44.8L1155 45.7L1160 46.0L1165 45.7L1170 44.8L1175 43.3L1180 41.3L1185 38.9L1190 36.1L1195 33.1L1200 30.0L1205 26.9L1210 23.9L1215 21.1L1220 18.7L1225 16.7L1230 15.2L1235 14.3L1240 14.0L1245 14.3L1250 15.2L1255 16.7L1260 18.7L1265 21.1L1270 23.9L1275 26.9L1280 30.0L1285 33.1L1290 36.1L1295 38.9L1300 41.3L1305 43.3L1310 44.8L1315 45.7L1320 46.0L1325 45.7L1330 44.8L1335 43.3L1340 41.3L1345 38.9L1350 36.1L1355 33.1L1360 30.0L1365 26.9L1370 23.9L1375 21.1L1380 18.7L1385 16.7L1390 15.2L1395 14.3L1400 14.0L1405 14.3L1410 15.2L1415 16.7L1420 18.7L1425 21.1L1430 23.9L1435 26.9L1440 30.0L1445 33.1L1450 36.1L1455 38.9L1460 41.3L1465 43.3L1470 44.8L1475 45.7L1480 46.0L1485 45.7L1490 44.8L1495 43.3L1500 41.3L1505 38.9L1510 36.1L1515 33.1L1520 30.0L1525 26.9L1530 23.9L1535 21.1L1540 18.7L1545 16.7L1550 15.2L1555 14.3L1560 14.0L1565 14.3L1570 15.2L1575 16.7L1580 18.7L1585 21.1L1590 23.9L1595 26.9L1600 30.0'/%3E%3Cmask id='m'%3E%3Crect width='1600' height='1200' fill='%23fff'/%3E%3C/mask%3E%3C/defs%3E%3Cg mask='url(%23m)' fill='none' stroke='%23000' stroke-width='0.7'%3E%3Cuse href='%23w' transform='translate(0 0)'/%3E%3Cuse href='%23w' transform='translate(0 7)'/%3E%3Cuse href='%23w' transform='translate(0 14)'/%3E%3Cuse href='%23w' transform='translate(0 21)'/%3E%3Cuse href='%23w' transform='translate(0 28)'/%3E%3Cuse href='%23w' transform='translate(0 35)'/%3E%3Cuse href='%23w' transform='translate(0 42)'/%3E%3Cuse href='%23w' transform='translate(0 49)'/%3E%3Cuse href='%23w' transform='translate(0 56)'/%3E%3Cuse href='%23w' transform='translate(0 63)'/%3E%3Cuse href='%23w' transform='translate(0 70)'/%3E%3Cuse href='%23w' transform='translate(0 77)'/%3E%3Cuse href='%23w' transform='translate(0 84)'/%3E%3Cuse href='%23w' transform='translate(0 91)'/%3E%3Cuse href='%23w' transform='translate(0 98)'/%3E%3Cuse href='%23w' transform='translate(0 105)'/%3E%3Cuse href='%23w' transform='translate(0 112)'/%3E%3Cuse href='%23w' transform='translate(0 119)'/%3E%3Cuse href='%23w' transform='translate(0 126)'/%3E%3Cuse href='%23w' transform='translate(0 133)'/%3E%3Cuse href='%23w' transform='translate(0 140)'/%3E%3Cuse href='%23w' transform='translate(0 147)'/%3E%3Cuse href='%23w' transform='translate(0 154)'/%3E%3Cuse href='%23w' transform='translate(0 161)'/%3E%3Cuse href='%23w' transform='translate(0 168)'/%3E%3Cuse href='%23w' transform='translate(0 175)'/%3E%3Cuse href='%23w' transform='translate(0 182)'/%3E%3Cuse href='%23w' transform='translate(0 189)'/%3E%3Cuse href='%23w' transform='translate(0 196)'/%3E%3Cuse href='%23w' transform='translate(0 203)'/%3E%3Cuse href='%23w' transform='translate(0 210)'/%3E%3Cuse href='%23w' transform='translate(0 217)'/%3E%3Cuse href='%23w' transform='translate(0 224)'/%3E%3Cuse href='%23w' transform='translate(0 231)'/%3E%3Cuse href='%23w' transform='translate(0 238)'/%3E%3Cuse href='%23w' transform='translate(0 245)'/%3E%3Cuse href='%23w' transform='translate(0 252)'/%3E%3Cuse href='%23w' transform='translate(0 259)'/%3E%3Cuse href='%23w' transform='translate(0 266)'/%3E%3Cuse href='%23w' transform='translate(0 273)'/%3E%3Cuse href='%23w' transform='translate(0 280)'/%3E%3Cuse href='%23w' transform='translate(0 287)'/%3E%3Cuse href='%23w' transform='translate(0 294)'/%3E%3Cuse href='%23w' transform='translate(0 301)'/%3E%3Cuse href='%23w' transform='translate(0 308)'/%3E%3Cuse href='%23w' transform='translate(0 315)'/%3E%3Cuse href='%23w' transform='translate(0 322)'/%3E%3Cuse href='%23w' transform='translate(0 329)'/%3E%3Cuse href='%23w' transform='translate(0 336)'/%3E%3Cuse href='%23w' transform='translate(0 343)'/%3E%3Cuse href='%23w' transform='translate(0 350)'/%3E%3Cuse href='%23w' transform='translate(0 357)'/%3E%3Cuse href='%23w' transform='translate(0 364)'/%3E%3Cuse href='%23w' transform='translate(0 371)'/%3E%3Cuse href='%23w' transform='translate(0 378)'/%3E%3Cuse href='%23w' transform='translate(0 385)'/%3E%3Cuse href='%23w' transform='translate(0 392)'/%3E%3Cuse href='%23w' transform='translate(0 399)'/%3E%3Cuse href='%23w' transform='translate(0 406)'/%3E%3Cuse href='%23w' transform='translate(0 413)'/%3E%3Cuse href='%23w' transform='translate(0 420)'/%3E%3Cuse href='%23w' transform='translate(0 427)'/%3E%3Cuse href='%23w' transform='translate(0 434)'/%3E%3Cuse href='%23w' transform='translate(0 441)'/%3E%3Cuse href='%23w' transform='translate(0 448)'/%3E%3Cuse href='%23w' transform='translate(0 455)'/%3E%3Cuse href='%23w' transform='translate(0 462)'/%3E%3Cuse href='%23w' transform='translate(0 469)'/%3E%3Cuse href='%23w' transform='translate(0 476)'/%3E%3Cuse href='%23w' transform='translate(0 483)'/%3E%3Cuse href='%23w' transform='translate(0 490)'/%3E%3Cuse href='%23w' transform='translate(0 497)'/%3E%3Cuse href='%23w' transform='translate(0 504)'/%3E%3Cuse href='%23w' transform='translate(0 511)'/%3E%3Cuse href='%23w' transform='translate(0 518)'/%3E%3Cuse href='%23w' transform='translate(0 525)'/%3E%3Cuse href='%23w' transform='translate(0 532)'/%3E%3Cuse href='%23w' transform='translate(0 539)'/%3E%3Cuse href='%23w' transform='translate(0 546)'/%3E%3Cuse href='%23w' transform='translate(0 553)'/%3E%3Cuse href='%23w' transform='translate(0 560)'/%3E%3Cuse href='%23w' transform='translate(0 567)'/%3E%3Cuse href='%23w' transform='translate(0 574)'/%3E%3Cuse href='%23w' transform='translate(0 581)'/%3E%3Cuse href='%23w' transform='translate(0 588)'/%3E%3Cuse href='%23w' transform='translate(0 595)'/%3E%3Cuse href='%23w' transform='translate(0 602)'/%3E%3Cuse href='%23w' transform='translate(0 609)'/%3E%3Cuse href='%23w' transform='translate(0 616)'/%3E%3Cuse href='%23w' transform='translate(0 623)'/%3E%3Cuse href='%23w' transform='translate(0 630)'/%3E%3Cuse href='%23w' transform='translate(0 637)'/%3E%3Cuse href='%23w' transform='translate(0 644)'/%3E%3Cuse href='%23w' transform='translate(0 651)'/%3E%3Cuse href='%23w' transform='translate(0 658)'/%3E%3Cuse href='%23w' transform='translate(0 665)'/%3E%3Cuse href='%23w' transform='translate(0 672)'/%3E%3Cuse href='%23w' transform='translate(0 679)'/%3E%3Cuse href='%23w' transform='translate(0 686)'/%3E%3Cuse href='%23w' transform='translate(0 693)'/%3E%3Cuse href='%23w' transform='translate(0 700)'/%3E%3Cuse href='%23w' transform='translate(0 707)'/%3E%3Cuse href='%23w' transform='translate(0 714)'/%3E%3Cuse href='%23w' transform='translate(0 721)'/%3E%3Cuse href='%23w' transform='translate(0 728)'/%3E%3Cuse href='%23w' transform='translate(0 735)'/%3E%3Cuse href='%23w' transform='translate(0 742)'/%3E%3Cuse href='%23w' transform='translate(0 749)'/%3E%3Cuse href='%23w' transform='translate(0 756)'/%3E%3Cuse href='%23w' transform='translate(0 763)'/%3E%3Cuse href='%23w' transform='translate(0 770)'/%3E%3Cuse href='%23w' transform='translate(0 777)'/%3E%3Cuse href='%23w' transform='translate(0 784)'/%3E%3Cuse href='%23w' transform='translate(0 791)'/%3E%3Cuse href='%23w' transform='translate(0 798)'/%3E%3Cuse href='%23w' transform='translate(0 805)'/%3E%3Cuse href='%23w' transform='translate(0 812)'/%3E%3Cuse href='%23w' transform='translate(0 819)'/%3E%3Cuse href='%23w' transform='translate(0 826)'/%3E%3Cuse href='%23w' transform='translate(0 833)'/%3E%3Cuse href='%23w' transform='translate(0 840)'/%3E%3Cuse href='%23w' transform='translate(0 847)'/%3E%3Cuse href='%23w' transform='translate(0 854)'/%3E%3Cuse href='%23w' transform='translate(0 861)'/%3E%3Cuse href='%23w' transform='translate(0 868)'/%3E%3Cuse href='%23w' transform='translate(0 875)'/%3E%3Cuse href='%23w' transform='translate(0 882)'/%3E%3Cuse href='%23w' transform='translate(0 889)'/%3E%3Cuse href='%23w' transform='translate(0 896)'/%3E%3Cuse href='%23w' transform='translate(0 903)'/%3E%3Cuse href='%23w' transform='translate(0 910)'/%3E%3Cuse href='%23w' transform='translate(0 917)'/%3E%3Cuse href='%23w' transform='translate(0 924)'/%3E%3Cuse href='%23w' transform='translate(0 931)'/%3E%3Cuse href='%23w' transform='translate(0 938)'/%3E%3Cuse href='%23w' transform='translate(0 945)'/%3E%3Cuse href='%23w' transform='translate(0 952)'/%3E%3Cuse href='%23w' transform='translate(0 959)'/%3E%3Cuse href='%23w' transform='translate(0 966)'/%3E%3Cuse href='%23w' transform='translate(0 973)'/%3E%3Cuse href='%23w' transform='translate(0 980)'/%3E%3Cuse href='%23w' transform='translate(0 987)'/%3E%3Cuse href='%23w' transform='translate(0 994)'/%3E%3Cuse href='%23w' transform='translate(0 1001)'/%3E%3Cuse href='%23w' transform='translate(0 1008)'/%3E%3Cuse href='%23w' transform='translate(0 1015)'/%3E%3Cuse href='%23w' transform='translate(0 1022)'/%3E%3Cuse href='%23w' transform='translate(0 1029)'/%3E%3Cuse href='%23w' transform='translate(0 1036)'/%3E%3Cuse href='%23w' transform='translate(0 1043)'/%3E%3Cuse href='%23w' transform='translate(0 1050)'/%3E%3Cuse href='%23w' transform='translate(0 1057)'/%3E%3Cuse href='%23w' transform='translate(0 1064)'/%3E%3Cuse href='%23w' transform='translate(0 1071)'/%3E%3Cuse href='%23w' transform='translate(0 1078)'/%3E%3Cuse href='%23w' transform='translate(0 1085)'/%3E%3Cuse href='%23w' transform='translate(0 1092)'/%3E%3Cuse href='%23w' transform='translate(0 1099)'/%3E%3Cuse href='%23w' transform='translate(0 1106)'/%3E%3Cuse href='%23w' transform='translate(0 1113)'/%3E%3Cuse href='%23w' transform='translate(0 1120)'/%3E%3Cuse href='%23w' transform='translate(0 1127)'/%3E%3Cuse href='%23w' transform='translate(0 1134)'/%3E%3Cuse href='%23w' transform='translate(0 1141)'/%3E%3Cuse href='%23w' transform='translate(0 1148)'/%3E%3Cuse href='%23w' transform='translate(0 1155)'/%3E%3Cuse href='%23w' transform='translate(0 1162)'/%3E%3Cuse href='%23w' transform='translate(0 1169)'/%3E%3Cuse href='%23w' transform='translate(0 1176)'/%3E%3Cuse href='%23w' transform='translate(0 1183)'/%3E%3Cuse href='%23w' transform='translate(0 1190)'/%3E%3Cuse href='%23w' transform='translate(0 1197)'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* Fixed, so the tint stays with the frame while the sheet scrolls inside it —
+   the paper's substrate, not a scrolling decoration. The box is inset 14vh and
+   14vw past EVERY viewport edge, so the mark's own edges are never on screen
+   even after the 4° press tilt: the overhang still covers a viewport down to a
+   1:4 or 4:1 aspect, and no fade is needed to hide an edge because no edge is
+   reachable. That is what removes the seam the old right-hand tint hid behind a
+   gradient — uniformity needs no dissolve.
+
+   Unsupported default: no mark, no box. `content: none` means the generated
+   element does not exist at all, so an engine without mask support paints
+   nothing — never the ink rectangle with nothing cutting the waves out of it. */
+.app-sheet::before {
+  content: none;
+}
+
+@supports (mask-image: url("#sheet-mark")) or (-webkit-mask-image: url("#sheet-mark")) {
+  .app-sheet::before {
+    content: "";
+    position: fixed;
+    inset: -14vh -14vw;
+    z-index: 0;
+    pointer-events: none;
+    transform: rotate(-4deg);
+    transform-origin: 50% 50%;
+    background-color: var(--color-text);
+    opacity: var(--sheet-tint-opacity);
+    -webkit-mask-image: var(--sheet-tint-mark);
+    mask-image: var(--sheet-tint-mark);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+  }
+}
+
+/* The dark ground composites paper-on-ink, so the same screen reads slightly
+   heavier; one step down keeps it a substrate rather than a veil. */
+html[data-theme="dark"] .app-sheet {
+  --sheet-tint-opacity: 0.075;
+}
+
+/* A phone has no margin to spare: the screen thins so it never sits behind a
+   full column of 13px micro text. `html[data-theme="dark"]` is more specific
+   than the bare class, so the phone value is stated again for the dark ground
+   at that same weight — without it a phone on ink kept the desktop dark step
+   (0.075) and the mobile thin never rendered at all. */
+@media (max-width: 640px) {
+  .app-sheet {
+    --sheet-tint-opacity: 0.055;
+  }
+  html[data-theme="dark"] .app-sheet {
+    --sheet-tint-opacity: 0.055;
+  }
+}
+
+/* Forced colours collapse every colour to a system pair, so a low-alpha tint
+   can only become a solid block. Remove the generated box rather than let it
+   read as UI; a generated-content removal keeps every real element visible. */
+@media (forced-colors: active) {
+  .app-sheet::before {
+    content: none;
+  }
+}
+
+/* Band separators: the height is the markup's (`BandTopRule` paints `h-px`,
+   the 3px bar belongs to the page frame). No override lives here — a rule that
+   re-heighted `[data-band-rule]` would be a second source of truth, and
+   tests/instrument-panel.test.tsx fails if one appears. */

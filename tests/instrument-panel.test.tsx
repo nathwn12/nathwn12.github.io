@@ -5,7 +5,7 @@
  *  1. No horizontal rule crosses a centred column: no `<section>` carries a
  *     `border-t`; every rule lives inside the band's content cell, which owns
  *     the vertical hairline.
- *  2. Editorial headers: each landing band renders its kicker and a Fraunces
+ *  2. Editorial headers: each landing band renders its kicker and a display
  *     `text-display` heading (routes: same kicker + column rule treatment).
  *  3. Scroll progress: a compositor-only `scaleX()` fill above the header,
  *     static under reduced motion.
@@ -92,7 +92,7 @@ describe("column-edge rules", () => {
     }
   });
 
-  test("every band opens on a heavy 3px bar at the container width", async () => {
+  test("every band opens on a container-width hairline, never the 3px frame bar", async () => {
     const bands: Array<[string, ReactElement]> = [
       ["experience", createElement(ExperienceBand)],
       ["work", createElement(WorkTeaser)],
@@ -103,9 +103,17 @@ describe("column-edge rules", () => {
       await mount(element);
       const section = host.querySelector("section");
       expect(section, `${name}: band renders a section`).not.toBeNull();
+      // The band opens on the page's ink at hairline weight; the 3px bar is
+      // the frame's (masthead, strip, route nameplates, foot), never a band's.
+      const bar = section!.querySelector("[data-band-rule]");
+      expect(bar, `${name}: band opens on its own rule`).not.toBeNull();
+      expect(bar!.className, `${name}: the rule is a 1px hairline`).toMatch(
+        /(^|\s)h-px(\s|$)/,
+      );
+      expect(bar!.className, `${name}: no stale 3px height`).not.toMatch(
+        /h-\[3px\]/,
+      );
       // The heavy bar is container-width (inside max-w), never viewport-bleed.
-      const bar = section!.querySelector("div.h-\\[3px\\].bg-text");
-      expect(bar, `${name}: band opens on a heavy bar`).not.toBeNull();
       expect(
         bar!.closest("div.mx-auto"),
         `${name}: the bar sits inside the sheet container`,
@@ -121,10 +129,41 @@ describe("column-edge rules", () => {
       host.remove();
     }
   });
+
+  test("the rule weight is declared once: markup says 1px and the sheet never overrides it", () => {
+    const markup = read("src/components/InstrumentBand.tsx");
+    const css = read("src/index.css").replace(/\/\*[\s\S]*?\*\//g, "");
+
+    // The rule element names its own height. `h-px` is 1px; a stale `h-[3px]`
+    // here means the DOM contract and the painted rule have parted ways.
+    const rule = markup.match(
+      /<div\s+aria-hidden="true"\s+data-band-rule=""\s+className="([^"]*)"/,
+    );
+    expect(rule, "the band rule element is missing from InstrumentBand").not.toBeNull();
+    expect(rule![1]).toMatch(/(^|\s)h-px(\s|$)/);
+    expect(rule![1]).toMatch(/(^|\s)w-full(\s|$)/);
+    expect(rule![1]).toMatch(/(^|\s)bg-text(\s|$)/);
+
+    // Nothing else may re-height the hook. A stylesheet `height:` on
+    // `[data-band-rule]` is exactly how the markup said 3px while the page
+    // painted 1px, so any height here — even an equal one — is a second
+    // source of truth and fails.
+    const hookRules = css.match(/[^{}]*\[data-band-rule\][^{}]*\{[^}]*\}/g) ?? [];
+    for (const hookRule of hookRules) {
+      expect(
+        hookRule,
+        "a stylesheet rule re-heights [data-band-rule]",
+      ).not.toMatch(/(^|[^-\w])height\s*:/);
+    }
+
+    // The hairline token and `h-px` both mean 1px; if the token moves, every
+    // token-driven divider drifts away from the band rule silently.
+    expect(css).toMatch(/--border-width-hairline:\s*1px\s*;/);
+  });
 });
 
 describe("editorial headers", () => {
-  test("landing bands render kickers above Fraunces headings", async () => {
+  test("landing bands render kickers above display-serif headings", async () => {
     const bands: Array<[string, string, ReactElement]> = [
       ["01 / Experience", "Backend experience", createElement(ExperienceBand)],
       ["02 / Selected work", "Selected work", createElement(WorkTeaser)],

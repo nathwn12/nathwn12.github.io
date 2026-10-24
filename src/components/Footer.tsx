@@ -21,8 +21,17 @@ import { cycleTheme, useTheme } from "../lib/theme";
 
 const YEAR = new Date().getFullYear();
 
+/**
+ * The three text links carry both target axes as a floor, not as text width:
+ * `min-h-11` is the 44px height, and `min-w-11` is the 44px width the labels
+ * cannot supply on their own ("Email" measured 33px wide and "GitHub" 43px
+ * before this floor). `justify-center` keeps each label centred in the 44px
+ * box instead of hugging its left edge. Measured in Chromium at 393x852 and
+ * 2560x1440: 44x44 for both, every edge probe landing on the anchor; removing
+ * either floor drops a real hit area below 44 on that axis.
+ */
 const linkClass =
-  "flex min-h-11 items-center rounded-xs text-micro font-medium text-text-muted transition-colors duration-link hover:text-text hover:underline";
+  "flex min-h-11 min-w-11 items-center justify-center rounded-xs text-micro font-medium text-text-muted transition-colors duration-link hover:text-text hover:underline";
 
 export function Footer() {
   const [themePreference] = useTheme();

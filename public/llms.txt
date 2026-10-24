@@ -10,7 +10,7 @@ is one full page with keyboard-driven navigation, and the chrome is persistent.
 - Name: Nathaniel Nikolai Ladero
 - Role: Backend Developer
 - Focus: C#, ASP.NET Core, REST APIs, microservices, and fintech systems
-- Experience: Backend Developer at Xentra Infotech Solutions Inc. (Mar 2023 to May 2026, remote)
+- Experience: Formerly a Backend Developer at Xentra Infotech Solutions Inc. (Mar 2023 to May 2026, remote)
 - Email: nathanielnikolai.ladero@gmail.com
 - GitHub: https://github.com/nathwn12
 - LinkedIn: https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/

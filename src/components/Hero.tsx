@@ -11,7 +11,12 @@ import {
 import type { AnimationPlaybackControls } from "framer-motion";
 import { heroClaim, coreStack, availability } from "../content/hero";
 import { CONTACT_EMAIL } from "../lib/contact";
-import { employer, experience, experienceMarginalia } from "../content/experience";
+import {
+  employer,
+  experience,
+  experienceMarginalia,
+  formerRoleLine,
+} from "../content/experience";
 import { projects, projectsMarginalia } from "../content/projects";
 import {
   bandEnter,
@@ -305,8 +310,8 @@ export function useHeroTyping(phrases: readonly string[] = HERO_PHRASES) {
  * Zero-width by construction: a `w-0` inline anchor with the rule absolutely
  * positioned inside it, so the caret can never push the last character onto a
  * new line. It is a drawn rule rather than a `▍` glyph so the page never asks
- * for a face it does not set (premium-direction.md § Type: Fraunces + Public
- * Sans, no system fallback). Its height stays inside the line's own ascent
+ * for a face it does not set (premium-direction.md § Type: Newsreader + Inter,
+ * no system fallback). Its height stays inside the line's own ascent
  * (0.8em of the 1em content box), so it adds no leading of its own.
  */
 function InsertCaret() {
@@ -568,7 +573,7 @@ export function Hero() {
               variants={fadeUp}
               className="max-w-[62ch] text-lead text-text"
             >
-              {employer.role} at {employer.company}
+              {formerRoleLine}
             </motion.p>
             <motion.p
               variants={fadeUp}

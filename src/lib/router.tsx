@@ -66,7 +66,7 @@ export const ROUTES: readonly RouteDef[] = [
     command: "journalctl -u career.service --no-pager",
     description: "Service journal",
     metaDescription:
-      "Production backend engineering at Xentra Infotech Solutions Inc. — ASP.NET Web APIs, gRPC, SignalR, and RabbitMQ, including a 98% payment-query latency cut.",
+      "Formerly a Backend Developer at Xentra Infotech Solutions Inc. — ASP.NET Web APIs, gRPC, SignalR, and RabbitMQ, including a 98% payment-query latency cut.",
     accent: "accent",
     title: `Experience — ${FULL_NAME}`,
   },

@@ -1,6 +1,12 @@
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
-import { employer, experience, provenance } from "../content/experience";
+import {
+  employer,
+  experience,
+  formerRoleLine,
+  latestRecordDate,
+  provenance,
+} from "../content/experience";
 import {
   railRule,
   staggerChild,
@@ -16,7 +22,8 @@ import { BandShell } from "./InstrumentBand";
  * after the stack seam and before any open-source work.
  *
  * The route's dated rail (Experience.tsx), adapted to the landing: the tenure
- * in words, stated once above the rail, then one rail row per outcome with a
+ * in words plus the newest dated record, stated once above the rail, then one
+ * rail row per outcome with a
  * 12px mono uppercase label in the rail column and the outcome in the content
  * column. Every row's figure renders at 24px semibold inside its own
  * sentence — the payments percentage lifted onto its own line (its
@@ -89,8 +96,8 @@ export function ExperienceBand({ marginalia }: { marginalia?: ReactNode }) {
         variants={staggerChild}
         className="mt-4 max-w-[65ch] text-lead text-text"
       >
-        {employer.role}, {employer.company}, {employer.location},{" "}
-        {employer.period}.
+        {formerRoleLine}, {employer.location} — {employer.period}, though the
+        latest dated entry in the record is {latestRecordDate}.
       </motion.p>
 
       <motion.ol variants={staggerParent} className="mt-8">

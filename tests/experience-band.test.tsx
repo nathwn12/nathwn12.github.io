@@ -79,6 +79,23 @@ describe("experience band", () => {
     expect(countInBand(employer.period)).toBe(1);
   });
 
+  test("the summary names the newest dated entry and the tenure end in one sentence", () => {
+    const summary = Array.from(host.querySelectorAll("p")).find((p) =>
+      (p.textContent ?? "").includes("Formerly a Backend Developer"),
+    );
+    if (!summary) throw new Error("missing the band's tenure summary line");
+    const text = summary.textContent ?? "";
+    // The company's legal name ends in "Inc.", so the sentence that carries
+    // both facts is read from there to the end of the line.
+    const afterCompany = text.slice(text.indexOf("Inc.") + 4);
+    expect(afterCompany).toContain("March 2023 to May 2026");
+    expect(afterCompany).toContain("November 2025");
+    // Both facts share one sentence: a single closing period, no sentence break.
+    expect(afterCompany.split(".").filter(Boolean)).toHaveLength(1);
+    // The route states the pairing in its own words; the landing does not copy it.
+    expect(text).not.toContain("Tenure ended May 2026");
+  });
+
   test("the payments headline figure appears exactly once, never repeated", () => {
     const payments = experience.find((entry) => entry.id === "02");
     if (!payments) throw new Error("missing experience entry id 02");

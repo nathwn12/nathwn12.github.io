@@ -6,8 +6,8 @@ import { CertificationSchema, type Certification } from "../types/models";
  * The first four are the real, externally verifiable entries salvaged from the
  * retired Education page (education.ts). The Education timeline/milestones
  * prose was judge-approved low-signal and was dropped with the page; the
- * credentials are the unique surviving content and move into the Contact
- * [VERIFIED CREDENTIALS] strip (C2). Copied EXACTLY from education.ts:49-76 —
+ * credentials are the unique surviving content and render in the landing
+ * credentials strip (ProofBand). Copied EXACTLY from education.ts:49-76 —
  * titles, issuers, ids, and verify URLs are unchanged.
  *
  * Validated against CertificationSchema at module load — a mismatch throws a
