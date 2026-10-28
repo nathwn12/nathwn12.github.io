@@ -1,5 +1,10 @@
 # DESIGN.md — brutalist system for nathwn12-portfolio
 
+> **SUPERSEDED 2026-10-28 — the Ledger direction.** The live UI is described by
+> `docs/ledger-direction.md` (owner-approved, one Newsreader face, ledger-green
+> cover, ink record, stone paper). This file is now a historical record of two
+> retired systems, not instruction.
+
 > **HISTORICAL RECORD — the brutalist pass (2026-10-13).** This document
 > records the brutalist system the premium rewrite replaced. It is kept for the
 > reasoning behind the retired system, not as current instruction. The living

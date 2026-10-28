@@ -8,7 +8,7 @@ Nathaniel Nikolai Ladero is a backend developer based in Hagonoy, Bulacan, Phili
 
 ## Availability
 
-Open to work.
+Open to backend roles — remote.
 
 - Role types held: backend developer, .NET/C# developer, API developer, fintech systems developer.
 
@@ -64,10 +64,8 @@ All three roles were remote, at Xentra Infotech Solutions Inc. The company close
 ## Site
 
 - Home: https://nathwn12.github.io/
-- Experience: https://nathwn12.github.io/experience
-- Skills: https://nathwn12.github.io/skills
-- Projects: https://nathwn12.github.io/projects
-- Contact: https://nathwn12.github.io/contact
+- Record: https://nathwn12.github.io/record
+- Work: https://nathwn12.github.io/work
 
 ## Last updated
 

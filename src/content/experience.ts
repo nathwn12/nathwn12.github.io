@@ -227,9 +227,24 @@ export const experience: ExperienceEntry[] = [
   },
 ];
 
+/**
+ * The one graphic the site draws: one mark per commit. The total and the
+ * repository count are facts from the recovered record — every surface that
+ * prints them reads these two numbers, so the canvas, the cover fact, and the
+ * provenance caption cannot drift apart.
+ */
+export const commitTotal = 1182;
+export const repositoryCount = 17;
+
 /** One line of provenance for the delivery numbers above. */
 export const provenance =
   "Commit ledger recovered from 21 scanned internal repositories after Xentra closed in May 2026: 1,182 commits across 17 repositories from 2023 to 2026.";
+
+/** About band: the three-year statement and the one-line detail under it. */
+export const aboutStatement =
+  "Three years building and running fintech systems in production.";
+export const aboutDetail =
+  "Payments, cash management, and access control, mostly in C# and ASP.NET\u00A0Core.";
 
 /** Tenure end, read off the one period string — never typed twice. */
 export const tenureEnd = employer.period.split(" to ")[1] ?? employer.period;
@@ -244,11 +259,12 @@ export const latestRecordDate = experience[0]?.date ?? "";
 
 /** Route lede: tenure, count in words, reading order (newest first), and what
     each entry carries - never a restatement of the title. */
-export const experienceLede = `Three years building and running fintech systems in production — ${countWords(experience.length)} entries, newest first, each pairing its outcome with the moves behind it.`;
+export const experienceLede = `Three years building and running fintech systems in production: ${countWords(experience.length)} entries, newest first, each pairing its outcome with the moves behind it.`;
 
 /** Landing marginalia: the credibility of the figures, not a repeat of the
     reading order or the tenure already stated above. */
-export const experienceMarginalia = "Every figure traced to the delivered record";
+export const experienceMarginalia =
+  "Every figure below is traced to the delivered record.";
 
 /* Dormant zod models wired in: validate a domain projection (employer merged
    into every entry) at module load. Throws a descriptive error on mismatch. */

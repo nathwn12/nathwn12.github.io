@@ -10,10 +10,13 @@
 
 ## What it is
 
-Terminal-themed single-page portfolio and resume site for Nathaniel Nikolai
-Ladero, Backend Developer (C#, ASP.NET Core, fintech systems). It presents
-experience, skills, projects, and contact through a command terminal with
-keyboard navigation, in light and dark themes. Live at
+Portfolio and resume site for Nathaniel Nikolai Ladero, Backend Developer
+(C#, ASP.NET Core, fintech systems). One page carries the cover, the record
+summary, selected work, about, and contact; `/record` holds the full nine-entry
+experience log and `/work` holds all eleven projects. The design is set as a
+delivery statement in one Newsreader face, with a ledger-green cover, an ink
+record field, and stone paper. Every route is prerendered to real HTML; retired
+public paths redirect with a canonical stub. Live at
 https://nathwn12.github.io.
 
 ## Build from source
@@ -29,13 +32,13 @@ pnpm run check
 pnpm run build
 ```
 
-`pnpm run build` runs `vite build && node scripts/copy-404.mjs`, which also
-copies `Nathaniel-Nikolai-Ladero-Resume.pdf`, `Nathaniel-Nikolai-Ladero-CV.pdf`,
-and `404.html` into `dist/`.
-Publishing runs through `.github/workflows/deploy.yml`: on push to `main` the
-build job installs, builds, and uploads `dist` as a Pages artifact, and the
-deploy job publishes it via `actions/deploy-pages` to the `github-pages`
-environment. No branch is published directly and no manual command deploys it.
+`pnpm run build` runs `vite build`, copies the two PDFs and `404.html` into
+`dist/`, then pre-renders a real `dist/<path>/index.html` for every live route
+and a meta-refresh stub at every retired path. Publishing runs through
+`.github/workflows/deploy.yml`: on push to `main` the build job installs,
+builds, and uploads `dist` as a Pages artifact, and the deploy job publishes it
+via `actions/deploy-pages` to the `github-pages` environment. No branch is
+published directly and no manual command deploys it.
 
 ## Status
 

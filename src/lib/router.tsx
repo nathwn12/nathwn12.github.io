@@ -10,49 +10,40 @@ import {
   HOME_OG_DESCRIPTION,
   HOME_OG_TITLE,
   NOT_FOUND_ROUTE,
+  REDIRECTS,
   ROUTES,
-  THANKS_ROUTE,
+  canonicalFor,
   type RouteDef,
 } from "./routes";
 
 /**
- * Minimal History-API router for the page-per-viewport portfolio.
+ * Minimal History-API router for the Ledger portfolio.
  *
- * Each section is a real path (`/`, `/experience`, …) so URLs are
- * shareable, the browser back/forward buttons work, and a refresh on any
- * route lands the visitor back on that page. Two build steps back that up:
- * `scripts/prerender-routes.mjs` emits a real `dist/<path>/index.html` per
- * route (HTTP 200, not a fallback), and `scripts/copy-404.mjs` keeps
- * `dist/404.html` for genuinely unknown paths.
+ * Three real paths (`/`, `/record`, `/work`) so URLs are shareable, browser
+ * back/forward work, and a refresh lands on the same page. The build backs that
+ * up: `scripts/prerender-routes.mjs` emits a real `dist/<path>/index.html` per
+ * route and a meta-refresh stub at each retired path.
  *
- * Route definitions live in `./routes` — pure data, importable by the build,
- * covering the five nav routes plus the `/thanks` confirmation route. This
- * module owns matching, history, and per-route meta.
- *
- * No dependency — 5 route defs, pushState, and a popstate listener.
+ * No dependency — three route defs, pushState, and a popstate listener.
  */
-
-export type RouteDirection = "forward" | "back" | "none";
 
 export type { RouteDef } from "./routes";
 export {
   HOME_META_DESCRIPTION,
   HOME_OG_DESCRIPTION,
   HOME_OG_TITLE,
+  NAV_ITEMS,
   NOT_FOUND_ROUTE,
+  REDIRECTS,
   ROUTES,
-  THANKS_ROUTE,
-};
+  canonicalFor,
+} from "./routes";
 
 /**
  * Tolerant path normalization: "/" for root, exactly one trailing slash
- * removed (except for root itself).
- *
- * GitHub Pages answers `/experience/` — either directly from
- * `dist/experience/index.html` or after redirecting `/experience` to it — so
- * the browser can report a trailing slash the route table never stores.
- * Matching on the normalized path is what keeps that URL on the Experience
- * route instead of the not-found route.
+ * removed (except for root itself). GitHub Pages answers `/record/` from
+ * `dist/record/index.html`, so the browser can report a trailing slash the
+ * route table never stores.
  */
 export function normalizePath(pathname: string): string {
   let p = pathname.split("?")[0] ?? "/";
@@ -65,102 +56,97 @@ export function normalizePath(pathname: string): string {
   return p === "" ? "/" : p;
 }
 
-const LEGACY_PATHS: Readonly<Record<string, string>> = {
-  "/about": "/",
-  /* Deleted pages (phase-2): deep links, inbound shares, and cached SEO
-     entries for /education + /footprint canonicalize to the live home route
-     at load (history.replaceState below) instead of 404-ing into the hero.
-     See sitemap.xml — those URLs are not listed there. */
-  "/education": "/",
-  "/footprint": "/",
-};
+/** Retired path → its live replacement. Matching is on the normalized path. */
+const LEGACY_PATHS: Readonly<Record<string, string>> = Object.fromEntries(
+  REDIRECTS.map((redirect) => [redirect.from, redirect.to]),
+);
+
+function legacyTarget(path: string): string | undefined {
+  return LEGACY_PATHS[normalizePath(path)];
+}
+
+/** Split a replacement that may carry the cover's contact anchor. */
+function splitTarget(target: string): { path: string; hash: string } {
+  const at = target.indexOf("#");
+  return at === -1
+    ? { path: target, hash: "" }
+    : { path: target.slice(0, at) || "/", hash: target.slice(at) };
+}
 
 function canonicalPath(path: string): string {
   const normalized = normalizePath(path);
-  return LEGACY_PATHS[normalized] ?? normalized;
+  return splitTarget(LEGACY_PATHS[normalized] ?? normalized).path;
 }
 
 export function routeByPath(path: string): RouteDef | undefined {
   const canonical = canonicalPath(path);
-  return (
-    ROUTES.find((r) => r.path === canonical) ??
-    (canonical === THANKS_ROUTE.path ? THANKS_ROUTE : undefined)
-  );
+  return ROUTES.find((route) => route.path === canonical);
 }
 
 /**
  * Route resolution for rendering: the matching route when the path is known,
- * otherwise the synthesized 404 route carrying the requested (canonical) path.
- * `routeByPath` stays strict so `navigate()` keeps its documented no-op on
- * unknown paths.
+ * otherwise the synthesized 404 route carrying the requested path.
  */
 export function resolveRoute(path: string): RouteDef {
-  const canonical = canonicalPath(path);
   return (
-    ROUTES.find((r) => r.path === canonical) ??
-    (canonical === THANKS_ROUTE.path ? THANKS_ROUTE : {
+    ROUTES.find((route) => route.path === canonicalPath(path)) ?? {
       ...NOT_FOUND_ROUTE,
-      path: canonical,
-    })
+      path: canonicalPath(path),
+    }
   );
 }
 
-export function routeIndex(path: string): number {
-  const i = ROUTES.findIndex((r) => r.path === canonicalPath(path));
-  return i === -1 ? 0 : i;
+/** The live path, with a retired path already replaced by its destination. */
+function initialLocation(): { path: string; hash: string } {
+  const raw = normalizePath(window.location.pathname);
+  const target = legacyTarget(raw);
+  if (target) {
+    const { path, hash } = splitTarget(target);
+    window.history.replaceState(
+      null,
+      "",
+      `${path}${hash || window.location.hash}`,
+    );
+    return { path, hash: hash || window.location.hash };
+  }
+  return { path: raw, hash: window.location.hash };
 }
 
-export function routeAtOffset(fromPath: string, offset: number): RouteDef {
-  const idx = routeIndex(fromPath);
-  const target = Math.min(ROUTES.length - 1, Math.max(0, idx + offset));
-  return ROUTES[target];
-}
-
-/** Navigation history stack — used to infer back vs forward on popstate. */
-const initialPath = normalizePath(window.location.pathname);
-const canonicalInitialPath = canonicalPath(initialPath);
-if (canonicalInitialPath !== initialPath) {
-  window.history.replaceState(null, "", canonicalInitialPath);
-}
-
-const historyStack: string[] = [canonicalInitialPath];
-let currentPath = historyStack[0];
-let currentDirection: RouteDirection = "none";
+const start = initialLocation();
+const historyStack: string[] = [start.path];
+let currentPath = start.path;
 
 const listeners = new Set<() => void>();
 
-function setState(path: string, direction: RouteDirection) {
+function setState(path: string) {
   currentPath = path;
-  currentDirection = direction;
-  listeners.forEach((l) => l());
+  listeners.forEach((listener) => listener());
 }
 
 function onPopState() {
-  const initialPath = normalizePath(window.location.pathname);
-  const path = canonicalPath(initialPath);
-  if (path !== initialPath) {
-    window.history.replaceState(null, "", path);
-  }
+  const raw = normalizePath(window.location.pathname);
+  const target = legacyTarget(raw);
+  const { path } = splitTarget(target ?? raw);
+  if (path !== raw) window.history.replaceState(null, "", path);
   if (path === currentPath) return;
 
   const idx = historyStack.lastIndexOf(path);
   if (idx === -1) {
-    // Unknown entry (fresh deep link) — treat as a forward visit.
     historyStack.push(path);
-    setState(path, "forward");
+    setState(path);
     return;
   }
-  const back = idx < historyStack.length - 1;
   historyStack.length = idx + 1;
-  setState(path, back ? "back" : "forward");
+  setState(path);
 }
 
-window.addEventListener("popstate", onPopState);
+if (typeof window !== "undefined") {
+  window.addEventListener("popstate", onPopState);
+}
 
 export interface RouterState {
   path: string;
   route: RouteDef;
-  direction: RouteDirection;
 }
 
 /** Navigate to a route path. No-op when already there or path is unknown. */
@@ -168,35 +154,28 @@ export function navigate(to: string): void {
   const path = canonicalPath(to);
   if (!routeByPath(path)) return; // unknown path — ignore
   if (path === currentPath) return;
-  const dir: RouteDirection =
-    routeIndex(path) < routeIndex(currentPath) ? "back" : "forward";
 
   if (historyStack[historyStack.length - 1] === path) {
     history.replaceState(null, "", path);
-    setState(path, dir);
+    setState(path);
     return;
   }
 
   historyStack.push(path);
-  history.pushState(null, "", path);
-  setState(path, dir);
+  window.history.pushState(null, "", path);
+  setState(path);
 }
 
-/** Subscribe to route changes. Returns current route + direction. */
+/** Subscribe to route changes. */
 export function useRoute(): RouterState {
   const [state, setLocal] = useState<RouterState>({
     path: currentPath,
     route: resolveRoute(currentPath),
-    direction: currentDirection,
   });
 
   useEffect(() => {
     const update = () => {
-      setLocal({
-        path: currentPath,
-        route: resolveRoute(currentPath),
-        direction: currentDirection,
-      });
+      setLocal({ path: currentPath, route: resolveRoute(currentPath) });
     };
     listeners.add(update);
     return () => {
@@ -207,41 +186,53 @@ export function useRoute(): RouterState {
   return state;
 }
 
-/** Navigate to the next (offset=1) or previous (offset=-1) page in order. */
-export function useAdjacentNavigation() {
-  const { path } = useRoute();
-  const goNext = useCallback(() => {
-    const next = routeAtOffset(path, 1);
-    if (next.path !== canonicalPath(path)) navigate(next.path);
-  }, [path]);
-  const goPrev = useCallback(() => {
-    const prev = routeAtOffset(path, -1);
-    if (prev.path !== canonicalPath(path)) navigate(prev.path);
-  }, [path]);
-  return { goNext, goPrev };
-}
-
 interface RouteLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   href: string;
 }
 
 /** Anchor that performs an app-level route change instead of a page reload. */
 export function RouteLink({ href, onClick, ...rest }: RouteLinkProps) {
-  const handleClick = (e: MouseEvent<HTMLAnchorElement>) => {
+  const handleClick = (event: MouseEvent<HTMLAnchorElement>) => {
     if (
-      e.defaultPrevented ||
-      e.button !== 0 ||
-      e.metaKey ||
-      e.ctrlKey ||
-      e.shiftKey ||
-      e.altKey
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
     )
       return;
-    e.preventDefault();
+    event.preventDefault();
     navigate(href);
-    onClick?.(e);
+    onClick?.(event);
   };
   return <a href={href} onClick={handleClick} {...rest} />;
+}
+
+/**
+ * Move focus to the cover's contact section and put `#contact` in the URL. On a
+ * sub-page this routes home first, then lands after the cover has committed.
+ */
+export function goToContact(): void {
+  const land = () => {
+    const section = document.getElementById("contact");
+    if (!section) return;
+    try {
+      window.history.replaceState(null, "", "/#contact");
+    } catch {
+      /* history unavailable — the section still lands */
+    }
+    section.setAttribute("tabindex", "-1");
+    section.focus({ preventScroll: true });
+    section.scrollIntoView({ block: "start" });
+  };
+
+  if (normalizePath(window.location.pathname) === "/") {
+    requestAnimationFrame(land);
+    return;
+  }
+  navigate("/");
+  requestAnimationFrame(() => requestAnimationFrame(land));
 }
 
 function setMeta(attr: "name" | "property", key: string, content: string) {
@@ -255,15 +246,30 @@ function setMeta(attr: "name" | "property", key: string, content: string) {
   el.setAttribute("content", content);
 }
 
+function setCanonical(url: string) {
+  let link = document.head.querySelector<HTMLLinkElement>(
+    'link[rel="canonical"]',
+  );
+  if (!link) {
+    link = document.createElement("link");
+    link.setAttribute("rel", "canonical");
+    document.head.appendChild(link);
+  }
+  link.setAttribute("href", url);
+}
+
 /**
- * Apply the active route's document.title + per-route SEO meta
- * (description / og:title / og:description). The home route keeps the
- * index.html defaults verbatim for single-source parity; every other route
- * uses its recruiter-facing `metaDescription`. Called from PageShell's keyed
- * mount effect — the only moment the new page's DOM exists (`mode="wait"`).
+ * Apply the active route's document.title, description, canonical URL, and
+ * Open Graph meta. The home route keeps the index.html defaults verbatim for
+ * single-source parity; every other route uses its recruiter-facing
+ * `metaDescription`. Called from the shell on every route change.
  */
 export function applyRouteMeta(route: RouteDef): void {
   document.title = route.title;
+  const canonical = canonicalFor(route.path);
+  setCanonical(canonical);
+  setMeta("property", "og:url", canonical);
+
   if (route.path === "/") {
     setMeta("name", "description", HOME_META_DESCRIPTION);
     setMeta("property", "og:title", HOME_OG_TITLE);
@@ -271,6 +277,23 @@ export function applyRouteMeta(route: RouteDef): void {
     return;
   }
   setMeta("name", "description", route.metaDescription);
-  setMeta("property", "og:title", `${route.label} — ${HOME_OG_TITLE}`);
+  setMeta("property", "og:title", route.title);
   setMeta("property", "og:description", route.metaDescription);
+}
+
+/** Stable callback for the header's Contact destination. */
+export function useContactNavigation(): (event: MouseEvent<HTMLAnchorElement>) => void {
+  return useCallback((event: MouseEvent<HTMLAnchorElement>) => {
+    if (
+      event.defaultPrevented ||
+      event.button !== 0 ||
+      event.metaKey ||
+      event.ctrlKey ||
+      event.shiftKey ||
+      event.altKey
+    )
+      return;
+    event.preventDefault();
+    goToContact();
+  }, []);
 }

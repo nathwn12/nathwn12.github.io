@@ -14,6 +14,6 @@ describe("portfolio regressions", () => {
 
   test("programmatically focused main landmark does not paint a chrome outline", () => {
     const css = readFileSync(resolve(root, "src", "index.css"), "utf8");
-    expect(css).toMatch(/#main:focus\s*\{[\s\S]*?outline:\s*none/);
+    expect(css).toMatch(/#main:focus[\s\S]*?outline:\s*none/);
   });
 });

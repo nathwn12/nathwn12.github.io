@@ -1,6 +1,12 @@
 # Broadsheet direction
 
-The site is set as a large-format printed broadsheet in Newsreader — a
+> **SUPERSEDED 2026-10-28 — the Ledger direction.** The owner approved a new
+> direction and it now ships: `docs/ledger-direction.md` is the living
+> description of the UI. This file is kept as the record of the broadsheet
+> system (masthead, folios, palette, command palette, theme) that the Ledger
+> replaced. None of it is instruction.
+
+The site was set as a large-format printed broadsheet in Newsreader — a
 masthead, a 12-column grid, folios, heavy rules, marginalia, and one loud
 move per screen. Calm where it is dense, enormous where it matters.
 

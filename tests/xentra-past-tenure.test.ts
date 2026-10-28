@@ -8,13 +8,14 @@
  *
  *   pnpm vitest run tests/xentra-past-tenure.test.ts
  */
-import { act, createElement } from "react";
+import { act, createElement, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { ExperienceBand } from "../src/components/ExperienceBand";
-import { Experience } from "../src/components/Experience";
+import { afterEach, beforeEach, describe, expect, test } from "vitest";
+import { Cover } from "../src/components/Cover";
+import { RecordPage } from "../src/components/RecordPage";
+import { AboutBand } from "../src/components/AboutBand";
 import {
   employer,
   formerRoleLine,
@@ -27,11 +28,10 @@ import { ROUTES } from "../src/lib/router";
 const root = resolve(import.meta.dirname, "..");
 const read = (rel: string) => readFileSync(resolve(root, rel), "utf8");
 
-/** Components that render the role line must use the past-tense constant. */
+/** Components that print the role line must use the past-tense constant. */
 const ROLE_SURFACES = [
-  "src/components/Hero.tsx",
-  "src/components/Experience.tsx",
-  "src/components/ExperienceBand.tsx",
+  "src/components/Cover.tsx",
+  "src/components/RecordPage.tsx",
 ];
 
 describe("Xentra is stated as past employment", () => {
@@ -55,8 +55,15 @@ describe("Xentra is stated as past employment", () => {
     }
   });
 
-  test("the experience route meta description leads with the past framing", () => {
-    const route = ROUTES.find((entry) => entry.path === "/experience");
+  test("the About band labels the role as a former role", () => {
+    const about = read("src/components/AboutBand.tsx");
+    expect(about).toContain("Former role");
+    expect(about).toMatch(/\{employer\.role\}, \{employer\.company\}/);
+    expect(about).not.toContain("employer.role} at");
+  });
+
+  test("the record route meta description leads with the past framing", () => {
+    const route = ROUTES.find((entry) => entry.path === "/record");
     expect(route?.metaDescription).toContain(formerRoleLine);
   });
 
@@ -76,70 +83,61 @@ describe("Xentra is stated as past employment", () => {
   });
 });
 
-describe("experience band renders the role in the past", () => {
-  let host: HTMLDivElement;
-  let root: Root | null = null;
+let host: HTMLDivElement;
+let rootNode: Root | null = null;
 
-  beforeEach(async () => {
-    (
-      globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
-    ).IS_REACT_ACT_ENVIRONMENT = true;
-    // jsdom has no IntersectionObserver, which framer-motion's whileInView
-    // needs at mount — a harness workaround, not component logic.
-    vi.stubGlobal(
-      "IntersectionObserver",
-      class {
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
-    );
-    host = document.createElement("div");
-    document.body.appendChild(host);
-    root = createRoot(host);
+async function mount(element: ReactElement) {
+  host = document.createElement("div");
+  document.body.appendChild(host);
+  rootNode = createRoot(host);
+  await act(async () => {
+    rootNode!.render(element);
+  });
+}
+
+beforeEach(() => {
+  (
+    globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
+  ).IS_REACT_ACT_ENVIRONMENT = true;
+});
+
+afterEach(async () => {
+  if (rootNode) {
     await act(async () => {
-      root!.render(createElement(ExperienceBand));
+      rootNode!.unmount();
     });
-  });
+    rootNode = null;
+  }
+  host?.remove();
+});
 
-  afterEach(async () => {
-    vi.unstubAllGlobals();
-    if (root) {
-      await act(async () => {
-        root!.unmount();
-      });
-      root = null;
-    }
-    host?.remove();
-  });
-
-  test("the rendered tenure sentence reads as former employment", () => {
+describe("the rendered record reads as past employment", () => {
+  test("the cover names the former role and the closed tenure", async () => {
+    await mount(createElement(Cover));
     const text = host.textContent ?? "";
     expect(text).toContain(
-      "Formerly a Backend Developer at Xentra Infotech Solutions Inc., Remote — March 2023 to May 2026, though the latest dated entry in the record is November 2025.",
+      "Formerly a Backend Developer at Xentra Infotech Solutions Inc.",
     );
+    expect(text).toContain("March 2023 – May 2026, remote.");
     // The old present-tense composition never reaches the page.
     expect(text).not.toContain("Backend Developer, Xentra");
   });
 
-  test("the experience route states the end month without inventing a milestone", async () => {
-    const routeHost = document.createElement("div");
-    document.body.appendChild(routeHost);
-    const routeRoot = createRoot(routeHost);
-    await act(async () => {
-      routeRoot.render(createElement(Experience));
-    });
-    const text = routeHost.textContent ?? "";
-    // The continuous tenure and the dated record are stated as two facts.
-    expect(text).toContain("March 2023 – May 2026");
+  test("the record page states the continuous tenure and the latest entry", async () => {
+    await mount(createElement(RecordPage));
+    const text = host.textContent ?? "";
     expect(text).toContain(
-      "The latest is November 2025; the tenure ran to May 2026.",
+      "Formerly a Backend Developer at Xentra Infotech Solutions Inc., Remote.",
     );
-    // The real November 2025 date survives on its own entry.
+    expect(text).toContain("March 2023 – May 2026");
     expect(text).toContain("November 2025");
-    await act(async () => {
-      routeRoot.unmount();
-    });
-    routeHost.remove();
+    expect(text).not.toContain("Backend Developer, Xentra");
+  });
+
+  test("the About band never reads as a current role", async () => {
+    await mount(createElement(AboutBand));
+    const text = host.textContent ?? "";
+    expect(text).toContain("Former role");
+    expect(text).toContain("Backend Developer, Xentra Infotech Solutions Inc.");
   });
 });

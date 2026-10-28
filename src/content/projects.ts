@@ -103,7 +103,7 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2026",
     description:
-      "Windows desktop control for any MCP client — screenshot, windows, input, and cursor — for automation that needs the real screen.",
+      "Windows desktop control for any MCP client: screenshot, windows, input, and cursor, for automation that needs the real screen.",
     tech: ["Rust", "MCP", "JSON-RPC 2.0", "Win32", "UIA"],
     highlights: [
       "Six tools only: screenshot, list_windows, window, do, cursor, and elements.",
@@ -126,7 +126,7 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2026",
     description:
-      "Headless Chrome driven over CDP for any MCP client — browser automation with no Node.js or Playwright in the runtime path.",
+      "Headless Chrome driven over CDP for any MCP client: browser automation with no Node.js or Playwright in the runtime path.",
     tech: ["Rust", "CDP", "WebSocket", "MCP", "chrome-headless-shell"],
     highlights: [
       "25 tools over the active page, from accessibility snapshots with stable refs to frames, network, storage, and layout proofs.",
@@ -149,7 +149,7 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2026",
     description:
-      "The nathwn12 OpenCode family in one place — plugins, harness setup, and MCP launchers, each installable on its own.",
+      "The nathwn12 OpenCode family in one place: plugins, harness setup, and MCP launchers, each installable on its own.",
     tech: ["Rust", "TypeScript", "npm workspaces", "OpenCode plugin API", "MCP"],
     highlights: [
       "Six installable packages plus the index: oc-bifrost, oc-flight-deck, oc-harness-setup, rea-shim, gladius-mcp, and puppet-mcp.",
@@ -172,7 +172,7 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2026",
     description:
-      "Whatever plays in PotPlayer mirrored on your Discord card — for listeners who want the card to show the real title.",
+      "Whatever plays in PotPlayer mirrored on your Discord card, for listeners who want the card to show the real title.",
     tech: ["Rust", "Win32", "Discord IPC", "TVmaze", "AniList"],
     highlights: [
       "Cleans codecs, tags, and release groups out of filenames, parenthesizes years, and parses SxxEyy episode tags.",
@@ -195,7 +195,7 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2026",
     description:
-      "Music practice on Windows with studio-grade Slow + Reverb and A-B loop — for practicing musicians, offline with no account.",
+      "Music practice on Windows with studio-grade Slow + Reverb and A-B loop, for practicing musicians, offline with no account.",
     tech: ["TypeScript", "Rust", "Tauri", "React", "TanStack Router"],
     highlights: [
       "A-B loop points live on the seek bar and save per track, auto-applying when the track reopens.",
@@ -218,7 +218,7 @@ export const projects: ProjectLore[] = [
     role: "Fork of Exle",
     year: "2026",
     description:
-      "AIMP playback as a Discord Rich Presence — track, artist, and cover art on your profile, the way Spotify does it.",
+      "AIMP playback as a Discord Rich Presence: track, artist, and cover art on your profile, the way Spotify does it.",
     tech: ["C++", "AIMP SDK", "Discord IPC", "Win32"],
     highlights: [
       "Fork of Exle's aimp-discord-presence; this fork adds the multi-layer cover-art chain and the presence card.",
@@ -241,7 +241,7 @@ export const projects: ProjectLore[] = [
     role: "Fork of pear-devs",
     year: "2026",
     description:
-      "A nathwn12-maintained build of Pear Desktop — its own update channel and installer identity, with the Slowed Reverb and Section Repeat player plugins ahead of upstream.",
+      "A nathwn12-maintained build of Pear Desktop with its own update channel and installer identity, carrying the Slowed Reverb and Section Repeat player plugins ahead of upstream.",
     tech: ["TypeScript", "Electron", "SolidJS", "Vite"],
     highlights: [
       "Fork of pear-devs/pear-desktop; all upstream credit stays with pear-devs.",
@@ -264,7 +264,7 @@ export const projects: ProjectLore[] = [
     role: "Fork of Vencord/Installer",
     year: "2026",
     description:
-      "Vencord installed or repaired on every Discord install with one line — an unofficial driver around the official installer engine.",
+      "Vencord installed or repaired on every Discord install with one line: an unofficial driver around the official installer engine.",
     tech: ["PowerShell", "Vencord Installer", "Windows"],
     highlights: [
       "Detects stable, PTB, Canary, and Development installs and installs or repairs each one.",
@@ -287,7 +287,7 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2026",
     description:
-      "Every site at one comfortable loudness in Chrome and Brave — per-site levelling toward a fixed program target.",
+      "Every site at one comfortable loudness in Chrome and Brave, with per-site levelling toward a fixed program target.",
     tech: ["JavaScript", "Web Audio API", "Chrome Extensions", "ITU-R BS.1770-4"],
     highlights: [
       "One Active toggle and gain trim per site, remembered across tabs.",
@@ -310,7 +310,7 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2026",
     description:
-      "The ARC icon theme applied, repaired, and reverted from one window — for Windows themers who want a clean round trip.",
+      "The ARC icon theme applied, repaired, and reverted from one window, for Windows themers who want a clean round trip.",
     tech: ["PowerShell", "C#", "Windows"],
     highlights: [
       "Four ARC variants in one self-contained exe, with apply, repair, revert, refresh, and status actions.",
@@ -333,7 +333,7 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2026",
     description:
-      "YouTube audio slowed and washed in plate reverb entirely in the browser — settings per site, the clip never leaving the machine.",
+      "YouTube audio slowed and washed in plate reverb entirely in the browser, with settings per site and the clip never leaving the machine.",
     tech: ["JavaScript", "Web Audio API", "AudioWorklet", "Chrome Extensions"],
     highlights: [
       "Speed from 0.7x to 1.3x in 0.01 steps without pitch distortion.",
@@ -372,14 +372,14 @@ export const archived: ArchivedProject[] = [
     url: "https://github.com/nathwn12/oc-todo",
     year: "2025",
     reason:
-      "Deprecated 2026-10-21 — OpenCode 2.1 restored the built-in todowrite. See EOL.md.",
+      "Deprecated 2026-10-21: OpenCode 2.1 restored the built-in todowrite. See EOL.md.",
   },
 ];
 
 /** Route lede: selection criteria (public repos under the owner) and reading
     order (featured first). Never restates the title, and counts the projects
     the page actually renders. */
-export const projectsLede = `${cap(countWords(projects.length))} projects published under github.com/nathwn12 — featured work first, then the supporting tools.`;
+export const projectsLede = `${cap(countWords(projects.length))} projects published under github.com/nathwn12: featured work first, then the supporting tools.`;
 
 /** Route support line: what each band carries, and the two rules that keep it
     honest (no star counts, retired work separated). */
@@ -388,7 +388,7 @@ export const projectsSupport =
 
 /** Landing teaser lede: what the three rows are and where a title leads. */
 export const workTeaserLede =
-  "A first look at the current work — each title opens its full case notes.";
+  "A first look at the current work: each title opens its full case notes.";
 
 /** Landing marginalia: authorship, stated once. */
 export const projectsMarginalia = "Built and maintained solo";

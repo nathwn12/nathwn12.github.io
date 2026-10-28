@@ -2,7 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, test } from "vitest";
 import { routeFileFor } from "../scripts/route-path.mjs";
-import { ROUTES, THANKS_ROUTE } from "../src/lib/routes";
+import { REDIRECTS, ROUTES, canonicalFor } from "../src/lib/routes";
 
 /**
  * Crawler and machine-reader surface: the files a search engine, a link
@@ -10,8 +10,9 @@ import { ROUTES, THANKS_ROUTE } from "../src/lib/routes";
  *
  * These run against the sources AND the built `dist/` (the `test` script
  * builds first), because the two failure modes are different: llms.txt can
- * drift into describing a site that was never deployed, and a sitemap can
- * advertise a route whose HTML the build never emitted.
+ * drift into describing a site that was never deployed, a sitemap can
+ * advertise a route whose HTML the build never emitted, and a redirect stub
+ * can point at a page that no longer exists.
  */
 
 const root = resolve(import.meta.dirname, "..");
@@ -33,14 +34,28 @@ describe("llms.txt", () => {
   });
 
   test("does not describe the site as a terminal interface", () => {
-    // The terminal design was never deployed; the live site is an editorial
-    // portfolio. An agent reading a stale design claim gets the wrong picture.
     expect(llms.toLowerCase()).not.toContain("terminal");
   });
 
-  test("states open-to-work availability and the last-updated date", () => {
-    expect(llms).toContain("Open to work.");
+  test("states the same availability claim as the site, remote included", () => {
+    /* One string, owner-confirmed on 2026-10-28: backend roles, remote. No
+       hybrid, salary, or notice-period term was confirmed, so none is stated. */
+    expect(llms).toContain("Open to backend roles — remote.");
+    expect(llms).not.toContain("Open to backend roles.");
     expect(llms).toContain("2026-10-28");
+  });
+
+  test("lists exactly the three live site URLs", () => {
+    const siteStart = llms.indexOf("## Site");
+    const siteEnd = llms.indexOf("## Last updated");
+    const site = llms.slice(siteStart, siteEnd);
+    for (const route of ROUTES) {
+      expect(site, route.path).toContain(canonicalFor(route.path));
+    }
+    expect(site).not.toContain("/experience");
+    expect(site).not.toContain("/skills");
+    expect(site).not.toContain("/projects");
+    expect(site).not.toContain("/contact");
   });
 
   test("keeps the required sections in order", () => {
@@ -77,13 +92,13 @@ describe("sitemap.xml", () => {
     return pathname === "/" ? "/" : pathname.replace(/\/$/, "");
   };
 
-  test("lists exactly the navigable routes and nothing else", () => {
-    /* `/thanks` is emitted by the build but stays out of the sitemap: it is a
-       form confirmation, not a destination anyone should land on from search. */
+  test("lists exactly the three live routes and nothing else", () => {
     expect(new Set(locs.map(routeOf))).toEqual(
       new Set(ROUTES.map((route) => route.path)),
     );
-    expect(locs).not.toContain("https://nathwn12.github.io/thanks");
+    for (const retired of REDIRECTS) {
+      expect(locs.map(routeOf), retired.from).not.toContain(retired.from);
+    }
   });
 
   test("every listed URL resolves to an HTML file the build emitted", () => {
@@ -105,18 +120,28 @@ describe("sitemap.xml", () => {
 });
 
 describe("prerendered routes", () => {
-  test.each([
-    ...ROUTES.map((route) => route.path),
-    THANKS_ROUTE.path,
-  ])("emits dist%s/index.html as a real page", (routePath) => {
-    const file = distFile(routePath);
-    expect(existsSync(file), `${routePath} was not prerendered`).toBe(true);
+  test.each(ROUTES.map((route) => route.path))(
+    "emits dist%s/index.html as a real, self-canonical page",
+    (routePath) => {
+      const file = distFile(routePath);
+      expect(existsSync(file), `${routePath} was not prerendered`).toBe(true);
 
-    const html = readFileSync(file, "utf8");
-    // A real SPA entry, not an empty placeholder: mount point plus module.
-    expect(html).toContain('id="root"');
-    expect(html).toMatch(/<script type="module"/);
-  });
+      const html = readFileSync(file, "utf8");
+      const route = ROUTES.find((entry) => entry.path === routePath);
+      expect(route).toBeDefined();
+      // A real SPA entry, not an empty placeholder.
+      expect(html).toContain('id="root"');
+      expect(html).toMatch(/<script type="module"/);
+      // Each route answers as itself, not as a copy of the cover.
+      expect(html).toContain(
+        `<link rel="canonical" href="${canonicalFor(routePath)}" />`,
+      );
+      expect(html).toContain(`<title>${route!.title}</title>`);
+      expect(html).toContain(
+        `<meta property="og:url" content="${canonicalFor(routePath)}" />`,
+      );
+    },
+  );
 
   test("keeps the 404 fallback and the document downloads", () => {
     expect(existsSync(resolve(root, "dist", "404.html"))).toBe(true);
@@ -129,12 +154,35 @@ describe("prerendered routes", () => {
   });
 });
 
+describe("retired paths", () => {
+  test.each(REDIRECTS.map((redirect) => [redirect.from, redirect.to, redirect.canonical]))(
+    "emits a meta-refresh stub at %s pointing to %s",
+    (from, to, canonical) => {
+      const file = distFile(from);
+      expect(existsSync(file), `${from} has no stub`).toBe(true);
+      const html = readFileSync(file, "utf8");
+      expect(html).toContain(`<meta http-equiv="refresh" content="0; url=${to}" />`);
+      expect(html).toContain(`<link rel="canonical" href="${canonical}" />`);
+      expect(html).toContain('<meta name="robots" content="noindex" />');
+      // Minimal: no app entry, no script at all.
+      expect(html).not.toContain('id="root"');
+      expect(html).not.toMatch(/<script/i);
+    },
+  );
+
+  test("every stub target is a live route or the home contact anchor", () => {
+    const livePaths = new Set(ROUTES.map((route) => route.path));
+    for (const redirect of REDIRECTS) {
+      const path = redirect.to.split("#")[0] || "/";
+      expect(livePaths, redirect.from).toContain(path);
+    }
+  });
+});
+
 describe("prerender route containment", () => {
   const distDir = resolve(root, "dist");
 
   test("refuses the percent-encoded parent segment URL resolution would decode", () => {
-    /* `new URL("/%2e%2e/outside/", dist)` percent-DECODES to ../outside and
-       escapes dist/. The guard must refuse the encoded form before resolving. */
     expect(() => routeFileFor(distDir, "/%2e%2e/outside")).toThrow(
       /unsafe segment: \/%2e%2e\/outside/,
     );
@@ -153,8 +201,8 @@ describe("prerender route containment", () => {
   });
 
   test("accepts real route paths and keeps them inside dist", () => {
-    expect(routeFileFor(distDir, "/experience")).toBe(
-      resolve(distDir, "experience", "index.html"),
+    expect(routeFileFor(distDir, "/record")).toBe(
+      resolve(distDir, "record", "index.html"),
     );
     expect(routeFileFor(distDir, "/")).toBe(resolve(distDir, "index.html"));
   });

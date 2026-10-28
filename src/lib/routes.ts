@@ -8,23 +8,24 @@
  * `dist/<path>/index.html` per entry, which is what makes every route answer
  * HTTP 200 on GitHub Pages instead of falling back to `404.html`.
  *
- * Adding a route here therefore updates the app AND the prerendered build
- * output; the two cannot drift apart.
+ * The site is one page plus two records: the cover (which carries the summary,
+ * selected work, about, and contact), the full nine-entry experience log, and
+ * the eleven-project archive. Contact is a section on the cover, not a route.
+ *
+ * Old public paths are not routes any more. They are listed in `REDIRECTS` and
+ * emitted as meta-refresh stubs by the same build step, so no existing link
+ * dies while the sitemap advertises only the three live routes.
  */
+
+export type RouteId = "home" | "record" | "work" | "notfound";
 
 export interface RouteDef {
   path: string;
-  id: string;
-  /** Short nav label (Header tabs) */
+  id: RouteId;
+  /** Sentence-case nav label. */
   label: string;
-  /** Shell-style identifier rendered as the row name in the 404 index listing */
-  command: string;
-  /** One-line summary rendered under `command` in the 404 index listing */
-  description: string;
   /** Recruiter-facing 1-2 sentence description for per-route SEO meta */
   metaDescription: string;
-  /** Tailwind accent token for bordered chrome, e.g. "accent-2" */
-  accent: string;
   /** document.title when this page is active */
   title: string;
 }
@@ -32,107 +33,111 @@ export interface RouteDef {
 /** Full name — single source for every document.title suffix. */
 const FULL_NAME = "Nathaniel Nikolai Ladero";
 
+export const SITE_URL = "https://nathwn12.github.io";
+
 /** index.html default meta content — kept verbatim for home-route parity.
    Keep in sync with index.html's <head> if either is edited. */
 export const HOME_META_DESCRIPTION =
-  "Backend systems that hold up in production - plus the plugins, MCP servers, and tools built around them.";
-export const HOME_OG_TITLE =
-  "Nathaniel Nikolai Ladero | Systems & Developer Tools";
-export const HOME_OG_DESCRIPTION =
-  "Backend systems that hold up in production - plus the plugins, MCP servers, and tools built around them.";
+  "Backend developer with three years building and running fintech payment systems in production. C#, ASP.NET Core, MySQL, Redis, RabbitMQ, AWS. Résumé, CV, and contact.";
+export const HOME_OG_TITLE = "Nathaniel Nikolai Ladero | backend developer";
+export const HOME_OG_DESCRIPTION = HOME_META_DESCRIPTION;
 
 export const ROUTES: readonly RouteDef[] = [
   {
     path: "/",
-    id: "hero",
-    label: "HOME",
-    command: "whoami",
-    description: "Identity & system profile",
+    id: "home",
+    label: "Home",
     metaDescription: HOME_META_DESCRIPTION,
-    accent: "accent",
-    title: `Home — ${FULL_NAME}`,
+    title: HOME_OG_TITLE,
   },
   {
-    path: "/experience",
-    id: "experience",
-    label: "EXP",
-    command: "journalctl -u career.service --no-pager",
-    description: "Service journal",
+    path: "/record",
+    id: "record",
+    label: "Record",
     metaDescription:
-      "Formerly a Backend Developer at Xentra Infotech Solutions Inc. — ASP.NET Web APIs, gRPC, SignalR, and RabbitMQ, including a 98% payment-query latency cut.",
-    accent: "accent",
-    title: `Experience — ${FULL_NAME}`,
+      "Three years building and running fintech systems in production: nine entries, newest first, each pairing its outcome with the moves behind it. Formerly a Backend Developer at Xentra Infotech Solutions Inc.",
+    title: `The record | ${FULL_NAME}`,
   },
   {
-    path: "/skills",
-    id: "skills",
-    label: "SKILLS",
-    command: "systemctl --type=service --state=running",
-    description: "Installed packages",
+    path: "/work",
+    id: "work",
+    label: "Work",
     metaDescription:
-      "Backend and DevOps skill set — C#, ASP.NET Core, .NET, MySQL/Redis/RabbitMQ, AWS, Docker, GitHub Actions, security and auth, plus AI-assisted development workflow.",
-    accent: "accent-3",
-    title: `Skills — ${FULL_NAME}`,
-  },
-  {
-    path: "/projects",
-    id: "projects",
-    label: "PROJECTS",
-    command: "ls -la projects/",
-    description: "Open-source work",
-    metaDescription:
-      "Open-source work on github.com/nathwn12 — MCP tool servers, OpenCode plugins, and solo-built apps and tools, featured work first.",
-    accent: "accent-4",
-    title: `Projects — ${FULL_NAME}`,
-  },
-  {
-    path: "/contact",
-    id: "contact",
-    label: "CONTACT",
-    command: "mutt -f inbox",
-    description: "Mail user agent",
-    metaDescription:
-      "Contact Nathaniel Nikolai Ladero — Backend Developer open to work. Direct email, GitHub, or LinkedIn.",
-    accent: "accent-2",
-    title: `Contact — ${FULL_NAME}`,
+      "Eleven projects published under github.com/nathwn12: MCP tool servers, OpenCode plugins, and solo-built apps and tools, featured work first.",
+    title: `Work | ${FULL_NAME}`,
   },
 ] as const;
 
 /**
+ * Header destinations. Contact is a place on the cover, so its href carries the
+ * section hash; the other two are routes. Labels are the prototype's three:
+ * Record, Work, Contact.
+ */
+export const NAV_ITEMS: readonly { label: string; href: string }[] = [
+  { label: "Record", href: "/record" },
+  { label: "Work", href: "/work" },
+  { label: "Contact", href: "/#contact" },
+] as const;
+
+/**
+ * Paths that were public before this direction and must keep answering. The
+ * build emits `dist/<from>/index.html` as a minimal stub: `<meta http-equiv
+ * ="refresh">` plus a canonical link to the destination. `canonical` is always
+ * an absolute site URL; `to` may carry the home-page `#contact` anchor.
+ */
+export interface RedirectDef {
+  from: string;
+  to: string;
+  canonical: string;
+}
+
+export const REDIRECTS: readonly RedirectDef[] = [
+  {
+    from: "/experience",
+    to: "/record",
+    canonical: `${SITE_URL}/record`,
+  },
+  {
+    from: "/projects",
+    to: "/work",
+    canonical: `${SITE_URL}/work`,
+  },
+  {
+    /* Skills and Forward now live only in the CV; the home cover is the
+       nearest truthful destination. */
+    from: "/skills",
+    to: "/",
+    canonical: `${SITE_URL}/`,
+  },
+  {
+    /* The contact form is gone; the cover's contact section is the replacement. */
+    from: "/contact",
+    to: "/#contact",
+    canonical: `${SITE_URL}/`,
+  },
+  {
+    /* The relay confirmation route retired with the form. */
+    from: "/thanks",
+    to: "/",
+    canonical: `${SITE_URL}/`,
+  },
+] as const;
+
+/** Absolute canonical URL for a live route. Home keeps its trailing slash. */
+export function canonicalFor(path: string): string {
+  return path === "/" ? `${SITE_URL}/` : `${SITE_URL}${path}`;
+}
+
+/**
  * Synthesized route for URLs that match no registered path. It is NOT part of
  * ROUTES: `navigate()` still refuses unknown paths (routeByPath is the
- * validator) and `routeIndex` keeps clamping navigation to the five real
- * routes. `resolveRoute` only shapes what the shell renders, carrying the
- * requested path so the typed `cd` overlay and the 404 body echo the exact URL.
+ * validator) and the sitemap lists only the three live routes.
  */
 export const NOT_FOUND_ROUTE: RouteDef = {
   path: "/not-found",
   id: "notfound",
-  label: "404",
-  command: "cd <unknown>",
-  description: "No such file or directory",
+  label: "Not found",
   metaDescription:
-    "This path doesn't exist on nathwn12.github.io — return to the portfolio home for the index of pages.",
-  accent: "accent-3",
-  title: `Not found — ${FULL_NAME}`,
-};
-
-/**
- * The relay confirmation at `/thanks`. NOT part of ROUTES — the header nav,
- * the PageFoot pager, and the five-route nav test all read ROUTES, and a
- * confirmation is not a destination anyone navigates to. `routeByPath` and
- * `resolveRoute` recognise it explicitly so the relay form's success path
- * lands on a real page (and the build emits `dist/thanks/index.html`, so a
- * direct visit answers 200 here too).
- */
-export const THANKS_ROUTE: RouteDef = {
-  path: "/thanks",
-  id: "thanks",
-  label: "THANKS",
-  command: "echo received",
-  description: "Message received",
-  metaDescription:
-    "Your message is on its way — Nathaniel Nikolai Ladero usually answers within a day or two.",
-  accent: "accent-2",
-  title: `Thanks — ${FULL_NAME}`,
+    "This path doesn't exist on nathwn12.github.io — return to the portfolio home for the record and the work.",
+  title: `Not found | ${FULL_NAME}`,
 };
