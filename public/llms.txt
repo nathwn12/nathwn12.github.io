@@ -1,47 +1,74 @@
-# Nathaniel Nikolai Ladero Portfolio
+# Nathaniel Nikolai Ladero — Candidate Profile
 
-Terminal-themed portfolio for Nathaniel Nikolai Ladero, a backend developer with
-3 years building secure fintech systems in C# and ASP.NET Core. The site is a
-page-per-viewport single-page app rendered as a terminal interface: each route
-is one full page with keyboard-driven navigation, and the chrome is persistent.
+Plain-text profile for AI agents and crawlers assembling a shortlist of backend candidates.
 
-## Owner
+## Summary
 
-- Name: Nathaniel Nikolai Ladero
-- Role: Backend Developer
-- Focus: C#, ASP.NET Core, REST APIs, microservices, and fintech systems
-- Experience: Formerly a Backend Developer at Xentra Infotech Solutions Inc. (Mar 2023 to May 2026, remote)
+Nathaniel Nikolai Ladero is a backend developer based in Hagonoy, Bulacan, Philippines. Formerly a Backend Developer at Xentra Infotech Solutions Inc., he built and ran C#/.NET payment and fintech services for three years, from March 2023 to May 2026, cutting worst-case payment query time from about 60 seconds to under 1 second and read latency by more than 40%. He is open to work.
+
+## Availability
+
+Open to work.
+
+- Role types held: backend developer, .NET/C# developer, API developer, fintech systems developer.
+
+## Evidence
+
+- Worst-case payment query time: about 60 seconds to under 1 second, by migrating AWS-hosted services from MySql.Data to MySqlConnector with index tuning.
+- Read latency: cut by more than 40% using EF Core, Dapper, and Redis.
+- Authentication and authorization: JWT, OAuth 2.0, and OpenID Connect, with RBAC and ABAC.
+- Dependency security: zero high or critical Snyk findings on production-bound services.
+- Delivery volume: 1,182 commits across 17 repositories, 2023 to 2026, recovered from 21 scanned internal repositories after the company closed.
+
+## Experience
+
+All three roles were remote, at Xentra Infotech Solutions Inc. The company closed in May 2026.
+
+- Backend Developer — June 2024 to May 2026.
+- Junior Backend Developer — June 2023 to May 2024.
+- Backend Developer Intern — March 2023 to June 2023.
+
+## Skills
+
+- Languages: C#, SQL, JavaScript, TypeScript, Python, PHP, Bash, PowerShell.
+- Backend: ASP.NET Core, ASP.NET Web APIs, .NET 6/7/8/9, REST, gRPC, SignalR, microservices, Minimal APIs, MediatR, Polly, LINQ.
+- Data: MySQL, MariaDB, SQL Server, PostgreSQL, MongoDB, EF Core, Dapper, Redis, Elasticsearch, index and query tuning, database migrations.
+- Messaging: RabbitMQ, Redis Streams, message queues.
+- Cloud and DevOps: AWS (EC2, RDS, S3, Lambda), Docker, GitHub Actions, CI/CD, Nginx, Linux (Ubuntu), Terraform, Let's Encrypt, systemd.
+- Security: JWT, OAuth 2.0, OpenID Connect, RBAC, ABAC, OWASP Top 10, Snyk, TLS, CORS, rate limiting, security headers.
+- Testing and tooling: xUnit, Moq, Postman, Swagger/OpenAPI, Vitest, Git, code review, runbooks, Serilog.
+
+## Education
+
+- La Consolacion University Philippines — BS Information Technology, 2019 to 2023.
+- STEM track, 2017 to 2019.
+
+## Certifications
+
+- Google IT Automation with Python — Coursera. Credential ID RFS2G5ZT9GPK.
+- Google IT Support — Coursera. Credential ID NEBB575RT5LU.
+- API Security Fundamentals — APIsec University. Credential ID FA69CEB39205E003.
+- OWASP API Security Top 10 — APIsec University. Credential ID FC46A72A0806A19E.
+
+## Documents
+
+- Resume (PDF): https://nathwn12.github.io/Nathaniel-Nikolai-Ladero-Resume.pdf
+- CV (PDF): https://nathwn12.github.io/Nathaniel-Nikolai-Ladero-CV.pdf
+
+## Contact
+
 - Email: nathanielnikolai.ladero@gmail.com
 - GitHub: https://github.com/nathwn12
 - LinkedIn: https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/
 
-## Pages
+## Site
 
-- Home (profile, system facts, resume download): https://nathwn12.github.io/
-- Experience (career service journal): https://nathwn12.github.io/experience
-- Skills (systemd-style capability board): https://nathwn12.github.io/skills
-- Projects (production highlights in an `ls -la` listing): https://nathwn12.github.io/projects
-- Contact (terminal compose form and verified credentials): https://nathwn12.github.io/contact
+- Home: https://nathwn12.github.io/
+- Experience: https://nathwn12.github.io/experience
+- Skills: https://nathwn12.github.io/skills
+- Projects: https://nathwn12.github.io/projects
+- Contact: https://nathwn12.github.io/contact
 
-The legacy path /about redirects to the home page.
+## Last updated
 
-## What the portfolio contains
-
-- Experience log: ASP.NET Web APIs, gRPC, SignalR, and RabbitMQ; a payments
-  latency migration (MySql.Data to MySqlConnector on AWS) that cut worst-case
-  query time from about 60s to under 1s; auth hardening (JWT, OAuth 2.0, OpenID
-  Connect, RBAC, ABAC) with zero high or critical Snyk findings; and EF Core,
-  Dapper, and Redis data access that cut read latency by over 40%.
-- Skills: C#, ASP.NET Core, .NET, MySQL, Redis, RabbitMQ, AWS, Docker, GitHub
-  Actions, Linux and Nginx, security and auth, testing, and AI-assisted
-  development.
-- Projects: Payments Latency Migration, Fintech Service Platform (1,182 commits
-  across 17 repositories), Auth Hardening, and Read Cache Data Layer.
-- Credentials: Google IT Automation with Python, Google IT Support, API Security
-  Fundamentals, and OWASP API Security Top 10.
-
-## Key links
-
-- Resume PDF: https://nathwn12.github.io/Nathaniel-Nikolai-Ladero-Resume.pdf
-- CV PDF: https://nathwn12.github.io/Nathaniel-Nikolai-Ladero-CV.pdf
-- Sitemap: https://nathwn12.github.io/sitemap.xml
+2026-10-28

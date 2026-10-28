@@ -126,6 +126,16 @@ describe("home dossier route merge", () => {
     expect(router.routeByPath("/contact/")?.path).toBe("/contact");
   });
 
+  test("boots a trailing-slash deep link onto its route, not the 404", async () => {
+    // GitHub Pages answers /experience/ from dist/experience/index.html and
+    // may redirect /experience to it, so this is the URL a visitor can land on.
+    const { browser, router } = await loadRouter("/experience/");
+
+    expect(browser.location.pathname).toBe("/experience/");
+    expect(router.resolveRoute("/experience/").id).toBe("experience");
+    expect(readRouteState(router)).toMatchObject({ path: "/experience" });
+  });
+
   test("moves home to experience and clamps the last route", async () => {
     const { router } = await loadRouter("/");
 

@@ -5,107 +5,55 @@ import {
   type AnchorHTMLAttributes,
   type MouseEvent,
 } from "react";
+import {
+  HOME_META_DESCRIPTION,
+  HOME_OG_DESCRIPTION,
+  HOME_OG_TITLE,
+  NOT_FOUND_ROUTE,
+  ROUTES,
+  THANKS_ROUTE,
+  type RouteDef,
+} from "./routes";
 
 /**
  * Minimal History-API router for the page-per-viewport portfolio.
  *
  * Each section is a real path (`/`, `/experience`, …) so URLs are
  * shareable, the browser back/forward buttons work, and a refresh on any
- * route lands the visitor back on that page (GitHub Pages serves the SPA via
- * the `404.html` fallback produced by the build; see scripts/copy-404.mjs).
+ * route lands the visitor back on that page. Two build steps back that up:
+ * `scripts/prerender-routes.mjs` emits a real `dist/<path>/index.html` per
+ * route (HTTP 200, not a fallback), and `scripts/copy-404.mjs` keeps
+ * `dist/404.html` for genuinely unknown paths.
+ *
+ * Route definitions live in `./routes` — pure data, importable by the build,
+ * covering the five nav routes plus the `/thanks` confirmation route. This
+ * module owns matching, history, and per-route meta.
  *
  * No dependency — 5 route defs, pushState, and a popstate listener.
  */
 
 export type RouteDirection = "forward" | "back" | "none";
 
-export interface RouteDef {
-  path: string;
-  id: string;
-  /** Short nav label (Header tabs) */
-  label: string;
-  /** Shell-style identifier rendered as the row name in the 404 index listing */
-  command: string;
-  /** One-line summary rendered under `command` in the 404 index listing */
-  description: string;
-  /** Recruiter-facing 1-2 sentence description for per-route SEO meta */
-  metaDescription: string;
-  /** Tailwind accent token for bordered chrome, e.g. "accent-2" */
-  accent: string;
-  /** document.title when this page is active */
-  title: string;
-}
+export type { RouteDef } from "./routes";
+export {
+  HOME_META_DESCRIPTION,
+  HOME_OG_DESCRIPTION,
+  HOME_OG_TITLE,
+  NOT_FOUND_ROUTE,
+  ROUTES,
+  THANKS_ROUTE,
+};
 
-/** Full name — single source for every document.title suffix. */
-const FULL_NAME = "Nathaniel Nikolai Ladero";
-
-/** index.html default meta content — kept verbatim for home-route parity.
-   Keep in sync with index.html's <head> if either is edited. */
-export const HOME_META_DESCRIPTION =
-  "Backend systems that hold up in production - plus the plugins, MCP servers, and tools built around them.";
-export const HOME_OG_TITLE =
-  "Nathaniel Nikolai Ladero | Systems & Developer Tools";
-export const HOME_OG_DESCRIPTION =
-  "Backend systems that hold up in production - plus the plugins, MCP servers, and tools built around them.";
-
-export const ROUTES: readonly RouteDef[] = [
-  {
-    path: "/",
-    id: "hero",
-    label: "HOME",
-    command: "whoami",
-    description: "Identity & system profile",
-    metaDescription: HOME_META_DESCRIPTION,
-    accent: "accent",
-    title: `Home — ${FULL_NAME}`,
-  },
-  {
-    path: "/experience",
-    id: "experience",
-    label: "EXP",
-    command: "journalctl -u career.service --no-pager",
-    description: "Service journal",
-    metaDescription:
-      "Formerly a Backend Developer at Xentra Infotech Solutions Inc. — ASP.NET Web APIs, gRPC, SignalR, and RabbitMQ, including a 98% payment-query latency cut.",
-    accent: "accent",
-    title: `Experience — ${FULL_NAME}`,
-  },
-  {
-    path: "/skills",
-    id: "skills",
-    label: "SKILLS",
-    command: "systemctl --type=service --state=running",
-    description: "Installed packages",
-    metaDescription:
-      "Backend and DevOps skill set — C#, ASP.NET Core, .NET, MySQL/Redis/RabbitMQ, AWS, Docker, GitHub Actions, security and auth, plus AI-assisted development workflow.",
-    accent: "accent-3",
-    title: `Skills — ${FULL_NAME}`,
-  },
-  {
-    path: "/projects",
-    id: "projects",
-    label: "PROJECTS",
-    command: "ls -la projects/",
-    description: "Open-source work",
-    metaDescription:
-      "Open-source work on github.com/nathwn12 — MCP tool servers, OpenCode plugins, and solo-built apps and tools, featured work first.",
-    accent: "accent-4",
-    title: `Projects — ${FULL_NAME}`,
-  },
-  {
-    path: "/contact",
-    id: "contact",
-    label: "CONTACT",
-    command: "mutt -f inbox",
-    description: "Mail user agent",
-    metaDescription:
-      "Contact Nathaniel Nikolai Ladero — Backend Developer open to work. Direct email, GitHub, or LinkedIn.",
-    accent: "accent-2",
-    title: `Contact — ${FULL_NAME}`,
-  },
-] as const;
-
-/** Tolerant path normalization: "/" for root, no trailing slash. */
+/**
+ * Tolerant path normalization: "/" for root, exactly one trailing slash
+ * removed (except for root itself).
+ *
+ * GitHub Pages answers `/experience/` — either directly from
+ * `dist/experience/index.html` or after redirecting `/experience` to it — so
+ * the browser can report a trailing slash the route table never stores.
+ * Matching on the normalized path is what keeps that URL on the Experience
+ * route instead of the not-found route.
+ */
 export function normalizePath(pathname: string): string {
   let p = pathname.split("?")[0] ?? "/";
   try {
@@ -117,51 +65,12 @@ export function normalizePath(pathname: string): string {
   return p === "" ? "/" : p;
 }
 
-/**
- * Synthesized route for URLs that match no registered path. It is NOT part of
- * ROUTES: `navigate()` still refuses unknown paths (routeByPath is the
- * validator) and `routeIndex` keeps clamping navigation to the five real
- * routes. `resolveRoute` only shapes what the shell renders, carrying the
- * requested path so the typed `cd` overlay and the 404 body echo the exact URL.
- */
-export const NOT_FOUND_ROUTE: RouteDef = {
-  path: "/not-found",
-  id: "notfound",
-  label: "404",
-  command: "cd <unknown>",
-  description: "No such file or directory",
-  metaDescription:
-    "This path doesn't exist on nathwn12.github.io — return to the portfolio home for the index of pages.",
-  accent: "accent-3",
-  title: `Not found — ${FULL_NAME}`,
-};
-
-/**
- * The relay confirmation at `/thanks`. NOT part of ROUTES — the header nav,
- * the PageFoot pager, and the five-route nav test all read ROUTES, and a
- * confirmation is not a destination anyone navigates to. `routeByPath` and
- * `resolveRoute` recognise it explicitly so the relay form's success path
- * lands on a real page (GitHub Pages serves the SPA via the `404.html`
- * fallback, so a direct visit boots here too).
- */
-export const THANKS_ROUTE: RouteDef = {
-  path: "/thanks",
-  id: "thanks",
-  label: "THANKS",
-  command: "echo received",
-  description: "Message received",
-  metaDescription:
-    "Your message is on its way — Nathaniel Nikolai Ladero usually answers within a day or two.",
-  accent: "accent-2",
-  title: `Thanks — ${FULL_NAME}`,
-};
-
 const LEGACY_PATHS: Readonly<Record<string, string>> = {
   "/about": "/",
   /* Deleted pages (phase-2): deep links, inbound shares, and cached SEO
      entries for /education + /footprint canonicalize to the live home route
      at load (history.replaceState below) instead of 404-ing into the hero.
-     See sitemap.xml — those URLs were dropped from the 6-URL sitemap. */
+     See sitemap.xml — those URLs are not listed there. */
   "/education": "/",
   "/footprint": "/",
 };
