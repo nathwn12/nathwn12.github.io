@@ -1,6 +1,13 @@
 // @vitest-environment jsdom
 import { beforeEach, describe, expect, it } from "vitest";
-import { ROUTES, applyRouteMeta, navigate, routeByPath } from "../lib/router";
+import {
+  ROUTES,
+  applyRouteMeta,
+  navigate,
+  normalizePath,
+  resolveRoute,
+  routeByPath,
+} from "../lib/router";
 
 /** Router smoke test — mirrors src/lib/router.tsx behavior:
  *  navigate() pushes History state and, via applyRouteMeta (invoked from
@@ -61,5 +68,25 @@ describe("router", () => {
     const before = window.location.pathname;
     navigate("/definitely-not-a-route");
     expect(window.location.pathname).toBe(before);
+  });
+
+  it("resolves a single trailing slash to its route, not the 404", () => {
+    /* GitHub Pages serves dist/experience/index.html for /experience/ and may
+       redirect /experience to it, so the browser can report a trailing slash
+       the route table never stores. Matching must normalise it. */
+    expect(normalizePath("/experience/")).toBe("/experience");
+    expect(routeByPath("/experience/")?.id).toBe("experience");
+    expect(resolveRoute("/experience/").id).toBe("experience");
+    expect(resolveRoute("/experience/").path).toBe("/experience");
+
+    // Root keeps its single slash; query strings still come off first.
+    expect(normalizePath("/")).toBe("/");
+    expect(normalizePath("/contact/?tab=all")).toBe("/contact");
+  });
+
+  it("navigate() on a trailing-slash path lands on the canonical route", () => {
+    navigate("/");
+    navigate("/contact/");
+    expect(window.location.pathname).toBe("/contact");
   });
 });
