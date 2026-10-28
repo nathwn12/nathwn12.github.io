@@ -10,7 +10,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/copy-404.mjs",
+    "build": "vite build && node scripts/copy-404.mjs && node scripts/prerender-routes.mjs",
     "typecheck": "tsc -b",
     "test": "pnpm run build && vitest run",
     "check": "pnpm run typecheck && pnpm run test",
