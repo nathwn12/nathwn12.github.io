@@ -4,11 +4,11 @@ Plain-text profile for AI agents and crawlers assembling a shortlist of backend 
 
 ## Summary
 
-Nathaniel Nikolai Ladero is a backend developer based in Hagonoy, Bulacan, Philippines. Formerly a Backend Developer at Xentra Infotech Solutions Inc., he built and ran C#/.NET payment and fintech services for three years, from March 2023 to May 2026, cutting worst-case payment query time from about 60 seconds to under 1 second and read latency by more than 40%. He is open to work.
+Nathaniel Nikolai Ladero is a backend developer based in Hagonoy, Bulacan, Philippines. Formerly a Backend Developer at Xentra Infotech Solutions Inc., he built and ran C#/.NET payment and fintech services for three years, from March 2023 to May 2026, cutting worst-case payment query time from about 60 seconds to under 1 second and read latency by more than 40%. The company closed in May 2026.
 
 ## Availability
 
-Open to work.
+Open to backend roles — remote.
 
 - Role types held: backend developer, .NET/C# developer, API developer, fintech systems developer.
 
@@ -63,11 +63,16 @@ All three roles were remote, at Xentra Infotech Solutions Inc. The company close
 
 ## Site
 
-- Home: https://nathwn12.github.io/
+- Home (the record): https://nathwn12.github.io/
 - Experience: https://nathwn12.github.io/experience
-- Skills: https://nathwn12.github.io/skills
 - Projects: https://nathwn12.github.io/projects
-- Contact: https://nathwn12.github.io/contact
+
+The home page is one continuous record: identity, proof, selected work, the
+system atlas (the full 88-package list), what is being worked on next,
+credentials, and contact. There is no contact form; a message goes by email, and
+the résumé and CV are the two PDFs above. `/skills` and `/contact` are bands of
+the record and `/thanks` was the retired contact form's confirmation; all three
+answer with a redirect to the record, and none is in the sitemap.
 
 ## Last updated
 

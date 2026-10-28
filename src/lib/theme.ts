@@ -11,6 +11,14 @@ export type ThemePreference = Theme;
 export const THEME_STORAGE_KEY = "nnl-theme";
 export const THEME_CHANGE_EVENT = "nnl-theme-change";
 
+/** The ground each scheme paints, mirrored from `--color-bg` in src/index.css
+ *  (pinned there by src/test/theme.test.ts). `theme-color` cannot read a CSS
+ *  custom property, so the pair has to be restated here for the meta rewrite. */
+export const THEME_COLORS: Record<Theme, string> = {
+  light: "#F2F1EC",
+  dark: "#101315",
+};
+
 const DARK_SCHEME_QUERY = "(prefers-color-scheme: dark)";
 
 const CYCLE: readonly ThemePreference[] = ["light", "dark"];
@@ -69,6 +77,27 @@ export function getTheme(): Theme {
   return document.documentElement.dataset.theme === "light" ? "light" : "dark";
 }
 
+/** Point every `theme-color` meta at the active ground.
+ *
+ *  index.html ships the OS media pair as the no-JS fallback. Once a scheme is
+ *  resolved — a stored pin, a runtime OS flip — the pair is no longer the
+ *  truth: a dark-OS visitor who pinned light would keep dark mobile browser
+ *  chrome. Both entries are rewritten because a media query cannot express
+ *  "the theme the page resolved to"; the first entry whose media matches is
+ *  the one the browser uses, so both must agree. Idempotent and cheap (two
+ *  metas), so it is safe on every reconcile. */
+function applyThemeColor(theme: Theme): void {
+  const content = THEME_COLORS[theme];
+  const metas = document.querySelectorAll<HTMLMetaElement>(
+    'meta[name="theme-color"]',
+  );
+  metas.forEach((meta) => {
+    if (meta.getAttribute("content") !== content) {
+      meta.setAttribute("content", content);
+    }
+  });
+}
+
 /** Paint a scheme on <html>. The `.theme-flip` guard suppresses CSS color
  *  transitions for the swap, so every element lands on the new palette in the
  *  same frame instead of lagging half-dark/half-light (see index.css). */
@@ -76,6 +105,7 @@ function applyTheme(theme: Theme): void {
   const root = document.documentElement;
   root.classList.add("theme-flip");
   root.dataset.theme = theme;
+  applyThemeColor(theme);
   /* Re-enable transitions a couple of frames later, once the swap settled. */
   requestAnimationFrame(() => {
     requestAnimationFrame(() => root.classList.remove("theme-flip"));
@@ -126,6 +156,11 @@ export function useTheme(): [ThemePreference, (preference: ThemePreference) => v
       const next = storedPreference();
       setPreference(next);
       if (next !== getTheme()) applyTheme(next);
+      /* The <html> theme can already agree while the chrome colour does not
+         (cached HTML whose metas still follow the OS, or a prepaint script
+         that resolved a pin this layer now sees differently), so the meta is
+         reconciled unconditionally — it is idempotent. */
+      else applyThemeColor(next);
     };
 
     /* Reconcile once on mount: the pre-paint script can land on a different

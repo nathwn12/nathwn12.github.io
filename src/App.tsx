@@ -1,69 +1,47 @@
 import {
   Component,
-  lazy,
-  Suspense,
+  useRef,
   useEffect,
   type ComponentType,
   type ReactNode,
 } from "react";
-import { AnimatePresence, MotionConfig } from "framer-motion";
-import { CommandPalette } from "./components/CommandPalette";
-import { PageShell } from "./components/PageShell";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
-import { Hero } from "./components/Hero";
+import { Record } from "./components/Record";
+import { Experience } from "./components/Experience";
+import Projects from "./components/Projects";
 import { NotFound } from "./components/NotFound";
-import { useRoute, useAdjacentNavigation, routeByPath } from "./lib/router";
-import { createPageNavHandler } from "./lib/keyboardNav";
-import {
-  motionPreferenceToMode,
-  resolveReduceMotion,
-  useMotionPreference,
-} from "./lib/motionPreference";
+import { applyRouteMeta, routeByPath, useRoute } from "./lib/router";
 
 /**
- * route.id → section component — one "page" per route.
+ * App — the shell around the record and its two detail routes.
  *
- * The landing page (Hero) is imported statically: it has no Framer Motion and
- * costs ~1.6 kB gz, so keeping it in the entry chunk puts the first screen's JS
- * on the critical path instead of a serial fetch after the entry (est.
- * +200–350 ms mobile LCP). It also removes the `Loading…` flash on first paint.
+ * The redesign moved the site from "five pages, each locked to one viewport
+ * with an internal scroller" to a normal document scroll: the home page is one
+ * long record, and a nested scroller would have trapped the address bar, the
+ * native scrollbar and the browser's own scroll restoration. The page fades in
+ * once on mount (CSS, opacity only), and nothing animates on route change.
  *
- * The other routes stay `React.lazy`-loaded so their JS ships in its own
- * chunk rather than the first-paint bundle; the shared shell (Header/Footer/
- * PageShell) and the router stay in the entry chunk too.
+ * All three routes are imported eagerly. Splitting the two detail routes saved
+ * about 6 kB of markup and cost a chunk waterfall on navigation: the fallback
+ * painted, then the page replaced it, which moved a third of the viewport on a
+ * route the visitor had already asked for. One bundle means the route is there
+ * on the click.
  */
-const PAGES: Record<string, ComponentType> = {
-  hero: Hero,
-  experience: lazy(() =>
-    import("./components/Experience").then((m) => ({ default: m.Experience })),
-  ),
-  skills: lazy(() => import("./components/Skills").then((m) => ({ default: m.Skills }))),
-  projects: lazy(() => import("./components/Projects")),
-  contact: lazy(() => import("./components/Contact").then((m) => ({ default: m.Contact }))),
-  thanks: lazy(() => import("./components/Thanks").then((m) => ({ default: m.Thanks }))),
-};
 
-/** Static, non-animated fallback shown while a page chunk is in flight. */
-function PageFallback() {
-  return (
-    <div className="min-h-[40vh] flex items-center justify-center text-label text-text-muted">
-      Loading…
-    </div>
-  );
-}
+const PAGES: Record<string, ComponentType> = {
+  record: Record,
+  experience: Experience,
+  projects: Projects,
+};
 
 type ErrorBoundaryProps = { children: ReactNode };
 type ErrorBoundaryState = { hasError: boolean };
 
 /**
- * Error boundary around the routed content only: content is visible by default,
- * so a failed animation cannot hide it. A failed lazy chunk import — GH Pages
- * answers a missing /assets/*.js with 404.html — would otherwise leave the
- * Suspense fallback up forever and blank the SPA. The fallback is static (no
- * motion, no dependencies) and offers a hard link home, which re-fetches the
- * entry bundle. It remounts on every route change because PageShell is keyed by
- * route.path, so the error clears when the user leaves.
+ * Error boundary around the routed content only. A render failure in one route
+ * would otherwise blank the whole SPA; the fallback is static and offers a hard
+ * link home.
  */
 class PageErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { hasError: false };
@@ -75,25 +53,15 @@ class PageErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState
   render() {
     if (this.state.hasError) {
       return (
-        <section
-          role="alert"
-          className="mx-auto w-full max-w-[68ch] px-gutter py-section"
-        >
-          <div className="rounded-lg border border-border bg-surface p-block">
-            <h1 className="text-headline font-semibold text-text">
-              This page didn&rsquo;t load
-            </h1>
-            <p className="mt-block max-w-[65ch] text-body text-text-muted">
-              Its script may be missing, or the network dropped mid-fetch.
-              Returning home re-fetches the bundle.
-            </p>
-            <a
-              href="/"
-              className="mt-block flex min-h-11 w-fit items-center text-body font-semibold text-accent-text hover:underline"
-            >
-              Back to home
-            </a>
-          </div>
+        <section role="alert" className="band frame">
+          <h1 className="h2">This page didn&rsquo;t load</h1>
+          <p className="prose mt-4">
+            Something went wrong while drawing it. Reloading the page starts
+            the record again.
+          </p>
+          <a href="/" className="button mt-6">
+            Back to the record
+          </a>
         </section>
       );
     }
@@ -102,70 +70,53 @@ class PageErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState
 }
 
 export default function App() {
-  const { route, direction } = useRoute();
-  const { goNext, goPrev } = useAdjacentNavigation();
-  /* The visitor's motion intent. The OS reduced-motion query no longer gates
-     this site (owner order 2026-10-14): motionPreference.ts reads the one
-     always-animated intent as MotionConfig's "never" below and as the `false`
-     every hand-rolled gate in the tree reads, so the Framer runtime and the tree
-     cannot diverge. Nothing here reads the OS query — not even framer's
-     `useReducedMotion()` — so no listener is registered for a value no branch
-     can use. */
-  const [motionPreference] = useMotionPreference();
-  /* ↑/↓ scrolls the internal page container. The gate is the same
-     always-animated intent, so the scroll never drops to an instant jump. */
-  const reduceMotion = resolveReduceMotion(motionPreference, false);
+  const { route } = useRoute();
+  const firstRender = useRef(true);
 
-  /* ←/→ walks the page's item tour ([data-nav-item], DOM-driven) and rolls
-     over into the adjacent page when the current page's items are exhausted;
-     ↑/↓ + Home/End scroll the internal page container (80vH section step).
-     Never hijack keys while typing or while the mobile menu is open (guard in
-     keyboardNav.ts). */
+  /* Per-route document.title + meta. */
   useEffect(() => {
-    const onKey = createPageNavHandler({ goNext, goPrev, reduceMotion });
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [goNext, goPrev, reduceMotion]);
+    applyRouteMeta(route);
+  }, [route]);
 
-  const Content = routeByPath(route.path) ? (PAGES[route.id] ?? PAGES.hero) : NotFound;
+  /* A route change starts at the top, and focus moves to the new page so a
+     keyboard or screen-reader visitor is not left on the old page's link.
+     Skipped on the FIRST render: focusing main on load would place the tab
+     order after the skip link and the header nav, so a keyboard visitor could
+     never reach them with Tab. */
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    window.scrollTo(0, 0);
+    document.getElementById("main")?.focus({ preventScroll: true });
+  }, [route.path]);
+
+  const Content = routeByPath(route.path) ? (PAGES[route.id] ?? Record) : NotFound;
 
   return (
-    <div className="app-sheet bg-bg relative flex h-dvh flex-col">
-      <MotionConfig reducedMotion={motionPreferenceToMode(motionPreference)}>
-        <a
-          href="#main"
-          className="skip-to-content"
-          onClick={(e) => {
-            e.preventDefault();
-            document.getElementById("main")?.focus({ preventScroll: true });
-            document.querySelector(".page-scroll")?.scrollTo(0, 0);
-          }}
-        >
-          Skip to content
-        </a>
+    <>
+      <a
+        href="#main"
+        className="skip-link"
+        onClick={(event) => {
+          event.preventDefault();
+          document.getElementById("main")?.focus({ preventScroll: true });
+          window.scrollTo(0, 0);
+        }}
+      >
+        Skip to content
+      </a>
 
-        <Header />
+      <Header />
 
-        <CommandPalette />
+      <main id="main" tabIndex={-1} className="outline-none">
+        <PageErrorBoundary>
+          <Content />
+        </PageErrorBoundary>
+      </main>
 
-        <AnimatePresence mode="wait" initial={false}>
-          <PageShell key={route.path} route={route} direction={direction}>
-            <main
-              id="main"
-              tabIndex={-1}
-              className="relative z-10 outline-none flex-1 flex flex-col justify-center"
-            >
-              <PageErrorBoundary>
-                <Suspense fallback={<PageFallback />}>
-                  <Content />
-                </Suspense>
-              </PageErrorBoundary>
-            </main>
-          </PageShell>
-        </AnimatePresence>
-
-        <Footer />
-      </MotionConfig>
-    </div>
+      <Footer routeId={route.id} />
+    </>
   );
 }

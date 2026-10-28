@@ -19,6 +19,7 @@ describe("router", () => {
     window.history.pushState(null, "", "/");
     document.title = "";
     document.head.querySelectorAll("meta").forEach((m) => m.remove());
+    document.head.querySelectorAll('link[rel="canonical"]').forEach((l) => l.remove());
   });
 
   it("navigate() updates location; applyRouteMeta updates document.title", () => {
@@ -49,13 +50,18 @@ describe("router", () => {
         .querySelector('meta[name="description"]')
         ?.getAttribute("content"),
     ).toBe(
-      "Backend systems that hold up in production - plus the plugins, MCP servers, and tools built around them.",
+      "Backend developer for payment and cash-management systems that ran in production — and the author of eleven open-source developer tools.",
     );
     expect(
       document
         .querySelector('meta[property="og:title"]')
         ?.getAttribute("content"),
-    ).toBe("Nathaniel Nikolai Ladero | Systems & Developer Tools");
+    ).toBe(ROUTES[0].title);
+    expect(
+      document
+        .querySelector('meta[name="twitter:title"]')
+        ?.getAttribute("content"),
+    ).toBe(ROUTES[0].title);
   });
 
   it("every ROUTES entry carries a recruiter metaDescription", () => {
@@ -81,12 +87,51 @@ describe("router", () => {
 
     // Root keeps its single slash; query strings still come off first.
     expect(normalizePath("/")).toBe("/");
-    expect(normalizePath("/contact/?tab=all")).toBe("/contact");
+    // A retired path normalizes to the home record, not to a 404.
+    expect(normalizePath("/skills/?tab=all")).toBe("/skills");
+    expect(routeByPath("/skills/")?.path).toBe("/");
   });
 
   it("navigate() on a trailing-slash path lands on the canonical route", () => {
     navigate("/");
-    navigate("/contact/");
-    expect(window.location.pathname).toBe("/contact");
+    navigate("/projects/");
+    expect(window.location.pathname).toBe("/projects");
+  });
+
+  it("points the canonical and og:url at the active route", () => {
+    applyRouteMeta(routeByPath("/projects")!);
+    expect(
+      document.head
+        .querySelector('link[rel="canonical"]')
+        ?.getAttribute("href"),
+    ).toBe("https://nathwn12.github.io/projects");
+    expect(
+      document.head
+        .querySelector('meta[property="og:url"]')
+        ?.getAttribute("content"),
+    ).toBe("https://nathwn12.github.io/projects");
+    expect(document.title).toBe(routeByPath("/projects")!.title);
+  });
+
+  it("a 404 keeps the static noindex, drops the canonical, and is reversible", () => {
+    // Seed the head the way the static document has it.
+    applyRouteMeta(routeByPath("/")!);
+    applyRouteMeta(resolveRoute("/definitely-not-a-route"));
+
+    expect(document.head.querySelector('link[rel="canonical"]')).toBeNull();
+    expect(
+      document.head.querySelector('meta[name="robots"]')?.getAttribute("content"),
+    ).toBe("noindex, follow");
+    expect(document.title).toContain("Not found");
+
+    applyRouteMeta(routeByPath("/experience")!);
+    expect(
+      document.head.querySelector('meta[name="robots"]'),
+    ).toBeNull();
+    expect(
+      document.head
+        .querySelector('link[rel="canonical"]')
+        ?.getAttribute("href"),
+    ).toBe("https://nathwn12.github.io/experience");
   });
 });
