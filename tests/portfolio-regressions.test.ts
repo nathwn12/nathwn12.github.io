@@ -4,10 +4,12 @@ import { describe, expect, test } from "vitest";
 
 const root = resolve(import.meta.dirname, "..");
 const resumeName = "Nathaniel-Nikolai-Ladero-Resume.pdf";
+const cvName = "Nathaniel-Nikolai-Ladero-CV.pdf";
 
 describe("portfolio regressions", () => {
-  test("production build ships the resume download", () => {
+  test("production build ships the resume and CV downloads", () => {
     expect(existsSync(resolve(root, "dist", resumeName))).toBe(true);
+    expect(existsSync(resolve(root, "dist", cvName))).toBe(true);
   });
 
   test("programmatically focused main landmark does not paint a chrome outline", () => {

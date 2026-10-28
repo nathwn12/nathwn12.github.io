@@ -106,15 +106,39 @@ afterEach(async () => {
 });
 
 describe("palette data (no mount)", () => {
-  test("five page items, one per project, five actions, all ids unique", () => {
+  test("five page items, one per project, six actions, all ids unique", () => {
     const items = buildPaletteItems();
     expect(items.filter((i) => i.group === "Pages")).toHaveLength(5);
     expect(items.filter((i) => i.group === "Projects")).toHaveLength(
       projects.length,
     );
-    expect(items.filter((i) => i.group === "Actions")).toHaveLength(5);
+    // résumé and CV downloads are twins: one action each, same shape.
+    expect(items.filter((i) => i.group === "Actions")).toHaveLength(6);
     const ids = items.map((i) => i.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  test("the résumé and CV download actions share one shape", () => {
+    const downloads = buildPaletteItems().filter(
+      (i) => i.action.kind === "download",
+    );
+    expect(downloads.map((i) => i.id)).toEqual(["action-resume", "action-cv"]);
+    for (const item of downloads) {
+      const { href, filename } = item.action as {
+        href: string;
+        filename: string;
+      };
+      expect(href.startsWith("/")).toBe(true);
+      expect(href).toBe(`/${filename}`);
+      expect(item.hint).toBe(filename);
+    }
+    const cv = downloads.find((i) => i.id === "action-cv")!;
+    expect(cv.label).toBe("Download CV");
+    expect(cv.action).toEqual({
+      kind: "download",
+      href: "/Nathaniel-Nikolai-Ladero-CV.pdf",
+      filename: "Nathaniel-Nikolai-Ladero-CV.pdf",
+    });
   });
 
   test("page items carry the route's own command as secondary text", () => {

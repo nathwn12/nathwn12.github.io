@@ -13,15 +13,15 @@
  *   own `command` string.
  * - Projects come from `projects` (src/content/projects.ts); activating one
  *   navigates to `/projects`.
- * - The résumé reuses PageFoot's href verbatim (the build copies the
- *   repo-root PDF to dist/, so it resolves in production) — never an
- *   invented path.
+ * - The résumé and CV download hrefs are imported from src/lib/contact.ts —
+ *   the same constants PageFoot renders (the build copies both repo-root PDFs
+ *   to dist/, so they resolve in production) — never an invented path.
  * - The mailto is built from `CONTACT_EMAIL` (src/lib/contact.ts), the real
  *   single source of truth; src/content/contact.ts holds only the relay key.
  */
 
 import { projects } from "../content/projects";
-import { CONTACT_EMAIL } from "./contact";
+import { CONTACT_EMAIL, CV_PATH, RESUME_PATH } from "./contact";
 import { navName } from "./navNames";
 import { ROUTES } from "./router";
 
@@ -44,9 +44,13 @@ export interface PaletteItem {
   action: PaletteAction;
 }
 
-/** Résumé href — verbatim from PageFoot's download link. */
-export const RESUME_HREF = "/Nathaniel-Nikolai-Ladero-Resume.pdf";
-export const RESUME_FILENAME = "Nathaniel-Nikolai-Ladero-Resume.pdf";
+/** Download paths: one constant each from src/lib/contact.ts — the same values
+    PageFoot renders — with the filename being that path minus its leading
+    slash. Nothing is restated here, so the palette cannot drift from the site. */
+export const RESUME_HREF = RESUME_PATH;
+export const RESUME_FILENAME = RESUME_PATH.slice(1);
+export const CV_HREF = CV_PATH;
+export const CV_FILENAME = CV_PATH.slice(1);
 
 export const GITHUB_URL = "https://github.com/nathwn12";
 export const LINKEDIN_URL =
@@ -122,6 +126,17 @@ export function buildPaletteItems(): PaletteItem[] {
         kind: "download",
         href: RESUME_HREF,
         filename: RESUME_FILENAME,
+      },
+    },
+    {
+      id: "action-cv",
+      group: "Actions",
+      label: "Download CV",
+      hint: CV_FILENAME,
+      action: {
+        kind: "download",
+        href: CV_HREF,
+        filename: CV_FILENAME,
       },
     },
   ];

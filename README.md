@@ -30,7 +30,8 @@ pnpm run build
 ```
 
 `pnpm run build` runs `vite build && node scripts/copy-404.mjs`, which also
-copies `Nathaniel-Nikolai-Ladero-Resume.pdf` and `404.html` into `dist/`.
+copies `Nathaniel-Nikolai-Ladero-Resume.pdf`, `Nathaniel-Nikolai-Ladero-CV.pdf`,
+and `404.html` into `dist/`.
 Publishing runs through `.github/workflows/deploy.yml`: on push to `main` the
 build job installs, builds, and uploads `dist` as a Pages artifact, and the
 deploy job publishes it via `actions/deploy-pages` to the `github-pages`

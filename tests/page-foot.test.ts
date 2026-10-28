@@ -8,12 +8,14 @@ const root = resolve(import.meta.dirname, "..");
 const read = (rel: string) => readFileSync(resolve(root, rel), "utf8");
 
 const RESUME_NAME = "Nathaniel-Nikolai-Ladero-Resume.pdf";
+const CV_NAME = "Nathaniel-Nikolai-Ladero-CV.pdf";
 
-/* premium-direction.md governs this band: the résumé link is the page's one
-   primary action phrase, so its label is a visible sentence-case phrase, and
-   the adjacent-page pager reads "Previous: Home" / "Next: Skills" — sentence
-   case, no arrow glyphs. `RouteDef.label` stays the shell's short code (EXP,
-   SKILLS) and `navName()` is the single step from that code to display copy. */
+/* premium-direction.md governs this band: the résumé and CV links are the
+   page's primary action phrases, so each label is a visible sentence-case
+   phrase, and the adjacent-page pager reads "Previous: Home" / "Next: Skills" —
+   sentence case, no arrow glyphs. `RouteDef.label` stays the shell's short code
+   (EXP, SKILLS) and `navName()` is the single step from that code to display
+   copy. */
 
 /* The router reads window.location at module load, so each foot render gets a
    fresh module under the path under test (same stub idiom as
@@ -56,28 +58,39 @@ afterEach(() => {
 });
 
 describe("page foot", () => {
-  test("résumé control is root-absolute with the premium action phrase + download", async () => {
+  test("résumé and CV controls are root-absolute with the premium action phrase + download", async () => {
     const foot = read("src/components/PageFoot.tsx");
     const contact = read("src/lib/contact.ts");
 
     // ROOT-ABSOLUTE: a relative href silently serves the SPA fallback from
-    // sub-routes, so the link must carry the leading slash. The href now
-    // resolves via RESUME_PATH (single source in src/lib/contact.ts) — the
-    // root PDF (scripts/copy-404.mjs ships it to dist/) is the ground truth.
+    // sub-routes, so the link must carry the leading slash. The hrefs now
+    // resolve via RESUME_PATH / CV_PATH (single source in src/lib/contact.ts) —
+    // the root PDFs (scripts/copy-404.mjs ships them to dist/) are the ground
+    // truth.
     expect(contact).toContain(`RESUME_PATH = "/${RESUME_NAME}"`);
+    expect(contact).toContain(`CV_PATH = "/${CV_NAME}"`);
     expect(foot).toContain("RESUME_PATH");
+    expect(foot).toContain("CV_PATH");
     expect(foot).toContain(`from "../lib/contact"`);
     expect(foot).toContain("href={RESUME_PATH}");
+    expect(foot).toContain("href={CV_PATH}");
     expect(foot).not.toMatch(new RegExp(`href="${RESUME_NAME}"`));
+    expect(foot).not.toMatch(new RegExp(`href="${CV_NAME}"`));
     expect(foot).toContain(`download="${RESUME_NAME}"`);
+    expect(foot).toContain(`download="${CV_NAME}"`);
 
-    // One primary action phrase, sentence case, visible as the link's own text.
+    // One primary action phrase each, sentence case, visible as the link's own
+    // text — the CV is the résumé's twin in the same treatment.
     expect(foot).toContain("Download résumé");
+    expect(foot).toContain("Download CV");
 
     const markup = await renderFoot("/");
     expect(markup).toContain(`href="/${RESUME_NAME}"`);
     expect(markup).toContain(`download="${RESUME_NAME}"`);
     expect(markup).toContain(">Download résumé</a>");
+    expect(markup).toContain(`href="/${CV_NAME}"`);
+    expect(markup).toContain(`download="${CV_NAME}"`);
+    expect(markup).toContain(">Download CV</a>");
   });
 
   test.each([
@@ -92,6 +105,7 @@ describe("page foot", () => {
       const markup = await renderFoot(path);
 
       expect(markup).toContain(`href="/${RESUME_NAME}"`);
+      expect(markup).toContain(`href="/${CV_NAME}"`);
       expect(pagerTarget(markup, "Previous")).toBe(prev);
       expect(pagerTarget(markup, "Next")).toBe(next);
 
@@ -175,9 +189,13 @@ describe("page foot", () => {
     expect(contact).not.toContain("disabled");
   });
 
-  test("one accent-scoped style on Hero's résumé control, none on the other four feet", async () => {
+  test("one accent-scoped style each on Hero's résumé and CV controls, none on the other four feet", async () => {
     const hero = await renderFoot("/", true);
-    expect((hero.match(/text-accent-text/g) ?? []).length).toBe(1);
+    // Two downloads in the foot, each carrying exactly one accent class:
+    // 2 total, not one accented and one plain.
+    expect((hero.match(/text-accent-text/g) ?? []).length).toBe(2);
+    expect((hero.match(/>Download résumé<\/a>/g) ?? []).length).toBe(1);
+    expect((hero.match(/>Download CV<\/a>/g) ?? []).length).toBe(1);
 
     for (const path of ["/experience", "/skills", "/projects", "/contact"]) {
       const markup = await renderFoot(path);
