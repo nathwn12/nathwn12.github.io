@@ -28,12 +28,19 @@ interface PrepaintCase {
   expected: "light" | "dark";
 }
 
-function runPrepaint(
+/** The theme-color pair index.html ships as its no-JS fallback. */
+const THEME_COLOR_METAS = [
+  '<meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F1EC" />',
+  '<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101315" />',
+].join("");
+
+function runPrepaintDocument(
   script: string,
   behavior: Pick<PrepaintCase, "stored" | "matchMedia">,
-): string {
+  { metas = false }: { metas?: boolean } = {},
+): { theme: string; themeColors: string[] } {
   const dom = new JSDOM(
-    "<!DOCTYPE html><html><head></head><body></body></html>",
+    `<!DOCTYPE html><html><head>${metas ? THEME_COLOR_METAS : ""}</head><body></body></html>`,
     { url: "https://nathwn12.github.io/", runScripts: "outside-only" },
   );
   const { window } = dom;
@@ -80,7 +87,19 @@ function runPrepaint(
   }
 
   window.eval(script);
-  return window.document.documentElement.dataset.theme ?? "";
+  return {
+    theme: window.document.documentElement.dataset.theme ?? "",
+    themeColors: [
+      ...window.document.querySelectorAll('meta[name="theme-color"]'),
+    ].map((meta) => meta.getAttribute("content") ?? ""),
+  };
+}
+
+function runPrepaint(
+  script: string,
+  behavior: Pick<PrepaintCase, "stored" | "matchMedia">,
+): string {
+  return runPrepaintDocument(script, behavior).theme;
 }
 
 const script = readPrepaintScript();
@@ -146,6 +165,59 @@ describe("pre-paint theme script", () => {
     expect(
       runPrepaint(script, { stored: "throw", matchMedia: "no-match" }),
     ).toBe("light");
+  });
+
+  test("empty storage resolves the OS scheme and its theme-color before paint", () => {
+    /* Case 1/2: no stored preference. The ground the meta advertises must be
+       the ground the page paints, or mobile browser chrome flashes the other
+       palette on the first frame. */
+    expect(
+      runPrepaintDocument(
+        script,
+        { stored: null, matchMedia: "no-match" },
+        { metas: true },
+      ),
+    ).toEqual({ theme: "light", themeColors: ["#F2F1EC", "#F2F1EC"] });
+
+    expect(
+      runPrepaintDocument(
+        script,
+        { stored: null, matchMedia: "matches" },
+        { metas: true },
+      ),
+    ).toEqual({ theme: "dark", themeColors: ["#101315", "#101315"] });
+  });
+
+  test("a stored pin paints its own theme-color, not the OS scheme's", () => {
+    /* Cases 3/4: the media pair alone would announce the OS palette while the
+       page paints the pinned one — the visible mobile-chrome defect. */
+    expect(
+      runPrepaintDocument(
+        script,
+        { stored: "light", matchMedia: "matches" },
+        { metas: true },
+      ),
+    ).toEqual({ theme: "light", themeColors: ["#F2F1EC", "#F2F1EC"] });
+
+    expect(
+      runPrepaintDocument(
+        script,
+        { stored: "dark", matchMedia: "no-match" },
+        { metas: true },
+      ),
+    ).toEqual({ theme: "dark", themeColors: ["#101315", "#101315"] });
+  });
+
+  test("a retired stored value follows the OS scheme and its theme-color", () => {
+    /* Case 5: "auto" is not a pin, so it resolves like an absent value — and
+       the chrome colour must follow the OS, not the retired value. */
+    expect(
+      runPrepaintDocument(
+        script,
+        { stored: "auto", matchMedia: "matches" },
+        { metas: true },
+      ),
+    ).toEqual({ theme: "dark", themeColors: ["#101315", "#101315"] });
   });
 
   test("only ever writes a resolved light/dark value", () => {
