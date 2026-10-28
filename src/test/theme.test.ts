@@ -13,10 +13,13 @@
  * the OS flipping scheme mid-session. The subscription lives in useTheme, so the
  * follow/pin tests mount a probe component.
  */
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  THEME_COLORS,
   THEME_STORAGE_KEY,
   cycleTheme,
   getTheme,
@@ -269,6 +272,125 @@ describe("useTheme — mount reconcile + following the OS", () => {
 
     expect(document.documentElement.dataset.theme).toBe("dark");
     expect(storedPin()).toBe("dark");
+  });
+});
+
+describe("theme-color — mobile browser chrome follows the resolved scheme", () => {
+  const LIGHT_GROUND = "#F2F1EC";
+  const DARK_GROUND = "#101315";
+
+  /** The shipped meta pair, rebuilt in jsdom (which parses no index.html). */
+  function seedThemeColorMetas() {
+    document
+      .querySelectorAll('meta[name="theme-color"]')
+      .forEach((meta) => meta.remove());
+    for (const [media, content] of [
+      ["(prefers-color-scheme: light)", LIGHT_GROUND],
+      ["(prefers-color-scheme: dark)", DARK_GROUND],
+    ] as const) {
+      const meta = document.createElement("meta");
+      meta.name = "theme-color";
+      meta.setAttribute("media", media);
+      meta.setAttribute("content", content);
+      document.head.appendChild(meta);
+    }
+  }
+
+  function themeColorContents(): string[] {
+    return [...document.querySelectorAll('meta[name="theme-color"]')].map(
+      (meta) => meta.getAttribute("content") ?? "",
+    );
+  }
+
+  beforeEach(seedThemeColorMetas);
+  afterEach(() => {
+    document
+      .querySelectorAll('meta[name="theme-color"]')
+      .forEach((meta) => meta.remove());
+  });
+
+  it("mirrors --color-bg from the shipped CSS in both schemes", () => {
+    /* A hex is stated twice — once in CSS, once for the meta tag. Reading the
+       stylesheet here makes a palette edit break this test instead of silently
+       leaving the browser chrome on the old ground. */
+    const root = resolve(import.meta.dirname, "..", "..");
+    const css = readFileSync(resolve(root, "src", "index.css"), "utf8");
+    const lightBlock = css.slice(
+      css.indexOf("@theme {"),
+      css.indexOf("\n}\n", css.indexOf("@theme {")),
+    );
+    const darkBlock = css.slice(
+      css.indexOf('html[data-theme="dark"] {'),
+      css.indexOf("\n}\n", css.indexOf('html[data-theme="dark"] {')),
+    );
+    const bg = (block: string) =>
+      block.match(/--color-bg:\s*(#[0-9a-f]{6})/i)?.[1].toUpperCase();
+
+    expect(bg(lightBlock)).toBe(THEME_COLORS.light);
+    expect(bg(darkBlock)).toBe(THEME_COLORS.dark);
+  });
+
+  it("a stored pin rewrites both entries, even when the OS disagrees", () => {
+    systemDark = true;
+    act(() => setTheme("light"));
+    expect(themeColorContents()).toEqual([LIGHT_GROUND, LIGHT_GROUND]);
+
+    systemDark = false;
+    act(() => setTheme("dark"));
+    expect(themeColorContents()).toEqual([DARK_GROUND, DARK_GROUND]);
+  });
+
+  it("reconciles a stale pair on mount even when <html> already agrees", () => {
+    /* Cached HTML / a prepaint read that disagreed: the page is dark, the
+       metas still follow a light OS. Only an unconditional meta reconcile on
+       mount repairs it; a DOM-diff-only sync would leave the chrome light. */
+    systemDark = true;
+    document.documentElement.dataset.theme = "dark";
+    seedThemeColorMetas(); // light pair, as a light-OS fallback would ship
+    expect(themeColorContents()).toEqual([LIGHT_GROUND, DARK_GROUND]);
+
+    mountProbe();
+
+    expect(themeColorContents()).toEqual([DARK_GROUND, DARK_GROUND]);
+    expect(storedPin()).toBeNull();
+  });
+
+  it("an unpinned OS flip moves the chrome colour with the page", () => {
+    mountProbe();
+    expect(themeColorContents()).toEqual([LIGHT_GROUND, LIGHT_GROUND]);
+
+    act(() => setSystemDark(true));
+    expect(document.documentElement.dataset.theme).toBe("dark");
+    expect(themeColorContents()).toEqual([DARK_GROUND, DARK_GROUND]);
+
+    act(() => setSystemDark(false));
+    expect(themeColorContents()).toEqual([LIGHT_GROUND, LIGHT_GROUND]);
+  });
+
+  it('a stored "auto" follows the OS flip live and is left as stored', () => {
+    /* Case 5 with the retired value present: "auto" is not a pin, so the
+       listener must treat it exactly like absent storage — update the page and
+       the chrome colour, without rewriting what the visitor's browser holds. */
+    window.localStorage.setItem(THEME_STORAGE_KEY, "auto");
+    mountProbe();
+    expect(themeColorContents()).toEqual([LIGHT_GROUND, LIGHT_GROUND]);
+
+    act(() => setSystemDark(true));
+
+    expect(document.documentElement.dataset.theme).toBe("dark");
+    expect(themeColorContents()).toEqual([DARK_GROUND, DARK_GROUND]);
+    expect(window.localStorage.getItem(THEME_STORAGE_KEY)).toBe("auto");
+  });
+
+  it("a pinned visitor's OS flip moves neither the page nor the chrome colour", () => {
+    mountProbe();
+    act(() => setTheme("light"));
+
+    act(() => setSystemDark(true));
+
+    expect(document.documentElement.dataset.theme).toBe("light");
+    expect(themeColorContents()).toEqual([LIGHT_GROUND, LIGHT_GROUND]);
+    expect(storedPin()).toBe("light");
   });
 });
 

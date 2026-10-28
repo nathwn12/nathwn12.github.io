@@ -1,49 +1,65 @@
 import { useCallback, useEffect } from "react";
-import { CONTACT_EMAIL } from "../lib/contact";
+import {
+  CONTACT_EMAIL,
+  CV_FILENAME,
+  CV_PATH,
+  RESUME_FILENAME,
+  RESUME_PATH,
+} from "../lib/contact";
 import { cycleTheme, useTheme } from "../lib/theme";
 
 /**
- * Footer — the persistent one-row chrome bar, in normal flow after the page
- * scroller.
+ * Footer — the record's close: the ways out, then the colophon.
  *
- * One row at every width (`min-h-11` + `py-1` ≈ 52px, `whitespace-nowrap`,
- * no `flex-wrap`, no horizontal scroll container):
- * `© YEAR NNL` on the left, then the four actions that live nowhere else in
- * the chrome - Email, GitHub, LinkedIn, and the theme control. Page
- * destinations belong to the header and the end-of-page pager; the footer
- * does not repeat them. The long colophon sentence lives in the end-of-page
- * `PageFoot`, not here.
+ * A designed end rather than a sitemap. The real destinations sit on one line
+ * and the colophon carries the imprint, the full name and the source link. The
+ * name is not painted again as a display line above them: the record already
+ * opened with it, and the colophon states it once, where a reader looks for it.
+ * The theme control lives here because it is a document setting, not a
+ * destination.
  *
- * Narrow viewports (below 25rem) only tighten the two gaps one step — the row
- * itself never wraps, scrolls, or clips, and the 52px bar keeps the focus
- * ring's clearance.
+ * The two documents belong to the routes that have no cover. On `/` the first
+ * screen already offers the pair as its primary action, and the footer used to
+ * repeat them in the same closing viewport; on `/experience` and `/projects`
+ * there is no cover, so the footer is the only place the pair survives. The
+ * condition is the resolved route id, not the raw path, so a trailing slash or
+ * a retired URL cannot produce a second copy on the record.
+ *
+ * The source link owns its 44px target through the anchor's own box
+ * (`inline-block min-h-11 min-w-11` with the negative margin that cancels the
+ * line-box growth), so the element that receives the pointer, paints the focus
+ * ring and shows up in hit-testing is the anchor itself.
  */
 
 const YEAR = new Date().getFullYear();
 
 /**
- * The three text links carry both target axes as a floor, not as text width:
- * `min-h-11` is the 44px height, and `min-w-11` is the 44px width the labels
- * cannot supply on their own ("Email" measured 33px wide and "GitHub" 43px
- * before this floor). `justify-center` keeps each label centred in the 44px
- * box instead of hugging its left edge. Measured in Chromium at 393x852 and
- * 2560x1440: 44x44 for both, every edge probe landing on the anchor; removing
- * either floor drops a real hit area below 44 on that axis.
+ * The three contact links are the smallest targets on the page: at 13px the
+ * labels are narrower than 44px on their own, so each anchor carries the floor
+ * on BOTH axes (`min-h-11 min-w-11`) and centres its label in the widened box.
+ * The element that receives the pointer, paints the focus ring and shows up in
+ * hit-testing is the anchor itself.
  */
-const linkClass =
-  "flex min-h-11 min-w-11 items-center justify-center rounded-xs text-micro font-medium text-text-muted transition-colors duration-link hover:text-text hover:underline";
+const LINK_FLOOR =
+  "flex min-h-11 min-w-11 items-center justify-center text-[0.8125rem] font-medium text-text-muted transition-colors duration-link hover:text-text hover:underline";
 
-export function Footer() {
+export function Footer({ routeId = "record" }: { routeId?: string }) {
   const [themePreference] = useTheme();
-
   const cycleThemeHandler = useCallback(() => {
     cycleTheme();
   }, []);
 
+  /* A cover route already owns the pair; only the two detail routes need the
+     footer copy. A 404 has no documents either — it is not a reading route.
+     App passes the resolved route id, so a trailing slash or a retired path
+     cannot put a second pair on the record; the prop default keeps a standalone
+     render (and any document without a router) on the record's behaviour. */
+  const showDocuments = routeId === "experience" || routeId === "projects";
+
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "F2" || e.repeat) return;
-      const target = e.target as HTMLElement | null;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "F2" || event.repeat) return;
+      const target = event.target as HTMLElement | null;
       if (
         target &&
         (target.tagName === "INPUT" ||
@@ -53,8 +69,10 @@ export function Footer() {
       ) {
         return;
       }
-      if (document.querySelector("[data-mobile-menu], [data-command-palette]")) return;
-      e.preventDefault();
+      if (document.querySelector("[data-mobile-menu], #mobile-nav:not([hidden])")) {
+        return;
+      }
+      event.preventDefault();
       cycleThemeHandler();
     };
     window.addEventListener("keydown", onKey);
@@ -63,53 +81,76 @@ export function Footer() {
 
   const themeLabel = `${themePreference[0].toUpperCase()}${themePreference.slice(1)}`;
 
-  const themeButton = (
-    <button
-      type="button"
-      onClick={cycleThemeHandler}
-      title="Switch the color scheme: light or dark (F2)"
-      aria-label={`Color scheme: ${themePreference}. Activate to switch to the other scheme (F2).`}
-      className="flex min-h-11 shrink-0 items-center rounded-sm border border-border px-1.5 text-micro font-medium text-text transition-colors duration-field hover:border-border-accent hover:text-accent-text"
-    >
-      Theme: {themeLabel}
-    </button>
-  );
-
   return (
-    <footer className="relative z-40 shrink-0 border-t-[3px] border-text bg-bg pb-[env(safe-area-inset-bottom)]">
-      <div className="px-6 lg:px-10">
-        <div className="mx-auto w-full max-w-[80rem]">
-          <div className="flex min-h-11 w-full items-center justify-between gap-x-2 whitespace-nowrap py-1 max-[25rem]:gap-x-1">
-            <span className="shrink-0 text-micro text-text-muted">
-              © {YEAR} NNL
-            </span>
-            <nav
-              aria-label="Contact and appearance"
-              className="flex shrink-0 items-center gap-x-2 max-[25rem]:gap-x-1"
+    <footer className="site-footer">
+      <div className="frame">
+        <div className="site-footer__rule">
+          <nav aria-label="Footer" className="site-footer__links">
+            <a
+              href={`mailto:${CONTACT_EMAIL}`}
+              className={LINK_FLOOR}
             >
-              <a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>
-                Email
-              </a>
-              <a
-                href="https://github.com/nathwn12"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={linkClass}
-              >
-                GitHub
-              </a>
-              <a
-                href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className={linkClass}
-              >
-                LinkedIn
-              </a>
-              {themeButton}
-            </nav>
-          </div>
+              Email me
+            </a>
+            <a
+              href="https://github.com/nathwn12"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={LINK_FLOOR}
+            >
+              GitHub
+            </a>
+            <a
+              href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={LINK_FLOOR}
+            >
+              LinkedIn
+            </a>
+            {showDocuments && (
+              <>
+                <a
+                  href={RESUME_PATH}
+                  download={RESUME_FILENAME}
+                  className="text-action"
+                >
+                  Résumé (PDF)
+                </a>
+                <a
+                  href={CV_PATH}
+                  download={CV_FILENAME}
+                  className="text-action"
+                >
+                  CV (PDF)
+                </a>
+              </>
+            )}
+            <button
+              type="button"
+              onClick={cycleThemeHandler}
+              title="Switch the color scheme: light or dark (F2)"
+              aria-label={`Color scheme: ${themePreference}. Activate to switch to the other scheme (F2).`}
+              className="flex min-h-11 items-center text-[0.8125rem] font-medium text-text-muted transition-colors duration-field hover:text-text"
+            >
+              Theme: {themeLabel}
+            </button>
+          </nav>
+
+          <p className="meta muted">© {YEAR} · Philippines, remote</p>
         </div>
+
+        <p className="mt-4 text-[0.75rem] font-normal not-italic leading-snug text-text-muted">
+          Colophon — © {YEAR} Nathaniel Nikolai Ladero. Set in Inter.{" "}
+          <a
+            href="https://github.com/nathwn12/nathwn12.github.io"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block min-h-11 min-w-11 -mb-[1.71875rem] text-text-muted no-underline hover:text-text hover:underline"
+          >
+            Source on GitHub.
+          </a>
+        </p>
       </div>
     </footer>
   );

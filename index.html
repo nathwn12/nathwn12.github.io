@@ -3,6 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- The media pair is the no-JS fallback: it follows the OS scheme. The
+         pre-paint script below rewrites BOTH entries to the resolved ground
+         before first paint, so a stored pin that disagrees with the OS cannot
+         leave mobile browser chrome on the other palette. src/lib/theme.ts
+         keeps the same pair in step when the resolved scheme changes. -->
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F1EC" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101315" />
     <script>
       (function () {
         /* Resolve the stored scheme before paint, so a missing, unrecognized,
@@ -34,29 +41,35 @@
               ? "dark"
               : "light";
         document.documentElement.dataset.theme = theme;
+        /* Paint the browser chrome the scheme the page actually resolved to.
+           Both entries carry the active ground; a meta with no matching media
+           would lose to the media pair, so the pair itself is rewritten. */
+        var ground = theme === "dark" ? "#101315" : "#F2F1EC";
+        var metas = document.querySelectorAll('meta[name="theme-color"]');
+        for (var i = 0; i < metas.length; i++) {
+          metas[i].setAttribute("content", ground);
+        }
       })();
     </script>
     <link rel="canonical" href="https://nathwn12.github.io/" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#FCFCF9" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#141310" />
-    <meta name="description" content="Backend systems that hold up in production - plus the plugins, MCP servers, and tools built around them." />
-    <meta property="og:title" content="Nathaniel Nikolai Ladero | Systems & Developer Tools" />
-    <meta property="og:description" content="Backend systems that hold up in production - plus the plugins, MCP servers, and tools built around them." />
+    <meta name="description" content="Backend developer for payment and cash-management systems that ran in production — and the author of eleven open-source developer tools." />
+    <meta property="og:title" content="The record — Nathaniel Nikolai Ladero" />
+    <meta property="og:description" content="Backend developer for payment and cash-management systems that ran in production — and the author of eleven open-source developer tools." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://nathwn12.github.io/" />
     <meta property="og:site_name" content="Nathaniel Nikolai Ladero | Systems & Developer Tools" />
-    <meta property="og:image" content="https://nathwn12.github.io/og-image-2026-10.png" />
+    <meta property="og:image" content="https://nathwn12.github.io/og-image-2026-10-28.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="Portfolio landing page showing the hook line &quot;Payment backends that hold up under production load.&quot;" />
+    <meta property="og:image:alt" content="Dark card for Nathaniel Nikolai Ladero: backend developer for payment and cash-management systems that ran in production, with the worst-case payment query measured at under one second." />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Nathaniel Nikolai Ladero | Systems & Developer Tools" />
-    <meta name="twitter:description" content="Backend systems that hold up in production - plus the plugins, MCP servers, and tools built around them." />
-    <meta name="twitter:image" content="https://nathwn12.github.io/og-image-2026-10.png" />
+    <meta name="twitter:title" content="The record — Nathaniel Nikolai Ladero" />
+    <meta name="twitter:description" content="Backend developer for payment and cash-management systems that ran in production — and the author of eleven open-source developer tools." />
+    <meta name="twitter:image" content="https://nathwn12.github.io/og-image-2026-10-28.png" />
+    <meta name="twitter:image:alt" content="Dark card for Nathaniel Nikolai Ladero: backend developer for payment and cash-management systems that ran in production, with the worst-case payment query measured at under one second." />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <link rel="preload" as="font" type="font/woff2" href="/fonts/newsreader-latin.woff2" crossorigin />
     <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-latin.woff2" crossorigin />
-    <title>Home — Nathaniel Nikolai Ladero</title>
+    <title>The record — Nathaniel Nikolai Ladero</title>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -66,7 +79,7 @@
         "jobTitle": "Backend Developer",
         "description": "Backend developer in Hagonoy, Bulacan, Philippines, who was a Backend Developer at Xentra Infotech Solutions Inc. from March 2023 to May 2026, until the company closed in May 2026.",
         "email": "mailto:nathanielnikolai.ladero@gmail.com",
-        "image": "https://nathwn12.github.io/og-image-2026-10.png",
+        "image": "https://nathwn12.github.io/og-image-2026-10-28.png",
         "address": {
           "@type": "PostalAddress",
           "addressLocality": "Hagonoy",
@@ -137,7 +150,7 @@
         "seeks": {
           "@type": "Demand",
           "name": "Backend developer role",
-          "description": "Open to work: backend, .NET/C#, API, and fintech systems roles."
+          "description": "Open to backend roles — remote."
         },
         "knowsLanguage": [
           { "@type": "Language", "name": "English" },
