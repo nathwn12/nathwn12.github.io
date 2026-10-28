@@ -43,4 +43,5 @@ The legacy path /about redirects to the home page.
 ## Key links
 
 - Resume PDF: https://nathwn12.github.io/Nathaniel-Nikolai-Ladero-Resume.pdf
+- CV PDF: https://nathwn12.github.io/Nathaniel-Nikolai-Ladero-CV.pdf
 - Sitemap: https://nathwn12.github.io/sitemap.xml

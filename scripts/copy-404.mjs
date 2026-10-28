@@ -1,16 +1,21 @@
 import { copyFile, readFile, writeFile } from "fs/promises"
 
 const dist = new URL("../dist/", import.meta.url)
-const resumeName = "Nathaniel-Nikolai-Ladero-Resume.pdf"
+const documents = [
+  "Nathaniel-Nikolai-Ladero-Resume.pdf",
+  "Nathaniel-Nikolai-Ladero-CV.pdf",
+]
 
 try {
-  await copyFile(
-    new URL(`../${resumeName}`, import.meta.url),
-    new URL(resumeName, dist),
-  )
+  for (const name of documents) {
+    await copyFile(
+      new URL(`../${name}`, import.meta.url),
+      new URL(name, dist),
+    )
+    console.log(`OK: copied ${name} → dist/${name}`)
+  }
   const html = await readFile(new URL("index.html", dist), "utf8")
   await writeFile(new URL("404.html", dist), html)
-  console.log(`OK: copied ${resumeName} → dist/${resumeName}`)
   console.log("OK: copied dist/index.html → dist/404.html")
 } catch (err) {
   console.error(
