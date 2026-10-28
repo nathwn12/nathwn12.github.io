@@ -41,7 +41,9 @@ describe("JSON-LD Person", () => {
     expect(person?.url).toBe("https://nathwn12.github.io/");
     expect(person?.jobTitle).toBe("Backend Developer");
     expect(person?.email).toBe("mailto:nathanielnikolai.ladero@gmail.com");
-    expect(person?.image).toBe("https://nathwn12.github.io/og-image-2026-10.png");
+    expect(person?.image).toBe(
+      "https://nathwn12.github.io/og-image-2026-10-28.png",
+    );
     expect(person?.address).toMatchObject({
       "@type": "PostalAddress",
       addressLocality: "Hagonoy",
@@ -54,13 +56,14 @@ describe("JSON-LD Person", () => {
     ]);
   });
 
-  test("states open-to-work as a Demand, without commercial stock vocabulary", () => {
+  test("states the confirmed availability as a Demand, without commercial stock vocabulary", () => {
     /* `InStock` is stock availability for goods, not a person's availability
-       for work. It must never appear on this node again. */
+       for work. It must never appear on this node again, and the description is
+       the confirmed remote sentence verbatim (em dash included). */
     expect(person?.seeks).toMatchObject({ "@type": "Demand" });
     expect(person?.seeks).not.toHaveProperty("availability");
-    expect(String((person?.seeks as { description?: string })?.description))
-      .toMatch(/open to work/i);
+    const seeks = person?.seeks as { description?: string };
+    expect(seeks.description).toBe("Open to backend roles \u2014 remote.");
   });
 
   test("does not claim current employment at the closed company", () => {
@@ -140,5 +143,15 @@ describe("canonical and Open Graph URLs", () => {
     const ogUrl = html.match(/<meta property="og:url" content="([^"]+)"/)?.[1];
     expect(canonical).toBe("https://nathwn12.github.io/");
     expect(ogUrl).toBe(canonical);
+  });
+
+  test("the structured-data image and the Open Graph image are one card", () => {
+    /* A link preview and a rich result must not advertise two different
+       pictures; the dated file is the only social card emitted now. */
+    const ogImage = html.match(
+      /<meta property="og:image" content="([^"]+)"/,
+    )?.[1];
+    expect(ogImage).toBe("https://nathwn12.github.io/og-image-2026-10-28.png");
+    expect(person?.image).toBe(ogImage);
   });
 });

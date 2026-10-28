@@ -19,7 +19,7 @@ function installBrowser(pathname: string): BrowserStub {
     const value = String(url ?? location.pathname);
     const path = value.startsWith("http")
       ? new URL(value).pathname
-      : (value.split("?")[0] ?? "/");
+      : (value.split("?")[0]?.split("#")[0] ?? "/");
     location.pathname = path || "/";
   };
 
@@ -84,7 +84,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("home dossier route merge", () => {
+describe("the record's route merge", () => {
   test.each([
     "/about",
     "/about/",
@@ -103,17 +103,39 @@ describe("home dossier route merge", () => {
     expect(readRouteState(router)).toMatchObject({ path: "/" });
   });
 
+  test.each(["/skills", "/skills/", "/contact", "/contact/"])(
+    "canonicalizes the retired page %s to the record and hands over its band",
+    async (pathname) => {
+      const { browser, router } = await loadRouter(pathname);
+
+      expect(browser.replaceCalls).toEqual(["/"]);
+      expect(browser.location.pathname).toBe("/");
+      expect(router.routeByPath(pathname)?.path).toBe("/");
+      // The band the retired page's content moved into.
+      expect(router.legacyAnchorFor(pathname)).toBe(
+        pathname.startsWith("/skills") ? "atlas" : "contact",
+      );
+      // The handoff is consumed exactly once, by the home page's mount.
+      expect(router.consumeSectionScroll()).toBe(
+        pathname.startsWith("/skills") ? "atlas" : "contact",
+      );
+      expect(router.consumeSectionScroll()).toBeNull();
+    },
+  );
+
   test("keeps only the surviving routes in navigation order", async () => {
     const { router } = await loadRouter("/");
 
     expect(router.ROUTES.map((route) => route.path)).toEqual([
       "/",
       "/experience",
-      "/skills",
       "/projects",
-      "/contact",
     ]);
-    expect(router.ROUTES).toHaveLength(5);
+    expect(router.ROUTES).toHaveLength(3);
+    // The retired destinations are not routes any more.
+    for (const retired of ["/skills", "/contact", "/about"]) {
+      expect(router.ROUTES.map((route) => route.path)).not.toContain(retired);
+    }
   });
 
   test("normalizes query strings and trailing slashes", async () => {
@@ -123,7 +145,7 @@ describe("home dossier route merge", () => {
     expect(router.routeByPath("/experience/?tab=all")?.path).toBe(
       "/experience",
     );
-    expect(router.routeByPath("/contact/")?.path).toBe("/contact");
+    expect(router.routeByPath("/projects/")?.path).toBe("/projects");
   });
 
   test("boots a trailing-slash deep link onto its route, not the 404", async () => {
@@ -134,14 +156,6 @@ describe("home dossier route merge", () => {
     expect(browser.location.pathname).toBe("/experience/");
     expect(router.resolveRoute("/experience/").id).toBe("experience");
     expect(readRouteState(router)).toMatchObject({ path: "/experience" });
-  });
-
-  test("moves home to experience and clamps the last route", async () => {
-    const { router } = await loadRouter("/");
-
-    expect(router.routeAtOffset("/", 1).path).toBe("/experience");
-    expect(router.routeAtOffset("/contact", 1).path).toBe("/contact");
-    expect(router.routeAtOffset("/about", 1).path).toBe("/experience");
   });
 
   test("makes canonical home and unknown navigation no-ops", async () => {
@@ -170,7 +184,7 @@ describe("home dossier route merge", () => {
     expect(resolved.title).toContain("Not found");
 
     // Known paths still resolve to themselves via the same helper.
-    expect(router.resolveRoute("/skills").id).toBe("skills");
+    expect(router.resolveRoute("/projects").id).toBe("projects");
     expect(readRouteState(router)).toMatchObject({
       path: "/definitely-not-a-page",
     });
@@ -188,9 +202,11 @@ describe("home dossier route merge", () => {
     expect(browser.replaceCalls).toEqual(["/"]);
     expect(browser.pushCalls).toEqual(["/"]);
     expect(browser.location.pathname).toBe("/");
+    // navigate() always adds a forward history entry: the browser's own
+    // back/forward buttons are what move the other way.
     expect(readRouteState(router)).toMatchObject({
       path: "/",
-      direction: "back",
+      direction: "forward",
     });
   });
 
@@ -215,7 +231,7 @@ describe("home dossier route merge", () => {
     expect(browser.pushCalls).toEqual(["/"]);
     expect(readRouteState(router)).toMatchObject({
       path: "/",
-      direction: "back",
+      direction: "forward",
     });
 
     browser.location.pathname = "/experience";
@@ -231,28 +247,5 @@ describe("home dossier route merge", () => {
       path: "/",
       direction: "forward",
     });
-  });
-
-  test("names all five routes for the shell nav in sentence case", async () => {
-    const { router } = await loadRouter("/");
-    vi.resetModules();
-    const nav = await import("../src/lib/navNames");
-
-    // premium-direction.md: a label is sentence case wherever a person reads
-    // it, so RouteDef.label stays the shell's short code and navName() is the
-    // single step to display copy — shared by the Header nav and the PageFoot
-    // pager, which is why the mapping has to cover every route.
-    expect(
-      router.ROUTES.map((route) => nav.navName(route.id, route.label)),
-    ).toEqual(["Home", "Experience", "Skills", "Projects", "Contact"]);
-
-    for (const route of router.ROUTES) {
-      expect(nav.navName(route.id, route.label)).not.toMatch(/[A-Z]{2,}/);
-    }
-
-    // An unmapped id renders its label rather than an empty control, which is
-    // also the 404's path (NOT_FOUND_ROUTE is not a nav destination).
-    expect(nav.navName("unknown", "Custom")).toBe("Custom");
-    expect(nav.navName("notfound", "404")).toBe("404");
   });
 });

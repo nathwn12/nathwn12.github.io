@@ -37,7 +37,7 @@ function anchorFor(markup: string, label: string): string {
 describe("footer link target floor", () => {
   const markup = renderToStaticMarkup(createElement(Footer));
 
-  test.each(["Email", "GitHub", "LinkedIn"])(
+  test.each(["Email me", "GitHub", "LinkedIn"])(
     "%s is at least 44x44 before any text is measured",
     (label) => {
       const classes = anchorFor(markup, label);
@@ -50,10 +50,10 @@ describe("footer link target floor", () => {
   );
 
   test("the floor is on the shared class, not patched onto one link", () => {
-    const heights = ["Email", "GitHub", "LinkedIn"].map((label) =>
+    const heights = ["Email me", "GitHub", "LinkedIn"].map((label) =>
       targetAxis(anchorFor(markup, label), "min-h"),
     );
-    const widths = ["Email", "GitHub", "LinkedIn"].map((label) =>
+    const widths = ["Email me", "GitHub", "LinkedIn"].map((label) =>
       targetAxis(anchorFor(markup, label), "min-w"),
     );
     expect(new Set(heights)).toEqual(new Set([44]));
@@ -61,7 +61,7 @@ describe("footer link target floor", () => {
   });
 
   test("visible copy is unchanged and no hit-area overlay stands in for a box", () => {
-    for (const label of ["Email", "GitHub", "LinkedIn"]) {
+    for (const label of ["Email me", "GitHub", "LinkedIn"]) {
       expect(markup).toContain(`>${label}</a>`);
     }
     expect(markup).not.toMatch(/aria-hidden="true"[^>]*class="[^"]*(?:absolute|h-11)[^"]*"/);
