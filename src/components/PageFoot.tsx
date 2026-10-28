@@ -1,20 +1,21 @@
 import { navigate, routeAtOffset, useRoute } from "../lib/router";
-import { RESUME_PATH } from "../lib/contact";
+import { CV_PATH, RESUME_PATH } from "../lib/contact";
 import { navName } from "../lib/navNames";
 
 /**
  * PageFoot — the shared bottom band rendered on every route page (inside the
  * page's own 68ch container).
  *
- * One row under a 1px Line hairline: the résumé download on the left, the
- * adjacent-page pager on the right. Copy is sentence case and labels are
- * visible; the résumé link's href and download attributes are unchanged — only
- * the treatment is. Hero passes `accentResume`, so Home carries the accent
- * treatment and every other route renders the control in ink with the
+ * One row under a 1px Line hairline: the résumé and CV downloads on the left,
+ * the adjacent-page pager on the right. Copy is sentence case and labels are
+ * visible; both downloads resolve through the path constants in
+ * src/lib/contact.ts and carry their own download attribute — only the
+ * treatment is styled here. Hero passes `accentResume`, so Home carries the
+ * accent treatment and every other route renders the controls in ink with the
  * underline-on-hover affordance. No arrow glyphs: link affordance is color,
  * weight, and underline on hover. Timing is per element, not per component:
- * the two pager buttons move on the nav token, the résumé link on the link
- * token — both frozen in src/index.css, each running its named value as written
+ * the two pager buttons move on the nav token, the two download links on the
+ * link token — both frozen in src/index.css, each running its named value as written
  * (owner order 2026-10-14: the OS reduced-motion query no longer collapses a
  * duration).
  *
@@ -24,7 +25,7 @@ import { navName } from "../lib/navNames";
  */
 
 interface PageFootProps {
-  /** Preserve Hero's accent treatment on the résumé control (Home only). */
+  /** Preserve Hero's accent treatment on the résumé and CV controls (Home only). */
   accentResume?: boolean;
 }
 
@@ -44,18 +45,32 @@ export function PageFoot({ accentResume = false }: PageFootProps) {
   return (
     <div className="mt-section border-t border-border pt-block">
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2">
-      <a
-        href={RESUME_PATH}
-        download="Nathaniel-Nikolai-Ladero-Resume.pdf"
-        data-nav-item
-        className={
-          accentResume
-            ? `${resumeBase} text-accent-text hover:underline`
-            : `${resumeBase} text-text hover:underline`
-        }
-      >
-        Download résumé
-      </a>
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+          <a
+            href={RESUME_PATH}
+            download="Nathaniel-Nikolai-Ladero-Resume.pdf"
+            data-nav-item
+            className={
+              accentResume
+                ? `${resumeBase} text-accent-text hover:underline`
+                : `${resumeBase} text-text hover:underline`
+            }
+          >
+            Download résumé
+          </a>
+          <a
+            href={CV_PATH}
+            download="Nathaniel-Nikolai-Ladero-CV.pdf"
+            data-nav-item
+            className={
+              accentResume
+                ? `${resumeBase} text-accent-text hover:underline`
+                : `${resumeBase} text-text hover:underline`
+            }
+          >
+            Download CV
+          </a>
+        </div>
 
       <nav aria-label="Adjacent pages" className="flex flex-wrap items-center gap-6">
         {prev.path !== route.path && (

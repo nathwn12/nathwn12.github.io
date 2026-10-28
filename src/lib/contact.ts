@@ -10,6 +10,7 @@ import { z } from "zod";
 export const CONTACT_EMAIL = "nathanielnikolai.ladero@gmail.com";
 
 export const RESUME_PATH = "/Nathaniel-Nikolai-Ladero-Resume.pdf";
+export const CV_PATH = "/Nathaniel-Nikolai-Ladero-CV.pdf";
 
 /**
  * Pre-submit validation schema for the compose form fields. Mirrors the
