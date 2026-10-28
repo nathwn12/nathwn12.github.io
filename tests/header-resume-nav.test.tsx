@@ -112,12 +112,20 @@ describe("global header navigation", () => {
 });
 
 describe("homepage résumé control", () => {
-  test("the homepage still offers the résumé download", async () => {
+  test("the homepage still offers the résumé and CV downloads", async () => {
     await mount(createElement(Hero));
     const resume = host.querySelector<HTMLAnchorElement>(
       'a[href="/Nathaniel-Nikolai-Ladero-Resume.pdf"][download]',
     );
     expect(resume, "the homepage résumé download is missing").not.toBeNull();
     expect(resume!.textContent).toContain("Résumé — PDF");
+
+    const cv = host.querySelector<HTMLAnchorElement>(
+      'a[href="/Nathaniel-Nikolai-Ladero-CV.pdf"][download]',
+    );
+    expect(cv, "the homepage CV download is missing").not.toBeNull();
+    expect(cv!.textContent).toContain("CV — PDF");
+    // Same treatment as the résumé control, not a one-off.
+    expect(cv!.className).toBe(resume!.className);
   });
 });

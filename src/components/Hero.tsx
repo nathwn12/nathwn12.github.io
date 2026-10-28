@@ -10,7 +10,7 @@ import {
 } from "framer-motion";
 import type { AnimationPlaybackControls } from "framer-motion";
 import { heroClaim, coreStack, availability } from "../content/hero";
-import { CONTACT_EMAIL } from "../lib/contact";
+import { CONTACT_EMAIL, CV_PATH, RESUME_PATH } from "../lib/contact";
 import {
   employer,
   experience,
@@ -593,11 +593,18 @@ export function Hero() {
                 Email me
               </a>
               <a
-                href="/Nathaniel-Nikolai-Ladero-Resume.pdf"
+                href={RESUME_PATH}
                 download
                 className="flex min-h-11 items-center rounded-xs border border-text px-6 text-label font-semibold text-text"
               >
                 Résumé — PDF
+              </a>
+              <a
+                href={CV_PATH}
+                download
+                className="flex min-h-11 items-center rounded-xs border border-text px-6 text-label font-semibold text-text"
+              >
+                CV — PDF
               </a>
             </motion.div>
 
