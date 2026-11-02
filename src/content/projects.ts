@@ -166,8 +166,8 @@ export const projects: ProjectLore[] = [
   {
     id: "14",
     name: "Potflix",
-    dir: "Potflix",
-    url: "https://github.com/nathwn12/Potflix",
+    dir: "potflix",
+    url: "https://github.com/nathwn12/potflix",
     kind: "App",
     role: "Own brand",
     year: "2026",
@@ -258,8 +258,8 @@ export const projects: ProjectLore[] = [
   {
     id: "20",
     name: "Installer2",
-    dir: "Installer2",
-    url: "https://github.com/nathwn12/Installer2",
+    dir: "vencord-bootstrap",
+    url: "https://github.com/nathwn12/vencord-bootstrap",
     kind: "Tool",
     role: "Fork of Vencord/Installer",
     year: "2026",
@@ -304,8 +304,8 @@ export const projects: ProjectLore[] = [
   {
     id: "16",
     name: "ArcInstaller",
-    dir: "ArcInstaller",
-    url: "https://github.com/nathwn12/ArcInstaller",
+    dir: "arc-installer",
+    url: "https://github.com/nathwn12/arc-installer",
     kind: "Tool",
     role: "Own brand",
     year: "2026",
