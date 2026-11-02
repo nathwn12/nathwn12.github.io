@@ -1,8 +1,6 @@
 # nathwn12.github.io
 
-Terminal-themed single-page portfolio and resume site for Nathaniel Nikolai Ladero, Backend Developer (C#, ASP.NET Core, fintech systems), where you explore experience, skills, projects, and contact through a command terminal with keyboard navigation, in light and dark themes.
-
-Live at https://nathwn12.github.io.
+Terminal-themed single-page portfolio and resume site for nathwn12, Backend Developer (C#, ASP.NET Core, fintech systems), where you explore experience, skills, projects, and contact through a command terminal with keyboard navigation, in light and dark themes.
 
 ## Install
 
@@ -27,10 +25,6 @@ pnpm run test
 ```
 
 `pnpm run check` runs the typecheck and the test (which builds first, then runs vitest).
-
-## Status
-
-Live at https://nathwn12.github.io.
 
 ## Links
 
