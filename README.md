@@ -1,10 +1,10 @@
 # nathwn12.github.io
 
-Terminal-themed single-page portfolio and resume site for Nathaniel Nikolai Ladero, Backend Developer (C#, ASP.NET Core, fintech systems), presenting experience, skills, projects, and contact through a command terminal with keyboard navigation, in light and dark themes.
+Terminal-themed single-page portfolio and resume site for Nathaniel Nikolai Ladero, Backend Developer (C#, ASP.NET Core, fintech systems), where you explore experience, skills, projects, and contact through a command terminal with keyboard navigation, in light and dark themes.
 
 Live at https://nathwn12.github.io.
 
-## Usage
+## Install
 
 Prerequisites: Node.js >= 20.11 and pnpm 10.33.2.
 
@@ -32,6 +32,7 @@ pnpm run test
 
 Live at https://nathwn12.github.io.
 
-## License
+## Links
 
-MIT. See [LICENSE](LICENSE).
+- [Live site](https://nathwn12.github.io)
+- [MIT](LICENSE)
