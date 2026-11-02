@@ -27,13 +27,13 @@ const PRIMARY_LANGUAGE: Record<string, string> = {
   puppet: "Rust",
   gladius: "Rust",
   "oc-collections": "Rust",
-  Potflix: "Rust",
+  potflix: "Rust",
   slowburn: "TypeScript",
   "aimp-discord-presence2": "C++",
   "pear-desktop": "TypeScript",
-  Installer2: "PowerShell",
+  "vencord-bootstrap": "PowerShell",
   "tab-audio-normalizer": "JavaScript",
-  ArcInstaller: "PowerShell",
+  "arc-installer": "PowerShell",
   "slowed-reverb-audio": "JavaScript",
 };
 
@@ -50,14 +50,14 @@ const SOURCE_LANGUAGES: Record<string, readonly string[]> = {
   // Rust about 42k lines / 59 files in crates/{gladius,puppet}; TypeScript
   // about 30k lines / 81 files across the seven packages. Rust leads.
   "oc-collections": ["Rust", "TypeScript"],
-  Potflix: ["Rust"],
+  potflix: ["Rust"],
   // The Tauri shell: TypeScript UI on a Rust backend.
   slowburn: ["TypeScript", "Rust"],
   "aimp-discord-presence2": ["C++"],
   "pear-desktop": ["TypeScript"],
-  Installer2: ["PowerShell"],
+  "vencord-bootstrap": ["PowerShell"],
   "tab-audio-normalizer": ["JavaScript"],
-  ArcInstaller: ["PowerShell", "C#"],
+  "arc-installer": ["PowerShell", "C#"],
   "slowed-reverb-audio": ["JavaScript"],
 };
 
@@ -77,13 +77,13 @@ const ROLE: Record<string, string> = {
   puppet: "Own brand",
   gladius: "Own brand",
   "oc-collections": "Own brand",
-  Potflix: "Own brand",
+  potflix: "Own brand",
   slowburn: "Own brand",
   "aimp-discord-presence2": "Fork of Exle",
   "pear-desktop": "Fork of pear-devs",
-  Installer2: "Fork of Vencord/Installer",
+  "vencord-bootstrap": "Fork of Vencord/Installer",
   "tab-audio-normalizer": "Own brand",
-  ArcInstaller: "Own brand",
+  "arc-installer": "Own brand",
   "slowed-reverb-audio": "Own brand",
 };
 
@@ -159,7 +159,7 @@ describe("project inventory is the current public work", () => {
     for (const project of projects) {
       if (project.dir === "aimp-discord-presence2" ||
           project.dir === "pear-desktop" ||
-          project.dir === "Installer2") {
+          project.dir === "vencord-bootstrap") {
         expect(project.role, project.dir).toMatch(/^Fork of /);
       }
     }
@@ -201,7 +201,7 @@ describe("project inventory is the current public work", () => {
     // same 30 days as NEGATIVE_TTL), and its doc comment says an expired
     // positive is re-fetched, so the store is "never indefinite storage". The
     // card must state that 30-day expiry and must not claim permanence.
-    const potflix = projects.find((project) => project.dir === "Potflix");
+    const potflix = projects.find((project) => project.dir === "potflix");
     expect(potflix).toBeDefined();
     const prose = [potflix!.description, ...potflix!.highlights].join(" ");
     expect(prose).toMatch(/\b30[- ]days?\b/);
