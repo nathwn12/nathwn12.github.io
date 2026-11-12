@@ -1,0 +1,187 @@
+/* =========================================================================
+   TOKENS — the single source of truth for colour, type, space and motion.
+
+   One theme, and it is dark. There is no light block and no scheme branch: the
+   record is an instrument panel, and a theme switch inside one reads as a theme
+   demo rather than a document.
+
+   ROLES (never use a hex outside this file)
+     ground    the panel's base plate
+     panel     a raised surface: a pinned stage, an inset readout
+     panel-2   the step above panel: hover, one inset row
+     rule      hairline structure: table rows, panel edges, section seams
+     rule-strong  an active edge: the current tab's rule, a focus ground
+     ink       primary text
+     ink-muted secondary text only — never body
+     signal    structural accent: links, focus, active rules, marks
+     measure   measured values ONLY: numerals, the live readout
+     alarm     exactly one use: the "before" bar and the retired project
+
+   Contrast is measured, not assumed — src/test/theme.test.ts computes every
+   pair below from these values:
+     ink on ground 16.8:1   (floor 13)
+     muted on ground 6.6:1  (floor 5.2)
+     signal on ground 7.5:1 (floor 6)
+     measure on ground 11.1:1 (floor 9)
+   ========================================================================= */
+
+:root {
+  color-scheme: dark;
+
+  /* --- COLOUR ----------------------------------------------------------- */
+  --rec-ground: #0a0c0e;
+  --rec-panel: #111417;
+  --rec-panel-2: #171b1f;
+  --rec-rule: #23282d;
+  --rec-rule-strong: #39424a;
+  --rec-ink: #e9eef2;
+  --rec-ink-muted: #8c979e;
+  --rec-signal: #7c9cff;
+  --rec-measure: #4dd4e8;
+  --rec-alarm: #ff5d5d;
+
+  /* Selection is the signal at a wash, so it reads as a mark on the page
+     rather than a second accent. */
+  --rec-selection: color-mix(in srgb, var(--rec-signal) 22%, transparent);
+
+  /* --- TYPE — display, text and data, three strict roles ---------------- */
+  /* Display: Instrument Serif. Hero and section claims only. */
+  --rec-text-display: clamp(3.5rem, 13vw, 15rem);
+  --rec-leading-display: 0.86;
+  --rec-tracking-display: -0.02em;
+  /* A section claim: the same face, sized to a column rather than a viewport. */
+  --rec-text-claim: clamp(1.75rem, 1rem + 3.2vw, 4rem);
+  --rec-leading-claim: 0.94;
+  --rec-tracking-claim: -0.018em;
+  /* A title inside a band or a detail page. */
+  --rec-text-title: clamp(1.375rem, 1.1rem + 0.9vw, 1.875rem);
+  --rec-leading-title: 1.12;
+
+  /* Text: Archivo. Running copy at 17px, one measure. */
+  --rec-text-body: 1.0625rem;
+  --rec-leading-body: 1.6;
+  --rec-text-lead: clamp(1.0625rem, 1rem + 0.4vw, 1.3125rem);
+  --rec-leading-lead: 1.45;
+  --rec-prose-measure: 62ch;
+
+  /* Data: JetBrains Mono, 11–13px, tracked open. Numbers, units, repo names,
+     timestamps, keycaps — true data only, never an eyebrow over a heading. */
+  --rec-text-data: 0.75rem;
+  --rec-text-data-sm: 0.6875rem;
+  --rec-text-data-lg: 0.8125rem;
+  --rec-leading-data: 1.45;
+  --rec-tracking-data: 0.06em;
+
+  /* --- SPACE — one 4px base, then the structural steps ------------------ */
+  --rec-space-1: 0.25rem;
+  --rec-space-2: 0.5rem;
+  --rec-space-3: 0.75rem;
+  --rec-space-4: 1rem;
+  --rec-space-5: 1.5rem;
+  --rec-space-6: 2rem;
+  --rec-space-7: 3rem;
+  --rec-space-8: 4rem;
+  --rec-space-9: 6rem;
+  --rec-space-10: 8rem;
+
+  /* The frame: one container, 20px gutters on a phone and 48px on a desktop. */
+  --rec-frame: 82rem;
+  --rec-gutter: 1.25rem;
+  --rec-gutter-lg: 3rem;
+  --rec-band: 4rem;
+  --rec-band-lg: 7rem;
+
+  /* --- STRUCTURE -------------------------------------------------------- */
+  --rec-rule-w: 1px;
+  /* The sticky bar's own height: the scroll offset in base.css is derived from
+     it, so growing the bar cannot push a jumped-to heading under it. */
+  --rec-header-h: 4.5rem;
+  /* Radius is 0 everywhere. Named so a component cannot invent a value. */
+  --rec-radius: 0;
+
+  /* --- MOTION ----------------------------------------------------------- */
+  --rec-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --rec-ease-seam: cubic-bezier(0.65, 0, 0.35, 1);
+  --rec-dur-quick: 140ms;
+  --rec-dur-base: 280ms;
+  --rec-dur-exit: 240ms; /* route change: the page leaves */
+  --rec-dur-enter: 420ms; /* route change: the page arrives */
+
+  /* --- LAYERS — content, then chrome, then the instruments --------------- */
+  --rec-z-header: 50;
+  --rec-z-grain: 60;
+  --rec-z-reticle: 70;
+  --rec-z-curtain: 80;
+  --rec-z-skip: 100;
+}
+
+/* =========================================================================
+   TAILWIND THEME — the same values, exposed to the utility layer.
+
+   `static` is deliberate: plain CSS in `legacy.css` reads `var(--color-bg)`
+   and friends directly, so every one of these has to be emitted whether or not
+   a utility class happens to use it. Each legacy name aliases a `--rec-*`
+   token, so the sections that have not been rewritten yet adopt the new palette
+   immediately and stay legible, and a later rewrite can drop the alias without
+   touching a hex.
+   ========================================================================= */
+@theme static {
+  /* --- FAMILIES — three roles, three faces ----------------------------- */
+  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-sans: "Archivo", "Inter", "Inter Fallback", Arial, system-ui,
+    sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+    monospace;
+
+  /* --- LEGACY COLOUR NAMES -------------------------------------------- */
+  --color-bg: var(--rec-ground);
+  --color-text: var(--rec-ink);
+  --color-text-muted: var(--rec-ink-muted);
+  --color-accent: var(--rec-signal);
+  --color-accent-text: var(--rec-signal);
+  --color-surface: var(--rec-panel);
+  --color-surface-2: var(--rec-panel-2);
+  --color-selection: var(--rec-selection);
+
+  /* Whole-section fields. There is one palette now, so a field is a step in
+     the panel rather than a second colour system: panel-2 for the inset band,
+     panel for the recessed one, with ink and muted ink on both. */
+  --color-field-accent: var(--rec-panel-2);
+  --color-field-accent-text: var(--rec-ink);
+  --color-field-accent-muted: var(--rec-ink-muted);
+  --color-field-strong: var(--rec-panel);
+  --color-field-strong-text: var(--rec-ink);
+  --color-field-strong-muted: var(--rec-ink-muted);
+
+  /* --- LEGACY TYPE STEPS ---------------------------------------------- */
+  /* The five working steps the unrewritten sections ask for by name, mapped
+     onto the recorder scale so nothing renders at an off-scale size. */
+  --text-legal: var(--rec-text-data-sm);
+  --text-legal--line-height: var(--rec-leading-data);
+  --text-meta: var(--rec-text-data-lg);
+  --text-meta--line-height: var(--rec-leading-data);
+  --text-body: var(--rec-text-body);
+  --text-body--line-height: var(--rec-leading-body);
+  --text-lead: var(--rec-text-lead);
+  --text-lead--line-height: var(--rec-leading-lead);
+  --text-h3: var(--rec-text-title);
+  --text-h3--line-height: var(--rec-leading-title);
+  --text-h2: var(--rec-text-claim);
+  --text-h2--line-height: var(--rec-leading-claim);
+  --text-h1: clamp(2.5rem, 1.4rem + 4.4vw, 6rem);
+  --text-h1--line-height: 0.94;
+  --text-figure: clamp(2.25rem, 1.2rem + 3.4vw, 4.25rem);
+  --text-figure--line-height: 0.85;
+
+  /* --- LEGACY SPACE + MOTION ------------------------------------------ */
+  --spacing-gutter: var(--rec-gutter);
+  --spacing-gutter-lg: var(--rec-gutter-lg);
+  --spacing-band: var(--rec-band);
+  --spacing-band-lg: var(--rec-band-lg);
+  --spacing-row: var(--rec-space-5);
+  --spacing-tight: var(--rec-space-3);
+
+  --ease-out: var(--rec-ease-out);
+  --dur-quick: var(--rec-dur-quick);
+  --dur-base: var(--rec-dur-base);
+}

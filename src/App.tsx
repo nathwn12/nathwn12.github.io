@@ -5,6 +5,7 @@ import {
   type ComponentType,
   type ReactNode,
 } from "react";
+import { Chrome } from "./components/Chrome";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { Record } from "./components/Record";
@@ -108,6 +109,7 @@ export default function App() {
         Skip to content
       </a>
 
+      <Chrome />
       <Header />
 
       <main id="main" tabIndex={-1} className="outline-none">
@@ -116,7 +118,7 @@ export default function App() {
         </PageErrorBoundary>
       </main>
 
-      <Footer routeId={route.id} />
+      <Footer />
     </>
   );
 }

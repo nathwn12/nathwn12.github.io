@@ -14,6 +14,7 @@ import {
   ROUTES,
   type RouteDef,
 } from "./routes";
+import { routeTransition } from "../components/RouteCurtain";
 
 /**
  * Minimal History-API router for a two-route site with one long record page.
@@ -196,21 +197,38 @@ export interface RouterState {
   direction: RouteDirection;
 }
 
-/** Navigate to a route path. No-op when already there or path is unknown. */
-export function navigate(to: string): void {
+/**
+ * Navigate to a route path. No-op when already there or path is unknown.
+ *
+ * With `{ transition: true }` the change is covered by a route transition
+ * (view transition where the browser has one, the curtain otherwise), and the
+ * history push + re-render happen at the seam. Without it the commit is
+ * synchronous — the default, because a programmatic redirect should not be
+ * dressed as a scene change.
+ */
+export interface NavigateOptions {
+  transition?: boolean;
+}
+
+export function navigate(to: string, options: NavigateOptions = {}): void {
   const path = canonicalPath(to);
   if (!routeByPath(path)) return; // unknown path — ignore
   if (path === currentPath) return;
 
-  if (historyStack[historyStack.length - 1] === path) {
-    history.replaceState(null, "", path);
-    setState(path, "back");
-    return;
-  }
+  const commit = () => {
+    if (path === currentPath) return;
+    if (historyStack[historyStack.length - 1] === path) {
+      history.replaceState(null, "", path);
+      setState(path, "back");
+      return;
+    }
+    historyStack.push(path);
+    history.pushState(null, "", path);
+    setState(path, "forward");
+  };
 
-  historyStack.push(path);
-  history.pushState(null, "", path);
-  setState(path, "forward");
+  if (options.transition) routeTransition(commit);
+  else commit();
 }
 
 /** Subscribe to route changes. Returns current route + direction. */
@@ -255,7 +273,7 @@ export function RouteLink({ href, onClick, ...rest }: RouteLinkProps) {
     )
       return;
     e.preventDefault();
-    navigate(href);
+    navigate(href, { transition: true });
     onClick?.(e);
   };
   return <a href={href} onClick={handleClick} {...rest} />;
@@ -289,7 +307,7 @@ export function SectionLink({ section, onClick, ...rest }: SectionLinkProps) {
       scrollToSection(section);
     } else {
       requestSectionScroll(section);
-      navigate("/");
+      navigate("/", { transition: true });
     }
     onClick?.(e);
   };

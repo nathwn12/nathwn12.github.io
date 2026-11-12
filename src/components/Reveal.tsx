@@ -1,14 +1,14 @@
-import type { ReactNode } from "react";
+import { useRef, type ReactNode } from "react";
 import { useReveal } from "../lib/motion";
 
 /**
- * Reveal — one wrapper for the site's entrance.
+ * Reveal — the one entrance wrapper.
  *
- * It adds the shared `enter` / `is-in` classes from index.css and nothing else:
- * the travel is 14px of translateY plus opacity, 280ms on the house ease, run
- * once. `prefers-reduced-motion: reduce` removes the travel and keeps the
- * content (index.css), and the content is never conditional on the observer —
- * see useReveal's guard.
+ * It measures a block into view once with GSAP (`useReveal`): 14px of lift and
+ * a fade on the house ease, scoped by `useGSAP` so an unmount reverts it. With
+ * the OS asking for less motion, or the footer's Motion switch off, the block
+ * is simply there — the final state is the resting state, and nothing is
+ * hidden waiting for a tween that will not run.
  *
  * `as` exists so a list can reveal its OWN `<li>` instead of wrapping it in a
  * div: `<ol>` may only contain list items, and a div between them is invalid
@@ -25,13 +25,11 @@ export function Reveal({
   className?: string;
   as?: "div" | "li";
 }) {
-  const reveal = useReveal<HTMLElement>({ delayMs });
+  const ref = useRef<HTMLElement>(null);
+  useReveal(ref, { delay: delayMs ? delayMs / 1000 : 0 });
+
   return (
-    <Tag
-      ref={reveal.ref as never}
-      className={`${reveal.className} ${className}`.trim()}
-      style={reveal.style}
-    >
+    <Tag ref={ref as never} className={className}>
       {children}
     </Tag>
   );

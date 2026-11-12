@@ -1,54 +1,25 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- The media pair is the no-JS fallback: it follows the OS scheme. The
-         pre-paint script below rewrites BOTH entries to the resolved ground
-         before first paint, so a stored pin that disagrees with the OS cannot
-         leave mobile browser chrome on the other palette. src/lib/theme.ts
-         keeps the same pair in step when the resolved scheme changes. -->
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F1EC" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101315" />
+    <!-- One ground, so one theme colour: the recorder's `--rec-ground`. -->
+    <meta name="theme-color" content="#0A0C0E" />
     <script>
       (function () {
-        /* Resolve the stored scheme before paint, so a missing, unrecognized,
-           or retired ("auto") value lands on the OS scheme with no FOUC.
-           data-theme only ever holds light or dark — CSS has no "auto" branch,
-           and src/lib/theme.ts resolves a legacy "auto" exactly this way (an
-           unrecognized value is not a pin, so it falls through to the OS).
-           Storage and the OS probe are TWO INDEPENDENT try/catches: a storage
-           throw (Safari private mode / blocked storage) must never suppress OS
-           detection and force a dark-OS visitor onto the light theme. */
-        var stored = null;
+        /* The only pre-paint work left: the motion switch. It is read before
+           first paint so a visitor who turned motion off never sees the page
+           animate for one frame before the switch is applied — and it is a
+           separate try/catch, because storage that throws (Safari private mode,
+           a blocked origin) must not stop the attribute being written. An
+           absent or unrecognized value means motion is on. */
+        var motion = "on";
         try {
-          stored = localStorage.getItem("nnl-theme");
+          if (localStorage.getItem("nnl-motion") === "off") motion = "off";
         } catch {
-          /* storage unavailable — fall through to the OS probe */
+          /* storage unavailable — leave motion on */
         }
-        var prefersDark = false;
-        try {
-          prefersDark =
-            typeof window.matchMedia === "function" &&
-            window.matchMedia("(prefers-color-scheme: dark)").matches;
-        } catch {
-          /* matchMedia unavailable — treat as light */
-        }
-        var theme =
-          stored === "light" || stored === "dark"
-            ? stored
-            : prefersDark
-              ? "dark"
-              : "light";
-        document.documentElement.dataset.theme = theme;
-        /* Paint the browser chrome the scheme the page actually resolved to.
-           Both entries carry the active ground; a meta with no matching media
-           would lose to the media pair, so the pair itself is rewritten. */
-        var ground = theme === "dark" ? "#101315" : "#F2F1EC";
-        var metas = document.querySelectorAll('meta[name="theme-color"]');
-        for (var i = 0; i < metas.length; i++) {
-          metas[i].setAttribute("content", ground);
-        }
+        document.documentElement.dataset.motion = motion;
       })();
     </script>
     <link rel="canonical" href="https://nathwn12.github.io/" />
@@ -68,7 +39,13 @@
     <meta name="twitter:image" content="https://nathwn12.github.io/og-image-2026-10-28.png" />
     <meta name="twitter:image:alt" content="Dark card for Nathaniel Nikolai Ladero: backend developer for payment and cash-management systems that ran in production, with the worst-case payment query measured at under one second." />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <link rel="preload" as="font" type="font/woff2" href="/fonts/inter-latin.woff2" crossorigin />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/InstrumentSerif-Regular.woff2"
+      crossorigin
+    />
     <title>The record — Nathaniel Nikolai Ladero</title>
     <script type="application/ld+json">
       {
