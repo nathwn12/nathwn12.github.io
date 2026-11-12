@@ -1,0 +1,186 @@
+/* =========================================================================
+   BASE — the reset-adjacent floor: ground, ink, selection, focus, rules.
+
+   Nothing here decides a layout. It decides what the page is made of: a
+   near-black ground, bone ink, one hairline at one weight, one focus ring, and
+   one place where a scrollbar is drawn. Radius is 0 everywhere — this is an
+   instrument, not a card.
+   ========================================================================= */
+
+*,
+*::before,
+*::after {
+  /* One radius, and it is zero. Named through the token so a component cannot
+     quietly soften an edge and start a second visual language. */
+  border-radius: var(--rec-radius);
+}
+
+html {
+  height: 100%;
+  /* The gutter is always reserved, so a route that grows past the viewport and
+     one that does not cannot shift the frame sideways when they swap. */
+  scrollbar-gutter: stable;
+  -webkit-tap-highlight-color: transparent;
+  scroll-behavior: smooth;
+  /* Every scroll-into-view — a band link, a heading hash, focus moving into
+     main — lands clear of the sticky header and its 1px rule. It lives on the
+     scrolling root so a heading target gets the same clearance as a band, and
+     so padding and margin can never stack into a double offset. */
+  scroll-padding-top: calc(var(--rec-header-h, 4.5rem) + var(--rec-space-3));
+}
+
+body {
+  min-height: 100%;
+  background: var(--rec-ground);
+  color: var(--rec-ink);
+  font-family: var(--font-sans);
+  font-size: var(--rec-text-body);
+  line-height: var(--rec-leading-body);
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--rec-selection);
+  color: var(--rec-ink);
+}
+
+/* The one focus ring, site-wide: 2px signal at a 3px offset, never removed. On
+   a field the ring switches to the field's own ink so it stays visible. */
+:focus-visible {
+  outline: 2px solid var(--rec-signal);
+  outline-offset: 3px;
+  border-radius: 0;
+}
+
+/* The main landmark receives focus programmatically on every route change
+   (App.tsx) so keyboard and screen-reader visitors start at the new page. That
+   focus is a destination, not an affordance: it must not paint a ring, which
+   would read as "a giant control is focused". Every real control keeps the
+   global :focus-visible ring. */
+#main:focus {
+  outline: none;
+}
+
+/* --- SCROLLBAR — drawn as a hairline on the ground, never as a chrome pill - */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--rec-rule-strong) var(--rec-ground);
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--rec-ground);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--rec-rule-strong);
+  border: 2px solid var(--rec-ground);
+  border-radius: 0;
+}
+::-webkit-scrollbar-corner {
+  background: var(--rec-ground);
+}
+
+/* =========================================================================
+   FRAME — one container, one pair of gutters, at every width.
+   ========================================================================= */
+.frame {
+  width: 100%;
+  max-width: var(--rec-frame);
+  margin-inline: auto;
+  padding-inline: var(--rec-gutter);
+}
+@media (min-width: 900px) {
+  .frame {
+    padding-inline: var(--rec-gutter-lg);
+  }
+}
+
+/* =========================================================================
+   RULES — hairline structure only where structure is real: a panel edge, a
+   table row, a section seam. Never under a heading as decoration.
+   ========================================================================= */
+.rule {
+  display: block;
+  flex: none;
+  width: 100%;
+  height: var(--rec-rule-w);
+  margin: 0;
+  border: 0;
+  background: var(--rec-rule);
+}
+.rule--v {
+  width: var(--rec-rule-w);
+  height: auto;
+  min-height: var(--rec-rule-w);
+  align-self: stretch;
+}
+.rule--strong {
+  background: var(--rec-rule-strong);
+}
+.rule--signal {
+  background: var(--rec-signal);
+}
+
+/* The draw-in primitive: `revealRule()` in src/lib/motion.ts animates scaleX
+   from 0 to 1 against this origin. The hidden state is set by the script, not
+   by this rule, so a page whose JS never arrives still paints every rule. */
+.rule--draw {
+  transform-origin: left center;
+}
+
+/* =========================================================================
+   DATA — the mono utility. True data only: numerals, units, repo names,
+   timestamps, keycaps. An eyebrow over a heading is not data.
+   ========================================================================= */
+.data {
+  font-family: var(--font-mono);
+  font-size: var(--rec-text-data);
+  line-height: var(--rec-leading-data);
+  letter-spacing: var(--rec-tracking-data);
+  font-variant-numeric: tabular-nums;
+  text-transform: none;
+}
+.data--sm {
+  font-size: var(--rec-text-data-sm);
+}
+.data--lg {
+  font-size: var(--rec-text-data-lg);
+}
+
+/* =========================================================================
+   MOTION — the global kill switch.
+
+   Two ways in, one result: the OS preference, and the footer's Motion switch
+   (`data-motion="off"` on <html>). Both collapse every transition and animation
+   to effectively zero, so a script that animates still lands on its final state
+   in one frame. Components are expected to read the same preference through
+   `prefersReducedMotion()` / `readMotionEnabled()` and skip the tween; this is
+   the belt to that pair of braces.
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html[data-motion="off"] *,
+html[data-motion="off"] *::before,
+html[data-motion="off"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-delay: 0ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  transition-delay: 0ms !important;
+  scroll-behavior: auto !important;
+}

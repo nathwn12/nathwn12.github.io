@@ -1,0 +1,603 @@
+/* =========================================================================
+   LEGACY — the sections that have not been rewritten yet.
+
+   This is the shipped 2026-11 stylesheet, moved here verbatim minus the two
+   things that now live above it: the @font-face declarations (fonts.css) and
+   the token definitions (tokens.css). It consumes the legacy `--color-*` /
+   `--text-*` names, which tokens.css aliases onto the recorder palette, so
+   every band below already paints on the new ground in the new ink.
+
+   Nothing new belongs in this file. A section rewrite deletes its own rules
+   from here and styles itself against `--rec-*` instead; when the last band
+   is rewritten, this file goes.
+   ========================================================================= */
+
+/* On a whole-section field the ring borrows the field's ink. The ring
+   itself, the ground, the frame and the rules live in base.css. */
+.field-accent :focus-visible,
+.field-strong :focus-visible {
+  outline-color: currentColor;
+}
+
+/* Skip link — visible on focus, first tab stop. */.skip-link {
+  position: fixed;
+  top: 0.5rem;
+  left: 0.5rem;
+  z-index: 100;
+  padding: 0.75rem 1rem;
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-size: var(--text-meta);
+  font-weight: 600;
+  transform: translateY(-200%);
+  transition: transform var(--dur-quick) var(--ease-out);
+}
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+/* =========================================================================
+   FRAME — one container, one pair of margins, at every width.
+   ========================================================================= */
+
+.band {
+  padding-block: var(--spacing-band);
+}
+@media (min-width: 900px) {
+  .band {
+    padding-block: var(--spacing-band-lg);
+  }
+}
+
+/* The first screen sits on the same rhythm as the rest at a phone width; on a
+   desktop its top is pulled in so the name starts just under the sticky bar
+   instead of a full band's distance below it. */
+@media (min-width: 900px) {
+  .band--first {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+}
+
+/* A section that continues the one above it (a detail page's list under its
+   title) sits flush, so the page reads as one document, not two bands. */
+.band--flush {
+  padding-top: 0;
+}
+
+/* A field: a section whose whole ground changes colour. The ink, the muted
+   text and the focus ring all come from the field's own tokens. */
+.field-accent {
+  background: var(--color-field-accent);
+  color: var(--color-field-accent-text);
+}
+.field-accent .muted {
+  color: var(--color-field-accent-muted);
+}
+.field-strong {
+  background: var(--color-field-strong);
+  color: var(--color-field-strong-text);
+}
+.field-strong .muted {
+  color: var(--color-field-strong-muted);
+}
+
+/* =========================================================================
+   TYPE ROLES
+   ========================================================================= */
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.h1 {
+  font-size: var(--text-h1);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+}
+.h2 {
+  font-size: var(--text-h2);
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+.h3 {
+  font-size: var(--text-h3);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.lede {
+  font-size: var(--text-lead);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  text-wrap: pretty;
+}
+
+.prose {
+  font-size: var(--text-body);
+  line-height: 1.55;
+  text-wrap: pretty;
+  /* 52ch of Inter is ~65 characters of running text at 17px — inside the
+     62–72 band. At 54ch the measured line ran to 77 characters, which is a
+     magazine measure, not a reading measure. */
+  max-width: 52ch;
+}
+
+.muted {
+  color: var(--color-text-muted);
+}
+
+.meta {
+  font-size: var(--text-meta);
+  line-height: 1.45;
+  letter-spacing: 0.005em;
+}
+
+.figure {
+  font-size: var(--text-figure);
+  line-height: 0.85;
+  letter-spacing: -0.05em;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+/* All figures align: tabular everywhere a number can stack. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================================
+   LINKS AND BUTTONS — one primary fill, one square radius (0), one underline.
+   ========================================================================= */
+.link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+  transition: text-decoration-color var(--dur-quick) var(--ease-out);
+}
+.link:hover {
+  text-decoration-color: currentColor;
+}
+
+/* A link set at display size carries a 1px underline: 1.5px is a text-link
+   weight and reads as a rule under a 26px name. */
+.h3 .link {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.14em;
+}
+
+.accent-link {
+  color: var(--color-accent-text);
+  font-weight: 550;
+  text-decoration: underline;
+  text-decoration-thickness: 1.5px;
+  text-underline-offset: 0.22em;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
+}
+.accent-link:hover {
+  text-decoration-color: currentColor;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0;
+  border: 0;
+  background: var(--color-accent);
+  color: var(--color-bg);
+  font: inherit;
+  font-size: var(--text-meta);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    transform var(--dur-quick) var(--ease-out),
+    opacity var(--dur-quick) var(--ease-out);
+}
+.button:hover {
+  opacity: 0.88;
+}
+.button:active {
+  transform: translateY(1px);
+}
+.button[disabled] {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+/* On a field the primary fill flips to the field's ink, which is the loudest
+   thing on screen — exactly one per section. */
+.field-accent .button {
+  background: var(--color-field-accent-text);
+  color: var(--color-field-accent);
+}
+.field-strong .button {
+  background: var(--color-field-strong-text);
+  color: var(--color-field-strong);
+}
+
+/* A control that is a text action, never a boxed outline. */
+.text-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  font-size: var(--text-meta);
+  font-weight: 600;
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.3em;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+  transition: text-decoration-color var(--dur-quick) var(--ease-out);
+}
+.text-action:hover {
+  text-decoration-color: currentColor;
+}
+
+/* =========================================================================
+   HEADER — sticky, solid ground, one 2px structural rule (never a hairline).
+   ========================================================================= */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--color-bg);
+  border-bottom: 2px solid var(--color-text);
+}
+.site-header__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 3.75rem;
+}
+.wordmark {
+  display: inline-flex;
+  align-items: center;
+  /* Three characters are narrower than the 44px floor every header control
+     keeps, so the box owns the floor on both axes, not the glyph run. */
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  /* A monogram, not a clipped name: three capitals one step heavier and a
+     step larger than the 14px nav labels beside them, tracked open so the
+     letters read as separate letterforms rather than the start of a word.
+     The negative tracking a full wordmark wanted would close the mark back
+     into a truncated name. */
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: inherit;
+  text-decoration: none;
+}
+.site-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.site-nav__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-inline: 0.6rem;
+  font-size: var(--text-meta);
+  font-weight: 500;
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--dur-quick) var(--ease-out);
+}
+.site-nav__link:hover {
+  color: var(--color-accent-text);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+.site-nav__link[aria-current="page"] {
+  color: var(--color-accent-text);
+  font-weight: 650;
+}
+@media (max-width: 899px) {
+  /* ONE nav in both layouts: hidden until the trigger opens it, then a panel
+     under the bar. There is no second, mobile-only copy of the links. */
+  .site-nav {
+    display: none;
+  }
+  .site-nav[data-open="true"] {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    gap: 0;
+    padding: 0.25rem var(--spacing-gutter) 1rem;
+    background: var(--color-bg);
+    border-bottom: 2px solid var(--color-text);
+  }
+  .site-nav[data-open="true"] .site-nav__link {
+    min-height: 2.75rem;
+    padding-inline: 0;
+    font-size: 1rem;
+  }
+  .menu-toggle {
+    display: inline-flex;
+  }
+}
+@media (min-width: 900px) {
+  .menu-toggle {
+    display: none;
+  }
+}
+
+.menu-toggle {
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding-inline: 0.6rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: var(--text-meta);
+  font-weight: 600;
+  cursor: pointer;
+}
+/* =========================================================================
+   THE MEASUREMENT PANEL - the one live thing.
+   Two bars share one scale, so their lengths are the comparison.
+   ========================================================================= */
+.measure {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+.measure__track {
+  position: relative;
+  height: 0.5rem;
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  overflow: hidden;
+}
+.measure__bar {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  background: currentColor;
+  transition: transform var(--dur-base) var(--ease-out);
+}
+.measure__bar--accent {
+  background: var(--color-accent);
+}
+/* The "before" extent stays visible behind the live bar, so the 1:60 ratio is
+   legible at a glance instead of being inferred from an empty track. */
+.measure__bar--ghost {
+  background: color-mix(in srgb, currentColor 20%, transparent);
+}
+.measure__scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.375rem;
+  font-size: var(--text-legal);
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+.field-accent .measure__bar--accent,
+.field-strong .measure__bar--accent {
+  background: currentColor;
+}
+.measure__switch {
+  display: inline-flex;
+  align-self: start;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+.measure__switch button {
+  min-height: 2.75rem;
+  padding: 0.4rem 0.9rem;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: var(--text-meta);
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition: background var(--dur-quick) var(--ease-out);
+}
+.measure__switch button[aria-pressed="true"] {
+  /* The selected state is the one filled chip on the page's paper: ink, not
+     the action accent, because a selector is a state and not a call to act. */
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-weight: 650;
+}
+.measure__switch button[aria-pressed="false"]:hover {
+  background: color-mix(in srgb, currentColor 16%, transparent);
+}
+
+/* =========================================================================
+   THE LEDGER ROW — the shared record shape: claim left, figure right.
+   Rows are separated by space and a background step, never a hairline.
+
+   The figure's baseline is set on the claim's, not its box top: at 40px the
+   figure's own baseline sits 16.7px lower than a 17px/1.375 claim's, so the
+   figure is lifted by that measured distance. A phone cannot hold both on one
+   line, so the figure drops to its own right-aligned row and the numeric edge
+   survives where the column cannot.
+   ========================================================================= */
+.record-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.25rem 1.25rem;
+  padding-block: 1.25rem;
+}
+.record-row__claim {
+  grid-column: 1;
+  grid-row: 1;
+}
+.record-row__figure {
+  grid-column: 1;
+  grid-row: 2;
+  justify-self: end;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.875rem;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: right;
+}
+.record-row__detail {
+  grid-column: 1;
+  grid-row: 3;
+}
+@media (min-width: 760px) {
+  .record-row {
+    grid-template-columns: minmax(0, 1fr) 12.5rem;
+    gap: 0.5rem 2rem;
+    padding-block: 1.125rem;
+    align-items: start;
+  }
+  .record-row__figure {
+    grid-column: 2;
+    grid-row: 1;
+    margin-top: -0.34em;
+    font-size: 2.5rem;
+  }
+  .record-row__detail {
+    grid-column: 1;
+    grid-row: 2;
+  }
+}
+
+/* =========================================================================
+   THE FACT BLOCK — a labelled figure, the record's unit, used by the two
+   detail pages' opening bands so they are not a title over an empty half.
+   ========================================================================= */
+.fact {
+  display: grid;
+  gap: 0.375rem;
+}
+.fact__label {
+  font-size: var(--text-meta);
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+.fact__figure {
+  font-size: clamp(2.25rem, 1.5rem + 2.2vw, 3.5rem);
+  line-height: 0.95;
+  letter-spacing: -0.045em;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.fact__note {
+  max-width: 34ch;
+  font-size: var(--text-meta);
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+/* =========================================================================
+   THE ATLAS — six groups, each one dense run of packages.
+   ========================================================================= */
+.atlas {
+  display: grid;
+  gap: 1.5rem 2.5rem;
+}
+@media (min-width: 760px) {
+  .atlas {
+    gap: 2rem 2.5rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 1200px) {
+  .atlas {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.atlas__group h3 {
+  font-size: var(--text-h3);
+}
+.atlas__packages {
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+@media (min-width: 760px) {
+  .atlas__packages {
+    font-size: var(--text-meta);
+    line-height: 1.65;
+  }
+}
+.atlas__packages b {
+  color: inherit;
+  font-weight: 650;
+}
+/* The group's one-line note is orientation, not content: it earns its space on
+   a wide screen and costs too much of it on a phone. */
+.atlas__note {
+  display: none;
+}
+@media (min-width: 760px) {
+  .atlas__note {
+    display: block;
+  }
+}
+
+/* =========================================================================
+   THE CLOSE — footer as a designed end, not a sitemap.
+   ========================================================================= */
+.site-footer {
+  background: var(--color-bg);
+  border-top: 2px solid var(--color-text);
+  padding-block: 2rem 1.75rem;
+}
+.site-footer__rule {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1.5rem;
+}
+.site-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1.25rem;
+}
+
+/* =========================================================================
+/* =========================================================================
+   PRINT — the record on paper.
+   ========================================================================= */
+@media print {
+  .site-header,
+  .site-footer,
+  .skip-link,
+  .measure__switch {
+    display: none;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+  .field-accent,
+  .field-strong {
+    background: none;
+    color: #000;
+  }
+}

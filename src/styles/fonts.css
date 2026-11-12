@@ -1,0 +1,112 @@
+/* =========================================================================
+   FACES — three families, self-hosted latin slices, no runtime request.
+
+   Every file below is a static deliverable in `public/fonts/`, fetched once
+   from the Google Fonts CSS2 API (latin subset only) and committed here. No
+   shipped source references a font host at runtime, so the first paint never
+   waits on a third-party origin.
+
+   FAMILY            FILE                          WEIGHT       LICENCE
+   Instrument Serif  InstrumentSerif-Regular.woff2  400        OFL-InstrumentSerif.txt
+   Instrument Serif  InstrumentSerif-Italic.woff2   400 italic OFL-InstrumentSerif.txt
+   Archivo           Archivo-Variable.woff2          100–900    OFL-Archivo.txt
+   JetBrains Mono    JetBrainsMono-Regular.woff2     400        OFL-JetBrainsMono.txt
+   JetBrains Mono    JetBrainsMono-Medium.woff2      500        OFL-JetBrainsMono.txt
+   Inter             inter-latin.woff2               400–700    OFL-Inter.txt
+
+   Inter is kept as the metric-matched body fallback (see the face below), not
+   as a primary role: the record is set in Archivo.
+
+   `unicode-range` is the latin slice Google served for each family, restated
+   verbatim so a browser never downloads a face it cannot use. `font-display:
+   swap`: the fallback paints, the real face swaps in, and the swap changes
+   letterforms only — never a line break (see the fallback face at the bottom).
+   ========================================================================= */
+
+/* --- Display: Instrument Serif ------------------------------------------ */
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/fonts/InstrumentSerif-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Instrument Serif";
+  src: url("/fonts/InstrumentSerif-Italic.woff2") format("woff2");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* --- Text: Archivo, variable across the whole usable weight range -------- */
+@font-face {
+  font-family: "Archivo";
+  src: url("/fonts/Archivo-Variable.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* --- Data: JetBrains Mono, two cuts ------------------------------------- */
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "JetBrains Mono";
+  src: url("/fonts/JetBrainsMono-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* --- The body fallback, kept metric-matched to Inter --------------------
+   Archivo is the primary text face; Inter ships beside it so a browser that
+   refuses the variable font still lands on a face whose average advance is
+   within ~2% of the fallback below. Order in the stack matters: Archivo,
+   then Inter, then the adjusted local face. */
+@font-face {
+  font-family: "Inter";
+  src: url("/fonts/inter-latin.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* The fallback is measured, not guessed: the width sweep on the built page
+   scored each candidate by the layout shift its swap produced at 1440 and 390.
+   At 103% the nav cluster moved one character-width when the real face arrived
+   (CLS 0.229 at 1440); at 106% that shift is 0.011, and 107% is worse again
+   (0.021). Chrome applies size-adjust to the local face's advances, so the
+   width ratio is the whole game; the ascent/descent overrides only keep
+   baselines put. */
+@font-face {
+  font-family: "Inter Fallback";
+  src: local("Arial"), local("Helvetica Neue"), local("Segoe UI");
+  size-adjust: 106%;
+  ascent-override: 91.4%;
+  descent-override: 22.8%;
+  line-gap-override: 0%;
+}

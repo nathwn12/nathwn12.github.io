@@ -1,0 +1,383 @@
+/* =========================================================================
+   CHROME — the instruments' own styles: grain, reticle, curtain, rail, close.
+
+   These belong to the components in src/components (Grain, Reticle,
+   RouteCurtain, Header, Footer, MotionToggle) and to nothing else. They load
+   after base.css because they sit on top of it, and before legacy.css because no
+   legacy class is involved.
+   ========================================================================= */
+
+/* --- GRAIN ---------------------------------------------------------------
+   One generated noise field, jittered by transform only. 6fps is deliberate:
+   at 60fps it reads as video, at 6 it reads as film. */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: var(--rec-z-grain);
+  pointer-events: none;
+  opacity: 0.055;
+  mix-blend-mode: overlay;
+  animation: rec-grain-jitter 1s steps(1, end) infinite;
+  will-change: transform;
+}
+.grain__noise {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+@keyframes rec-grain-jitter {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  16.67% {
+    transform: translate3d(-6px, 4px, 0);
+  }
+  33.33% {
+    transform: translate3d(5px, -7px, 0);
+  }
+  50% {
+    transform: translate3d(-4px, -5px, 0);
+  }
+  66.67% {
+    transform: translate3d(7px, 3px, 0);
+  }
+  83.33% {
+    transform: translate3d(-3px, 6px, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+/* A still frame of grain is fine; a moving one is motion. */
+@media (prefers-reduced-motion: reduce) {
+  .grain {
+    animation: none;
+  }
+}
+html[data-motion="off"] .grain {
+  animation: none;
+}
+
+/* --- RETICLE -------------------------------------------------------------
+   A 1px crosshair plus the pointer's coordinates. Both start invisible and are
+   faded in by the first pointer move, so a keyboard visitor never sees a mark
+   parked at 0,0. */
+.reticle {
+  position: fixed;
+  inset: 0;
+  z-index: var(--rec-z-reticle);
+  pointer-events: none;
+}
+.reticle__cross {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.reticle__cross::before,
+.reticle__cross::after {
+  content: "";
+  position: absolute;
+  background: var(--rec-signal);
+}
+.reticle__cross::before {
+  top: 0;
+  left: -8px;
+  width: 17px;
+  height: 1px;
+}
+.reticle__cross::after {
+  top: -8px;
+  left: 0;
+  width: 1px;
+  height: 17px;
+}
+.reticle__readout {
+  position: absolute;
+  right: var(--rec-gutter);
+  bottom: var(--rec-space-4);
+  opacity: 0;
+  color: var(--rec-ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- CURTAIN -------------------------------------------------------------
+   The panel is parked out of sight until a route change sweeps it up.
+   `visibility`/`opacity`, never a transform: GSAP owns the transform, and a CSS
+   transform here would be read back as both a pixel offset and a percentage, so
+   the panel would travel two viewports instead of one.
+   `pointer-events: none` is the promise: it can never stand between a visitor
+   and the page, and it never traps focus because it holds nothing focusable. */
+.curtain {
+  position: fixed;
+  inset: 0;
+  z-index: var(--rec-z-curtain);
+  display: grid;
+  place-items: center;
+  background: var(--rec-ground);
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
+  will-change: transform;
+}
+.curtain__mark {
+  display: block;
+  width: 40px;
+  height: 40px;
+  opacity: 0.92;
+}
+
+/* Where the browser owns the transition, its two halves run on the same clock
+   and in the same direction as the curtain: the old page rises out, the new one
+   rises in. A plain cross-fade would read as a different product. */
+::view-transition-old(root) {
+  animation: rec-seam-out var(--rec-dur-exit) var(--rec-ease-seam) both;
+}
+::view-transition-new(root) {
+  animation: rec-seam-in var(--rec-dur-enter) var(--rec-ease-seam) both;
+}
+@keyframes rec-seam-out {
+  to {
+    transform: translateY(-6%);
+    opacity: 0;
+  }
+}
+@keyframes rec-seam-in {
+  from {
+    transform: translateY(6%);
+    opacity: 0;
+  }
+}
+
+/* --- MASTHEAD -----------------------------------------------------------
+   Sticky, one hairline under it, the mark on the left and three destinations
+   on the right. Below 900px the same nav becomes a panel under the rail. */
+.masthead {
+  position: sticky;
+  top: 0;
+  z-index: var(--rec-z-header);
+  background: var(--rec-ground);
+  border-bottom: var(--rec-rule-w) solid var(--rec-rule);
+}
+.masthead__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--rec-space-5);
+  min-height: var(--rec-header-h);
+}
+.masthead__mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+}
+.masthead__mark img {
+  display: block;
+  width: 36px;
+  height: 36px;
+}
+.masthead__nav {
+  display: flex;
+  align-items: center;
+  gap: var(--rec-space-5);
+}
+.masthead__link {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--rec-ink-muted);
+  text-decoration: none;
+  transition: color var(--rec-dur-quick) var(--rec-ease-out);
+}
+/* The active state: the ink changes and a signal hairline draws in from the
+   left. One indicator, one colour, and the underline is the only thing that
+   moves between routes. */
+.masthead__link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.55rem;
+  height: var(--rec-rule-w);
+  background: var(--rec-signal);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform var(--rec-dur-base) var(--rec-ease-out);
+}
+.masthead__link:hover {
+  color: var(--rec-ink);
+}
+.masthead__link[aria-current="page"] {
+  color: var(--rec-ink);
+}
+.masthead__link[aria-current="page"]::after {
+  transform: scaleX(1);
+}
+.masthead__trigger {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  padding-inline: var(--rec-space-3);
+  border: 0;
+  background: none;
+  color: var(--rec-ink);
+  font: inherit;
+  font-size: var(--rec-text-data-lg);
+  cursor: pointer;
+}
+@media (max-width: 899px) {
+  .masthead__nav {
+    display: none;
+  }
+  .masthead__nav[data-open="true"] {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    gap: 0;
+    padding: var(--rec-space-2) var(--rec-gutter) var(--rec-space-4);
+    background: var(--rec-ground);
+    border-bottom: var(--rec-rule-w) solid var(--rec-rule);
+  }
+  .masthead__nav[data-open="true"] .masthead__link {
+    min-height: 2.75rem;
+    font-size: var(--rec-text-data-lg);
+  }
+  .masthead__trigger {
+    display: inline-flex;
+  }
+}
+
+/* --- COLOPHON -----------------------------------------------------------
+   The close: the mark, three columns of exits, the one setting, the imprint. */
+.colophon {
+  border-top: var(--rec-rule-w) solid var(--rec-rule);
+  padding-block: var(--rec-space-6) var(--rec-space-7);
+}
+.colophon__top {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--rec-space-6);
+}
+@media (min-width: 900px) {
+  .colophon__top {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2.25fr);
+    align-items: start;
+    gap: var(--rec-space-7);
+  }
+}
+.colophon__mark img {
+  display: block;
+  width: 32px;
+  height: 32px;
+}
+.colophon__ways {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: var(--rec-space-6) var(--rec-space-5);
+}
+.colophon__col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.colophon__label {
+  margin-bottom: var(--rec-space-2);
+  color: var(--rec-ink-muted);
+}
+.colophon__doc {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  font-size: var(--rec-text-data-lg);
+  color: var(--rec-ink-muted);
+  text-decoration: none;
+  transition: color var(--rec-dur-quick) var(--rec-ease-out);
+}
+.colophon__doc:hover {
+  color: var(--rec-ink);
+  text-decoration: underline;
+  text-underline-offset: 0.3em;
+}
+.colophon__imprint {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rec-space-2) var(--rec-space-6);
+  margin-top: var(--rec-space-6);
+  padding-top: var(--rec-space-4);
+  border-top: var(--rec-rule-w) solid var(--rec-rule);
+  color: var(--rec-ink-muted);
+}
+
+/* --- MOTION TOGGLE ------------------------------------------------------
+   A real switch: 44px target, square track, one knob. The state is the
+   `aria-checked` attribute — the paint is a consequence of it, not a second
+   source of truth. */
+.motion-toggle {
+  margin-top: var(--rec-space-2);
+}
+.motion-toggle__switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--rec-space-3);
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  padding-inline: 0;
+  border: 0;
+  background: none;
+  color: var(--rec-ink);
+  font: inherit;
+  cursor: pointer;
+}
+.motion-toggle__label {
+  color: var(--rec-ink-muted);
+}
+.motion-toggle__track {
+  position: relative;
+  display: inline-block;
+  width: 2.25rem;
+  height: 1rem;
+  border: var(--rec-rule-w) solid var(--rec-rule-strong);
+  transition: border-color var(--rec-dur-quick) var(--rec-ease-out);
+}
+.motion-toggle__knob {
+  position: absolute;
+  top: 1px;
+  left: 1px;
+  width: calc(50% - 2px);
+  height: calc(100% - 2px);
+  background: var(--rec-ink-muted);
+  transition:
+    transform var(--rec-dur-quick) var(--rec-ease-out),
+    background-color var(--rec-dur-quick) var(--rec-ease-out);
+}
+.motion-toggle__switch[aria-checked="true"] .motion-toggle__track {
+  border-color: var(--rec-signal);
+}
+.motion-toggle__switch[aria-checked="true"] .motion-toggle__knob {
+  transform: translateX(100%);
+  background: var(--rec-signal);
+}
+/* Announced, not shown: the state is already carried by `aria-checked`, and
+   this line exists so a change is spoken even if focus has moved on. */
+.motion-toggle__status {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
