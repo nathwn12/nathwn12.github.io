@@ -1,7 +1,7 @@
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { transformWithEsbuild } from "vite";
+import { transformWithOxc } from "vite";
 import { routeFileFor } from "./route-path.mjs";
 
 /**
@@ -31,7 +31,7 @@ const indexHtml = path.join(distDir, "index.html");
 
 /**
  * Import the route table without a bundler or a TypeScript loader: transpile
- * the module with Vite's own esbuild transform and import the result from a
+ * the module with Vite's own Oxc transform and import the result from a
  * `data:` URL. src/lib/routes.ts is dependency-free data by design, so the
  * transpiled output has no imports to resolve and the data URL is valid.
  */
@@ -40,10 +40,7 @@ async function loadRoutes() {
     new URL("../src/lib/routes.ts", import.meta.url),
     "utf8",
   );
-  const { code } = await transformWithEsbuild(source, "routes.ts", {
-    loader: "ts",
-    format: "esm",
-  });
+  const { code } = await transformWithOxc(source, "routes.ts");
   return import(
     `data:text/javascript;base64,${Buffer.from(code).toString("base64")}`
   );
