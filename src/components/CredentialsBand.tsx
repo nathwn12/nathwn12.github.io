@@ -1,54 +1,62 @@
 import { credentials } from "../content/credentials";
-import { Reveal } from "./Reveal";
+import { Seam } from "./Readout";
 
 /**
- * CredentialsBand — four verified credentials, one line each.
+ * CredentialsBand — four verified credentials, one row each.
  *
- * The title and issuer are the content; the credential id and the issuer's
- * verification URL are the proof. Every link opens the issuer's public
- * verification page in a new tab, and its visible text says which credential
- * it verifies — never "verify" alone.
+ * A hairline list, not a grid of badges: the credential, its issuer and date in
+ * mono, its identifier, and the issuer's own verification page. Every
+ * verification link opens in a new tab with `rel="noopener noreferrer"`, and
+ * its visible text names the credential it verifies — never "verify" alone,
+ * which is a link that says nothing about where it goes.
  */
+
 export function CredentialsBand() {
   return (
-    <section id="credentials" className="band" aria-labelledby="credentials-heading">
-      <div className="frame">
-        <Reveal>
-          <h2 id="credentials-heading" className="h2">
+    <>
+      <Seam />
+      <section
+        id="credentials"
+        aria-labelledby="credentials-heading"
+        className="py-[var(--rec-band)] md:py-[var(--rec-band-lg)]"
+      >
+        <div className="frame">
+          <h2
+            id="credentials-heading"
+            className="font-display text-[length:var(--rec-text-title)] leading-[var(--rec-leading-title)] font-normal! tracking-[var(--rec-tracking-claim)]! text-[color:var(--rec-ink)]"
+          >
             Credentials
           </h2>
-        </Reveal>
 
-        <ul className="mt-6 grid gap-x-10 md:grid-cols-2">
-          {credentials.map((cert, index) => {
-            const year = cert.date ? cert.date.split(" ").pop() : undefined;
-            return (
-              <Reveal
+          <ul className="mt-6 border-t border-[color:var(--rec-rule)]">
+            {credentials.map((cert) => (
+              <li
                 key={cert.id}
-                as="li"
-                delayMs={index * 30}
-                className="py-2.5"
+                className="grid gap-x-8 gap-y-2 border-b border-[color:var(--rec-rule)] py-4 md:grid-cols-[minmax(0,1fr)_11rem] md:items-baseline"
               >
-                <p className="text-[1.0625rem] font-semibold tracking-[-0.01em]">
-                  {cert.title}
-                </p>
-                <p className="meta muted mt-1">
-                  {cert.issuer}
-                  {year ? ` · ${year}` : ""} · ID {cert.id}
-                </p>
+                <div>
+                  <p className="font-semibold tracking-[-0.01em] text-[color:var(--rec-ink)]">
+                    {cert.title}
+                  </p>
+                  <p className="data data--sm mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[color:var(--rec-ink-muted)]">
+                    <span>{cert.issuer}</span>
+                    {cert.date ? <span>{cert.date}</span> : null}
+                    <span>ID {cert.id}</span>
+                  </p>
+                </div>
                 <a
                   href={cert.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="accent-link meta inline-flex min-h-11 items-center"
+                  className="data data--sm inline-flex min-h-11 items-center text-[color:var(--rec-signal)] underline decoration-[color:var(--rec-rule-strong)] decoration-1 underline-offset-[0.3em] transition-[color,text-decoration-color,border-color] duration-150 hover:decoration-[color:var(--rec-signal)] md:justify-self-end"
                 >
-                  Verify {cert.title} at {cert.issuer}
+                  Verify at {cert.issuer}
                 </a>
-              </Reveal>
-            );
-          })}
-        </ul>
-      </div>
-    </section>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    </>
   );
 }

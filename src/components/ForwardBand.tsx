@@ -1,58 +1,68 @@
 import { forward, forwardHeading } from "../content/forward";
 import { forwardLede } from "../content/ledger";
-import { Reveal } from "./Reveal";
+import { Seam } from "./Readout";
 
 /**
- * ForwardBand — where the work is going: the AI-assisted workflow, the shipped
- * MCP servers and plugins, and what is being learned.
+ * ForwardBand — the exhale between two loud sections.
  *
- * Five items of equal weight, set as a two-column flow from 1024px and one
- * column below it. The equal weight is the point: the workflow is not more
- * important than the tools it produced, and a hierarchy here would have needed
- * a card to signal it. Text is the only material — no icons, no tiles — and
- * every string is read from src/content/forward.ts.
+ * Five items on a hairline list, each carrying its kind as a mono label — feat,
+ * workflow, learning — so the register is read before the sentence is. There is
+ * no card, no icon, no tile: the items are separated by a rule and by nothing
+ * else, and the tech identifiers are set as a mono run with commas rather than
+ * as chips or a middle-dot string.
  *
- * The container is a CSS multi-column flow, not a grid of rows. A row grid
- * stretched each pair to the taller item and top-aligned the shorter one, so a
- * short item's metadata sat 99px above its neighbour's (124px at 768) with the
- * row's empty space below it, and the fifth item was orphaned in an empty
- * right-hand cell. In a column flow each item closes on its own metadata and
- * the next item starts one 32px gap below it; items flow down the left column
- * and continue down the right, so DOM order (and therefore keyboard and screen
- * reader order) is still the reading order. `break-inside: avoid` keeps an item
- * whole, and the last item carries no trailing margin so the band's own padding
- * closes it. No filler and no reorder: with this copy the two columns end as
- * close as their content permits.
+ * This band is deliberately quiet. The atlas above it is a manifest and the
+ * contact band below it is the close; a third loud surface here would leave the
+ * page with no rests.
  */
+
 export function ForwardBand() {
   return (
-    <section id="forward" className="band" aria-labelledby="forward-heading">
-      <div className="frame">
-        <Reveal>
-          <h2 id="forward-heading" className="h2">
-            {forwardHeading}
-          </h2>
-          <p className="prose mt-3">{forwardLede}</p>
-        </Reveal>
-
-        <div className="mt-8 lg:columns-2 lg:gap-x-10 lg:mt-10">
-          {forward.map((item, index) => (
-            <Reveal
-              key={item.id}
-              delayMs={index * 40}
-              className="mb-8 break-inside-avoid last:mb-0"
+    <>
+      <Seam />
+      <section
+        id="forward"
+        aria-labelledby="forward-heading"
+        className="py-[var(--rec-band)] md:py-[var(--rec-band-lg)]"
+      >
+        <div className="frame">
+          <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-3">
+            <h2
+              id="forward-heading"
+              className="font-display text-[length:var(--rec-text-title)] leading-[var(--rec-leading-title)] font-normal! tracking-[var(--rec-tracking-claim)]! text-[color:var(--rec-ink)]"
             >
-              <div>
-                <h3 className="text-[1.0625rem] font-semibold tracking-[-0.01em]">
-                  {item.title}
-                </h3>
-                <p className="prose mt-1">{item.body}</p>
-                <p className="meta muted mt-2">{item.tech.join(" · ")}</p>
-              </div>
-            </Reveal>
-          ))}
+              {forwardHeading}
+            </h2>
+            <p className="max-w-[46ch] text-[0.9375rem] leading-[1.5] text-[color:var(--rec-ink-muted)]">
+              {forwardLede}
+            </p>
+          </div>
+
+          <ul className="mt-8 border-t border-[color:var(--rec-rule)]">
+            {forward.map((item) => (
+              <li
+                key={item.id}
+                className="grid gap-x-8 gap-y-2 border-b border-[color:var(--rec-rule)] py-5 md:grid-cols-[7rem_minmax(0,1fr)]"
+              >
+                <p className="data data--sm pt-1 text-[color:var(--rec-signal)]">
+                  {item.section}
+                </p>
+                <div>
+                  <h3 className="text-[1.0625rem] font-semibold tracking-[-0.01em] text-[color:var(--rec-ink)]">
+                    {item.title}
+                  </h3>
+                  <p className="mt-1 max-w-[62ch] text-[color:var(--rec-ink-muted)]">
+                    {item.body}
+                  </p>
+                  <p className="data data--sm mt-3 text-[color:var(--rec-ink-muted)]">
+                    {item.tech.join(", ")}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
-    </section>
+      </section>
+    </>
   );
 }
