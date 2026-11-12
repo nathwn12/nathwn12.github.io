@@ -1,3 +1,5 @@
+import { useRef } from "react";
+import { useGSAP } from "@gsap/react";
 import {
   employer,
   experience,
@@ -7,122 +9,198 @@ import {
   provenance,
   tenureEnd,
   tenureSpan,
+  type ExperienceEntry,
 } from "../content/experience";
-import { CONTACT_CTA, figures } from "../content/ledger";
+import { CONTACT_CTA, figures, percentIn } from "../content/ledger";
 import { RouteLink, SectionLink } from "../lib/router";
-import { Reveal } from "./Reveal";
+import { revealLines, revealRule } from "../lib/motion";
+import { Timeline, TimelineReadout, type TimelineFigure, type TimelineItem } from "./Timeline";
 
 /**
- * Experience — the long form: nine dated entries, newest first.
+ * Experience — the production record, in the order it happened.
  *
- * This route keeps the delivered sentences word for word (outcome, description,
- * highlights, provenance); the home page carries the rewritten version. That
- * division is the point of keeping two detail routes at all: the record states,
- * the detail proves.
+ * The route is a flight log: the tenure stated once at the top as a readout,
+ * the commit ledger above the list as the reason the page exists, then the nine
+ * dated entries hanging off one continuous rule. The date is the spine and the
+ * sequence is time, so no entry is numbered.
  *
- * The date is the spine. Each entry is a two-column row — date on the left,
- * record on the right — and the continuous tenure sits above the list as its
- * own span, so the employment period can never be mistaken for one more dated
- * milestone.
+ * Each row states the outcome as its heading, the mechanism under it, and the
+ * figure the outcome itself carries — where there is one. The figure is parsed
+ * out of the entry's own sentence rather than typed into this file, so a row's
+ * number cannot drift from the claim above it, and an entry with no measured
+ * result gets no figure at all instead of an invented one.
+ *
+ * The delivered sentences stay word for word: the home page rewrites, this page
+ * quotes. Xentra is stated as former employment throughout — the company closed
+ * in May 2026 — and the closing note is the provenance of the numbers above it.
  */
+
+/** The measured value an entry's own outcome sentence carries, or nothing. */
+function figureFor(entry: ExperienceEntry): TimelineFigure | null {
+  const commits = entry.outcome.match(/([\d,]+)\s+commits\b/);
+  if (commits) {
+    return {
+      value: Number(commits[1].replace(/,/g, "")),
+      format: (value) => Math.round(value).toLocaleString("en-US"),
+    };
+  }
+
+  if (/\bzero\b[^.]*\bfindings\b/i.test(entry.outcome)) {
+    return {
+      value: 0,
+      format: (value) => Math.round(value).toString(),
+    };
+  }
+
+  const percent = percentIn(entry.outcome);
+  const run = percent?.match(/[\d,.]+/)?.[0];
+  if (!percent || !run) return null;
+
+  return {
+    value: Number(run.replace(/,/g, "")),
+    format: (value) => percent.replace(run, Math.round(value).toString()),
+  };
+}
+
+const items: TimelineItem[] = experience.map((entry) => ({
+  id: entry.id,
+  date: entry.date,
+  name: entry.name,
+  status: entry.status,
+  outcome: entry.outcome,
+  description: entry.description,
+  highlights: entry.highlights,
+  figure: figureFor(entry),
+}));
+
+/** The ledger's figures, read back out of the provenance string. */
+const commits = figures.commits
+  ? Number(figures.commits.replace(/,/g, ""))
+  : null;
+const repositories = figures.repositories
+  ? Number(figures.repositories.replace(/,/g, ""))
+  : null;
+
+const grouped = (value: number) => Math.round(value).toLocaleString("en-US");
+const plain = (value: number) => Math.round(value).toString();
+
 export function Experience() {
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const seamRef = useRef<HTMLSpanElement>(null);
+
+  useGSAP(
+    () => {
+      const title = revealLines(titleRef.current, { delay: 0.05 });
+      const seam = revealRule(seamRef.current);
+      return () => {
+        title.revert();
+        seam.revert();
+      };
+    },
+    { dependencies: [] },
+  );
+
   return (
     <>
       <section className="band band--first" aria-labelledby="experience-heading">
         <div className="frame">
-          <div className="grid gap-y-8 lg:grid-cols-12 lg:gap-x-10">
-            <div className="lg:col-span-7">
-              <Reveal>
-                <h1 id="experience-heading" className="h1">
-                  Experience
-                </h1>
-                <p className="lede mt-5 max-w-[46ch]">{experienceLede}</p>
-                <p className="meta muted mt-5">
-                  {formerRoleLine}, {employer.location}
-                </p>
-                <div className="mt-8 flex flex-wrap items-center gap-x-7 gap-y-2">
-                  <SectionLink section="contact" className="button">
-                    {CONTACT_CTA}
-                  </SectionLink>
-                  <RouteLink href="/projects" className="text-action">
-                    The open-source work
-                  </RouteLink>
-                </div>
-              </Reveal>
+          <div className="grid gap-y-10 lg:grid-cols-12 lg:gap-x-10">
+            <div className="lg:col-span-8">
+              <h1
+                ref={titleRef}
+                id="experience-heading"
+                className="font-display text-[clamp(2.75rem,1.4rem+5.4vw,6.5rem)] leading-[0.9] tracking-[-0.02em]"
+              >
+                Experience
+              </h1>
+              <p className="lede mt-6 max-w-[46ch] text-[color:var(--rec-ink-muted)]">
+                {experienceLede}
+              </p>
             </div>
 
-            <div className="lg:col-span-4 lg:col-start-9">
-              <Reveal delayMs={80}>
-                {/* The continuous tenure is its own labelled span, outside the
-                    dated list, so the employment period can never be read as one
-                    more shipped milestone: the record's newest entry is November
-                    2025 and the tenure ran to May 2026. It sits in the opening
-                    band's second column so the page opens as one composition
-                    rather than a title over an empty half. */}
-                <div className="fact" data-tenure-span>
-                  <p className="fact__label">Tenure</p>
-                  <p className="fact__figure">{figures.tenure}</p>
-                  <p className="fact__note tnum">{tenureSpan}</p>
-                  <p className="fact__note">
+            {/* The tenure is its own readout, outside the dated list, so the
+                employment period can never be read as one more shipped
+                milestone: the newest dated entry is November 2025 and the
+                tenure ran to May 2026. */}
+            <div className="lg:col-span-3 lg:col-start-10">
+              <div
+                data-tenure-span
+                className="grid gap-y-5 border-t border-[color:var(--rec-rule)] pt-4"
+              >
+                <div className="grid gap-y-1">
+                  <p className="data text-[color:var(--rec-ink-muted)]">Tenure</p>
+                  <p className="data tnum text-[color:var(--rec-ink)]">
+                    {tenureSpan}
+                  </p>
+                  <p className="data text-[color:var(--rec-ink-muted)]">
+                    {figures.tenure}
+                  </p>
+                  <p className="data text-[color:var(--rec-ink-muted)]">
                     Continuous employment at {employer.company}
                   </p>
                 </div>
-              </Reveal>
+
+                <div className="grid gap-y-1">
+                  <p className="data text-[color:var(--rec-ink-muted)]">Location</p>
+                  <p className="data text-[color:var(--rec-ink)]">
+                    {employer.location}
+                  </p>
+                </div>
+
+                <p className="text-[0.9375rem] leading-[1.5] text-[color:var(--rec-ink-muted)]">
+                  {formerRoleLine} The company closed in May 2026.
+                </p>
+              </div>
             </div>
+          </div>
+
+          <span ref={seamRef} aria-hidden="true" className="rule rule--draw mt-10 lg:mt-12" />
+
+          {/* The commit ledger: why the page exists, above the list it proves. */}
+          <div className="grid grid-cols-2 gap-x-8 gap-y-8 border-y border-[color:var(--rec-rule)] py-7 md:grid-cols-[repeat(2,auto)_minmax(0,1fr)] md:gap-x-12 md:items-start">
+            {commits !== null && (
+              <TimelineReadout value={commits} format={grouped} label="commits" />
+            )}
+            {repositories !== null && (
+              <TimelineReadout
+                value={repositories}
+                format={plain}
+                label="repositories"
+              />
+            )}
+            <p className="col-span-2 max-w-[46ch] text-[0.9375rem] leading-[1.5] text-[color:var(--rec-ink-muted)] md:col-span-1">
+              {provenance}
+            </p>
           </div>
         </div>
       </section>
 
       <section className="band band--flush" aria-labelledby="contributions-heading">
         <div className="frame">
-          <Reveal>
-            <h2 id="contributions-heading" className="h2 max-w-[20ch]">
-              Selected contributions
-            </h2>
-            <p className="prose mt-4">
-              {experience.length} dated records, newest first — a selection, not
-              an exhaustive log. The latest is {latestRecordDate}; the tenure ran
-              to {tenureEnd}.
-            </p>
-          </Reveal>
+          <h2
+            id="contributions-heading"
+            className="text-[length:var(--rec-text-title)] leading-[1.12] font-semibold tracking-[-0.01em]"
+          >
+            Selected contributions
+          </h2>
+          <p className="prose mt-3 text-[color:var(--rec-ink-muted)]">
+            {experience.length} dated records, newest first — a selection, not an
+            exhaustive log. The latest is {latestRecordDate}; the tenure ran to{" "}
+            {tenureEnd}.
+          </p>
 
-          <ol className="mt-10">
-            {experience.map((entry, index) => (
-              <Reveal
-                key={entry.id}
-                as="li"
-                delayMs={index < 4 ? index * 40 : 0}
-                className="grid gap-x-10 gap-y-3 py-8 md:grid-cols-[9rem_minmax(0,1fr)] md:py-10"
-              >
-                <p className="meta muted tnum md:pt-1">{entry.date}</p>
-                <div>
-                  <h2 className="h3">{entry.name}</h2>
-                  <p className="mt-3 max-w-[62ch] text-[1.0625rem] leading-snug font-medium">
-                    {entry.outcome}
-                  </p>
-                  <p className="prose mt-3">{entry.description}</p>
-                  {entry.highlights.length > 0 && (
-                    <ul className="mt-4 max-w-[62ch]">
-                      {entry.highlights.map((highlight) => (
-                        <li key={highlight} className="prose flex gap-3">
-                          <span
-                            aria-hidden="true"
-                            className="mt-[0.6em] block size-1 shrink-0 bg-current"
-                          />
-                          {highlight}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  <p className="meta muted mt-4">
-                    {entry.status} · {entry.tech.join(" · ")}
-                  </p>
-                </div>
-              </Reveal>
-            ))}
-          </ol>
+          <div className="mt-10 lg:mt-12">
+            <Timeline items={items} />
+          </div>
 
-          <p className="prose muted mt-8 max-w-[62ch]">{provenance}</p>
+          <div className="mt-12 flex flex-wrap items-center gap-x-7 gap-y-2 border-t border-[color:var(--rec-rule)] pt-8">
+            <SectionLink section="contact" className="button">
+              {CONTACT_CTA}
+            </SectionLink>
+            <RouteLink href="/projects" className="text-action">
+              The open-source work
+            </RouteLink>
+          </div>
         </div>
       </section>
     </>
