@@ -6,7 +6,7 @@
   "packageManager": "bun@1.4.4",
   "type": "module",
   "engines": {
-    "node": ">=20.11"
+    "node": ">=20.19"
   },
   "scripts": {
     "dev": "vite",
@@ -23,17 +23,17 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
-    "@tailwindcss/vite": "4.1.17",
+    "@tailwindcss/vite": "4.3.5",
     "@types/node": "22.19.17",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
-    "@vitejs/plugin-react": "5.1.1",
+    "@vitejs/plugin-react": "5.2.0",
     "jsdom": "^30.0.1",
     "playwright": "^1.64.1",
     "sharp": "^0.35.4",
-    "tailwindcss": "4.1.17",
-    "typescript": "5.9.3",
-    "vite": "7.2.4",
+    "tailwindcss": "4.3.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.8",
     "vitest": "4.1.8"
   }
 }
