@@ -12,8 +12,10 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - run: corepack enable
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm run check
-      - run: pnpm run build
-      - run: pnpm vitest run
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+      - run: bun install --frozen-lockfile
+      - run: bun run check
+      - run: bun run build
+      - run: bunx vitest run
