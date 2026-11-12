@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "license": "MIT",
-  "packageManager": "pnpm@10.33.2",
+  "packageManager": "bun@1.4.4",
   "type": "module",
   "engines": {
     "node": ">=20.11"
@@ -12,8 +12,8 @@
     "dev": "vite",
     "build": "vite build && node scripts/copy-404.mjs && node scripts/prerender-routes.mjs",
     "typecheck": "tsc -b",
-    "test": "pnpm run build && vitest run",
-    "check": "pnpm run typecheck && pnpm run test",
+    "test": "bun run build && vitest run",
+    "check": "bun run typecheck && bun run test",
     "preview": "vite preview"
   },
   "dependencies": {
