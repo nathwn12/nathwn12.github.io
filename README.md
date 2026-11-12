@@ -4,27 +4,43 @@ Terminal-themed single-page portfolio and resume site for nathwn12, Backend Deve
 
 ## Install
 
-Prerequisites: Node.js >= 20.11 and pnpm 10.33.2.
+Prerequisites: Node.js >= 20.11 and bun 1.4.4.
 
 ```powershell
 git clone https://github.com/nathwn12/nathwn12.github.io.git
 cd nathwn12.github.io
-pnpm install --frozen-lockfile
-pnpm run dev
-pnpm run check
-pnpm run build
+bun install --frozen-lockfile
+bun run dev
+bun run check
+bun run build
 ```
 
-`pnpm run build` runs `vite build`, copies `Nathaniel-Nikolai-Ladero-Resume.pdf`, `Nathaniel-Nikolai-Ladero-CV.pdf`, and `404.html` into `dist/`, and prerenders routes. Publishing runs through `.github/workflows/deploy.yml`: on push to `main` the build job installs, builds, and uploads `dist` as a Pages artifact, and the deploy job publishes it via `actions/deploy-pages` to the `github-pages` environment. No branch is published directly and no manual command deploys it.
+`bun run build` runs `vite build`, copies `Nathaniel-Nikolai-Ladero-Resume.pdf`, `Nathaniel-Nikolai-Ladero-CV.pdf`, and `404.html` into `dist/`, and prerenders routes. Publishing runs through `.github/workflows/deploy.yml`: on push to `main` the build job installs, builds, and uploads `dist` as a Pages artifact, and the deploy job publishes it via `actions/deploy-pages` to the `github-pages` environment. No branch is published directly and no manual command deploys it.
 
 ## Development
 
 ```powershell
-pnpm run typecheck
-pnpm run test
+bun run typecheck
+bun run test
 ```
 
-`pnpm run check` runs the typecheck and the test (which builds first, then runs vitest).
+`bun run check` runs the typecheck and the test (which builds first, then runs vitest).
+
+## Updating from npm or pnpm
+
+This repo uses [Bun](https://bun.sh) to install dependencies and run scripts; Node still runs the code.
+
+```powershell
+# once, if bun is missing
+scoop install bun        # or: npm i -g bun / winget install Oven-sh.Bun
+
+# in the repo
+Remove-Item package-lock.json,pnpm-lock.yaml -ErrorAction SilentlyContinue
+Remove-Item node_modules -Recurse -Force -ErrorAction SilentlyContinue
+bun install
+```
+
+Use `bun run <script>` from then on. Commit `bun.lock` and never recreate the old lockfile; the repo pins `"packageManager": "bun@1.4.4"`.
 
 ## Status
 
