@@ -1,175 +1,206 @@
-import { useId, useState } from "react";
-import {
-  CV_FILENAME,
-  CV_PATH,
-  RESUME_FILENAME,
-  RESUME_PATH,
-} from "../lib/contact";
-import { SectionLink, RouteLink } from "../lib/router";
+import { useRef } from "react";
+import { useGSAP } from "@gsap/react";
+import { gsap } from "gsap";
 import {
   CONTACT_CTA,
   contractLine,
-  figures,
   measurement,
-  measurementSwitch,
-  name,
-  queryFigure,
   standfirst,
+  stackLine,
   statusLine,
 } from "../content/ledger";
 import { employer } from "../content/experience";
+import { SectionLink, RouteLink } from "../lib/router";
+import { motionAllowed } from "../lib/motion";
+import { LatencyInstrument } from "./LatencyInstrument";
 
 /**
- * FirstScreen — identity on the left, one measurement on the right.
+ * FirstScreen — the record's cover: a claim, and the instrument that proves it.
  *
- * The whole page's idea is in this screen: a claim, and the figure that backs
- * it. The measurement panel is the site's one live thing — a two-state control
- * that shows the same query before and after the provider change, on one
- * linear scale from zero to the before value, so the 60:1 ratio is felt rather
- * than only read.
+ * Three parts, one orchestration:
+ *   1. The claim is hand-set on three lines and masked up line by line. The
+ *      line breaks are structure, not styling: "Payment backends / that hold up
+ *      under / production load." is how the sentence is meant to be read, and
+ *      the first line starts at the viewport's own left edge rather than the
+ *      frame's, so the block breaks the column it sits in.
+ *   2. The standfirst, the stack and the availability line — the only running
+ *      copy above the fold, all of it content strings.
+ *   3. The instrument: the payment query before and after the provider change,
+ *      with every number in the DOM (see LatencyInstrument).
  *
- * Both states are legible without touching the control: each button carries its
- * own value ("Before · 60 s", "After · <1 s"), the scale is labelled at both
- * ends, and the bar shows the selected magnitude against the full track. It is
- * a real two-button control with aria-pressed, it works from the keyboard, and
- * with JavaScript disabled the panel still shows the shipped "after" state and
- * its figure, because that is the default render.
+ * The whole sequence runs once per session and lasts about 1.4 s: display lines
+ * mask up, then the copy and the actions fade in on a 60 ms stagger, then the
+ * instrument boots. Nothing else on the page auto-plays, so this is the one
+ * loud moment and the rest of the record stays quiet around it.
  *
- * Composition: the right half is a compact instrument — label, figure, source,
- * one scale, the two-state control, and the note that traces the figure to the
- * experience page — top-aligned with the name so the two halves share one top
- * edge and the name stays the largest thing on the screen.
+ * With motion off — the OS preference or the footer's switch — the resting
+ * state IS the final state: no masks, no fades, no counting. Nothing is hidden
+ * by CSS and then revealed by script, so a browser that never runs a transition
+ * still gets the finished cover.
  */
+
+/** Lines in the order they are read, not in the order they fit. */
+const CLAIM_LINES = ["Payment backends", "that hold up under", "production load."];
+
+/**
+ * Once per session, not once per mount: a route change back to the record
+ * should not replay the cover. It is set when the sequence *finishes*, not when
+ * it starts — React's development double-mount reverts a GSAP context and runs
+ * the effect again, so a flag set at the start would leave the cover with no
+ * animation at all on the second run.
+ */
+let coverPlayed = false;
+
 export function FirstScreen() {
-  const [state, setState] = useState<"before" | "after">("after");
-  const groupId = useId();
+  const coverRef = useRef<HTMLElement>(null);
 
-  const scale = state === "before" ? 1 : 1 / 60;
-  const value =
-    state === "before" ? queryFigure.before : queryFigure.after;
-  const source =
-    state === "before" ? measurement.beforeName : measurement.afterName;
-  const note =
-    state === "before" ? measurement.beforeNote : measurement.afterNote;
+  useGSAP(
+    () => {
+      const cover = coverRef.current;
+      if (!cover) return;
+      if (!motionAllowed() || coverPlayed) return;
 
-  /* The track runs from zero to the "before" value, so the accent bar's length
-     is a proportion of the slowest case, not of the current selection. */
-  const scaleMax = queryFigure.before;
+      const lines = cover.querySelectorAll<HTMLElement>("[data-cover-line]");
+      const fades = cover.querySelectorAll<HTMLElement>("[data-cover-fade]");
 
-  const label = (text: string, figure: string | null) =>
-    figure ? `${text} · ${figure}` : text;
+      const sequence = gsap.timeline({
+        onComplete: () => {
+          coverPlayed = true;
+        },
+      });
+
+      sequence.from(
+        lines,
+        { yPercent: 110, duration: 0.9, stagger: 0.09, ease: "power3.out" },
+        0,
+      );
+
+      /* 60 ms apart, after the second line has started to land: the copy reads
+         as following the claim rather than racing it. */
+      sequence.from(
+        fades,
+        {
+          opacity: 0,
+          y: 12,
+          duration: 0.6,
+          stagger: 0.06,
+          ease: "power2.out",
+        },
+        0.34,
+      );
+    },
+    { scope: coverRef, dependencies: [] },
+  );
 
   return (
-    <section className="band band--first" aria-labelledby="identity-heading">
+    <section
+      ref={coverRef}
+      data-band="cover"
+      aria-labelledby="claim-heading"
+      className="overflow-x-clip pt-8 pb-[var(--rec-band)] md:pt-12 md:pb-[var(--rec-band-lg)]"
+    >
       <div className="frame">
-        <div className="grid gap-y-10 lg:grid-cols-12 lg:gap-x-10">
-          <div className="lg:col-span-7">
-            <h1 id="identity-heading" className="h1">
-              {name}
-            </h1>
+        <h1
+          id="claim-heading"
+          className="font-display text-[length:clamp(3rem,9.5vw,11rem)] leading-[0.87] font-normal! tracking-[-0.02em]! text-[color:var(--rec-ink)]"
+        >
+          {CLAIM_LINES.map((line, index) => (
+            <span
+              key={line}
+              className={
+                index === 0
+                  ? "block overflow-hidden pb-[0.04em] min-[900px]:ml-[calc(50%-50vw)]"
+                  : "block overflow-hidden pb-[0.04em]"
+              }
+              /* The first line starts at the viewport edge from 900px up, which
+                 is where the frame's gutter is wide enough to bleed into.
+                 Below that the gutter is the only margin there is, and a
+                 cropped P is a defect rather than a bleed. `50% - 50vw` is exact
+                 at every width: it subtracts the frame's own centring plus its
+                 gutter. */
+            >
+              <span data-cover-line className="block">
+                {line}
+                {index < CLAIM_LINES.length - 1 ? " " : ""}
+              </span>
+            </span>
+          ))}
+        </h1>
 
-            <p className="lede mt-4 max-w-[46ch]">{standfirst}</p>
-
-            <p className="meta muted mt-4">
-              {contractLine} · {employer.location} ·{" "}
-              <span className="whitespace-nowrap">{employer.period}</span>
+        <div className="mt-8 grid gap-x-12 gap-y-10 md:mt-10 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_23rem]">
+          <div>
+            <p
+              data-cover-fade
+              className="max-w-[62ch] text-[length:var(--rec-text-lead)] leading-[var(--rec-leading-lead)] text-[color:var(--rec-ink)]"
+            >
+              {standfirst}
             </p>
 
-            <div className="mt-7 flex flex-wrap items-center gap-x-7 gap-y-2">
-              <SectionLink section="contact" className="button">
-                {CONTACT_CTA}
-              </SectionLink>
-              <a
-                href={RESUME_PATH}
-                download={RESUME_FILENAME}
-                className="text-action"
-              >
-                Résumé (PDF)
-              </a>
-              <a
-                href={CV_PATH}
-                download={CV_FILENAME}
-                className="text-action"
-              >
-                CV (PDF)
-              </a>
-            </div>
+            <p
+              data-cover-fade
+              className="mt-4 max-w-[62ch] text-[color:var(--rec-ink-muted)]"
+            >
+              {stackLine}
+            </p>
 
-            <p className="meta muted mt-5">
+            {/* The employment, stated in the past tense with the period it
+                covers: the record must never read as a current role. Three
+                facts, separated by rules rather than by a meta string. */}
+            <p
+              data-cover-fade
+              className="data data--sm mt-4 flex flex-col gap-y-1 text-[color:var(--rec-ink-muted)] sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-4"
+            >
+              <span>{contractLine}</span>
               <span
                 aria-hidden="true"
-                className="mr-2 inline-block size-2 bg-accent align-middle"
+                className="hidden h-3 w-px bg-[color:var(--rec-rule-strong)] sm:inline-block"
               />
+              <span>{employer.location}</span>
+              <span
+                aria-hidden="true"
+                className="hidden h-3 w-px bg-[color:var(--rec-rule-strong)] sm:inline-block"
+              />
+              <span>{employer.period}</span>
+            </p>
+
+            <p
+              data-cover-fade
+              className="data mt-6 text-[color:var(--rec-measure)]"
+            >
               {statusLine}
             </p>
+
+            <div
+              data-cover-fade
+              className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3"
+            >
+              <SectionLink
+                section="contact"
+                data-magnetic
+                className="inline-flex min-h-11 items-center bg-[color:var(--rec-signal)] px-6 text-[0.875rem] font-semibold text-[color:var(--rec-ground)] no-underline transition-opacity duration-150 hover:opacity-90"
+              >
+                {CONTACT_CTA}
+              </SectionLink>
+
+              <SectionLink
+                section="proof"
+                className="inline-flex min-h-11 items-center text-[0.875rem] font-semibold text-[color:var(--rec-ink)] underline decoration-[color:var(--rec-rule-strong)] decoration-1 underline-offset-[0.35em] transition-[color,text-decoration-color,border-color] duration-150 hover:decoration-[color:var(--rec-signal)]"
+              >
+                Read the record
+              </SectionLink>
+            </div>
           </div>
 
-          <div className="lg:col-span-5 lg:pl-4">
-            <div className="measure">
-              <div>
-                <p className="meta muted">{measurement.label}</p>
-                <p className="figure mt-2" aria-live="polite">
-                  {value ?? "—"}
-                </p>
-                <p className="meta mt-2">
-                  {source}
-                  <span className="muted"> · {note}</span>
-                </p>
-              </div>
-
-              <div>
-                <div
-                  aria-hidden="true"
-                  className="measure__track"
-                  role="presentation"
-                >
-                  <div className="measure__bar measure__bar--ghost" />
-                  <div
-                    className="measure__bar measure__bar--accent"
-                    style={{ transform: `scaleX(${scale})` }}
-                  />
-                </div>
-                {scaleMax ? (
-                  <p className="measure__scale" aria-hidden="true">
-                    <span>0 s</span>
-                    <span>{scaleMax}</span>
-                  </p>
-                ) : null}
-              </div>
-
-              <div
-                className="measure__switch"
-                role="group"
-                aria-labelledby={`${groupId}-label`}
+          <div data-cover-fade className="lg:pt-1">
+            <LatencyInstrument />
+            <p className="data data--sm mt-3 max-w-[38ch] text-[color:var(--rec-ink-muted)]">
+              <RouteLink
+                href="/experience"
+                className="underline decoration-[color:var(--rec-rule-strong)] decoration-1 underline-offset-[0.3em] transition-[color,text-decoration-color,border-color] duration-150 hover:text-[color:var(--rec-signal)]"
               >
-                <span id={`${groupId}-label`} className="sr-only">
-                  {measurementSwitch.groupLabel}
-                </span>
-                <button
-                  type="button"
-                  aria-pressed={state === "before"}
-                  onClick={() => setState("before")}
-                >
-                  {label(measurementSwitch.before, queryFigure.before)}
-                </button>
-                <button
-                  type="button"
-                  aria-pressed={state === "after"}
-                  onClick={() => setState("after")}
-                >
-                  {label(measurementSwitch.after, queryFigure.after)}
-                </button>
-              </div>
-
-              <p className="meta muted">
-                {figures.paymentsPercent
-                  ? `${figures.paymentsPercent} faster on production traffic. `
-                  : ""}
-                <RouteLink href="/experience" className="accent-link">
-                  The timings are on the experience page.
-                </RouteLink>
-              </p>
-            </div>
+                {measurement.provenance}
+              </RouteLink>
+            </p>
           </div>
         </div>
       </div>
