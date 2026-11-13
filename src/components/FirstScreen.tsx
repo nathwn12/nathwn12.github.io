@@ -11,6 +11,7 @@ import {
 import { employer, tenureSpan } from "../content/experience";
 import { SectionLink, RouteLink } from "../lib/router";
 import { motionAllowed } from "../lib/motion";
+import { HeroField } from "./HeroField";
 import { LatencyInstrument } from "./LatencyInstrument";
 
 /**
@@ -113,8 +114,14 @@ export function FirstScreen() {
       ref={coverRef}
       data-band="cover"
       aria-labelledby="claim-heading"
-      className="overflow-x-clip pt-8 pb-[var(--rec-rhythm)] md:pt-12 md:pb-[var(--rec-rhythm-lg)]"
+      className="relative isolate overflow-x-clip pt-8 pb-[var(--rec-rhythm)] md:pt-12 md:pb-[var(--rec-rhythm-lg)]"
     >
+      {/* The current behind the type. `isolate` keeps the canvas in this
+          section's stacking context, so `-z-10` puts it above the ground and
+          below every word, and the grain overlay (z 60, fixed) still reads
+          above it. */}
+      <HeroField />
+
       <div className="frame">
         <h1
           id="claim-heading"
