@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Grain } from "./Grain";
 import { Reticle } from "./Reticle";
 import { RouteCurtain } from "./RouteCurtain";
-import { applyStoredMotion } from "../lib/motion";
+import { applyStoredMotion, watchMotionPreference } from "../lib/motion";
 import { useSmoothScroll } from "../lib/smooth";
 
 /**
@@ -22,9 +22,11 @@ export function Chrome() {
 
   useEffect(() => {
     /* index.html's pre-paint script already wrote `data-motion` before first
-       paint; this reconciles the attribute with storage for a restored page or
-       a storage read that failed pre-paint. It never writes a preference. */
+       paint; this reconciles the attribute with the OS preference for a
+       restored page, and keeps it truthful if that preference changes while
+       the document is open. It never writes a preference. */
     applyStoredMotion();
+    return watchMotionPreference();
   }, []);
 
   return (

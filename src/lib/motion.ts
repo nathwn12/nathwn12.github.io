@@ -5,18 +5,15 @@ import { SplitText } from "gsap/SplitText";
 /**
  * The motion kit — one preference, four primitives, one React hook.
  *
- * The site has exactly two motion states, and they are not the same question:
+ * The site has exactly one motion state now: motion runs, unless the visitor's
+ * OS asks for less (`prefers-reduced-motion: reduce`). The footer switch that
+ * used to pin a second, persisted state is gone, so a stale `nnl-motion` value
+ * in storage is not a preference and is ignored.
  *
- *   the OS preference (`prefers-reduced-motion`) is a visitor's standing
- *   instruction and is never persisted or overridden;
- *   the site switch (`nnl-motion`, the footer's Motion control) is an explicit
- *   choice on this document, persisted, and mirrored onto `<html
- *   data-motion="off|on">` so CSS can honour it too.
- *
- * Motion runs only when BOTH agree ({@link motionAllowed}). When it does not,
- * every primitive here returns its final state instantly instead of animating
- * to it — no half-faded section, no rule stuck at scaleX(0), no counter frozen
- * at zero.
+ * The OS preference is mirrored onto `<html data-motion="off|on">` so CSS can
+ * honour it too. When motion is not allowed, every primitive here returns its
+ * final state instantly instead of animating to it — no half-faded section, no
+ * rule stuck at scaleX(0), no counter frozen at zero.
  *
  * GSAP and its SplitText plugin are local dependencies; nothing here reaches
  * the network.
@@ -24,13 +21,8 @@ import { SplitText } from "gsap/SplitText";
 
 gsap.registerPlugin(useGSAP, SplitText);
 
-/** Storage key for the site's own motion switch. Not the retired theme key. */
-export const MOTION_KEY = "nnl-motion";
-
-/** Fired on `<window>` whenever the switch is flipped, with the new boolean. */
+/** Fired on `<window>` whenever the motion state changes. */
 export const MOTION_CHANGE_EVENT = "nnl-motion-change";
-
-export type MotionSetting = "on" | "off";
 
 /**
  * The OS preference, as a boolean.
@@ -51,50 +43,46 @@ export function prefersReducedMotion(): boolean {
 }
 
 /**
- * The site switch, read from storage. Absent, unrecognized or unreadable
- * storage answers `true`: motion is on unless the visitor turned it off.
- */
-export function readMotionEnabled(): boolean {
-  try {
-    return window.localStorage.getItem(MOTION_KEY) !== "off";
-  } catch {
-    return true;
-  }
-}
-
-/**
- * Whether an animation may run: the site switch is on AND the OS does not ask
- * for less. Every primitive below asks this, not one half of it.
+ * Whether an animation may run: the OS does not ask for less. Every primitive
+ * below asks this.
  */
 export function motionAllowed(): boolean {
-  return readMotionEnabled() && !prefersReducedMotion();
+  return !prefersReducedMotion();
+}
+
+/** The state the document is in, as `data-motion` carries it. */
+function motionState(): "on" | "off" {
+  return prefersReducedMotion() ? "off" : "on";
 }
 
 /**
- * Flip the site switch: persist it, mirror it onto `<html data-motion>`, then
- * broadcast so CSS, Lenis, the reticle and any mounted control agree.
- */
-export function setMotionEnabled(enabled: boolean): void {
-  const value: MotionSetting = enabled ? "on" : "off";
-  try {
-    window.localStorage.setItem(MOTION_KEY, value);
-  } catch {
-    /* Storage blocked — the DOM state below still applies for this document. */
-  }
-  document.documentElement.dataset.motion = value;
-  window.dispatchEvent(
-    new CustomEvent<boolean>(MOTION_CHANGE_EVENT, { detail: enabled }),
-  );
-}
-
-/**
- * Re-apply the stored switch without persisting or broadcasting. index.html's
- * pre-paint script has already done this before first paint; the shell calls
- * this once on mount so a storage read that failed pre-paint, or a restored
- * back/forward cache, cannot leave the attribute stale.
+ * Mirror the OS preference onto `<html data-motion>`, then broadcast so CSS,
+ * Lenis, the reticle and any mounted control agree.
+ *
+ * The attribute is a machine-readable state, not a setting: it is `"on"` unless
+ * reduced motion forces `"off"`. index.html's pre-paint script writes it before
+ * first paint; the shell calls this once on mount for a restored page or a
+ * storage read that failed pre-paint, and again whenever the OS preference
+ * changes at runtime.
  */
 export function applyStoredMotion(): void {
-  document.documentElement.dataset.motion = readMotionEnabled() ? "on" : "off";
+  document.documentElement.dataset.motion = motionState();
+  window.dispatchEvent(new CustomEvent<boolean>(MOTION_CHANGE_EVENT, {
+    detail: motionAllowed(),
+  }));
+}
+
+/** Re-read the OS preference on every change for the rest of the document. */
+export function watchMotionPreference(): () => void {
+  try {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const onChange = () => applyStoredMotion();
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  } catch {
+    /* No media query support — the state cannot change. */
+    return () => {};
+  }
 }
 
 /** A running enhancement, and the way to undo it. */

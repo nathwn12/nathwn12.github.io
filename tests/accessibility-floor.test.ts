@@ -110,13 +110,13 @@ describe("visible focus", () => {
   });
 });
 
-describe("motion — two states, one resting truth", () => {
-  /* The site has a switch (the footer's Motion control) and honours the OS
-     preference; both converge on the same resting state, which is the finished
-     page. The assertions below go red if an animated start state is ever
-     written into CSS (a hidden block a JS-less visitor never gets back), or if
-     a module other than src/lib/motion.ts starts reading the preference. */
-  test("the stylesheet collapses motion for both the OS preference and the switch", () => {
+describe("motion — one state, one resting truth", () => {
+  /* Motion runs unless the OS asks for less; both paths converge on the same
+     resting state, which is the finished page. The assertions below go red if an
+     animated start state is ever written into CSS (a hidden block a JS-less
+     visitor never gets back), or if a module other than src/lib/motion.ts starts
+     reading the preference. */
+  test("the stylesheet collapses motion for the OS preference and the state", () => {
     expect(code(css)).toMatch(/@media \(prefers-reduced-motion: reduce\)/);
     expect(code(css)).toMatch(/html\[data-motion="off"\]/);
     expect(code(css)).toMatch(/transition-duration: 0\.01ms !important/);
@@ -231,8 +231,8 @@ describe("target size", () => {
     expect(rule).toContain("min-width: 2.75rem");
   });
 
-  test("the motion switch carries the floor", () => {
-    const rule = css.match(/\.motion-toggle__switch\s*\{([^}]*)\}/s)?.[1];
+  test("the theme switch carries the floor", () => {
+    const rule = css.match(/\.theme-toggle__switch\s*\{([^}]*)\}/s)?.[1];
     expect(rule).toContain(`min-height: ${FLOOR}`);
   });
 

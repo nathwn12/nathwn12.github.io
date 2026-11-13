@@ -2,7 +2,7 @@
    CHROME — the instruments' own styles: grain, reticle, curtain, rail, close.
 
    These belong to the components in src/components (Grain, Reticle,
-   RouteCurtain, Header, Footer, MotionToggle) and to nothing else. They load
+   RouteCurtain, Header, Footer, ThemeToggle) and to nothing else. They load
    after base.css because they sit on top of it, and before legacy.css because no
    legacy class is involved.
    ========================================================================= */
@@ -304,14 +304,14 @@ html[data-motion="off"] .grain {
   color: var(--rec-ink-muted);
 }
 
-/* --- MOTION TOGGLE ------------------------------------------------------
+/* --- THEME TOGGLE -------------------------------------------------------
    A real switch: 44px target, square track, one knob. The state is the
    `aria-checked` attribute — the paint is a consequence of it, not a second
-   source of truth. */
-.motion-toggle {
+   source of truth. Focus is the base layer's 2px signal ring. */
+.theme-toggle {
   margin-top: var(--rec-space-2);
 }
-.motion-toggle__switch {
+.theme-toggle__switch {
   display: inline-flex;
   align-items: center;
   gap: var(--rec-space-3);
@@ -324,10 +324,10 @@ html[data-motion="off"] .grain {
   font: inherit;
   cursor: pointer;
 }
-.motion-toggle__label {
+.theme-toggle__label {
   color: var(--rec-ink-muted);
 }
-.motion-toggle__track {
+.theme-toggle__track {
   position: relative;
   display: inline-block;
   width: 2.25rem;
@@ -335,7 +335,7 @@ html[data-motion="off"] .grain {
   border: var(--rec-rule-w) solid var(--rec-rule-strong);
   transition: border-color var(--rec-dur-quick) var(--rec-ease-out);
 }
-.motion-toggle__knob {
+.theme-toggle__knob {
   position: absolute;
   top: 1px;
   left: 1px;
@@ -346,16 +346,16 @@ html[data-motion="off"] .grain {
     transform var(--rec-dur-quick) var(--rec-ease-out),
     background-color var(--rec-dur-quick) var(--rec-ease-out);
 }
-.motion-toggle__switch[aria-checked="true"] .motion-toggle__track {
+.theme-toggle__switch[aria-checked="true"] .theme-toggle__track {
   border-color: var(--rec-signal);
 }
-.motion-toggle__switch[aria-checked="true"] .motion-toggle__knob {
+.theme-toggle__switch[aria-checked="true"] .theme-toggle__knob {
   transform: translateX(100%);
   background: var(--rec-signal);
 }
 /* Announced, not shown: the state is already carried by `aria-checked`, and
    this line exists so a change is spoken even if focus has moved on. */
-.motion-toggle__status {
+.theme-toggle__status {
   position: absolute;
   width: 1px;
   height: 1px;

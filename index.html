@@ -3,21 +3,60 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- One ground, so one theme colour: the recorder's `--rec-ground`. -->
+    <!-- The dark ground is the no-JS default; the pre-paint script below
+         rewrites this to the resolved theme's `--rec-ground`. -->
     <meta name="theme-color" content="#0A0C0E" />
     <script>
       (function () {
-        /* The only pre-paint work left: the motion switch. It is read before
-           first paint so a visitor who turned motion off never sees the page
-           animate for one frame before the switch is applied — and it is a
-           separate try/catch, because storage that throws (Safari private mode,
-           a blocked origin) must not stop the attribute being written. An
-           absent or unrecognized value means motion is on. */
+        /* The only pre-paint work: the theme, and the motion state. Both are
+           resolved before first paint so a visitor who pinned Paper never sees
+           a dark frame, and one whose OS asks for less motion never sees the
+           page animate for one frame.
+
+           Theme: the stored pin wins, otherwise the OS preference. Each read is
+           its own try/catch — storage that throws (Safari private mode, a
+           blocked origin) must not stop the attribute being written, and an
+           unreadable OS probe falls back to the dark ground, which is the
+           identity.
+
+           Motion has no switch any more: it is on unless the OS asks for less,
+           and `data-motion` carries that state for the CSS kill switch. */
+        var theme = null;
+        try {
+          var stored = localStorage.getItem("nnl-theme");
+          if (stored === "light" || stored === "dark") theme = stored;
+        } catch {
+          /* storage unavailable — fall through to the OS preference */
+        }
+        if (theme === null) {
+          theme = "dark";
+          try {
+            if (
+              window.matchMedia &&
+              window.matchMedia("(prefers-color-scheme: light)").matches
+            ) {
+              theme = "light";
+            }
+          } catch {
+            /* no media query support — keep the dark ground */
+          }
+        }
+        document.documentElement.dataset.theme = theme;
+        var meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) {
+          meta.setAttribute("content", theme === "light" ? "#ECEDE9" : "#0A0C0E");
+        }
+
         var motion = "on";
         try {
-          if (localStorage.getItem("nnl-motion") === "off") motion = "off";
+          if (
+            window.matchMedia &&
+            window.matchMedia("(prefers-reduced-motion: reduce)").matches
+          ) {
+            motion = "off";
+          }
         } catch {
-          /* storage unavailable — leave motion on */
+          /* no media query support — motion stays on */
         }
         document.documentElement.dataset.motion = motion;
       })();

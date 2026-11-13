@@ -1,14 +1,15 @@
 // @vitest-environment jsdom
 /**
- * The design-system contract — dark-only, one token source.
+ * The design-system contract — two themes, one token source, one attribute.
  *
- * The "Recorder" redesign retired the light/dark pair: the site is an
- * instrument panel, so there is exactly one ground, and `src/lib/theme.ts`, its
- * `nnl-theme` storage key and the footer switch are gone. What replaces that
- * test file is this one: it pins the shipped `--rec-*` values (the plan's
- * table, verbatim), the contrast of every foreground/ground pair the page
- * paints, the legacy `--color-*` aliases the not-yet-rewritten sections still
- * consume, and the motion preference store that took the theme store's place.
+ * The site carries a dark "Recorder" palette in `:root` and a light "Paper"
+ * palette in `[data-theme="light"]`. `<html data-theme="light|dark">` is the only
+ * switch: there is no `prefers-color-scheme` block in CSS, so a stored choice and
+ * the OS can never disagree on the page. This file pins the shipped `--rec-*`
+ * values (the brief's table, verbatim), the contrast of every foreground/ground
+ * pair the page paints, the legacy `--color-*` aliases the not-yet-rewritten
+ * sections still consume, and the reduce-only motion state that replaced the
+ * retired footer switch.
  *
  * Every assertion reads the real stylesheet, so a palette edit flows into the
  * numbers here instead of leaving a stale copy behind.
@@ -17,11 +18,11 @@ import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
-  MOTION_KEY,
-  readMotionEnabled,
+  applyStoredMotion,
+  motionAllowed,
   prefersReducedMotion,
-  setMotionEnabled,
 } from "../lib/motion";
+import { THEME_COLORS, THEME_KEY } from "../lib/theme";
 
 const root = resolve(import.meta.dirname, "..", "..");
 const read = (rel: string) => readFileSync(resolve(root, rel), "utf8");
@@ -70,8 +71,9 @@ function contrast(foreground: string, background: string): number {
 }
 
 const REC = hexTokens(block(TOKENS, ":root"), "--rec-");
+const PAPER = { ...REC, ...hexTokens(block(TOKENS, '[data-theme="light"]'), "--rec-") };
 
-describe("the recorder palette is the plan's table, verbatim", () => {
+describe("the recorder palette is the brief's table, verbatim", () => {
   it.each([
     ["--rec-ground", "#0a0c0e"],
     ["--rec-panel", "#111417"],
@@ -79,37 +81,69 @@ describe("the recorder palette is the plan's table, verbatim", () => {
     ["--rec-rule", "#23282d"],
     ["--rec-rule-strong", "#39424a"],
     ["--rec-ink", "#e9eef2"],
-    ["--rec-ink-muted", "#8c979e"],
-    ["--rec-signal", "#7c9cff"],
+    ["--rec-ink-muted", "#97a2a9"],
+    ["--rec-signal", "#6d8af2"],
     ["--rec-measure", "#4dd4e8"],
     ["--rec-alarm", "#ff5d5d"],
+    ["--rec-on-signal", "#0a0c0e"],
   ])("%s is %s", (name, hex) => {
     expect(REC[name]).toBe(hex);
   });
 });
 
-describe("contrast — measured from the shipped tokens", () => {
+describe("the paper palette is the brief's table, verbatim", () => {
   it.each([
-    ["ink on ground", "--rec-ink", "--rec-ground", 13],
-    ["muted on ground", "--rec-ink-muted", "--rec-ground", 5.2],
-    ["signal on ground", "--rec-signal", "--rec-ground", 6],
-    ["measure on ground", "--rec-measure", "--rec-ground", 9],
-    ["ink on panel", "--rec-ink", "--rec-panel", 13],
-    ["muted on panel", "--rec-ink-muted", "--rec-panel", 5.2],
-  ])("%s is at least %d:1", (_role, fg, bg, minimum) => {
-    const ratio = contrast(REC[fg], REC[bg]);
-    expect(ratio, `${fg} on ${bg} = ${ratio.toFixed(2)}:1`).toBeGreaterThanOrEqual(
-      minimum,
-    );
+    ["--rec-ground", "#ecede9"],
+    ["--rec-panel", "#e3e5e0"],
+    ["--rec-panel-2", "#d9dcd6"],
+    ["--rec-rule", "#ccd0ca"],
+    ["--rec-rule-strong", "#a4aaa3"],
+    ["--rec-ink", "#14171a"],
+    ["--rec-ink-muted", "#4c545a"],
+    ["--rec-signal", "#2b49c4"],
+    ["--rec-measure", "#0b6b77"],
+    ["--rec-alarm", "#b3261e"],
+    ["--rec-on-signal", "#f7f8f5"],
+  ])("%s is %s", (name, hex) => {
+    expect(PAPER[name]).toBe(hex);
   });
 });
 
-describe("one theme, and it is dark", () => {
-  it("declares color-scheme: dark and carries no light block", () => {
+describe("contrast — measured from the shipped tokens, both themes", () => {
+  it.each([
+    ["dark", REC],
+    ["light", PAPER],
+  ])("%s", (_theme, tokens) => {
+    for (const [fg, bg, minimum] of [
+      ["--rec-ink", "--rec-ground", 7],
+      ["--rec-ink-muted", "--rec-ground", 4.5],
+      ["--rec-signal", "--rec-ground", 4.5],
+      ["--rec-measure", "--rec-ground", 4.5],
+      ["--rec-ink", "--rec-panel", 7],
+      ["--rec-ink-muted", "--rec-panel", 4.5],
+      ["--rec-on-signal", "--rec-signal", 4.5],
+    ] as Array<[string, string, number]>) {
+      const ratio = contrast(tokens[fg], tokens[bg]);
+      expect(
+        ratio,
+        `${_theme}: ${fg} on ${bg} = ${ratio.toFixed(2)}:1, needs ${minimum}:1`,
+      ).toBeGreaterThanOrEqual(minimum);
+    }
+  });
+});
+
+describe("two themes, one switch", () => {
+  it("declares both schemes and no CSS scheme branch", () => {
     expect(TOKENS).toContain("color-scheme: dark");
-    expect(TOKENS).not.toContain("data-theme");
-    expect(TOKENS).not.toContain("prefers-color-scheme");
-    expect(existsSync(resolve(root, "src/lib/theme.ts"))).toBe(false);
+    expect(TOKENS).toContain('[data-theme="light"]');
+    expect(TOKENS).toContain("color-scheme: light");
+    expect(TOKENS).not.toMatch(/@media[^{]*prefers-color-scheme/);
+  });
+
+  it("states the light ground as the browser-chrome colour it paints", () => {
+    expect(THEME_COLORS.light.toLowerCase()).toBe(PAPER["--rec-ground"]);
+    expect(THEME_COLORS.dark.toLowerCase()).toBe(REC["--rec-ground"]);
+    expect(THEME_KEY).toBe("nnl-theme");
   });
 
   it("keeps the type scale the plan fixes", () => {
@@ -235,9 +269,8 @@ describe("the base layer keeps the floor", () => {
   });
 });
 
-describe("motion preference — the store that replaced the theme store", () => {
+describe("motion state — reduce only, no switch", () => {
   beforeEach(() => {
-    window.localStorage.clear();
     delete document.documentElement.dataset.motion;
   });
 
@@ -245,39 +278,40 @@ describe("motion preference — the store that replaced the theme store", () => 
     delete document.documentElement.dataset.motion;
   });
 
-  it("uses its own key, not the retired theme key", () => {
-    expect(MOTION_KEY).toBe("nnl-motion");
-    expect(MOTION_KEY).not.toBe("nnl-theme");
-  });
-
-  it("defaults to on, and off only when the visitor stored off", () => {
-    expect(readMotionEnabled()).toBe(true);
-    window.localStorage.setItem(MOTION_KEY, "off");
-    expect(readMotionEnabled()).toBe(false);
-    window.localStorage.setItem(MOTION_KEY, "on");
-    expect(readMotionEnabled()).toBe(true);
-    // An unrecognized value is not a preference: it falls through to on.
-    window.localStorage.setItem(MOTION_KEY, "maybe");
-    expect(readMotionEnabled()).toBe(true);
-  });
-
-  it("writes data-motion on <html> and persists the switch", () => {
-    setMotionEnabled(false);
-    expect(document.documentElement.dataset.motion).toBe("off");
-    expect(window.localStorage.getItem(MOTION_KEY)).toBe("off");
-
-    setMotionEnabled(true);
-    expect(document.documentElement.dataset.motion).toBe("on");
-    expect(window.localStorage.getItem(MOTION_KEY)).toBe("on");
+  it("has no motion switch left to persist", () => {
+    // The footer control is gone: motion is a consequence of the OS preference,
+    // so there is no key and no second state to disagree with it.
+    expect(read("src/styles/chrome.css")).not.toContain("motion-toggle");
+    expect(read("src/components/Footer.tsx")).not.toContain("MotionToggle");
+    expect(existsSync(resolve(root, "src/components/MotionToggle.tsx"))).toBe(
+      false,
+    );
   });
 
   it("treats a missing or throwing matchMedia as 'reduce'", () => {
     expect(prefersReducedMotion()).toBe(true);
+    expect(motionAllowed()).toBe(false);
     const original = window.matchMedia;
     window.matchMedia = (() => {
       throw new Error("matchMedia blocked");
     }) as typeof window.matchMedia;
     expect(prefersReducedMotion()).toBe(true);
     window.matchMedia = original;
+  });
+
+  it("writes data-motion from the OS preference, never from storage", () => {
+    // jsdom has no matchMedia: the honest state is "off".
+    applyStoredMotion();
+    expect(document.documentElement.dataset.motion).toBe("off");
+
+    window.matchMedia = ((query: string) => ({
+      matches: false,
+      media: query,
+      addEventListener: () => {},
+      removeEventListener: () => {},
+    })) as unknown as typeof window.matchMedia;
+    applyStoredMotion();
+    expect(document.documentElement.dataset.motion).toBe("on");
+    expect(motionAllowed()).toBe(true);
   });
 });

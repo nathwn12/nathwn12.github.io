@@ -5,7 +5,7 @@ import {
   RESUME_FILENAME,
   RESUME_PATH,
 } from "../lib/contact";
-import { MotionToggle } from "./MotionToggle";
+import { ThemeToggle } from "./ThemeToggle";
 
 /**
  * Footer — the instrument's bottom rail: the ways out, the one setting, the
@@ -13,9 +13,9 @@ import { MotionToggle } from "./MotionToggle";
  *
  * Three columns rather than one run of links, because a footer that lists six
  * destinations in a row makes them all the same size. Contact, documents and
- * source are different kinds of exit and are drawn as such. The Motion switch is
- * the only control here — the retired light/dark toggle took the place of a
- * document setting and is gone with the second theme.
+ * source are different kinds of exit and are drawn as such. The theme switch is
+ * the only control here — a document setting, not a destination. Motion has no
+ * control: it runs unless the OS asks for less.
  *
  * The imprint states the year, the place and the type, each as its own item: no
  * middle-dot meta string, no "© 2026 · Philippines, remote · set in …" run-on.
@@ -93,7 +93,7 @@ export function Footer() {
               >
                 Source on GitHub
               </a>
-              <MotionToggle />
+              <ThemeToggle />
             </div>
           </nav>
         </div>
