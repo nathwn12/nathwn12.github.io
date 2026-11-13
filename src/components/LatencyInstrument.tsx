@@ -237,6 +237,12 @@ export function LatencyInstrument() {
         "[data-instrument-panel]",
       );
 
+      /* No sticky hold, no scrub. Below the two-column cover the panel is the
+         last thing in a one-column stack, so a scroll-driven range would spend
+         its travel below the fold — the very defect this replaced. The markup
+         already carries the final frame, so the measurement is simply stated. */
+      if (!panel || getComputedStyle(panel).position !== "sticky") return;
+
       /** How far the scrub runs, in px: 85% of the panel's sticky travel, so
        *  the last frame lands while the panel is still pinned and fully visible
        *  rather than on the frame the hero releases it. */
