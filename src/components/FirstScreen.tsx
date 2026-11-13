@@ -20,13 +20,18 @@ import { LatencyInstrument } from "./LatencyInstrument";
  * Three parts, one orchestration:
  *   1. The claim is hand-set on three lines and masked up line by line. The
  *      line breaks are structure, not styling: "Payment backends / that hold up
- *      under / production load." is how the sentence is meant to be read, and
- *      the first line starts at the viewport's own left edge rather than the
- *      frame's, so the block breaks the column it sits in.
+ *      under / production load." is how the sentence is meant to be read. All
+ *      three lines start on the frame's own left edge — the block is measured,
+ *      not bled: one line hanging 112px outside its siblings is a crop, not a
+ *      decision, and the P lost five pixels of stem to prove it.
  *   2. The standfirst, the stack and the availability line — the only running
  *      copy above the fold, all of it content strings.
  *   3. The instrument: the payment query before and after the provider change,
  *      with every number in the DOM (see LatencyInstrument).
+ *
+ * The two columns close on one line: the actions sit on the left column's
+ * bottom edge, which is the instrument's bottom edge, so the seam below the
+ * cover measures one block rather than two ragged ones.
  *
  * The whole sequence runs once per session and lasts about 1.4 s: display lines
  * mask up, then the copy and the actions fade in on a 60 ms stagger, then the
@@ -97,38 +102,31 @@ export function FirstScreen() {
       ref={coverRef}
       data-band="cover"
       aria-labelledby="claim-heading"
-      className="overflow-x-clip pt-8 pb-[var(--rec-band)] md:pt-12 md:pb-[var(--rec-band-lg)]"
+      className="overflow-x-clip pt-8 pb-[var(--rec-rhythm)] md:pt-12 md:pb-[var(--rec-rhythm-lg)]"
     >
       <div className="frame">
         <h1
           id="claim-heading"
           className="font-display text-[length:clamp(3rem,9.5vw,11rem)] leading-[0.87] font-normal! tracking-[-0.02em]! text-[color:var(--rec-ink)]"
         >
-          {CLAIM_LINES.map((line, index) => (
+          {CLAIM_LINES.map((line) => (
             <span
               key={line}
-              className={
-                index === 0
-                  ? "block overflow-hidden pb-[0.04em] min-[900px]:ml-[calc(50%-50vw)]"
-                  : "block overflow-hidden pb-[0.04em]"
-              }
-              /* The first line starts at the viewport edge from 900px up, which
-                 is where the frame's gutter is wide enough to bleed into.
-                 Below that the gutter is the only margin there is, and a
-                 cropped P is a defect rather than a bleed. `50% - 50vw` is exact
-                 at every width: it subtracts the frame's own centring plus its
-                 gutter. */
+              /* Every line shares the frame's left edge. The display size is
+                 already the widest thing on the page; bleeding one line past
+                 the other two cropped a glyph and read as a mistake, so the
+                 three lines are the block, and the block is the frame. */
+              className="block overflow-hidden pb-[0.04em]"
             >
               <span data-cover-line className="block">
                 {line}
-                {index < CLAIM_LINES.length - 1 ? " " : ""}
               </span>
             </span>
           ))}
         </h1>
 
         <div className="mt-8 grid gap-x-12 gap-y-10 md:mt-10 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_23rem]">
-          <div>
+          <div className="flex flex-col">
             <p
               data-cover-fade
               className="max-w-[62ch] text-[length:var(--rec-text-lead)] leading-[var(--rec-leading-lead)] text-[color:var(--rec-ink)]"
@@ -172,7 +170,7 @@ export function FirstScreen() {
 
             <div
               data-cover-fade
-              className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3"
+              className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3 lg:mt-auto"
             >
               <SectionLink
                 section="contact"
@@ -182,9 +180,14 @@ export function FirstScreen() {
                 {CONTACT_CTA}
               </SectionLink>
 
+              {/* The text action carries its rule on the box's bottom edge, so
+                  the underlined action and the filled block close on the same
+                  line and share one baseline. A text-decoration sits 0.35em
+                  above that edge and pulls the link's optical bottom a line
+                  clear of the block beside it. */}
               <SectionLink
                 section="proof"
-                className="inline-flex min-h-11 items-center text-[0.875rem] font-semibold text-[color:var(--rec-ink)] underline decoration-[color:var(--rec-rule-strong)] decoration-1 underline-offset-[0.35em] transition-[color,text-decoration-color,border-color] duration-150 hover:decoration-[color:var(--rec-signal)]"
+                className="inline-flex min-h-11 items-center border-b border-[color:var(--rec-rule-strong)] text-[0.875rem] font-semibold text-[color:var(--rec-ink)] transition-[color,border-color] duration-150 hover:border-[color:var(--rec-signal)]"
               >
                 Read the record
               </SectionLink>

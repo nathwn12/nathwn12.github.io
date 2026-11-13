@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import { gsap } from "gsap";
 import { figures, measurement, queryFigure } from "../content/ledger";
 import { MOTION_CHANGE_EVENT, countUp, motionAllowed } from "../lib/motion";
@@ -31,9 +31,13 @@ import { MOTION_CHANGE_EVENT, countUp, motionAllowed } from "../lib/motion";
 const AXIS = { min: 0.5, max: 100 } as const;
 const BEFORE_SECONDS = 60;
 const AFTER_SECONDS = 1;
-const TICKS = [1, 10, 60, 100] as const;
-/** The ticks that get a printed label; the last one is set flush right. */
-const LABELLED_TICKS = [1, 10] as const;
+/**
+ * The ticks that are drawn AND labelled — the same list, so a label can never
+ * describe a position the grid does not hold. The origin is the plot's own left
+ * edge: the axis starts at 0.5 s because that is where the track starts, and the
+ * caption says so. 100 s ends the track and is set flush right.
+ */
+const TICKS = [1, 10, 100] as const;
 
 /** Where a value sits on the log axis, 0 (left) to 1 (right). */
 function axisPosition(seconds: number): number {
@@ -51,6 +55,14 @@ const REDUCTION = figures.paymentsPercent
   : null;
 
 const tickLabel = (seconds: number): string => `${seconds} s`;
+
+/** Flush right at the end of the track, left-aligned on its own gridline in
+ *  between: every label's left edge is the position it names, and no two labels
+ *  can collide on a narrow column. */
+function tickStyle(seconds: number): CSSProperties {
+  if (seconds === AXIS.max) return { right: 0 };
+  return { left: `${axisPosition(seconds) * 100}%` };
+}
 
 export function LatencyInstrument() {
   const plotRef = useRef<HTMLDivElement>(null);
@@ -79,6 +91,11 @@ export function LatencyInstrument() {
       context.clearRect(0, 0, width, height);
       context.lineWidth = 1;
       context.strokeStyle = grid;
+      /* The gridlines cross the label rows as well as the bars — that is what
+         makes two lengths readable against one scale — so they are drawn at 45%
+         of the strong rule. At full strength the line lands across a repo name
+         and reads as a strikethrough. */
+      context.globalAlpha = 0.45;
       for (const tick of TICKS) {
         /* Half-pixel offset so a 1px line lands on a device pixel, not across
            two of them. */
@@ -88,13 +105,16 @@ export function LatencyInstrument() {
         context.lineTo(x, height);
         context.stroke();
       }
+      context.globalAlpha = 1;
       if (sweepAt !== null) {
         context.strokeStyle = sweep;
+        context.globalAlpha = 0.65;
         const x = Math.round(sweepAt * width) + 0.5;
         context.beginPath();
         context.moveTo(x, 0);
         context.lineTo(x, height);
         context.stroke();
+        context.globalAlpha = 1;
       }
     };
 
@@ -214,20 +234,27 @@ export function LatencyInstrument() {
   }, []);
 
   return (
-    <div className="border border-[color:var(--rec-rule)] bg-[color:var(--rec-panel)] p-5 lg:p-6">
-      <div className="flex items-start justify-between gap-6">
+    /* No border and no fill: the instrument is a region of the record, held by
+       two hairlines that end on the frame's right edge, not a card laid on top
+       of it. The top rule is the stronger of the two because it is the edge the
+       column starts at. */
+    <div
+      data-instrument
+      className="border-t border-[color:var(--rec-rule-strong)] pt-4"
+    >
+      <div className="flex items-baseline justify-between gap-4">
         <p className="data data--sm text-[color:var(--rec-ink-muted)]">
           {measurement.label}
         </p>
         {REDUCTION !== null ? (
-          <p className="text-right">
+          <p className="flex items-baseline gap-2 whitespace-nowrap">
             <span
               ref={reductionValueRef}
-              className="data data--lg block text-[color:var(--rec-measure)]"
+              className="data data--lg tabular-nums text-[color:var(--rec-measure)]"
             >
               −{REDUCTION}%
             </span>
-            <span className="data data--sm block text-[color:var(--rec-ink-muted)]">
+            <span className="data data--sm text-[color:var(--rec-ink-muted)]">
               latency
             </span>
           </p>
@@ -237,7 +264,9 @@ export function LatencyInstrument() {
       {/* Each fact is its own definition list, with its bar directly under the
           value it measures: the mapping between a colour and a row is then
           structural and needs no key. The canvas of decade gridlines sits
-          behind both, so the two lengths are read against one scale. */}
+          behind both, so the two lengths are read against one scale. Both rows
+          are built from the same elements in the same order, so the value
+          column and the bar's left edge line up rather than ranking by eye. */}
       <div ref={plotRef} className="relative mt-6">
         <canvas
           ref={canvasRef}
@@ -245,67 +274,71 @@ export function LatencyInstrument() {
           aria-hidden="true"
         />
 
-        <div className="relative">
-          <dl className="flex items-baseline justify-between gap-4">
-            <dt className="data data--sm text-[color:var(--rec-ink)]">
-              <span className="text-[color:var(--rec-ink-muted)]">before </span>
-              {measurement.beforeName}
-            </dt>
-            <dd
-              ref={beforeValueRef}
-              className="data data--lg whitespace-nowrap text-right text-[color:var(--rec-ink)]"
-            >
-              {queryFigure.before ?? "—"}
-            </dd>
+        <div className="relative flex flex-col gap-5">
+          <dl>
+            <div className="flex items-baseline justify-between gap-4">
+              <dt className="data data--sm text-[color:var(--rec-ink)]">
+                <span className="text-[color:var(--rec-ink-muted)]">
+                  before{" "}
+                </span>
+                {measurement.beforeName}
+              </dt>
+              <dd
+                ref={beforeValueRef}
+                className="data whitespace-nowrap tabular-nums text-[color:var(--rec-ink)]"
+              >
+                {queryFigure.before ?? "—"}
+              </dd>
+            </div>
+            <div className="mt-2.5 h-[5px] w-full" aria-hidden="true">
+              <div
+                ref={beforeBarRef}
+                className="h-full origin-left bg-[color:var(--rec-alarm)]"
+                style={{ width: `${BEFORE_POSITION * 100}%` }}
+              />
+            </div>
           </dl>
-          <div className="mt-2 h-[6px] w-full" aria-hidden="true">
-            <div
-              ref={beforeBarRef}
-              className="h-full origin-left bg-[color:var(--rec-alarm)]"
-              style={{ width: `${BEFORE_POSITION * 100}%` }}
-            />
-          </div>
-        </div>
 
-        <div className="relative mt-5">
-          <dl className="flex items-baseline justify-between gap-4">
-            <dt className="data data--sm text-[color:var(--rec-ink)]">
-              <span className="text-[color:var(--rec-ink-muted)]">after </span>
-              {measurement.afterName}
-            </dt>
-            <dd className="data data--lg whitespace-nowrap text-right text-[color:var(--rec-ink)]">
-              {queryFigure.afterLong ?? queryFigure.after ?? "—"}
-            </dd>
+          <dl>
+            <div className="flex items-baseline justify-between gap-4">
+              <dt className="data data--sm text-[color:var(--rec-ink)]">
+                <span className="text-[color:var(--rec-ink-muted)]">after </span>
+                {measurement.afterName}
+              </dt>
+              <dd className="data whitespace-nowrap tabular-nums text-[color:var(--rec-ink)]">
+                {queryFigure.afterLong ?? queryFigure.after ?? "—"}
+              </dd>
+            </div>
+            <div className="mt-2.5 h-[5px] w-full" aria-hidden="true">
+              <div
+                ref={afterBarRef}
+                className="h-full origin-left bg-[color:var(--rec-measure)]"
+                style={{ width: `${AFTER_POSITION * 100}%` }}
+              />
+            </div>
           </dl>
-          <div className="mt-2 h-[6px] w-full" aria-hidden="true">
-            <div
-              ref={afterBarRef}
-              className="h-full min-w-[2px] origin-left bg-[color:var(--rec-measure)]"
-              style={{ width: `${AFTER_POSITION * 100}%` }}
-            />
-          </div>
         </div>
       </div>
 
-      {/* The axis, stated: a log scale that does not announce itself is a
-          misleading chart. Same positions the gridlines are drawn at. */}
-      <div className="relative mt-2 h-[14px]" aria-hidden="true">
-        {LABELLED_TICKS.map((tick) => (
+      {/* The axis, stated. Every drawn gridline carries its own label — the
+          origin included — so the caption and the picture are the same claim: a
+          log scale that does not announce its own ends is a misleading chart,
+          and one whose ticks do not correspond to its labels is worse than
+          none. Same positions the canvas draws at. */}
+      <div className="relative mt-2 h-[16px]" aria-hidden="true">
+        {TICKS.map((tick) => (
           <span
             key={tick}
-            className="data absolute top-0 -translate-x-1/2 text-[0.625rem] text-[color:var(--rec-ink-muted)]"
-            style={{ left: `${axisPosition(tick) * 100}%` }}
+            className="data absolute top-0 text-[0.625rem] text-[color:var(--rec-ink-muted)]"
+            style={tickStyle(tick)}
           >
             {tickLabel(tick)}
           </span>
         ))}
-        <span className="data absolute top-0 right-0 text-[0.625rem] text-[color:var(--rec-ink-muted)]">
-          {tickLabel(100)}
-        </span>
       </div>
 
-      <p className="data data--sm mt-4 border-t border-[color:var(--rec-rule)] pt-3 text-[color:var(--rec-ink-muted)]">
-        Log scale, 0.5 s to 100 s.
+      <p className="data data--sm mt-3 border-b border-[color:var(--rec-rule)] pb-3 text-[color:var(--rec-ink-muted)]">
+        Log scale, 0.5 s to 100 s. Bars are drawn to those positions.
       </p>
     </div>
   );
