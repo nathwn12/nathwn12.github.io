@@ -109,10 +109,10 @@ export const queryFigure = {
 
 /** Figures the page renders. Null means "not derivable" — the row is omitted. */
 export const figures = {
-  paymentsPercent: payments ? percentIn(payments.outcome) : null,
+  paymentsPercent: payments ? percentIn(payments.metric ?? "") : null,
   queryBefore: times.before,
   queryAfter: times.after,
-  readLatency: dataAccess ? percentIn(dataAccess.outcome) : null,
+  readLatency: dataAccess ? percentIn(dataAccess.metric ?? "") : null,
   commits: ledger_.commits,
   repositories: ledger_.repositories,
   scanned: ledger_.scanned,

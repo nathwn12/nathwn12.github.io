@@ -200,7 +200,7 @@ export function Timeline({ items }: { items: TimelineItem[] }) {
                   {item.figure && (
                     <p
                       data-timeline-figure
-                      className="font-mono tnum text-[clamp(1.25rem,1rem+1vw,1.75rem)] leading-none tracking-[0.01em] text-[color:var(--rec-measure)]"
+                      className="ml-auto font-mono tnum text-[clamp(1.25rem,1rem+1vw,1.75rem)] leading-none tracking-[0.01em] text-[color:var(--rec-measure)]"
                     >
                       {item.figure.format(item.figure.value)}
                     </p>

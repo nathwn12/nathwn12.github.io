@@ -42,8 +42,10 @@ export interface ExperienceEntry {
   date: string;
   /** Status in words; never a colour, a lone dot, or a bare code. */
   status: string;
-  /** One outcome sentence carrying its measured result. */
+  /** One outcome sentence: the mechanism, never the number. The number lives in metric. */
   outcome: string;
+  /** The measured result, stated once per row - the figure the row renders. */
+  metric?: string;
   /** Supporting detail: what was built and how. */
   description: string;
   /** Concrete moves behind the outcome, newest first; may be empty. */
@@ -106,9 +108,10 @@ export const experience: ExperienceEntry[] = [
     name: "Data access layer",
     date: "March 2025",
     status: "Shipped in production",
-    outcome: "Cut read latency by over 40% with EF Core, Dapper, and Redis.",
+    outcome: "Cut read latency with EF Core, Dapper and Redis.",
+    metric: "over 40%",
     description:
-      "Designed EF Core and Dapper data layers for high-throughput financial transactions. Tuned SQL indexes and integrated Redis caching on frequently accessed reference data, reducing read latency by over 40%. Kept read models thin and cache invalidation explicit so correctness never depended on a stale cache.",
+      "Designed EF Core and Dapper data layers for high-throughput financial transactions. Tuned SQL indexes and integrated Redis caching on frequently accessed reference data. Kept read models thin and cache invalidation explicit so correctness never depended on a stale cache.",
     highlights: [
       "Split hot read paths onto Dapper and kept EF Core for writes.",
       "Added Redis caching with explicit invalidation on write.",
@@ -138,12 +141,13 @@ export const experience: ExperienceEntry[] = [
     date: "November 2024",
     status: "Shipped in production",
     outcome:
-      "Hardened service security and held zero high or critical Snyk findings.",
+      "Hardened service security with JWT, OAuth 2.0 and OpenID Connect.",
+    metric: "0",
     description:
-      "JWT, OAuth 2.0, OpenID Connect with RBAC and ABAC authorization. Zero high/critical Snyk findings on production deployments via proactive dependency scanning and secure code review. Access decisions were centralized so a policy change shipped in one place, not across every endpoint.",
+      "JWT, OAuth 2.0, OpenID Connect with RBAC and ABAC authorization, on production deployments hardened by proactive dependency scanning and secure code review. Access decisions were centralized so a policy change shipped in one place, not across every endpoint.",
     highlights: [
       "Centralized authorization so policy changes shipped in one place.",
-      "Ran dependency scanning in CI and triaged every finding to zero high/critical.",
+      "Ran dependency scanning in CI and triaged every finding before release.",
       "Reviewed authentication paths against the OWASP guidance before release.",
     ],
     tech: ["JWT", "OAuth 2.0", "OpenID Connect", "RBAC", "ABAC", "Snyk"],
@@ -154,7 +158,8 @@ export const experience: ExperienceEntry[] = [
     date: "August 2024",
     status: "Shipped in production",
     outcome:
-      "Cut payment API latency by 98% by moving from MySql.Data to MySqlConnector on AWS.",
+      "Cut payment API latency by moving from MySql.Data to MySqlConnector on AWS.",
+    metric: "98%",
     description:
       "Migrated payment services from MySql.Data to MySqlConnector on AWS: worst-case query times fell from about 60 seconds to under one second. Profiled slow queries and tuned indexes on high-frequency access patterns to eliminate a critical production bottleneck.",
     highlights: [
