@@ -5,40 +5,42 @@ import { describe, expect, test } from "vitest";
 /**
  * Contrast, computed from the shipped CSS custom properties.
  *
- * Reading the tokens out of src/index.css is the point: a hex changed in the
- * theme block flows into this test with no second copy to keep in step, so the
- * numbers below are the colours the page actually paints. Every pair here is
- * one the components render — body copy, secondary notes, a link, the primary
- * button's label, and the two whole-section colour fields with their ink.
+ * Reading the tokens out of `src/styles/tokens.css` is the point: a hex changed
+ * in the palette flows into this test with no second copy to keep in step, so
+ * the numbers below are the colours the page actually paints. There is one
+ * theme — the record is an instrument panel — so every pair is checked once.
  *
- * WCAG 2.2: 4.5:1 for text under 24px (or 18.66px bold), 3:1 for large text and
- * for the boundary of a UI component. `--color-edge` is a form border only, so
- * it is checked at 3:1 against the ground it is drawn on, never as text.
+ * The pairs are the ones the components render: body copy and secondary notes on
+ * the ground and on an inset surface, the link colour, the measured numerals, the
+ * one alarm colour (set as 12px mono text on `/projects`), the label on the
+ * cover's filled action, and the muted tone's distance from the ink.
+ *
+ * WCAG 2.2: 4.5:1 for text under 24px (or 18.66px bold), 3:1 for large text.
+ * The floors above 4.5 are the recorder's own: this direction sets type small
+ * and dark, so the palette has to clear the AA floor with room to spare.
  */
 
 const root = resolve(import.meta.dirname, "..");
-const css = readFileSync(resolve(root, "src", "index.css"), "utf8");
+const css = readFileSync(resolve(root, "src", "styles", "tokens.css"), "utf8");
 
 const HEX = /^#[0-9a-f]{6}$/i;
 
-function tokenBlock(source: string, start: string, end: string): string {
-  const from = source.indexOf(start);
-  expect(from, `missing token block ${start}`).toBeGreaterThan(-1);
-  const to = source.indexOf(end, from + start.length);
-  expect(to, `unterminated token block ${start}`).toBeGreaterThan(from);
-  return source.slice(from, to);
-}
-
-function tokens(block: string): Record<string, string> {
+/** Every `--rec-*: #hex` pair in the :root block, lowercased. */
+function palette(source: string): Record<string, string> {
+  const from = source.indexOf(":root {");
+  expect(from, "tokens.css has no :root block").toBeGreaterThan(-1);
+  const to = source.indexOf("\n}", from);
+  expect(to, "the :root block is unterminated").toBeGreaterThan(from);
   const found: Record<string, string> = {};
-  for (const match of block.matchAll(/(--color-[a-z0-9-]+):\s*(#[0-9a-f]{6})\b/gi)) {
+  for (const match of source
+    .slice(from, to)
+    .matchAll(/(--rec-[a-z0-9-]+):\s*(#[0-9a-f]{6})\b/gi)) {
     found[match[1]] = match[2].toLowerCase();
   }
   return found;
 }
 
-const light = tokens(tokenBlock(css, "@theme {", "\n}\n"));
-const dark = tokens(tokenBlock(css, 'html[data-theme="dark"] {', "\n}\n"));
+const REC = palette(css);
 
 /** Relative luminance, WCAG 2.2 § relative luminance. */
 function luminance(hex: string): number {
@@ -59,9 +61,9 @@ function contrast(foreground: string, background: string): number {
   return (a + 0.05) / (b + 0.05);
 }
 
-function tok(theme: Record<string, string>, name: string): string {
-  const value = theme[`--color-${name}`];
-  expect(value, `--color-${name} is not defined as a hex token`).toBeDefined();
+function tok(name: string): string {
+  const value = REC[`--rec-${name}`];
+  expect(value, `--rec-${name} is not defined as a hex token`).toBeDefined();
   return value!;
 }
 
@@ -70,72 +72,65 @@ interface Pair {
   role: string;
   fg: string;
   bg: string;
-  /** 4.5 for body text, 3 for large text and component boundaries. */
+  /** 4.5 for body text, higher where the palette promises more. */
   min: number;
 }
 
 const PAIRS: Pair[] = [
-  // Paper: running text, secondary notes, links, the one filled button.
-  { role: "body text on the ground", fg: "text", bg: "bg", min: 4.5 },
-  { role: "muted notes on the ground", fg: "text-muted", bg: "bg", min: 4.5 },
-  { role: "accent link on the ground", fg: "accent-text", bg: "bg", min: 4.5 },
-  { role: "button label on the accent fill", fg: "bg", bg: "accent", min: 4.5 },
-  { role: "body text on a raised surface", fg: "text", bg: "surface", min: 4.5 },
-  { role: "body text on a stronger surface", fg: "text", bg: "surface-2", min: 4.5 },
+  // The ground: running copy, secondary notes, links, measured numerals.
+  { role: "body text on the ground", fg: "ink", bg: "ground", min: 13 },
+  { role: "muted notes on the ground", fg: "ink-muted", bg: "ground", min: 5.2 },
+  { role: "signal link on the ground", fg: "signal", bg: "ground", min: 6 },
+  { role: "measured numerals on the ground", fg: "measure", bg: "ground", min: 9 },
+  { role: "the alarm date on the ground", fg: "alarm", bg: "ground", min: 4.5 },
 
-  // The work band: a whole-section petrol field.
-  { role: "field ink on the petrol field", fg: "field-accent-text", bg: "field-accent", min: 4.5 },
-  { role: "field muted on the petrol field", fg: "field-accent-muted", bg: "field-accent", min: 4.5 },
+  // The cover's filled action: ground-coloured label on the signal fill.
+  { role: "the action label on the signal fill", fg: "ground", bg: "signal", min: 4.5 },
 
-  // The contact band: a whole-section ink field.
-  { role: "field ink on the ink field", fg: "field-strong-text", bg: "field-strong", min: 4.5 },
-  { role: "field muted on the ink field", fg: "field-strong-muted", bg: "field-strong", min: 4.5 },
+  // Inset surfaces: the instrument panel and a hovered row.
+  { role: "body text on the instrument panel", fg: "ink", bg: "panel", min: 13 },
+  { role: "muted notes on the instrument panel", fg: "ink-muted", bg: "panel", min: 5.2 },
+  { role: "the reduction readout on the panel", fg: "measure", bg: "panel", min: 9 },
+  { role: "body text on a hovered row", fg: "ink", bg: "panel-2", min: 13 },
 ];
 
-for (const [themeName, theme] of [
-  ["light", light],
-  ["dark", dark],
-] as const) {
-  describe(`${themeName} theme`, () => {
-    test.each(PAIRS.map((pair) => [pair.role, pair] as const))(
-      "%s meets its floor",
-      (_role, pair) => {
-        const ratio = contrast(tok(theme, pair.fg), tok(theme, pair.bg));
-        expect(
-          Number(ratio.toFixed(2)),
-          `${themeName}: ${pair.role} is ${ratio.toFixed(2)}:1, needs ${pair.min}:1`,
-        ).toBeGreaterThanOrEqual(pair.min);
-      },
+describe("every painted pair clears its floor", () => {
+  test.each(PAIRS.map((pair) => [pair.role, pair] as const))(
+    "%s",
+    (_role, pair) => {
+      const ratio = contrast(tok(pair.fg), tok(pair.bg));
+      expect(
+        Number(ratio.toFixed(2)),
+        `${pair.role} is ${ratio.toFixed(2)}:1, needs ${pair.min}:1`,
+      ).toBeGreaterThanOrEqual(pair.min);
+    },
+  );
+
+  test("reports the whole table in one place when it fails", () => {
+    const rows = PAIRS.map(
+      (pair) =>
+        `${pair.role}: ${contrast(tok(pair.fg), tok(pair.bg)).toFixed(2)}:1 (min ${pair.min})`,
     );
-
-    test("reports the whole table in one place when it fails", () => {
-      const rows = PAIRS.map((pair) => {
-        const ratio = contrast(tok(theme, pair.fg), tok(theme, pair.bg));
-        return `${pair.role}: ${ratio.toFixed(2)}:1 (min ${pair.min})`;
-      });
-      const failing = PAIRS.filter(
-        (pair) => contrast(tok(theme, pair.fg), tok(theme, pair.bg)) < pair.min,
-      );
-      expect(failing.map((pair) => pair.role), rows.join("\n")).toEqual([]);
-    });
-
-    test("keeps the muted tone distinct from the ink, not a second body colour", () => {
-      // A muted that is too close to the ink is a hierarchy that isn't there;
-      // one that is too light is the soft-grey page this direction replaces.
-      const ratio = contrast(tok(theme, "text-muted"), tok(theme, "bg"));
-      expect(ratio).toBeGreaterThan(4.5);
-      expect(ratio).toBeLessThan(contrast(tok(theme, "text"), tok(theme, "bg")));
-    });
+    const failing = PAIRS.filter(
+      (pair) => contrast(tok(pair.fg), tok(pair.bg)) < pair.min,
+    );
+    expect(failing.map((pair) => pair.role), rows.join("\n")).toEqual([]);
   });
-}
+
+  test("keeps the muted tone distinct from the ink, not a second body colour", () => {
+    // A muted that is too close to the ink is a hierarchy that isn't there;
+    // one that is too light is the soft-grey page this direction replaces.
+    const ratio = contrast(tok("ink-muted"), tok("ground"));
+    expect(ratio).toBeGreaterThan(4.5);
+    expect(ratio).toBeLessThan(contrast(tok("ink"), tok("ground")));
+  });
+});
 
 describe("the tokens are the ones the stylesheet defines", () => {
-
-  test("every pair names a token that exists in both themes", () => {
+  test("every pair names a token that exists", () => {
     for (const pair of PAIRS) {
       for (const name of [pair.fg, pair.bg]) {
-        expect(light[`--color-${name}`], `light --color-${name}`).toBeDefined();
-        expect(dark[`--color-${name}`], `dark --color-${name}`).toBeDefined();
+        expect(REC[`--rec-${name}`], `--rec-${name}`).toBeDefined();
       }
     }
   });
@@ -145,6 +140,7 @@ describe("the tokens are the ones the stylesheet defines", () => {
     // palette that this test cannot see.
     const components = [
       "src/components/FirstScreen.tsx",
+      "src/components/LatencyInstrument.tsx",
       "src/components/ProofBand.tsx",
       "src/components/WorkBand.tsx",
       "src/components/AtlasBand.tsx",
@@ -153,6 +149,9 @@ describe("the tokens are the ones the stylesheet defines", () => {
       "src/components/Contact.tsx",
       "src/components/Header.tsx",
       "src/components/Footer.tsx",
+      "src/components/Experience.tsx",
+      "src/components/Projects.tsx",
+      "src/components/NotFound.tsx",
     ];
     for (const file of components) {
       const source = readFileSync(resolve(root, file), "utf8");

@@ -18,7 +18,7 @@ export function CredentialsBand() {
       <section
         id="credentials"
         aria-labelledby="credentials-heading"
-        className="py-[var(--rec-band)] md:py-[var(--rec-band-lg)]"
+        className="py-[var(--rec-rhythm)] md:py-[var(--rec-rhythm-lg)]"
       >
         <div className="frame">
           <h2

@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import { flushSync } from "react-dom";
 import { gsap } from "gsap";
 import { motionAllowed } from "../lib/motion";
 
@@ -11,12 +10,12 @@ import { motionAllowed } from "../lib/motion";
  * panel fills the viewport, and the panel carries on up and out (420ms). The
  * brand mark rides on the panel, so the seam is never a blank flash.
  *
- * Two engines, one outcome. Where `document.startViewTransition` exists the
- * browser owns the cross-fade and this overlay stays out of the way; where it
- * does not, the curtain is the transition. Both are skipped entirely under a
- * reduced-motion preference or with the site's Motion switch off — the router
- * then commits synchronously, which is a correct page change, just not an
- * animated one.
+ * One engine, one outcome. The curtain is the route transition in every
+ * browser: the native View Transitions branch was removed so a Chrome visitor
+ * and a Firefox visitor see the same seam, and so there is one code path to
+ * keep correct. It is skipped entirely under a reduced-motion preference or
+ * with the site's Motion switch off — the router then commits synchronously,
+ * which is a correct page change, just not an animated one.
  *
  * It never traps focus and never locks scrolling past the transition: the
  * overlay is `aria-hidden`, `pointer-events: none`, and its only job is to be
@@ -34,11 +33,6 @@ const ENTER_S = 0.42;
 /** The mounted overlay element, registered by <RouteCurtain />. */
 export function registerCurtain(el: HTMLElement | null): void {
   panel = el;
-}
-
-/** Whether the curtain can run at all: mounted, and motion is welcome. */
-export function curtainReady(): boolean {
-  return Boolean(panel) && motionAllowed();
 }
 
 /** Play the wipe, swapping the page at the seam. Commits immediately when it cannot animate. */
@@ -91,32 +85,14 @@ export function playRouteCurtain(swap: () => void): void {
 }
 
 /**
- * The router's entry point: a view transition where the browser has one, the
- * curtain otherwise, and a plain synchronous commit when motion is off.
+ * The router's entry point: the curtain when motion is welcome, and a plain
+ * synchronous commit when it is not. There is no second branch — every engine
+ * gets the same wipe.
  */
 export function routeTransition(swap: () => void): void {
   if (!motionAllowed()) {
     swap();
     return;
-  }
-
-  const doc = document as Document & {
-    startViewTransition?: (callback: () => void) => unknown;
-  };
-
-  if (typeof doc.startViewTransition === "function") {
-    try {
-      doc.startViewTransition(() => {
-        /* The callback must leave the DOM updated when it returns, so React's
-           state update is flushed here rather than scheduled. */
-        flushSync(swap);
-      });
-      return;
-    } catch {
-      /* A failed view transition must not swallow the navigation. */
-      swap();
-      return;
-    }
   }
 
   playRouteCurtain(swap);

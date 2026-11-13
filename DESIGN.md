@@ -1,760 +1,355 @@
-# DESIGN.md — brutalist system for nathwn12-portfolio
+# DESIGN — the record
 
-> **HISTORICAL RECORD — the brutalist pass (2026-10-13).** This document
-> records the brutalist system the premium rewrite replaced. It is kept for the
-> reasoning behind the retired system, not as current instruction. The living
-> snapshot of the current UI is `docs/premium-direction.md` (updated
-> 2026-10-24: Newsreader + Inter, warm paper/ink palette). Neither file is an
-> approval gate, and newer owner direction always wins. Where this file and the
-> source disagree — palette, type families, radius, motion policy, and the
-> film-grain section — `src/index.css` and that snapshot describe what ships.
->
-> The token layer in `src/index.css` implemented exactly what is written here
-> during that pass; if the two disagree today, the current snapshot above is
-> authoritative.
+The site is a **flight recorder for a career**. Not a portfolio of pictures: an
+instrument panel that states what was shipped, when, and what changed when it
+shipped. Every loud thing on the page is a measurement, and the one kinetic
+moment on the page exists to make a measurement visible.
 
-Scope of this document: palette, type scale, spacing scale, radius scale,
-border rule, motion policy, the banned-pattern list, and the content contract.
-It is a **system** spec — not a component inventory. Component-level rewrites
-belonged to later passes; the rules below governed that pass only.
+The audience is a hiring manager who has ninety seconds and has read a hundred
+developer sites this week. The page has to make one claim credible — payment
+backends that held up under production load — and then hand over the receipts:
+1,182 commits recovered from 21 scanned repositories, 17 carrying the work, 11
+published tools, 88 packages, −98% payment latency, −40%+ read latency, 0 high or
+critical Snyk findings.
 
-Sources (treated as data, cited inline as `[S1]`…`[S4]`):
-
-| Tag | Source | What we take from it |
-| --- | --- | --- |
-| `[S1]` | impeccable.style/slop catalog (Paul Bakaus, `pbakaus/impeccable`) | The "AI slop" and "Quality" pattern names, the `DESIGN.md` design-system check, and the detector's naming of each tell |
-| `[S2]` | github.com/funboy322/avoid-ai-design (`references/ai-tells-catalog.md`) | The T1–T5 / C1–C6 / L1–L8 / K1–K9 / S1 / M1–M3 / I1–I3 / CP1–CP3 / IM1–IM4 catalog and the **P0 / P1 / P2** severity tiers |
-| `[S3]` | github.com/LeoStehlik/no-slop-ui (`references/banned-patterns.md` + `examples/review-checklist.md`) | The hard-ban table and the PASS / REVISE / ESCALATE review verdict |
-| `[S4]` | Brainy Papers, "Confident vs lazy brutalism" (as summarised in the brief) | The four confident-brutalist moves: tight grid · one accent used in exactly 3 places · designed hover/focus states · asymmetry that resolves |
+This file is the design system as it ships. It is a spec, not a plan: anything
+described here is in the code, and anything in the code that contradicts this
+file is a bug in one of them.
 
 ---
 
-## 1. Direction
+## 1. Art direction — "Recorder"
 
-**Committed move:** ink and paper, one signal-orange accent, 1px rules, a tight
-4px grid, zero radius, and type that is legible at 10px instead of decorative
-at 60px. Restraint is the design decision — per `[S2]`, "a confident, intentional
-design that happens to be minimal is not 'timid'. Restraint executed well is a
-decision. Reward it."
+A near-black instrument panel, film grain, mono readouts, hairline rules, one
+serif display face, and exactly one piece of theatre: the cover's load sequence.
 
-**Anti-goal:** "lazy brutalism" `[S4]` — thick borders as a costume, no grid,
-decoration standing in for hierarchy, motion for its own sake.
-
----
-
-## 2. Palette
-
-Three neutrals (ink / paper / concrete) plus **exactly one accent**. No second
-hue, no gradient, no glow.
-
-### 2.1 Roles
-
-| Role | Light (`:root`, default) | Dark (`[data-theme="dark"]`) |
-| --- | --- | --- |
-| **paper** — page ground | `--color-bg` `#ffffff` | `--color-bg` `#0e0e0d` (ink ground) |
-| **ink** — text + structural rule | `--color-text` `#111110`, `--color-border-accent` `#111110` | `--color-text` `#f2f2ef`, `--color-border-accent` `#edede8` |
-| **concrete** — muted text, hairline | `--color-text-muted` `#57574f`, `--color-border` `#c9c9c3` | `--color-text-muted` `#a3a39c`, `--color-border` `#2c2c29` |
-| **accent** — one hue, signal orange | `--color-accent` `#e03c00` | `--color-accent` `#ff4d00` |
-
-`paper` is **pure white** (`#ffffff`), the literal page rather than an off-white
-approximation of one. It was previously `#fbfbfa` with a ~1% warm cast; the
-operator read that ground as grey, so it and the two surfaces went to a
-neutral white ramp (`#ffffff` / `#f7f7f6` / `#efefee`) with no hue cast at all.
-This does not weaken the `[S1]` "Cream / beige palette" exemption the system
-relies on — it removes the one attribute that needed it: white is not a
-defaulted cream, it is the luminance ceiling of an ink/paper pair, and every
-value is contrast-verified in §7 (each ratio rose, since the ground is now the
-brightest element in the system). The layered order is unchanged: `--color-bg`
-is the ground, and `--color-surface` / `--color-surface-2` are each a distinct
-step below it.
-
-### 2.2 Token name → value table (the whole token layer)
-
-Every name below is **frozen** (§8). Values are the brutalist palette.
-
-| Token | Light (`:root`) | Dark (`[data-theme="dark"]`) | Used for |
-| --- | --- | --- | --- |
-| `--color-bg` | `#ffffff` | `#0e0e0d` | page ground |
-| `--color-surface` | `#f7f7f6` | `#171716` | one raised step |
-| `--color-surface-2` | `#efefee` | `#1f1f1d` | two raised steps |
-| `--color-border` | `#c9c9c3` | `#2c2c29` | concrete hairline (inner separation) |
-| `--color-border-accent` | `#111110` | `#edede8` | ink/paper structural rule (see §6) |
-| `--color-text` | `#111110` | `#f2f2ef` | body + headings |
-| `--color-text-dim` | `#3d3d39` | `#c9c9c3` | secondary text |
-| `--color-text-muted` | `#57574f` | `#a3a39c` | tertiary/labels — AA in both themes |
-| `--color-accent` | `#e03c00` | `#ff4d00` | the one accent (rules, fills, focus ring) |
-| `--color-accent-2` | `#e03c00` | `#ff4d00` | **alias of accent** |
-| `--color-accent-3` | `#e03c00` | `#ff4d00` | **alias of accent** |
-| `--color-accent-4` | `#e03c00` | `#ff4d00` | **alias of accent** |
-| `--color-accent-text` | `#9c2900` | `#ff6a2b` | accent as text (≥4.5:1 un-grained; grained bound §7) |
-| `--color-accent-2-text` | `#9c2900` | `#ff6a2b` | alias of `--color-accent-text` |
-| `--color-accent-3-text` | `#9c2900` | `#ff6a2b` | alias of `--color-accent-text` |
-| `--color-accent-4-text` | `#9c2900` | `#ff6a2b` | alias of `--color-accent-text` |
-| `--color-accent-glow` | `rgba(224, 60, 0, 0)` | `rgba(255, 77, 0, 0)` | **alpha 0** — glow banned (`[S1]`, `[S2] C5`, `[S3]`) |
-| `--color-grid-line` | `rgba(0, 0, 0, 0)` | `rgba(255, 255, 255, 0)` | **alpha 0** — decorative grid banned (`[S1]`) |
-| `--color-selection` | `rgba(224, 60, 0, 0.18)` | `rgba(255, 77, 0, 0.22)` | `::selection` background |
-| `--font-mono` | alias of the body face (Inter since 2026-10-24) | same | retired single-face slot — never a third family |
-
-### 2.3 One accent, three places
-
-`[S4]`: one accent, used in exactly **three** places on any given screen. The
-accent is a punctuation mark, not a theme. The three sanctioned roles:
-
-1. **The active cue** — the current route/section indicator and the current
-   focus ring (`:focus-visible`).
-2. **The primary action** — the one control that advances the page (submit,
-   primary `cd`).
-3. **One live data glyph** — at most one number/state per view (e.g. the
-   monotonic counter or the active row's rule).
-
-Anything else that wants color gets **ink or concrete**. If a fourth accent
-usage appears on one screen, one of the first three is wrong — cut it.
-
-> **Consequence to manage in the component pass.** `--color-accent-2/3/4` are
-> aliases, so the old per-section color-coding (Experience cyan, Skills orange,
-> Projects purple) and the `[ERROR]` tone in `Contact.tsx` collapse to the same
-> orange. Tone is now carried by the string and the border, not by hue: an
-> error state must read as ink + `[ERROR]` + a `--border-width-rule` rule, never
-> as "a different color". The aliases exist so `projects.ts` and the token→class
-> maps keep rendering while the palette reads as one accent.
+- **One ground.** The page is dark, and only dark. There is no light block, no
+  scheme branch and no theme switch. `color-scheme: dark` is declared on `:root`.
+- **Radius 0 everywhere.** Enforced by a single `*` rule reading
+  `--rec-radius`, so a component cannot quietly soften an edge and start a
+  second visual language. No shadows, no cards, no glass.
+- **Hairlines, not borders.** Structure is drawn with 1px (`--rec-rule`) or an
+  active edge (`--rec-rule-strong`). A rule appears where it encodes structure —
+  a panel edge, a table row, a section seam — never under a heading as
+  decoration.
+- **Grain, once.** One generated `feTurbulence` noise field, `fractalNoise`,
+  `baseFrequency 0.82`, `numOctaves 3`, `stitchTiles=stitch`, saturate 0,
+  `opacity 0.055`, `mix-blend-mode: overlay`, fixed over the page, jittered by a
+  `steps()` transform at 6fps. The filter itself is never animated — only the
+  transform.
+- **Reticle.** Pointer-fine devices only: a 1px crosshair plus the pointer's
+  `x/y` in mono in the corner, faded in on the first pointer move. It starts
+  invisible, so a keyboard visitor never sees a mark parked at 0,0.
+- **No imagery.** There are no screenshots, no portraits and no abstract art.
+  The only pictures on the site are the two brand marks (`/brand/signature.svg`)
+  and the icon.
 
 ---
 
-## 3. Type scale
+## 2. Tokens
 
-The retired single-face system, kept for the record: one family (`--font-mono`,
-Hack/Cascadia/IBM Plex Mono) — the product's voice, not a garnish; no second
-face, no italic-serif accent word (`[S2]` T3), no mixed serif/sans (`[S3]`).
+`src/styles/tokens.css` is the only place a colour, size, space, motion or layer
+value is written. A component reads a token; it never writes a hex.
 
-**Superseded — current families (2026-10-24).** Two local, OFL 1.1 families:
-`--font-display` (Newsreader — page titles and section headings only; variable
-weight 300–700 with a 6–72 optical-size axis) and `--font-sans` (Inter — body
-copy, labels, navigation, form controls, code-adjacent identifiers; variable
-weight 400–700). Both WOFF2s load from `public/fonts/` through `@font-face` in
-`src/index.css` and are preloaded from `index.html`; no remote font request
-remains. `--font-mono` survives only as an alias of `--font-sans`, so
-code-adjacent strings keep their character through Line-bordered chips and
-letterspacing 0, never a third face (`docs/premium-direction.md` § Type).
-Newsreader + Inter replaced the previous display/body pair by owner decision on
-2026-10-24.
-
-**Retired — logo mark face.** `public/fonts/OpenCode.otf` and `--font-logo` are
-gone from `src/index.css`: the premium rewrite ships exactly two families and
-applies neither to a logo mark.
-
-**Brutalist scale — kept for the record.** The live scale is a 13px floor,
-16px body, 44px display, plus the masthead / folio / pull-quote / strip clamps,
-recorded in `docs/premium-direction.md` § Type; the table below is the retired
-brutalist one.
-
-| Token | Size | Line-height | Role |
-| --- | --- | --- | --- |
-| `--text-micro` | 10px / `0.625rem` | 1.4 | hard floor — nothing ships smaller |
-| `--text-label` | 11px / `0.6875rem` | 1.4 | uppercase micro-labels (short only) |
-| `--text-body` | 13px / `0.8125rem` | 1.5 | default body |
-| `--text-body-lg` | 14px / `0.875rem` | 1.5 | lead-in body |
-| `--text-lead` | 16px / `1rem` | 1.6 | hero subhead (readable floor per `[S1]` "Tiny body text") |
-| `--text-title` | 20px / `1.25rem` | 1.3 | section titles |
-| `--text-headline` | 24px / `1.5rem` | 1.2 | page h1 |
-| `--text-display` | 40px / `2.5rem` | 1.1 | **ceiling.** Display type exists but must not fill a screen (`[S1]` "Oversized hero headline", `[S2]` L1) |
-
-Rules:
-
-- **Letter-spacing.** Body text sits at the font's default spacing; wide
-  tracking (≥`0.2em`) is allowed only on ≤`--text-label` uppercase labels, and
-  crushed/negative tracking is banned outright (`[S1]` "Crushed letter spacing",
-  "Wide letter spacing on body text").
-- **Hierarchy is size + weight + space**, never color alone; a flat hierarchy
-  where heading and body look alike is a defect (`[S1]` "Flat type hierarchy").
-- **Uppercase is a label treatment**, never a paragraph treatment (`[S1]`
-  "All-caps body text").
-- Micro-labels are not eyebrows: see the banned list §9 (`[S1]` "Label above a
-  heading", `[S2]` T5, `[S3]`).
-
-## 4. Spacing scale
-
-Tight grid `[S4]`. Every gap is a multiple of 4px; the named steps are the only
-sanctioned ones.
+### Colour
 
 | Token | Value | Role |
-| --- | --- | --- |
-| `--spacing-hairline` | `1px` | rule-adjacent optical gaps |
-| `--spacing-quarter` | `0.25rem` / 4px | grid unit |
-| `--spacing-half` | `0.5rem` / 8px | inside a row |
-| `--spacing-gutter` | `1rem` / 16px | page gutter, cell padding |
-| `--spacing-block` | `1.5rem` / 24px | between rows in a block |
-| `--spacing-section` | `3rem` / 48px | between sections |
-| `--spacing-page` | `4.5rem` / 72px | above/below a page's content |
+|---|---|---|
+| `--rec-ground` | `#0A0C0E` | the page ground |
+| `--rec-panel` | `#111417` | a raised surface: inset readout, instrument panel |
+| `--rec-panel-2` | `#171B1F` | the step above panel: hover, one inset row |
+| `--rec-rule` | `#23282D` | hairline structure: table rows, panel edges, seams |
+| `--rec-rule-strong` | `#39424A` | an active edge: underline, cap, scrollbar thumb |
+| `--rec-ink` | `#E9EEF2` | primary text |
+| `--rec-ink-muted` | `#8C979E` | secondary text only — never body |
+| `--rec-signal` | `#7C9CFF` | structural accent: links, focus, active rules, marks |
+| `--rec-measure` | `#4DD4E8` | **measured values only**: numerals, the live readout |
+| `--rec-alarm` | `#FF5D5D` | exactly one use per page: the "before" bar, the retired project |
+| `--rec-selection` | signal at 22% | `::selection` background |
 
-Rhythm is deliberate, not uniform: related things sit at `--spacing-half`,
-unrelated groups at `--spacing-section`. Equal gaps everywhere is
-**monotonous spacing** (`[S1]`, `[S2] S1`) and is banned. Cramped padding
-(text against a container edge) and dead space used "to look expensive" are
-both banned (`[S1]` "Cramped padding", `[S3]`).
+Contrast is computed from these values by `src/test/theme.test.ts` and
+`tests/contrast.test.ts`, so a palette edit flows into the numbers:
 
-## 5. Radius scale: zero
+| Pair | Ratio | Floor |
+|---|---|---|
+| ink on ground | 16.8:1 | 13 |
+| muted on ground | 6.6:1 | 5.2 |
+| signal on ground | 7.5:1 | 6 |
+| measure on ground | 11.1:1 | 9 |
+| alarm on ground | 6.5:1 | 4.5 |
+| ground on signal (the cover's filled action) | 7.5:1 | 4.5 |
+| ink on panel-2 | 14.8:1 | 13 |
 
-**`--radius-*` = `0px`, without exception.** `--radius-xs|sm|md|lg|xl|2xl|3xl|4xl`
-and the semantic `--radius-none` all resolve to zero. They live in a
-`@theme static` block so Tailwind emits them even while unused — a later
-`rounded-*` class cannot resurrect a curve. Sharp corners are the system (`[S2] K8`: "sharp (0) for brutalist"; `[S3]`: pill buttons and large
-card radius banned; `[S1]` "Extreme border-radius on cards").
+The floors above 4.5 are the palette's own: this direction sets type small and
+muted, so every role clears AA with room to spare.
 
-The single carve-out: Tailwind's static `rounded-full` still rounds, and is
-reserved for **1–2px indicator dots only** (status/traffic dots and cursor
-glyphs). It must never appear on a card, button, badge, chip, input, or panel.
-Replacing those dots with square marks is a scheduled follow-up (§10).
+### Type scale
 
-## 6. Border rule
+| Token | Value | Role |
+|---|---|---|
+| `--rec-text-display` | `clamp(3.5rem, 13vw, 15rem)` | display, hero scale |
+| `--rec-leading-display` | `0.86` | |
+| `--rec-tracking-display` | `-0.02em` | |
+| `--rec-text-claim` | `clamp(1.75rem, 1rem + 3.2vw, 4rem)` | a section claim |
+| `--rec-leading-claim` | `0.94` | |
+| `--rec-tracking-claim` | `-0.018em` | |
+| `--rec-text-title` | `clamp(1.375rem, 1.1rem + 0.9vw, 1.875rem)` | a title inside a band |
+| `--rec-leading-title` | `1.12` | |
+| `--rec-text-body` | `1.0625rem` (17px) | running copy |
+| `--rec-leading-body` | `1.6` | |
+| `--rec-text-lead` | `clamp(1.0625rem, 1rem + 0.4vw, 1.3125rem)` | standfirst, lede |
+| `--rec-leading-lead` | `1.45` | |
+| `--rec-prose-measure` | `62ch` | the reading measure (see §8) |
+| `--rec-text-data` | `0.75rem` (12px) | mono data |
+| `--rec-text-data-sm` | `0.6875rem` (11px) | mono labels, ticks |
+| `--rec-text-data-lg` | `0.8125rem` (13px) | mono readouts |
+| `--rec-leading-data` | `1.45` | |
+| `--rec-tracking-data` | `0.06em` | mono is tracked open |
 
-**One rule system, in ink or paper, at 1px — never a decorative stripe.**
+### Space and frame
 
-| Width token | Value | Use |
-| --- | --- | --- |
-| `--border-width-hairline` | `1px` | the default border: every divider, cell edge, control outline |
-| `--border-width-rule` | `2px` | one emphasis per view: the active row, the primary action |
-| `--border-width-heavy` | `4px` | reserved for page-scale framing |
+One 4px base: `--rec-space-1` … `--rec-space-10` = 0.25 / 0.5 / 0.75 / 1 / 1.5 /
+2 / 3 / 4 / 6 / 8 rem.
 
-Rules:
+| Token | Value | Role |
+|---|---|---|
+| `--rec-frame` | `82rem` | the one container, `margin-inline: auto` |
+| `--rec-gutter` | `1.25rem` (20px) | phone gutter |
+| `--rec-gutter-lg` | `3rem` (48px) | desktop gutter, from 900px |
+| `--rec-band` | `4rem` | band padding on the seamed pages |
+| `--rec-band-lg` | `7rem` | the same, from 900px |
+| `--rec-rhythm` | `var(--rec-space-6)` (32px) | the home record's band close |
+| `--rec-rhythm-lg` | `var(--rec-space-7)` (48px) | the same, from 900px |
 
-- Borders are **structural**: they express table/list structure, focus, or the
-  active item. `--color-border` (concrete) is for inner separation;
-  `--color-border-accent` (ink in light, paper in dark) is the hard rule.
-- **No colored side/top stripe** on a card (`[S2] K4`, `[S1]` "Side-tab accent
-  border"), and specifically **no accent border on a rounded element** (`[S1]`
-  "Border accent on rounded element") — moot at radius 0, and still banned if
-  radius ever returns.
-- **No border + wide shadow on the same surface**: pick the edge or the shadow
-  (`[S1]` "Hairline border with wide shadow"). Shadows are not part of this
-  system; the edge is.
-- **No gradient borders**, no repeating-gradient stripes (`[S1]`, `[S3]`).
-- Borders never decorate; if a rule is not separating content, indicating
-  state, or framing the page, it is deleted.
+The home record deliberately uses the smaller rhythm: its bands are separated by
+a drawn seam, not by air, so the record reads as one measured column instead of a
+stack of slides.
 
-## 7. Contrast evidence
+### Structure, motion, layers
 
-Measured with WCAG 2.1 relative-luminance math against `--color-bg` (bg),
-`--color-surface` (s), `--color-surface-2` (s2). Body threshold **4.5:1**,
-UI/graphic threshold **3:1**. These ratios belong to the brutalist palette
-recorded in §2; the live warm paper/ink tokens and their measured ratios are
-`docs/premium-direction.md` § Token plan. Ratios below are **the un-grained
-values** — they assume the pure-white light paper (`#ffffff` / `#f7f7f6` /
-`#efefee`, §2.2) with §13's film grain **off** (or before it existed); the dark
-rows are
-unchanged. The grain-specific bound, which is the one the shipped build must
-meet, is the **addendum below**. Every light ratio is higher than it was on the
-previous off-white ground (`#fbfbfa` / `#f4f4f1` / `#ebebe7`), because white is
-the luminance ceiling the other colors are measured against.
+| Token | Value | Role |
+|---|---|---|
+| `--rec-rule-w` | `1px` | every hairline |
+| `--rec-header-h` | `4.5rem` | the sticky bar's height; the scroll offset is derived from it |
+| `--rec-radius` | `0` | the only radius |
+| `--rec-ease-out` | `cubic-bezier(0.22, 1, 0.36, 1)` | the house ease |
+| `--rec-dur-quick` | `140ms` | hover, colour |
+| `--rec-dur-base` | `280ms` | a moving indicator |
+| `--rec-z-header` | `50` | masthead |
+| `--rec-z-grain` | `60` | grain overlay |
+| `--rec-z-reticle` | `70` | reticle |
+| `--rec-z-curtain` | `80` | route curtain |
+| `--rec-z-skip` | `100` | skip link |
 
-| Token | Theme | vs bg | vs s | vs s2 | Verdict |
-| --- | --- | --- | --- | --- | --- |
-| `--color-text` | light | 18.89 | 17.62 | 16.42 | AAA |
-| `--color-text-dim` | light | 10.91 | 10.18 | 9.48 | AAA |
-| `--color-text-muted` | light | 7.29 | 6.80 | 6.33 | AA ✓ |
-| `--color-accent` | light | 4.36 | 4.07 | 3.79 | ≥3:1 UI ✓ |
-| `--color-accent-text` | light | 7.69 | 7.18 | 6.69 | AA ✓ |
-| `--color-text` | dark | 16.84 | 15.62 | 14.37 | AAA |
-| `--color-text-dim` | dark | 11.61 | 10.79 | 9.93 | AAA |
-| `--color-text-muted` | dark | 7.61 | 7.07 | 6.51 | AA ✓ |
-| `--color-accent` | dark | 5.81 | 5.39 | 4.96 | AA/UI ✓ |
-| `--color-accent-text` | dark | 6.76 | 6.28 | 5.78 | AA ✓ |
-
-Every pair still clears its threshold; the move to pure white raised each light
-ratio by ~0.2–0.7 (the light `--color-accent-text` token was separately
-darkened on 2026-09-20 — see the addendum). `--color-border` (`#c9c9c3`) is held
-unchanged deliberately: it is a separation rule, not a text or control token,
-and against the white ground its ink-vs-paper separation weight rises from
-1.61:1 to **1.66:1** vs bg (**1.55:1** against `--color-surface`, **1.45:1**
-against `--color-surface-2`) — lightening it would have made the concrete
-hairline less legible, not more.
-
-Discipline that keeps this true: **text uses `--color-accent*-text`; fills,
-rules, and glyphs use `--color-accent*`.** The base accent is not text-safe in
-light (4.36 ÷ surface-2 3.79), which is why the split exists.
-
-**Addendum — the accepted grain lowers the effective ground (measured
-2026-09-20; recomputed for the shipped opacity 2026-09-20). Retired with §13 on
-2026-10-24 and kept as the record of the accepted tuning.** The rows above are
-the **un-grained** case: with §13's grain off (or before it existed) the light
-paper is exactly those values, and that table stays the correct evidence for it.
-§13's **accepted** grain composites a `multiply` film over the **whole page**, so
-a glyph no longer sits on the pure token: it can sit on the **darkest grain
-speckle** of whichever surface is behind it. That is the case the shipped build
-must meet, and the earlier note that claimed every pair still cleared its
-threshold under grain was wrong.
-
-**The grain-bound model.** Multiply darkening is linear in the grain opacity
-`α`, anchored to the 1:1 browser measurement: at `α` = **0.4** the darkest ground
-pixel on `#ffffff` was sRGB **215** (mean luminance 241.4, grain std-dev 4.61,
-range 215–253). The maximum per-channel darkening factor is therefore
-
-`P(α) = (255 − 215) / 255 × α / 0.4 = 0.15686 × α / 0.4`.
-
-At the **shipped** `--grain-opacity: 0.315` this is `P = 0.12353`, so a base
-surface `Cb` is worst-cased to `Cb × (1 − P)`:
-
-| Surface | pure (un-grained) | darkest grained speckle |
-| --- | --- | --- |
-| `--color-bg` `#ffffff` | 255 | **223.5** |
-| `--color-surface` `#f7f7f6` | 247 | **216.5** |
-| `--color-surface-2` `#efefee` | 239 | **209.5** |
-
-Contrast uses the standard WCAG 2.1 relative-luminance ratio. The worst realized
-text pair is a glyph at its **full (un-darkened) value** on the darkest speckle
-of the **strictest surface it can sit on** — `--color-surface-2`, grained to
-**209.5**. Recomputed that way for every light text/accent token:
-
-| Token | vs grained bg (223.5) | vs grained s (216.5) | vs grained s2 (209.5) | Verdict |
-| --- | --- | --- | --- | --- |
-| `--color-text` (`#111110`) | 14.25 | 13.31 | 12.42 | body ✓ |
-| `--color-text-dim` (`#3d3d39`) | 8.23 | 7.69 | 7.17 | body ✓ |
-| `--color-text-muted` (`#57574f`) | 5.50 | 5.14 | 4.79 | body ✓ |
-| `--color-accent-text` (`#9c2900`) | 5.80 | 5.42 | 5.06 | body ✓ (darkened 2026-09-20) |
-| `--color-accent` (`#e03c00`) | 3.29 | 3.07 | **2.87** | UI ✓ ground/surface; latent on grained s2 |
-
-**What was fixed.** Under grain the old `--color-accent-text` (`#b02f00`) measured
-**4.10:1** on grained `--color-surface` and **3.83:1** on grained
-`--color-surface-2` — a confirmed 4.5:1 miss on any panel. All four matching
-`--color-accent*-text` tokens were therefore **darkened `#b02f00 → #9c2900` on
-2026-09-20**; that darkening is **still required** at the AA-tuned grain (the old
-value would only reach 4.5:1 on grained `--color-surface-2` at `--grain-opacity`
-`0.2519`), and the new value now clears **5.06:1** on the strictest surface
-(grained `--color-surface-2`). The base `--color-accent*` tokens were **not**
-touched — they carry borders, fills, and the `:focus-visible` outline, so
-changing them would alter the identity. Instead the light **`--grain-opacity` was
-lowered `0.425 → 0.315` on 2026-09-20**, which brings the base accent to
-**3.29:1** on grained `--color-bg` and **3.07:1** on grained `--color-surface` —
-clearing the 3:1 non-text floor on the grained **ground and surface** (the accent
-status dot and the focus rings that sit on `--color-surface` chrome), and lifts
-`--color-text-muted` on grained `--color-surface-2` to **4.79:1**.
-
-**What is still open.** `--color-accent` on grained `--color-surface-2` is
-**2.87:1**, below the 3:1 non-text floor — but it is a **latent bound, not a
-realized pair**: no element puts a base-accent border, fill, or outline directly
-on `--color-surface-2`. That surface backs only transient hover/press washes and
-the expanded Projects row, all of which carry text and ink rules
-(`--color-border-accent`), never the base accent. Closing it would need
-`--grain-opacity` ≈ `0.266`, which would gut the texture, so it is left as a
-documented bound. Every **realized** light pair now clears its threshold under
-grain — `--color-text-muted` on grained `--color-surface-2` included (**4.79:1**).
-The dark tokens use the per-theme `--grain-opacity: 0.20` and expose no pair below
-threshold (their strictest realized ratios are **5.10:1** for the base accent and
-**5.94:1** for accent-text on grained `--color-surface-2`).
-
-## 8. CONTENT CONTRACT (frozen token names)
-
-These names are **consumed by content/runtime code and must never be renamed**.
-Values are ours to change; names are not.
-
-- `src/content/projects.ts:9` — `export type Token = "accent" | "accent-2" |
-  "accent-3" | "accent-4"`. Each token is resolved to a Tailwind class
-  (`text-accent-text`, `border-accent-2/30`, `bg-accent-4/5`, …) in
-  `src/components/Projects.tsx` and validated against `ProjectSchema` through a
-  token→hex map. **Renaming or dropping any of `--color-accent`,
-  `--color-accent-2`, `--color-accent-3`, `--color-accent-4` (or the matching
-  `--color-accent*-text`) breaks the Projects listing and the load-time zod
-  projection.**
-- Same contract for `src/content/skills.ts` (`TIER_STYLES` → `text-accent-text`,
-  `text-accent-2-text`, `text-accent-4-text`) and `src/lib/router.tsx` (route
-  `accent: "accent-2" | "accent-3" | "accent-4"`).
-- The former runtime canvas consumer — `src/components/BackgroundEffects.tsx`,
-  which read `--color-bg`, `--color-accent`, and `--color-grid-line` via
-  `getComputedStyle` — **has been deleted**. No runtime JS reads the token layer
-  today; the names stay frozen for the content/router consumers above and for a
-  later component pass.
-
-Therefore the restyle **collapses accent-2/3/4 into the single accent** rather
-than deleting them. Deleting a token would be a behavior change; aliasing is a
-palette change. That is the whole reason the four names survive a one-accent
-system.
-
-Also frozen for the same reason: `--color-bg`, `--color-surface`,
-`--color-surface-2`, `--color-border`, `--color-border-accent`, `--color-text`,
-`--color-text-dim`, `--color-text-muted`, `--color-accent-glow`,
-`--color-grid-line`, `--color-selection`, `--font-mono`.
-
-## 9. Banned-pattern list
-
-A pattern is a tell when it is a **default reached for without reason**
-(`[S2]`, "What not to over-flag"). The list is enforced per tier: **P0 = blocks
-the change, P1 = must be fixed before done, P2 = fix or state why not**
-(`[S2]` severity tiers: P0 "screams AI on sight", P1 "obvious smell", P2
-"cosmetic"). `[S3]`'s verdict applies on top: two failed checklist sections, or
-any hard visual ban → **REVISE**; a conflict with accessibility/product
-requirements → **ESCALATE** and document the tradeoff.
-
-### P0 — hard bans
-
-| Banned | Why | Source |
-| --- | --- | --- |
-| Purple / indigo→violet→blue gradient (anywhere) | The canonical tell; an unchosen default | `[S1]` "AI color palette"; `[S2]` C1; `[S3]` |
-| Gradient text / `bg-clip-text` headings | Decoration that weakens legibility | `[S1]` "Gradient text"; `[S2]` C6; `[S3]` |
-| Generic AI dark palette (blue-black + cyan/purple accent) | Unchosen, low-contrast, generic | `[S1]` "AI color palette"; `[S3]` "Cyan accents on dark blue" |
-| Centered hero + pill badge + three identical icon cards | The template skeleton | `[S2]` L1, L2; `[S1]` "Identical card grids"; `[S3]` "Hero section inside an internal dashboard" |
-| Icon-tile stacked above heading | Feature-card reflex (`rounded-xl` icon chip) | `[S1]` "Icon tile stacked above heading"; `[S2]` K6; `[S3]` |
-| Badge / pill above the headline | Adds a clickable-looking ornament that says nothing | `[S1]` "Badge above the main headline"; `[S2]` K5 |
-| Oversized hero headline (type that fills the first screen) | No room left to explain anything | `[S1]` "Oversized hero headline"; `[S2]` L1 |
-| Hero metric layout (huge number + tiny label + stats) | Landing-page template; hollow proof | `[S1]` "Hero metric layout"; `[S2]` L4 |
-| Untouched component-library defaults (radius, zinc/slate, base Button/Card) | The framework-level tell | `[S2]` K1; `[S1]` "Extreme border-radius on cards" |
-| Systemic low contrast | Fails the system's own §7 thresholds | `[S1]` "Low-contrast text", "Gray text on colored background" |
-
-### P1 — must be fixed before done
-
-| Banned | Why | Source |
-| --- | --- | --- |
-| Gradient / soft-gradient backgrounds as decoration | Fills space without meaning | `[S1]` "Soft spotlight behind content"; `[S2]` C1; `[S3]` |
-| Radial-gradient halo / soft spotlight behind content | Familiar AI background effect competing with content | `[S1]` "Radial-gradient background halo", "Soft spotlight behind content" |
-| Glassmorphism / `backdrop-blur` panels | Glass on glass, usually fake layering | `[S1]` "Glassmorphism everywhere"; `[S2]` K3; `[S3]` |
-| Nested cards | Depth noise; flatten with spacing/typography/dividers | `[S1]` "Nested cards"; `[S3]` "No card is nested inside another card" |
-| Decorative grid-line background | Lines that measure nothing | `[S1]` "Decorative grid-line background" |
-| Dark-mode glowing accents / colored glow shadows | Neon wall; decoration mistaken for signal | `[S1]` "Dark mode with glowing accents"; `[S2]` C5; `[S3]` "Coloured glows on cards or buttons" |
-| Identical card grids (same size, padding, icon) | Every point weighted the same | `[S1]` "Identical card grids"; `[S2]` L2; `[S3]` |
-| Monotonous spacing (one gap everywhere) | Nothing is emphasized because everything breathes alike | `[S1]` "Monotonous spacing"; `[S2]` S1 |
-| Tiny interface text (nav/controls below the type floor) | Unusable without zooming | `[S1]` "Tiny interface text"; `[S3]` (see also `[S2]` — the floor here is `--text-micro` 10px, controls must use ≥`--text-label`) |
-| Icon in a rounded-square chip above a heading | Stock feature-card treatment | `[S2]` K6; `[S1]` "Icon tile stacked above heading" |
-| Uppercase + wide letter-spacing label above **every** section | The "dark SaaS" eyebrow, unconsidered | `[S2]` T5; `[S1]` "Label above a heading"; `[S3]` "Eyebrow label + h2" |
-| Colored left/top border-accent stripe on a card | "Almost as reliable a sign of AI design as em-dashes are for text" | `[S2]` K4; `[S1]` "Side-tab accent border" |
-| Emoji as system iconography or feature bullets | A lazy stand-in for real marks | `[S2]` I2 |
-| Vague aspirational copy ("Elevate…", "seamless", "supercharge", "command center") | Brand-agnostic filler | `[S2]` CP1/CP2; `[S1]` "Generic marketing claims"; `[S3]` |
-| Placeholder metrics / invented stats / filler rows | Space filled with numbers that mean nothing | `[S2]` L4; `[S3]` "Fake metric grids that fill space" |
-
-### P2 — fix, or state why not
-
-| Banned | Why | Source |
-| --- | --- | --- |
-| Decorative blinking cursor | Makes static text look editable; costume motion | `[S1]` "Decorative blinking cursor" |
-| Pulsing status dot | Draws attention when nothing changes | `[S1]` "Pulsing status dot" |
-| Auto-scrolling marquee | Forces the page's reading pace | `[S1]` "Auto-scrolling marquee"; `[S3]` |
-| Bounce / elastic / spring easing | Fussy for routine actions | `[S1]` "Bounce or elastic easing"; `[S3]` |
-| The same fade-up-on-scroll on every block | Reflexive, not choreographed | `[S2]` M1 |
-| Scattered micro-interactions with no motion language | Motion sprinkled on | `[S2]` M2 |
-| Images that zoom/rotate on hover | Movement with no purpose | `[S1]` "Images that move on hover" |
-| Hover glow / lift / scale on cards | Decoration mistaken for feedback | `[S3]` "Scale on card hover" |
-| Crushed letter spacing | Harms legibility at small sizes | `[S1]` "Crushed letter spacing" |
-| Wide letter spacing on body text | Same, in the other direction | `[S1]` "Wide letter spacing on body text" |
-| Justified body text | Word gaps; align to the start | `[S1]` "Justified text" |
-| Line length beyond 65–75 characters | Hard to find the next line | `[S1]` "Line length too long" |
-| Nested/decorative containers and chrome for their own sake | Adds reading, adds no decision | `[S3]` "Dead space to look expensive" |
-
-### Survives the ban (documented exemptions)
-
-Restraint executed well is not slop (`[S2]`). The following stay, deliberately:
-
-- A monospace-only system — a **single committed family** with a real voice,
-  not an unchosen Inter/Geist default (`[S2]` T1/T2/T4 are about *defaults*).
-- Uppercase + tracking on **short categorical labels** only (`[S3]`: "Reserve
-  for truly categorical labels").
-- The `prompt: command` section-header convention: it is the product's
-  information architecture (each section *is* a command), not an eyebrow
-  garnish — but it must not carry an extra micro-label above an existing
-  heading, and it must not be paired with a second kicker line.
-- One accent, used in exactly three places per screen (§2.3).
-
-## 10. Motion policy
-
-**Motion is functional, brief, and rare.** Default is no motion.
-
-- **Budget:** at most one orchestrated entrance per page and one state change
-  per interaction. Motion signals *activity that matters* — a page becoming a
-  different page, a control acknowledging a press, a request in flight.
-- **Durations:** 100–200ms for state changes; ≤300ms for a page transition.
-- **Easing:** one shared `ease` (no bounce, no spring, no elastic) `[S1]`,
-  `[S3]`.
-- **Properties:** `opacity` and `color`/`background`/`border-color` only for
-  state. `transform` is allowed for a whole-page transition, never for card
-  lift/scale/zoom `[S3]` "No transform, bounce, spring, scale, slide, or
-  parallax effects unless the product domain truly needs them".
-- **No loops.** No blinking, no pulsing, no marquee, no auto-scroll `[S1]`.
-  A blinking glyph survives **only** where a person can actually type (the
-  command input caret) or where a request is genuinely in flight; every static
-  copy of it is removed by the component pass. The caret is a functional
-  affordance, not decoration — and it carries the `[S1]`
-  "Decorative blinking cursor" exemption only under that test.
-- **`prefers-reduced-motion` no longer gates the site (owner order 2026-10-14).**
-  Reversed twice from the decisions recorded here earlier. `src/lib/motionPreference.ts`
-  pins one always-animated intent: `<MotionConfig reducedMotion="never">` wraps the
-  tree and every in-tree gate reads `false`; no app runtime code reads the OS query,
-  not even to discard it. The only `@media (prefers-reduced-motion: reduce)` rule
-  left in `src/index.css` clears the masthead mask's clip-path, transform, and
-  opacity as a safety net — it is not a site-wide static mode.
-- Entrance animations must never gate visibility: content is visible by
-  default so a failed animation cannot hide it (`[S1]` "Content stuck waiting
-  to appear").
-
-## 11. Review checklist (definition of done)
-
-Run before any change in this restyle is called done. Adapted from `[S3]`'s
-review checklist and `[S1]`'s detector set.
-
-- [ ] No P0 pattern from §9 exists.
-- [ ] All P1 patterns are fixed, or an ESCALATE note in this file explains the
-      accessibility/product conflict.
-- [ ] Every color on screen is one of the §2.2 tokens (or a documented
-      `color-mix` of one). No raw hex in components.
-- [ ] One accent, ≤3 usages per screen (§2.3).
-- [ ] Every radius is 0 except 1–2px indicator dots.
-- [ ] Every border is 1–4px, structural, and either concrete or ink/paper —
-      no stripe, no gradient, no border+shadow pair.
-- [ ] Type uses named scale steps; nothing below `--text-micro`; controls at
-      ≥ `--text-label`; body ≥ `--text-body`.
-- [ ] Spacing uses the named scale; related things close, groups separated.
-- [ ] Contrast: ≥4.5:1 body, ≥3:1 UI, both themes (§7), verified with the
-      accent*-text split.
-- [ ] Hover, focus-visible, active, disabled, loading, empty, and error states
-      are all designed and stable-sized `[S2]` K7.
-- [ ] Keyboard nav still works: `←/→` pages, `↑/↓` section scroll, `Home/End`,
-      and the editable/overlay guard (`[data-mobile-menu]`).
-- [ ] `npx tsc -b` passes; `pnpm run build` prints both `OK:` copy lines.
-
-## 12. Known deferrals (owned by later passes)
-
-Token-layer-only scope means these are documented, not fixed here:
-
-1. ~~`rounded-full` dots~~ — **resolved in the brutalist pass, then superseded by
-   the premium rewrite**, which reinstates a real radius scale (§5 is retired) and
-   applies `rounded-xs` to controls. The 4px-square status marks went with the
-   window-chrome component that shared them. (Tailwind still emits the
-   `rounded-full` utility because the string appears in this file; no component
-   applies it.)
-2. Per-section accent coding and the `[ERROR]` hue in `Contact.tsx` — collapse
-   to ink/label-based tone (§2.3 consequence).
-3. ~~`active:translate-*` micro-interactions~~ — **already satisfied**: no
-   `translate-x`/`translate-y` class exists anywhere in `src/components`; the
-   press states are colour/opacity/border only (`active:bg-*`,
-   `active:opacity-70`, `active:border-border-accent`).
-4. `src/content/projects.ts:89-94` `TOKEN_HEX` is **live, not dead** — it is
-   evaluated at module load (lines 102 / 106) to build the `ProjectSchema`
-   projection (`color: TOKEN_HEX[project.token]`, `stats[].color`), which is
-   `safeParse`d at line 110. It is not read by `Projects.tsx` (that renders the
-   class-based tokens), so the map is load-time-only — but it *is* a running
-   consumer, and it still holds the stale Tango-era hex values, not the current
-   palette. Aligning the hex (or replacing the map with the token strings) is
-   the remaining follow-up.
-5. Framer Motion's full bundle is still in the entry chunk (~39.6 kB gz);
-   migrating to `LazyMotion` + `m` is a follow-up.
-6. Google Fonts CSS is render-blocking (pre-existing at baseline).
-7. Heading order is `h3`-only on some pages — no `h1`/`h2` above it
-   (pre-existing at baseline).
-
-**Resolved since this list was written.** The decorative canvas ambience
-(`src/components/BackgroundEffects.tsx` — matrix rain + animated perspective
-grid) has been deleted, so the old canvas deferral no longer applies; and
-`.bg-grid`, `.input-glow`, and `.section-ambient` had zero remaining consumers
-after that deletion and were removed from `src/index.css`. The last surviving
-caret class is gone too — the premium rewrite removed it with the blink budget.
+`@theme static` in the same file exposes the families (`--font-display`,
+`--font-sans`, `--font-mono`) and aliases the legacy `--color-*` / `--text-*` /
+`--spacing-*` names onto the `--rec-*` values, so the shared rules in
+`src/styles/legacy.css` (`.band`, `.prose`, `.button`, `.text-action`) paint on
+the recorder palette without a second hex. `static` is deliberate: those plain
+CSS rules read the variables directly, so every alias has to be emitted whether
+or not a utility happens to use it.
 
 ---
 
-## 13. TEMPORARY — film grain (operator-pending, NOT a system decision)
+## 3. Typefaces — three faces, three strict roles
 
-> **RETIRED 2026-10-24 — the effect is gone, not merely re-tuned.** The grain
-> block no longer exists in `src/index.css` and no `grain` identifier remains in
-> `src/`. This section and §7's grain addendum are kept as the record of the
-> accepted tuning; they describe nothing the site currently ships.
+All self-hosted latin subsets in `public/fonts/`, `font-display: swap`, no
+runtime font request on any route. Each family ships its OFL 1.1 licence beside
+it.
 
-> **This section is an evaluation, not a spec.** It is the only place in this
-> document that describes something the restyle has not committed to. If the
-> operator declines it, §13 is deleted and §1–§12 are unchanged — no other rule,
-> token, or table above is affected while it exists.
+| Role | Face | Weights | File | Where it may be used |
+|---|---|---|---|---|
+| Display | Instrument Serif | 400, 400 italic | `InstrumentSerif-Regular.woff2`, `InstrumentSerif-Italic.woff2` | the cover claim and section headings only |
+| Text | Archivo (variable) | 100–900 | `Archivo-Variable.woff2` | all running copy, UI labels, names |
+| Data | JetBrains Mono | 400–500 (one slice) | `JetBrainsMono-Regular.woff2` | numbers, units, repo names, timestamps, ticks, keycaps |
 
-`src/index.css` carries a delimited **temporary** block at the end of the file:
-a page-wide **animated** film grain, one `html::after` pseudo-element at
-`position: fixed; inset: 0`, `pointer-events: none`, filled with **three**
-self-contained inline `feTurbulence` SVGs (`type="fractalNoise"`,
-`baseFrequency="0.85"`, `numOctaves="3"`, `stitchTiles="stitch"`, 160px tile,
-differing only in `seed` — 7 / 41 / 113) as `background-image` data-URIs,
-repeated, composited with **`mix-blend-mode: multiply`**, no JS, no asset, no
-dependency. Its intensity is the additive temporary token
-**`--grain-opacity`** — **`0.315` light (`:root`), `0.20` dark**
-(`html[data-theme="dark"]`), the **AA-tuned** operator-accepted tuning recorded
-below (the light value was raised `0.16 → 0.4 → 0.425` for the 1:1 measurement
-and acceptance, then **lowered `0.425 → 0.315` on 2026-09-20** for the §7 AA
-tune; dark is unchanged
-from the 2026-09-20 revert). `--grain-opacity: 0` remains the single kill
-switch, and it now stops the paint **and** the frames: the animation's duration
-is derived from the same token, so `0` collapses it — `calc(0 / 0 * 0.3s)` is
-NaN, invalid at computed-value time, and Chrome clamps the duration to `0s`
-with no animation scheduled at all (measured: `getAnimations()` empty, painted
-frame never changes); an engine that instead invalidates the shorthand falls
-back to `animation-name: none`, which also schedules nothing. Either way the
-layer renders nothing to blend and nothing animates.
+- The cover is set in Instrument Serif at `clamp(3rem, 9.5vw, 11rem)`, leading
+  `0.87`, tracking `-0.02em`, hand-broken into three lines. The break is
+  structure: `Payment backends / that hold up under / production load.`
+- Running copy is Archivo at 17px/1.6, never wider than the reading measure.
+- Mono is **true data only**. A mono row of uppercase words over a heading is an
+  eyebrow, and there are none: no ALL-CAPS kicker, no `·`-joined meta string, no
+  `→` appended to a link.
+- Inter ships as the metric-matched body fallback (`--font-sans` order: Archivo,
+  Inter, Inter Fallback, Arial, system-ui). It is not a role; it exists so a
+  browser that refuses the variable font still lands on a face whose average
+  advance is within ~2% of the adjusted local fallback, and the swap moves
+  letterforms rather than line breaks.
+- The display cut is preloaded in `index.html`; nothing else is.
 
-**Two tuning knobs — strength and grain size.** The effect is tuned by exactly
-two additive temporary tokens, and they are independent:
+---
 
-- **`--grain-opacity`** — *strength*, per theme (light `:root` **`0.315`**, dark
-  `html[data-theme="dark"]` `0.20`) and therefore the average-luminance cost,
-  since `multiply` darkens in proportion to it. `0` remains the kill switch
-  (above). Its comment in `src/index.css` owns strength only.
-- **`--grain-scale`** — *grain size / sharpness*. Declared **once** in `:root`,
-  because it is **theme-independent** — deliberately *not* repeated in the dark
-  block. Default **`1`**; **below 1 = finer/sharper, above 1 = fatter**. It works
-  by scaling the drawn tile: `background-size: calc(160px * var(--grain-scale))`
-  alongside the existing `background-repeat: repeat`, so at the default `1` the
-  tile is exactly **160px** and the change is a **visual no-op**. The source is a
-  **vector** `feTurbulence` SVG, so a non-default scale redraws the noise at the
-  new size **crisply** rather than resampling pixels, and the filter region still
-  pins to exactly the tile, so `stitchTiles="stitch"` keeps the repeat seamless
-  at any scale. One number, one knob — not a data-URI edit.
+## 4. Layout
 
-**`baseFrequency` is the fixed base recipe, not a knob.** All four data-URI
-strings (the three frames plus the base `background-image`) keep
-`baseFrequency="0.85"` unchanged. It is never edited to change grain size: the
-coarse `0.3` retune recorded below is exactly that mistake — rejected as "too
-fat"/"sloppy" — and editing those four long strings is also how the block got
-broken before. Grain size is revisited through `--grain-scale` only.
+- `.frame` is the only container: `max-width: 82rem`, 20px gutters, 48px from
+  900px, centred. Everything on every route sits inside one.
+- The scroll offset lives on the scrolling root:
+  `scroll-padding-top: calc(var(--rec-header-h) + var(--rec-space-3))`, so a band
+  link, a heading hash and focus moving into `main` all land clear of the sticky
+  bar, and padding and margin cannot stack into a double gap.
+- `scrollbar-gutter: stable` always reserves the gutter, so a route that grows
+  past the viewport and one that does not cannot shift the frame sideways.
+- Bands are separated by a **seam**: a `.frame`-wide `.rule` drawn in from the
+  left the first time it enters the viewport. The home record mounts seven bands
+  in reading order — cover, proof, work, atlas, forward, credentials, contact —
+  and each renders its own seam.
+- The cover is a two-column row from 1024px: the claim, standfirst, stack,
+  former-employment line, availability and two actions on the left; the latency
+  instrument as a 20–23rem right-hand panel. All three display lines start on the
+  frame's left edge.
+- Hairlines carry the atlas: the six group rows are a grid whose column headings
+  are the three tiers themselves (`Daily driver`, `Production shipped`, `Working
+  knowledge`). The column is the tier, so no badge, pill, bar or legend encodes
+  it. All 88 packages render once each; below `md` the table folds into one block
+  per group with each tier block labelled, so the fold costs no tier.
+- The work ledger is a single column of eleven repository rows. Each row is
+  complete on its own — name, the year flush on the frame's right edge, the line
+  about the project, then one mono run of kind, authorship and stack — so no two
+  rows share state and the scroll has no opinion about what is being read. Hover
+  and focus draw one 1px signal rule sweeping the row's width while the name
+  steps one space left; there is no panel to fall out of sync with the row under
+  the pointer.
+- The closed `footer.colophon` is the ways-out matrix: contact (mail), GitHub,
+  LinkedIn, the two documents, the source, and the one setting. One surface per
+  fact — no band repeats it.
 
-**The reshuffle — 3 frames, 0.3s loop, `steps(1, end)`, ≈10 fps.** The three
-data-URIs are three genuinely different noise fields (same filter recipe, three
-`seed`s) — not one image slid around, which would be drift, not film. The
-keyframes swap `background-image` itself, a discrete-typed property: adjacent
-frames can therefore only hard-cut, never cross-blend. Each frame holds one
-third of the 0.3s loop (≈0.1s, ≈10 fps) and `steps(1, end)` pins each cut to
-its segment's end; hairline keyframe pairs (`33.332%`/`33.333%`,
-`66.665%`/`66.666%`) hold the same frame on both sides of every boundary so the
-cut stays hard even if an engine resolves the discrete step at 50% of a segment
-instead. Nothing translates, scales, or resizes — the noise field is replaced,
-so it reads as reshuffle rather than motion. `background-repeat: repeat` and the
-160px tile are unchanged.
+---
 
-**Ungated — and the name mismatch that used to kill it.** The loop is no longer
-gated: `src/index.css` carries no `@media (prefers-reduced-motion: reduce)`
-block for it, or for anything else, under the operator decision recorded in §10.
-Before that change the animation **never ran at all**: the `html::after` rule
-referenced a keyframes name (`grainFrames`) that did not exist — the real block
-is `@keyframes grain-reshuffle` — so no animation was ever scheduled. Measured
-live in the browser: `document.getAnimations().length` was `0` against the rule
-as written, and `1` once the rule referenced `grain-reshuffle`. The rule now
-points at the existing `grain-reshuffle` keyframes; the three frames, the `0.3s`
-duration, `steps(1, end)`, `infinite`, the `multiply` blend and the opacity
-values are unchanged.
+## 5. Motion
 
-**Capability tier — `data-perf`, and it throttles rather than disables.** The
-one gate the grain *does* carry is not a preference gate: `index.html` sets
-`html[data-perf]` **pre-paint** from a WebGL probe, with two values — **`full`**
-(hardware acceleration present) and **`lite`** (no acceleration; this machine
-reports *"Microsoft Basic Render Driver"*, i.e. a software renderer). On the
-lite tier `src/index.css` adds one rule,
-`html[data-perf="lite"]::after { animation-duration: 1s; }` — selector
-specificity `(0,1,2)` against the base rule's `(0,0,2)`, and later in source
-order, so no `!important` is needed. Same three frames, same `steps(1, end)`,
-same `infinite`, same `multiply`, same `--grain-opacity` values: only the loop
-lengthens `0.3s → 1s`, dropping the reshuffle from **≈10 fps to ≈3 fps**. It is
-**throttled, never disabled** — the operator's call: a software renderer pays
-the full per-frame composite cost of a viewport-sized blended repaint, so it
-gets the cheap floor rather than no texture.
+Motion is a measurement aid, not decoration. It runs once, it resolves to a
+finished state, and every part of it has a fallback that renders that finished
+state immediately.
 
-**Capability ≠ preference — the distinction is explicit.** §10's decision is
-that a *preference* is never honoured: no `@media (prefers-reduced-motion)`
-block exists for the grain or for anything else, and the ungated rule above
-stays ungated. The lite tier is the opposite case: it is a statement about what
-the **machine can afford**, not what the **user wants**, so it *is* honoured.
-The two are not interchangeable — a preference gate would suppress the effect on
-a capable machine, and a capability gate is not a motion preference. Both may
-coexist on one machine without contradiction.
+Two preferences gate everything, and both must allow motion (`motionAllowed()`
+in `src/lib/motion.ts`):
 
-**Documented exemption from §10's "No loops" rule.** §10 bans loops outright
-("No blinking, no pulsing, no marquee, no auto-scroll"). This effect is the
-**single recorded exemption**, and it is deliberately narrow: the texture is
-**operator-requested**, **zero-information** (a uniform field that cannot signal
-activity, hierarchy, or state — the thing §10's motion budget exists to
-protect), **cut at ≈10 fps** so it never reads as continuous motion, and
-**ungated** — no motion-preference media query disables it (see below). §1–§12 are otherwise
-unchanged; §10 is read as unqualified for everything that is not this block.
-Keeping the texture without the exemption means dropping the `animation`
-declaration (and the keyframes) and keeping frame 1 — the loop, not the grain,
-is what §10 forbids.
+1. the OS preference, `prefers-reduced-motion: reduce` — never persisted, never
+   overridden;
+2. the site switch — the footer's **Motion** control, stored under `nnl-motion`,
+   mirrored onto `<html data-motion="on|off">` by a pre-paint script so a visitor
+   who turned it off never sees a frame of animation.
 
-**Cost — honest.** Each step repaints one **full-viewport** layer and
-`mix-blend-mode: multiply` re-blends it against the root stacking context every
-time: roughly **ten viewport-sized blended repaints per second**, plus the
-per-frame style recalc. The source is a 160px tile repeated, so raster work per
-frame is small, and only `background-image` animates — **no layout, no reflow,
-no CLS**. `will-change` is deliberately not set: promoting a full-viewport
-blended layer to its own compositor texture would trade a cheap paint for a
-viewport-sized composite. No motion-preference media query removes the loop —
-under the operator decision in §10 it always runs.
+| Where | With motion | Reduced / `data-motion="off"` |
+|---|---|---|
+| Cover load, once per session, ~1.4s | three display lines `yPercent 110→0` (0.9s, 90ms stagger, power3.out), then copy and actions fade `y 12→0` (0.6s, 60ms stagger from 0.34s) | nothing runs; the resting DOM is the final state — no CSS-hidden start, so a JS-less page paints the finished cover |
+| Instrument | bars `scaleX 0→1` (0.9s, 150ms stagger, from 0.45s); `60 s` counts 0→60 from 0.55s; `−98%` counts 0→98 from 0.95s; one sweep crosses the plot and is erased | bars drawn at final width, every value is the final text in the markup, the grid draws once, the sweep never runs |
+| Band seams | hairline `scaleX 0→1` from the left, 0.7s, on first intersection | `revealRule` writes `scaleX: 1` instantly; a JS-less page paints the rule |
+| Proof figures | `countUp` once on the band's first intersection, formatted per figure | final values are already in the DOM and are never written to 0 |
+| Marquee | `xPercent 0→−50`, linear, 42s, repeat −1; paused on hover and on focus; the duplicate list is `aria-hidden` | the tween never starts; the track sits at 0 and the first copy is the strip |
+| Work rows | CSS only: a 1px `--rec-signal` scan sweeps the row (`scaleX` from the left), metadata shifts −4px, 200–300ms | the global kill switch collapses the transition to 0.01ms; the scan still lands at full width |
+| Detail-page titles and rows | masked line reveal on the claim, connector `scaleX` draws, per-row figure counts, one batched `ScrollTrigger.batch`; `fire()` is idempotent per row | no split, no tween: final text and drawn connectors at first paint |
+| Route change | `RouteCurtain`: the ground panel wipes up from the bottom (240ms, `power2.in`), the router swaps at the seam, the panel carries on up and out (420ms, `power3.inOut`), brand mark riding on it | the router commits synchronously — a correct page change, not an animated one |
 
-**Why `multiply` — visible, and honestly darkening.** The block's second form
-used `overlay`, chosen because it is luminance-neutral. Measurement retired that
-choice: `overlay`'s upper branch is `B = 1 − 2(1 − b)(1 − s)`, which at `b = 1`
-collapses to exactly `1` for every noise sample `s` — on the pure-white ground
-`#ffffff` the grain is a **mathematical no-op**. Measured in the browser: grain
-std-dev **0.00** on `#ffffff` and **0.47** on the previous `#fbfbfa` — invisible
-either way. Mean-neutrality is the wrong goal against a highlight: a blend that
-preserves the mean necessarily multiplies the noise by ~0 there. `multiply`
-(`B = b·s`) scales the noise by the backdrop itself and therefore lands:
-measured at the original `0.07` on `#ffffff`, mean luminance **252.7** (a
-**0.9% average drop**), grain std-dev **0.9**, range **249–255**. The cost is
-explicit and bounded: `multiply` is **not** mean-neutral, and the ground darkens
-by ~0.9% on white at that opacity. That is accepted as the price of a texture
-that is actually visible — the alternative was a blend mode that provably
-painted nothing. Both tokens were re-tuned for the new mode (`0.95 → 0.07`
-light, `0.46 → 0.10` dark); the dark value is deliberately low because multiply
-darkens the near-black ink ground too, and a large value would crush it. Nothing
-clips: `b·s ∈ [0, 1]` for every backdrop and noise sample.
+There is **one** route-transition code path. The curtain is the transition in
+every engine; there is no native `document.startViewTransition` branch, so a
+Chrome visitor and a Firefox visitor see the same seam.
 
-**2026-09-20 retune, then REVERT — coarse grain REJECTED, sharpness restored.** The first `multiply` tuning (`baseFrequency="0.85"`, sub-pixel ~1.2px features) was judged *technically* visible but *perceptually* flat: at `0.07` the grain's luminance variation was a standard deviation of only **~0.9 out of 255** (range **249–255** on white). The retune that followed changed the **lever to grain size** — `baseFrequency` **`0.85 → 0.3`** (~3–5px features) with opacity raised `0.07 → 0.14` light / `0.10 → 0.18` dark. **The operator rejected that result as too fat and sloppy:** the coarse field reads as blotchy texture rather than premium film grain. The coarse approach is therefore **reverted**: sharpness is restored at the original **`baseFrequency="0.85"`** on all three frames, and visibility is now carried by the **opacity, not the feature size** — `0.07 → 0.16` light, `0.10 → 0.20` dark, a modest raise that stops short of the rejected coarse amplitude.
+The global kill switch lives in `src/styles/base.css`: both
+`@media (prefers-reduced-motion: reduce)` and `html[data-motion="off"]` collapse
+every animation and transition to `0.01ms` with `scroll-behavior: auto`. The
+scripts read the same preference and skip the tween, so the CSS is the belt to
+the script's braces.
 
-**Why the earlier "invisible" reading is not trustworthy.** The evidence that led to coarsening came from sampling the ~1px grain on a **2-pixel stride**, which aliases against features at or below the sampling period: it understated the true pixel-to-pixel variation of the fine field. The real variation at `0.85` is therefore not the `~0.9` std-dev the 2px sample reported, which means opacity is the **honest lever** the fine grain always had. The exact std-dev and mean-luminance drop at `0.16` / `0.20` were re-measured by the lead **at 1:1 (one sample per device pixel)** rather than by strided sampling; that measurement is recorded in the accepted-tuning paragraphs below, and the change recorded *here* is only the `baseFrequency` restore and the two opacity values.
+**No pins.** There are no ScrollTrigger pins anywhere: the cover's load sequence
+is the only kinetic moment, and every other band resolves in place. A pin would
+hold the LCP element against the performance floor, delay the proof band by a
+viewport, and put a row list under a scroll-driven authority that keyboard focus
+then fights.
 
-The **honest cost at the reverted `0.16`** — superseded by the accepted `0.4 → 0.425` recorded below (since lowered to the AA-tuned `0.315`): `multiply` darkens in proportion to the opacity, so the uniform average-luminance drop on white rises with it — roughly **2% at `0.16`** against the **0.9% measured at `0.07`**. At that value the paper stays essentially pure white (the shift is a fraction of one percent of the ground, with no cast — §2's hue is untouched), but the drop is real and is recorded here rather than waved away. At the accepted `0.425` the drop was no longer a fraction of a percent (see below); the shipped `0.315` trades a little of that back for AA margin. The dark token rises `0.10 → 0.20` on the same reasoning and stays deliberately low because multiply darkens the near-black ink ground too. **Nothing else changed** in the revert: same three frames, same `seed`s (7 / 41 / 113), same `type="fractalNoise"`, same `numOctaves="3"`, same `stitchTiles="stitch"`, same 160px tile, same `background-repeat: repeat`, same `steps(1, end)` 3-frame 0.3s loop, same `multiply`, same `lite`/`full` `data-perf` throttle, same `--grain-opacity: 0` kill switch. The filter region stays pinned to exactly the tile, which is what keeps the stitch seamless.
+---
 
-**2026-09-20 — measured at 1:1, then ACCEPTED by the operator.** The reverted fine field (`baseFrequency="0.85"`, ~1.2px features) was re-measured **at 1:1, one sample per device pixel** — the sampling the 2px stride above could not be trusted for — and the visibility lever moved to the **opacity alone**: light **`0.16 → 0.4 → 0.425`**, dark **`0.20` unchanged**. The operator evaluated that result and **accepted this tuning**. Measured live on the light paper at `--grain-opacity: 0.4`: paper **mean luminance 241.4**, grain **standard deviation 4.61**, pixel **range 215–253** — an effective ground of about **`#f1f1f1`**. The token accepted here was **`0.425`** (one further nudge above the measured `0.4`); it was subsequently **lowered to the shipped `0.315`** on 2026-09-20 for the §7 AA tune. §7's addendum extends this measurement to the shipped value — see it for the derived darkest ground pixel (**223.5**) and the grained contrast bound. For comparison, the pre-acceptance `0.16` measured mean **249.65** and SD **1.85**: the accepted value is a materially stronger field, which is the entire point of the raise. `--grain-scale: 1` was confirmed in the same pass — the computed `background-size` is **`160px auto`**, the documented default and a visual no-op (the knob exists; the accepted tuning does not use it). The accepted grain is **fine and sharp**, not coarse: the rejected `0.3` recipe stays rejected.
+## 6. Accessibility floor
 
-**The accepted tradeoff, stated plainly.** At the accepted `0.425` (now shipped `0.315`) the paper is **no longer essentially pure white**: the grain is visible and the ground is correspondingly darker — ≈`#f1f1f1` (mean luminance **241.4**, roughly 5% below `255` in 8-bit ground value, with speckle reaching **215** at the measured `0.4` — **212.5** at the accepted `0.425`, **223.5** at the shipped `0.315`). That is the **chosen, accepted tradeoff** — visibility bought with ground luminance — not an oversight, and §7 carries a measured addendum that bounds the darker ground under the shipped opacity: the four `--color-accent*-text` tokens were darkened and the opacity was lowered `0.425 → 0.315`, which brings every realized pair over its floor; the only residual is the latent base-accent-on-`--color-surface-2` bound (all recorded there).
+- One focus ring, site-wide: `outline: 2px solid var(--rec-signal)` at a 3px
+  offset, never removed. The single exception is `#main:focus`, which receives
+  focus programmatically on a route change and must not paint a ring.
+- 44px targets: every header link, the author mark (both axes), the footer's
+  links, `.button`, `.text-action` and the Motion switch.
+- The skip link is the first tab stop, visible when focused, and moves focus to
+  `main`.
+- Landmarks: one `<main id="main" tabindex="-1">`, one `<header>`, one
+  `<footer>`, and on the home record seven `<section>`s, each with
+  `aria-labelledby` pointing at a real heading.
+- Every control has an accessible name; the author mark is an image whose
+  accessible name is the full person, not a three-letter monogram.
+- The route curtain is `aria-hidden` and `pointer-events: none`; it traps
+  nothing, holds nothing focusable, and never locks scrolling past its 660ms.
+- The mobile menu is one nav, not a second copy: Escape closes it and returns
+  focus to its trigger, and the page behind it does not scroll while it is open.
+- Reduced motion is a first-class path, not a fallback that merely stops a loop
+  (see §5).
 
-**The accepted tuning, complete.** Light **`0.315`** (AA-tuned down from the accepted `0.425`), dark **`0.20`**, `--grain-scale` **`1`**. Everything else is unchanged: the three frames, the `seed`s (7 / 41 / 113), `baseFrequency="0.85"`, `numOctaves="3"`, `stitchTiles="stitch"`, the 160px tile, `background-repeat: repeat`, the 3-frame `steps(1, end)` 0.3s loop, `multiply`, the `lite` / `full` `data-perf` throttle (≈10 fps full, ≈3 fps lite), and the `--grain-opacity: 0` kill switch.
+---
 
-**Why it is not slop.** The banned-pattern catalogs target decoration reached
-for without reason, and specifically decoration standing in for hierarchy
-(§9 P1 "Decorative grid-line background" is the nearest neighbour). They carve
-out the case where the texture **belongs to the design** `[S1]`/`[S3]` — the
-same exemption this document already uses for its deliberately chosen paper (§2.1) and
-its monospace-only system (§9 "Survives the ban"). The grain is that arm:
-operator-requested for an ink/paper brutalist surface, information-free, and
-explicitly time-boxed below. That exemption covers *having* the texture; the
-loop on top of it is a separate carve-out, recorded above, from §10.
+## 7. Copy rules
 
-**Conformance while it exists.** It adds no DOM node and no role, so it is not
-in the accessibility tree and cannot take keyboard focus; `pointer-events: none`
-means it captures nothing; `position: fixed` keeps it out of flow (no CLS, no
-scrollbar). The blend changes none of that, and it cannot re-order the stack:
-`mix-blend-mode` makes the pseudo-element a stacking context of its own, but it
-already paints at `z-index: 10002` (above the retired command panel's `9999` and
-the skip link's `10001`), so nothing is lifted over or hidden under anything, and
-it has no children to isolate. It blends against the root stacking context —
-`body`'s `--color-bg` paper plus every layer below it — because nothing sets
-`isolation`, so the paper's real value is still what the backdrop contributes.
-Compositing touches pixels, as `opacity` already did, so no token and no text
-colour declaration changes. It introduces no hue (§2), no radius (§5), no border
-(§6), no raw hex, and no motion beyond the single §10 exemption recorded above
-— its animation is never gated by a motion-preference media query, per §10. It
-does not trip the §11 checklist's "no P0/P1 pattern" item on
-those grounds.
+- **Facts come from `src/content/*` verbatim.** No figure is retyped in a
+  component, and a figure that cannot be derived is dropped, never rounded.
+- Voice: plain, concrete, second person in UI, first person in copy. No hype
+  words, no emoji, no "blazing".
+- No middle-dot meta strings, no `→` appended to a link, no ALL-CAPS eyebrow
+  above a heading.
+- Mono labels are lowercase data (`before`, `after`, `commits`, `repositories`,
+  `published`, `retired`, `Tenure`, `Location`, `404`).
+- One surface per fact. The availability sentence is stated once, on the cover.
+  The documents and the two profile links belong to the footer alone. The
+  contact band states how to write, and nothing else.
+- The cover states the former employment in the past tense with its period
+  (`Formerly a Backend Developer at Xentra Infotech Solutions Inc.` ·
+  `March 2023 to May 2026` · `The company closed in May 2026.`), because the
+  record must never read as a current role.
+- No sentence appears on both the home record and a detail route, and no
+  ten-word run of home prose reappears in the delivered copy:
+  `tests/record-structure.test.tsx` enforces both.
 
-**Revert.** Delete the delimited block in `src/index.css` (it owns both
-`--grain-opacity` tokens, the theme-independent `--grain-scale` token, the three
-frame data-URIs, the `grain-reshuffle` keyframes and the `data-perf="lite"`
-throttle rule, so nothing dangles) and this section —
-or, to keep the CSS and switch the effect off, set `--grain-opacity: 0` in both
-themes, which disables the paint and the animation together: the base
-`html::after` shorthand's duration collapses to NaN and invalid at
-computed-value time, which resolves `animation-name` to its initial `none`, so
-the later `html[data-perf="lite"]::after` duration has no animation left to
-re-time. Dropping only the
-grain *additions* means deleting the three `background-image` data-URIs, the
-`@keyframes grain-reshuffle` rule and the `animation` declaration, leaving one
-static frame. To undo only the blend change
-and go back to the mean-neutral `overlay` film, set `mix-blend-mode: overlay`
-and restore its parity tokens (`0.95` light, `0.46` dark) — with the §13
-measurement recorded above: that film is a no-op on the pure-white ground.
+---
 
-**Status: tuning ACCEPTED; the system decision is still operator-pending.** The
-**tuning is settled** — the operator evaluated the 1:1 measurements recorded
-above and accepted **`--grain-opacity: 0.315` light / `0.20` dark** (accepted at `0.425`, lowered for AA) with
-**`--grain-scale: 1`**. What remains pending is the *keep / drop* decision on the
-effect itself: §13 keeps its TEMP framing, is not promoted, and the section
-header and opening note above still stand unchanged. If kept, one further
-decision remains — whether the ~10fps reshuffle stays or reverts to the static
-frame. Not a deferral — there is no later pass scheduled to resolve it.
+## 8. Performance floor
+
+- Transform and opacity only. `will-change` is added and removed, never left on.
+- The canvas DPR is capped at 2, and it redraws on resize and during its one
+  sweep — there is no frame loop to pause.
+- No runtime font request; latin subsets only; `font-display: swap`; the display
+  cut is the single preload.
+- No images to decode, no third-party script, no runtime CSS-in-JS. The bundle
+  is one JS chunk and one CSS file (route components are imported eagerly, on
+  purpose: splitting them cost a chunk waterfall and repainted a third of the
+  viewport on a navigation the visitor had already asked for).
+
+Measured at the time of writing (`bun run build`):
+
+| Asset | Raw | Gzip |
+|---|---|---|
+| `index.html` | 6.49 kB | 2.00 kB |
+| `index-*.css` | 46.5 kB | 9.85 kB |
+| `index-*.js` | 490.7 kB | 156.5 kB |
+
+**The reading measure.** `--rec-prose-measure` is 62ch, and
+`tests/prose-measure.test.ts` loads the built page at 1440 and fails any block of
+running copy whose rendered box is wider than that measure in its own font. Note
+the arithmetic: 62ch of Archivo resolves to ~84 characters per line at 17px and
+~79 at 15px — above the 45–80 range the previous type setting stayed inside, so
+the measure is the token, not a character count.
+
+**Not measured here:** LCP and INP are targets (< 2.5s, < 200ms) and are not
+instrumented in CI. A claim about either needs a real field or lab trace, not a
+build size.
+
+---
+
+## 9. Not doing
+
+- **No light mode.** One ground. A theme switch inside an instrument reads as a
+  theme demo, and a second palette doubles every contrast number for a reader who
+  arrived to judge one page.
+- **No pins.** See §5.
+- **No WebGL, no shaders, no video.** The grain is one SVG filter; the only
+  canvas on the site draws a grid, three ticks and one sweep.
+- **No fake screenshots.** No image of a dashboard that does not exist. The
+  evidence is numbers, repository names and dates.
+- **No contact form.** A relay form is a third party, a key and a failure mode;
+  the address is a `mailto:` with the subject and opening line already written.
+- **No cards.** No border-radius, no elevation, no glow. Structure is hairlines.
+- **No carousel, no accordion, no tab strip, no scroll-jacking.** The marquee is
+  the only loop, and it stops on hover, on focus, and when motion is off.

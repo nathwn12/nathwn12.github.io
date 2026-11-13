@@ -23,7 +23,7 @@ export function ForwardBand() {
       <section
         id="forward"
         aria-labelledby="forward-heading"
-        className="py-[var(--rec-band)] md:py-[var(--rec-band-lg)]"
+        className="py-[var(--rec-rhythm)] md:py-[var(--rec-rhythm-lg)]"
       >
         <div className="frame">
           <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-3">

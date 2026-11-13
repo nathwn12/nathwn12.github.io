@@ -1,19 +1,19 @@
 // @vitest-environment jsdom
 /**
- * The contact band: mailto, no form, no repeated documents.
+ * The contact band: mailto, no form, no repeated documents, no ways out.
  *
  * The relay form is retired for good — no endpoint, no key, no third party, and
- * no `/thanks` confirmation. What is left has to be complete on its own: a
- * mailto with the subject and opening line written, the address as text for
- * anyone whose mail client is not configured, a copy control with a visible
- * confirmation, and the public issue link for a non-private message.
+ * no `/thanks` confirmation. What is left has to be complete on its own: the
+ * address as a real `mailto:` carrying the subject and opening line, shown as
+ * text for anyone whose mail client is not configured, a copy control with a
+ * visible confirmation, and one honest line about what happens next.
  *
- * The documents do not live here: the cover owns the pair on the record and the
- * footer owns it on the two detail routes. The availability sentence does not
- * live here either — it is stated once at the top of the record, and repeating
- * it in the closing viewport made the page say the same thing twice.
+ * The band states one fact: how to write. The documents and the two profile
+ * links belong to the footer, which sits about 200px below it on every route.
+ * The availability sentence does not live here either — it is stated once at
+ * the top of the record.
  *
- *   pnpm vitest run tests/contact-band.test.tsx
+ *   bunx vitest run tests/contact-band.test.tsx
  */
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
@@ -21,11 +21,9 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { Contact } from "../src/components/Contact";
-import { CONTACT_CTA } from "../src/content/ledger";
 import { CONTACT_EMAIL } from "../src/lib/contact";
 
 const root = resolve(import.meta.dirname, "..");
-const ISSUES = "https://github.com/nathwn12/nathwn12/issues/new";
 const AVAILABILITY = "Open to backend roles \u2014 remote.";
 
 let host: HTMLDivElement;
@@ -89,14 +87,15 @@ describe("the band refuses to be a form", () => {
 });
 
 describe("mailto is the primary action", () => {
-  test("the button is the one contact phrase and opens a written draft", async () => {
+  test("the address is the action, and it opens a written draft", async () => {
     await mount();
-    const button = host.querySelector<HTMLAnchorElement>("a.button");
-    expect(button).not.toBeNull();
-    expect(button!.textContent?.trim()).toBe(CONTACT_CTA);
-    expect(CONTACT_CTA).toBe("Email me");
+    const address = host.querySelector<HTMLAnchorElement>(
+      `a[href^="mailto:${CONTACT_EMAIL}"]`,
+    );
+    expect(address, "the band has no mailto").not.toBeNull();
+    expect(address!.textContent?.trim()).toBe(CONTACT_EMAIL);
 
-    const href = button!.getAttribute("href")!;
+    const href = address!.getAttribute("href")!;
     expect(href.startsWith(`mailto:${CONTACT_EMAIL}?`)).toBe(true);
     expect(href).toContain("subject=Portfolio%20enquiry");
     expect(href).toContain("body=");
@@ -112,16 +111,17 @@ describe("mailto is the primary action", () => {
     expect(address, "the address is not shown as text").toBeDefined();
     expect(address!.getAttribute("href")).toContain(`mailto:${CONTACT_EMAIL}`);
 
-    expect(host.textContent).toContain("Copy the email address");
+    expect(host.textContent).toContain("Copy address");
     expect(host.querySelector('[role="status"]')).not.toBeNull();
   });
 
-  test("offers the public issue tracker for a non-private message", async () => {
+  test("does not repeat the footer's ways out", async () => {
+    /* GitHub, LinkedIn and the two documents are the footer's. Repeating them
+       here put the same three exits in one viewport twice. */
     await mount();
-    const issue = host.querySelector<HTMLAnchorElement>(`a[href="${ISSUES}"]`);
-    expect(issue).not.toBeNull();
-    expect(issue!.getAttribute("target")).toBe("_blank");
-    expect(issue!.getAttribute("rel")).toBe("noopener noreferrer");
+    expect(host.textContent).not.toMatch(/GitHub|LinkedIn/);
+    expect(host.querySelectorAll("a[download]")).toHaveLength(0);
+    expect(host.querySelectorAll('a[href$=".pdf"]')).toHaveLength(0);
   });
 
   test("says what happens next in one honest line", async () => {

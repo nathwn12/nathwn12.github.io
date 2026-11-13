@@ -50,7 +50,7 @@ describe("router", () => {
         .querySelector('meta[name="description"]')
         ?.getAttribute("content"),
     ).toBe(
-      "Backend developer for payment and cash-management systems that ran in production — and the author of eleven open-source developer tools.",
+      "Backend developer for payment and cash-management systems that ran in production — and the author of thirteen open-source developer tools.",
     );
     expect(
       document

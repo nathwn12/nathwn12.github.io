@@ -65,10 +65,13 @@ describe("footer link target floor", () => {
       expect(markup).toContain(`>${label}</a>`);
     }
     expect(markup).not.toMatch(/aria-hidden="true"[^>]*class="[^"]*(?:absolute|h-11)[^"]*"/);
-    // The theme control was already 44px tall; the row's one-row contract and
-    // its labels are untouched by the width floor.
-    expect(markup).toMatch(/<button[^>]*class="[^"]*min-h-11[^"]*"/);
-    expect(markup).toContain("Theme: Light");
+    /* The footer's one control is the Motion switch, and its 44px floor is a
+       named rule in chrome.css rather than a utility: the track is 16px tall,
+       so the button's own box carries the target. */
+    expect(markup).toMatch(/<button[^>]*role="switch"[^>]*aria-checked="(?:true|false)"/);
+    expect(markup).toContain(">Motion<");
+    // There is one theme, so a theme control would be a second source of truth.
+    expect(markup).not.toMatch(/Theme:/);
   });
 
   test("a shrunken or deleted width token is caught", () => {

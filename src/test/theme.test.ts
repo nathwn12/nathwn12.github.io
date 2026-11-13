@@ -183,8 +183,7 @@ describe("the three faces are local, licensed and correctly declared", () => {
     ["Instrument Serif", "InstrumentSerif-Regular.woff2", "font-weight: 400"],
     ["Instrument Serif", "InstrumentSerif-Italic.woff2", "font-style: italic"],
     ["Archivo", "Archivo-Variable.woff2", "font-weight: 100 900"],
-    ["JetBrains Mono", "JetBrainsMono-Regular.woff2", "font-weight: 400"],
-    ["JetBrains Mono", "JetBrainsMono-Medium.woff2", "font-weight: 500"],
+    ["JetBrains Mono", "JetBrainsMono-Regular.woff2", "font-weight: 400 500"],
   ])("%s ships %s", (_family, file, descriptor) => {
     const face = [...FONTS.matchAll(/@font-face\s*\{[^}]*\}/g)]
       .map((match) => match[0])

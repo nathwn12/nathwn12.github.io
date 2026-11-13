@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { CONTACT_EMAIL, RESUME_FILENAME, RESUME_PATH } from "../lib/contact";
+import { CONTACT_EMAIL } from "../lib/contact";
 import { contactBlock } from "../content/ledger";
 import { Seam } from "./Readout";
 
@@ -19,8 +19,9 @@ import { Seam } from "./Readout";
  * confirmation is one `role="status"` line that clears itself after two
  * seconds; nothing on this band moves.
  *
- * There is no form. There is also no second copy of the availability sentence:
- * it is stated once, where a reader meets it, on the cover.
+ * There is no form, no second copy of the availability sentence, and no list of
+ * ways out: GitHub, LinkedIn and the documents belong to the footer, which sits
+ * about 200px below this band on every route. One surface per fact.
  */
 
 const MAIL_SUBJECT = "Portfolio enquiry";
@@ -34,9 +35,6 @@ const MAILTO_HREF =
   `mailto:${CONTACT_EMAIL}` +
   `?subject=${encodeURIComponent(MAIL_SUBJECT)}` +
   `&body=${encodeURIComponent(MAIL_BODY)}`;
-
-const GITHUB_HREF = "https://github.com/nathwn12";
-const LINKEDIN_HREF = "https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/";
 
 /** The confirmation clears itself; two seconds is long enough to read. */
 const RESET_MS = 2000;
@@ -98,7 +96,7 @@ export function Contact() {
       <section
         id="contact"
         aria-labelledby="contact-heading"
-        className="py-[var(--rec-band)] md:py-[var(--rec-band-lg)]"
+        className="py-[var(--rec-rhythm)] md:py-[var(--rec-rhythm-lg)]"
       >
         <div className="frame">
           <h2
@@ -143,38 +141,6 @@ export function Contact() {
           >
             {status}
           </p>
-
-          <ul className="mt-10 flex flex-wrap items-center gap-x-10 gap-y-2 border-t border-[color:var(--rec-rule)] pt-5">
-            <li>
-              <a
-                href={GITHUB_HREF}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="data inline-flex min-h-11 items-center text-[color:var(--rec-ink)] underline decoration-[color:var(--rec-rule-strong)] decoration-1 underline-offset-[0.3em] transition-[color,text-decoration-color,border-color] duration-150 hover:decoration-[color:var(--rec-signal)]"
-              >
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a
-                href={LINKEDIN_HREF}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="data inline-flex min-h-11 items-center text-[color:var(--rec-ink)] underline decoration-[color:var(--rec-rule-strong)] decoration-1 underline-offset-[0.3em] transition-[color,text-decoration-color,border-color] duration-150 hover:decoration-[color:var(--rec-signal)]"
-              >
-                LinkedIn
-              </a>
-            </li>
-            <li>
-              <a
-                href={RESUME_PATH}
-                download={RESUME_FILENAME}
-                className="data inline-flex min-h-11 items-center text-[color:var(--rec-ink)] underline decoration-[color:var(--rec-rule-strong)] decoration-1 underline-offset-[0.3em] transition-[color,text-decoration-color,border-color] duration-150 hover:decoration-[color:var(--rec-signal)]"
-              >
-                Résumé (PDF)
-              </a>
-            </li>
-          </ul>
         </div>
       </section>
     </>

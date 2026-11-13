@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
 /**
  * The accessibility floor: skip link, visible focus, target size, and an
- * accessible name on every control — plus the owner's motion order, which is
- * the one place this file pins the *opposite* of a preference: the animated
- * path is the only path, whatever the OS asks for.
+ * accessible name on every control — plus the motion contract, which is the one
+ * place this file pins a pair rather than a single truth: every animated path
+ * has a resting state that is already the final state, and the OS preference is
+ * read in exactly one module.
  *
  * The first three are checked where they are decided — the shell for the skip
  * link and the main landmark, the stylesheet for the focus ring, the component
@@ -11,7 +12,7 @@
  * rendered record, so a component that forgets its label cannot hide behind
  * the CSS.
  *
- *   pnpm vitest run tests/accessibility-floor.test.ts
+ *   bunx vitest run tests/accessibility-floor.test.ts
  */
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
@@ -20,11 +21,12 @@ import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import App from "../src/App";
 import { Record } from "../src/components/Record";
-import { Reveal } from "../src/components/Reveal";
+import { PROOF_FIGURES } from "../src/components/ProofBand";
+import { SHIPPED_CSS, cssVar, remToPx } from "./shipped-css";
 
 const root = resolve(import.meta.dirname, "..");
 const read = (rel: string) => readFileSync(resolve(root, rel), "utf8");
-const css = read("src/index.css");
+const css = SHIPPED_CSS;
 
 /** Source with comments removed — a comment is not a behavior. */
 const code = (source: string) =>
@@ -96,7 +98,7 @@ describe("skip link and main landmark", () => {
 describe("visible focus", () => {
   test("there is one focus ring, 2px, offset, and never removed", () => {
     const rule = css.match(/:focus-visible\s*\{([^}]*)\}/s)?.[1] ?? "";
-    expect(rule).toContain("outline: 2px solid var(--color-accent)");
+    expect(rule).toContain("outline: 2px solid var(--rec-signal)");
     expect(rule).toContain("outline-offset: 3px");
   });
 
@@ -108,75 +110,59 @@ describe("visible focus", () => {
   });
 });
 
-describe("motion — the animated path is the only path", () => {
-  /* Owner order 2026-10-14: the OS `prefers-reduced-motion` query does not gate
-     this site. The assertions below go red the moment a preference branch, a
-     media override, or a module-load probe comes back. */
-  test("the stylesheet carries no reduced-motion override", () => {
-    expect(code(css)).not.toMatch(/prefers-reduced-motion/);
-    expect(code(css)).toMatch(/scroll-behavior: smooth/);
+describe("motion — two states, one resting truth", () => {
+  /* The site has a switch (the footer's Motion control) and honours the OS
+     preference; both converge on the same resting state, which is the finished
+     page. The assertions below go red if an animated start state is ever
+     written into CSS (a hidden block a JS-less visitor never gets back), or if
+     a module other than src/lib/motion.ts starts reading the preference. */
+  test("the stylesheet collapses motion for both the OS preference and the switch", () => {
+    expect(code(css)).toMatch(/@media \(prefers-reduced-motion: reduce\)/);
+    expect(code(css)).toMatch(/html\[data-motion="off"\]/);
+    expect(code(css)).toMatch(/transition-duration: 0\.01ms !important/);
   });
 
-  test("no runtime module reads the OS motion query", () => {
-    for (const file of [
-      "src/lib/motion.ts",
+  test("the motion preference is read in one module", () => {
+    const readers = [
       "src/lib/router.tsx",
       "src/components/FirstScreen.tsx",
-    ]) {
-      const source = code(read(file));
-      expect(source, `${file} reads the motion preference`).not.toMatch(
-        /prefers-reduced-motion|matchMedia/,
-      );
-    }
+      "src/components/Header.tsx",
+      "src/components/RouteCurtain.tsx",
+    ].filter((file) =>
+      /prefers-reduced-motion|matchMedia/.test(code(read(file))),
+    );
+    expect(readers).toEqual([]);
+    expect(code(read("src/lib/motion.ts"))).toMatch(/prefers-reduced-motion/);
   });
 
-  test("an OS asking for less motion still gets the reveal, and the query is never read", async () => {
-    const queries: string[] = [];
-    window.matchMedia = ((query: string) => {
-      queries.push(query);
-      return {
-        matches: true,
-        media: query,
-        onchange: null,
-        addEventListener: () => undefined,
-        removeEventListener: () => undefined,
-        addListener: () => undefined,
-        removeListener: () => undefined,
-        dispatchEvent: () => false,
-      } as unknown as MediaQueryList;
-    }) as typeof window.matchMedia;
+  test("an OS asking for less motion is served the final state, not a zero", async () => {
+    window.matchMedia = ((query: string) => ({
+      matches: query.includes("prefers-reduced-motion"),
+      media: query,
+      onchange: null,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+      addListener: () => undefined,
+      removeListener: () => undefined,
+      dispatchEvent: () => false,
+    })) as unknown as typeof window.matchMedia;
 
-    let fire: ((entries: { isIntersecting: boolean }[]) => void) | null = null;
-    vi.stubGlobal(
-      "IntersectionObserver",
-      class {
-        constructor(cb: (entries: { isIntersecting: boolean }[]) => void) {
-          fire = cb;
-        }
-        observe() {}
-        unobserve() {}
-        disconnect() {}
-      },
+    await mount(createElement(Record));
+
+    /* The measured results are in the DOM at their final values on the first
+       paint: the counter is an enhancement, never the only source of the
+       number. A GSAP tween would have written `0` over each of them first. */
+    const figures = [...host.querySelectorAll<HTMLElement>("#proof dd")].map(
+      (figure) => figure.textContent?.trim(),
     );
+    expect(figures).toEqual(PROOF_FIGURES.map((figure) => figure.value));
+    expect(host.textContent).toContain("1,182");
 
-    await mount(
-      createElement(Reveal, null, createElement("p", null, "The record")),
-    );
-    const wrapper = host.firstElementChild as HTMLElement;
-    expect(wrapper.className).toContain("enter");
-    expect(wrapper.className).not.toContain("is-in");
-
-    await act(async () => {
-      fire!([{ isIntersecting: true }]);
-    });
-    expect(wrapper.className).toContain("is-in");
-    expect(queries, "the OS motion query was read").toEqual([]);
+    delete (window as { matchMedia?: unknown }).matchMedia;
   });
 });
 
 describe("in-page scroll clearance", () => {
-  const px = (value: string) => Number(value) * 16; // 1rem = 16px at the root
-
   test("the scrolling root offsets every target past the sticky bar", () => {
     /* `scroll-padding-top` on the scrolling root covers every scroll-into-view
        target - a band, a heading's id, focus moving into main - and it cannot
@@ -184,21 +170,28 @@ describe("in-page scroll clearance", () => {
        regression gate for the mobile defect: with only `section[id]`
        scroll-margin, a heading target landed under the bar. */
     const htmlRule = css.match(/(?:^|\n)html\s*\{([^}]*)\}/)?.[1] ?? "";
-    const padding = htmlRule.match(/scroll-padding-top:\s*([\d.]+)rem/)?.[1];
-    expect(padding, "html has no scroll-padding-top").toBeDefined();
+    /* The offset is derived from the bar's own height token plus one step, so
+       growing the bar cannot push a jumped-to heading under it. */
+    expect(htmlRule).toMatch(
+      /scroll-padding-top:\s*calc\(var\(--rec-header-h[^)]*\)\s*\+\s*var\(--rec-space-3\)\)/,
+    );
 
-    const row = css.match(/\.site-header__row\s*\{([^}]*)\}/s)?.[1] ?? "";
-    const minHeight = row.match(/min-height:\s*([\d.]+)rem/)?.[1];
-    expect(minHeight, "the header row has no min-height").toBeDefined();
-    const header = css.match(/\.site-header\s*\{([^}]*)\}/s)?.[1] ?? "";
-    const border = header.match(/border-bottom:\s*(\d+)px/)?.[1];
-    expect(border, "the header has no structural rule").toBeDefined();
+    const row = css.match(/\.masthead__row\s*\{([^}]*)\}/s)?.[1] ?? "";
+    expect(row, "the masthead row has no min-height").toMatch(
+      /min-height:\s*var\(--rec-header-h\)/,
+    );
+    const header = css.match(/\.masthead\s*\{([^}]*)\}/s)?.[1] ?? "";
+    expect(header, "the masthead has no structural rule").toMatch(
+      /border-bottom:\s*var\(--rec-rule-w\)/,
+    );
 
-    const barHeight = px(minHeight!) + Number(border);
-    const clearance = px(padding!) - barHeight;
+    const clearance =
+      remToPx(cssVar("--rec-header-h")) +
+      remToPx(cssVar("--rec-space-3")) -
+      (remToPx(cssVar("--rec-header-h")) + 1);
     expect(
       clearance,
-      `scroll-padding ${padding}rem leaves the target ${clearance}px below a ${barHeight}px bar`,
+      `scroll-padding leaves the target ${clearance}px below the ${cssVar("--rec-header-h")} bar`,
     ).toBeGreaterThanOrEqual(8);
   });
 
@@ -208,7 +201,6 @@ describe("in-page scroll clearance", () => {
   });
 
   test("an in-page jump is always the animated path", () => {
-    // No preference branch: the band scroll requests `smooth` unconditionally.
     const router = read("src/lib/router.tsx");
     expect(router).toMatch(/behavior: "smooth"/);
     expect(router).not.toMatch(/behavior:\s*[^,]*\?/);
@@ -221,8 +213,8 @@ describe("target size", () => {
   test.each([
     ".button",
     ".text-action",
-    ".site-nav__link",
-    ".wordmark",
+    ".masthead__link",
+    ".masthead__mark",
   ])("%s carries the 44px floor", (selector) => {
     const rule = css.match(
       new RegExp(`${selector.replace(".", "\\.")}\\s*\\{([^}]*)\\}`, "s"),
@@ -231,15 +223,15 @@ describe("target size", () => {
     expect(rule, selector).toContain(`min-height: ${FLOOR}`);
   });
 
-  test("the monogram keeps the floor on both axes", () => {
-    /* The mark is three characters, not a full name, so its glyph run is
-       narrower than 44px: the link's box has to carry the width itself. */
-    const rule = css.match(/\.wordmark\s*\{([^}]*)\}/s)?.[1] ?? "";
+  test("the author mark keeps the floor on both axes", () => {
+    /* The mark is a 36px signature, narrower than 44px, so the link's box has
+       to carry the width itself. */
+    const rule = css.match(/\.masthead__mark\s*\{([^}]*)\}/s)?.[1] ?? "";
     expect(rule).toContain("min-width: 2.75rem");
   });
 
-  test("the measurement switch's buttons carry the floor", () => {
-    const rule = css.match(/\.measure__switch button\s*\{([^}]*)\}/s)?.[1];
+  test("the motion switch carries the floor", () => {
+    const rule = css.match(/\.motion-toggle__switch\s*\{([^}]*)\}/s)?.[1];
     expect(rule).toContain(`min-height: ${FLOOR}`);
   });
 
@@ -271,29 +263,28 @@ describe("the rendered record", () => {
     }
   });
 
-  test("the before/after control is two real buttons, labelled and keyboard reachable", async () => {
+  test("the before/after comparison is two labelled facts, not a control", async () => {
+    /* The record shows both states at once: there is nothing to toggle, so
+       there is no pressed state to keep in sync — and the fact is on the page
+       for every reader, scripted or not. */
     await mount(createElement(Record));
-    const group = host.querySelector('[role="group"]');
-    expect(group).not.toBeNull();
-    const labelledBy = group!.getAttribute("aria-labelledby");
-    expect(labelledBy).toBeTruthy();
-    expect(host.ownerDocument.getElementById(labelledBy!)).not.toBeNull();
-
-    const buttons = [...group!.querySelectorAll("button")];
-    expect(buttons).toHaveLength(2);
-    for (const button of buttons) {
-      expect(button.getAttribute("type")).toBe("button");
-      expect(button.hasAttribute("aria-pressed")).toBe(true);
-      expect(button.tabIndex).toBe(0);
-    }
-    // Exactly one state is on at a time, and the default render is "after".
-    expect(buttons.filter((b) => b.getAttribute("aria-pressed") === "true")).toHaveLength(1);
-    expect(buttons[1].getAttribute("aria-pressed")).toBe("true");
+    const instrument = host.querySelector<HTMLElement>("[data-instrument]");
+    expect(instrument, "the latency instrument is not rendered").not.toBeNull();
+    expect(instrument!.querySelectorAll("dl")).toHaveLength(2);
+    const text = instrument!.textContent ?? "";
+    expect(text).toContain("60 s");
+    expect(text).toMatch(/under one second/);
+    expect(host.querySelector('[role="group"]')).toBeNull();
   });
 
-  test("the figure the control swaps is announced, not just repainted", async () => {
+  test("the comparison reads before, then after", async () => {
     await mount(createElement(Record));
-    const figure = host.querySelector(".measure .figure");
-    expect(figure?.getAttribute("aria-live")).toBe("polite");
+    const instrument = host.querySelector<HTMLElement>("[data-instrument]");
+    const labels = [...instrument!.querySelectorAll("dt")].map((term) =>
+      (term.textContent ?? "").trim(),
+    );
+    expect(labels).toHaveLength(2);
+    expect(labels[0]).toMatch(/^before /);
+    expect(labels[1]).toMatch(/^after /);
   });
 });

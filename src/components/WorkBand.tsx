@@ -4,7 +4,7 @@ import { RouteLink } from "../lib/router";
 import { Seam } from "./Readout";
 
 /**
- * WorkBand — the ledger roll: eleven live repositories, each one carrying its
+ * WorkBand — the ledger roll: thirteen live repositories, each one carrying its
  * own readout.
  *
  * The band used to hold a sticky column that described "the active row". It was

@@ -13,7 +13,7 @@ import { revealRule } from "../lib/motion";
 /**
  * Projects — the open-source ledger, featured work first.
  *
- * Eleven rows, one hairline between each: index, name, what it does, the stack
+ * Thirteen rows, one hairline between each: index, name, what it does, the stack
  * it is actually written in, the year it last shipped, and the repository. The
  * index is honest on this route because the order is a real one — featured work
  * first, supporting tools after — so a reader can see where they are in it.

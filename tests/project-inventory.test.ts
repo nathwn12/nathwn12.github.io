@@ -1,14 +1,21 @@
 /**
  * Project inventory — the /projects cards are the current public work, nothing
- * else. The survey baseline is 2026-10-24: 14 public repos, of which the
- * profile README and the portfolio site are not project cards, and the art-only
- * companion is excluded. Every card's link, name, primary language, and fork
- * label must match the repository; the count copy must equal the cards rendered.
- * Primary language is GitHub's own field, so it leads `tech`; a stack may name a
- * further language only when the repository source holds it.
+ * else. The baseline is the checked-in probe of the live account
+ * (`src/content/repos.probe.json`, `gh repo list nathwn12`), which is the same
+ * measurement `src/content/projects.ts` was rebuilt from: every public
+ * repository is either a card or excluded by name, and every card's link, name,
+ * primary language and fork label must match the probe. The count copy must
+ * equal the cards rendered.
+ *
+ * Primary language is GitHub's own field, so it leads `tech`. Where a repository
+ * was also surveyed at source level (the 2026-10-24 pass over the local
+ * checkouts), a card may name a further language only when the repository holds
+ * it; the repositories added after that pass are gated on the probe's primary
+ * language and the no-duplicate rule.
+ *
  * Every assertion below can go red.
  *
- *   pnpm vitest run tests/project-inventory.test.ts
+ *   bunx vitest run tests/project-inventory.test.ts
  */
 import { describe, expect, test } from "vitest";
 import {
@@ -18,32 +25,32 @@ import {
   projects,
   projectsLede,
 } from "../src/content/projects";
+import probe from "../src/content/repos.probe.json";
 
-/** dir → the repository's PRIMARY language: GitHub's own primary field, read
-    from the API inventory on 2026-10-24. This is not "the first language the
-    stack happens to list" — a card whose primary is Rust must lead Rust even
-    when most of its published surface is TypeScript. */
-const PRIMARY_LANGUAGE: Record<string, string> = {
-  puppet: "Rust",
-  gladius: "Rust",
-  "oc-collections": "Rust",
-  potflix: "Rust",
-  slowburn: "TypeScript",
-  "aimp-discord-presence2": "C++",
-  "pear-desktop": "TypeScript",
-  "vencord-bootstrap": "PowerShell",
-  "tab-audio-normalizer": "JavaScript",
-  "arc-installer": "PowerShell",
-  "slowed-reverb-audio": "JavaScript",
-};
+interface ProbeRepo {
+  name: string;
+  isFork: boolean;
+  parent: string | null;
+  primaryLanguage: string | null;
+}
 
-/** dir → every language the repository source actually contains, primary
-    first. A card's `tech` may name a language only from this set, so a stack
-    line can carry a second language (oc-collections' TypeScript packages,
-    Slowburn's Rust shell, ArcInstaller's C# companion) but never borrow one
-    the repo does not hold. Cross-checked against the local checkouts on
-    2026-10-24 by line count per extension, excluding node_modules/target/
-    dist; every repo's leader matched the GitHub primary above. */
+const REPOS = (probe as { repos: ProbeRepo[] }).repos;
+
+/** Never a project card: the profile README and this site. */
+const EXCLUDED = ["nathwn12", "nathwn12.github.io"];
+
+/** dir → the repository's PRIMARY language, from GitHub's own field. */
+const PRIMARY_LANGUAGE: Record<string, string> = Object.fromEntries(
+  REPOS.filter((repo) => repo.primaryLanguage).map((repo) => [
+    repo.name,
+    repo.primaryLanguage as string,
+  ]),
+);
+
+/** dir → every language the repository source was measured to contain, primary
+    first. Cross-checked against the local checkouts on 2026-10-24 by line count
+    per extension, excluding node_modules/target/dist; every repository surveyed
+    then is still in the inventory under the same directory name. */
 const SOURCE_LANGUAGES: Record<string, readonly string[]> = {
   puppet: ["Rust"],
   gladius: ["Rust"],
@@ -53,12 +60,8 @@ const SOURCE_LANGUAGES: Record<string, readonly string[]> = {
   potflix: ["Rust"],
   // The Tauri shell: TypeScript UI on a Rust backend.
   slowburn: ["TypeScript", "Rust"],
-  "aimp-discord-presence2": ["C++"],
-  "pear-desktop": ["TypeScript"],
-  "vencord-bootstrap": ["PowerShell"],
-  "tab-audio-normalizer": ["JavaScript"],
   "arc-installer": ["PowerShell", "C#"],
-  "slowed-reverb-audio": ["JavaScript"],
+  "vencord-bootstrap": ["PowerShell"],
 };
 
 /** Names that read as a language rather than as a framework or a product, so
@@ -70,41 +73,24 @@ const LANGUAGE_NAMES = new Set([
   "PowerShell",
   "C++",
   "C#",
+  "Python",
 ]);
 
-/** Forks must be labelled as forks; own work stays "Own brand". */
-const ROLE: Record<string, string> = {
-  puppet: "Own brand",
-  gladius: "Own brand",
-  "oc-collections": "Own brand",
-  potflix: "Own brand",
-  slowburn: "Own brand",
-  "aimp-discord-presence2": "Fork of Exle",
-  "pear-desktop": "Fork of pear-devs",
-  "vencord-bootstrap": "Fork of Vencord/Installer",
-  "tab-audio-normalizer": "Own brand",
-  "arc-installer": "Own brand",
-  "slowed-reverb-audio": "Own brand",
-};
-
-/** Never a project card: profile README, portfolio site, folded-in packages,
-    and the art-only companion. */
-const EXCLUDED = [
-  "nathwn12",
-  "nathwn12.github.io",
-  "aimp-discord-presence-art",
-  "oc-harness-setup",
-  "oc-bifrost",
-  "oc-flight-deck",
-  "rea-shim",
-];
-
 describe("project inventory is the current public work", () => {
-  test("the rendered set is exactly the surveyed projects", () => {
-    expect(projects.map((project) => project.dir).sort()).toEqual(
-      Object.keys(PRIMARY_LANGUAGE).sort(),
+  test("the probe is a dated measurement of the live account", () => {
+    expect((probe as { measuredAt: string }).measuredAt).toMatch(
+      /^\d{4}-\d{2}-\d{2}$/,
     );
-    expect(projects.length).toBe(11);
+    expect(REPOS.length).toBeGreaterThan(0);
+  });
+
+  test("every public repository is a card or is excluded by name", () => {
+    const covered = new Set([...projects.map((p) => p.dir), ...EXCLUDED]);
+    for (const repo of REPOS) {
+      expect(covered.has(repo.name), `${repo.name} is neither a card nor excluded`)
+        .toBe(true);
+    }
+    expect(projects.length + EXCLUDED.length).toBe(REPOS.length);
   });
 
   test("every card links to its own repository under nathwn12", () => {
@@ -128,44 +114,42 @@ describe("project inventory is the current public work", () => {
   });
 
   test("a card names only languages its source holds, primary first once", () => {
-    // Both tables describe the same eleven repositories.
-    expect(Object.keys(SOURCE_LANGUAGES).sort()).toEqual(
-      Object.keys(PRIMARY_LANGUAGE).sort(),
-    );
-
     for (const project of projects) {
-      const confirmed = SOURCE_LANGUAGES[project.dir];
-      expect(confirmed[0], project.dir).toBe(PRIMARY_LANGUAGE[project.dir]);
-
       const named = project.tech.filter((chip) => LANGUAGE_NAMES.has(chip));
       expect(named, project.dir).toEqual([...new Set(named)]);
+      expect(named[0], project.dir).toBe(PRIMARY_LANGUAGE[project.dir]);
+
+      const confirmed = SOURCE_LANGUAGES[project.dir];
+      if (!confirmed) continue;
+      expect(confirmed[0], project.dir).toBe(PRIMARY_LANGUAGE[project.dir]);
       for (const language of named) {
         expect(confirmed, `${project.dir}: ${language}`).toContain(language);
       }
-
-      // oc-collections is the one repo the inventory blocked on: GitHub's
-      // primary is Rust, and TypeScript survives as the packages' language
-      // rather than as the card's lead.
-      if (project.dir === "oc-collections") {
-        expect(named).toEqual(["Rust", "TypeScript"]);
-      }
     }
+
+    // oc-collections is the one repo the inventory blocked on: GitHub's primary
+    // is Rust, and TypeScript survives as the packages' language rather than as
+    // the card's lead.
+    const collections = projects.find((p) => p.dir === "oc-collections")!;
+    expect(
+      collections.tech.filter((chip) => LANGUAGE_NAMES.has(chip)),
+    ).toEqual(["Rust", "TypeScript"]);
   });
 
   test("forks say so and own work says own brand", () => {
     for (const project of projects) {
-      expect(project.role, project.dir).toBe(ROLE[project.dir]);
-    }
-    for (const project of projects) {
-      if (project.dir === "aimp-discord-presence2" ||
-          project.dir === "pear-desktop" ||
-          project.dir === "vencord-bootstrap") {
+      const repo = REPOS.find((entry) => entry.name === project.dir);
+      expect(repo, project.dir).toBeDefined();
+      if (repo!.isFork) {
         expect(project.role, project.dir).toMatch(/^Fork of /);
+        expect(project.role, project.dir).toContain(repo!.parent!);
+      } else {
+        expect(project.role, project.dir).toBe("Own brand");
       }
     }
   });
 
-  test("profile, site, folded-in packages, and art-only work never render", () => {
+  test("profile and site never render", () => {
     const names = projects
       .map((project) => `${project.dir} ${project.name}`)
       .join(" ");

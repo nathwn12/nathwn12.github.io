@@ -2,16 +2,15 @@
 /**
  * The global header is three destinations and nothing else.
  *
- * The redesign cut the nav from five routes (and a 22-item palette, a pager and
- * a duplicated mobile menu) to the three places a visitor can actually go -
- * the record's work and contact bands, and the experience page. The two PDFs
- * used to sit here too, which made three copies of one action; they now belong
- * to the cover on `/` and to the footer on the two detail routes, which have no
- * cover. The contact band repeats neither.
+ * The nav is the record, the experience route and the projects route — set in
+ * mono, lowercase, the same three places a reader can go. The two PDFs used to
+ * sit here too, which made three copies of one action; they belong to the
+ * footer now, on every route. Neither the cover nor the contact band repeats
+ * them.
  *
  * Every assertion below can go red:
  *
- *   pnpm vitest run tests/header-resume-nav.test.tsx
+ *   bunx vitest run tests/header-resume-nav.test.tsx
  */
 import { act, createElement, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
@@ -62,7 +61,7 @@ afterEach(async () => {
   host?.remove();
 });
 
-const DESTINATIONS = ["Experience", "Projects", "Contact"];
+const DESTINATIONS = ["the record", "experience", "projects"];
 
 describe("global header navigation", () => {
   test("offers exactly three destinations and no documents", async () => {
@@ -74,13 +73,15 @@ describe("global header navigation", () => {
     for (const label of DESTINATIONS) {
       expect(text, `${label} nav item is missing`).toContain(label);
     }
+    /* Three, and no more: the bands are reached from the record's own links, so
+       a fourth entry would be a second copy of a scroll target. */
+    expect(header!.querySelectorAll("nav a[href]")).toHaveLength(3);
     // The retired pages are not destinations any more.
     expect(text).not.toContain("Skills");
     expect(text).not.toMatch(/Command|palette|⌘K/i);
     // Neither is a prev/next pager.
     expect(text).not.toMatch(/Previous:|Next:/);
-    // Nor are the documents: the cover owns the pair on `/` and the footer
-    // owns it on the two detail routes. The header stays navigation.
+    // Nor are the documents: the footer owns the pair on every route.
     expect(text).not.toMatch(/Résumé|Resume/);
     expect(text).not.toContain("CV (PDF)");
     expect(
@@ -122,11 +123,11 @@ describe("global header navigation", () => {
     expect(document.activeElement).toBe(menuButton);
   });
 
-  test("a section link closes the open panel before the target is read", async () => {
+  test("choosing a destination closes the open panel first", async () => {
     /* The panel is absolutely positioned under the bar, so an open menu covers
-       the band a section link scrolls to. The link has to close it as part of
-       the same activation; otherwise the sticky header (bar + panel) hides the
-       heading the visitor asked for. */
+       the page the visitor just asked for. The link has to close it as part of
+       the same activation; otherwise the sticky header (bar + panel) is still
+       sitting over the new route's opening band. */
     await mount(createElement(Header));
     const menuButton = host.querySelector<HTMLButtonElement>(
       'button[aria-controls="site-nav"]',
@@ -138,10 +139,12 @@ describe("global header navigation", () => {
       "true",
     );
 
-    const contact = host.querySelector<HTMLAnchorElement>('a[href="/#contact"]');
-    expect(contact, "the contact section link is missing").not.toBeNull();
+    const destination = host.querySelector<HTMLAnchorElement>(
+      'a[href="/projects"]',
+    );
+    expect(destination, "the projects destination is missing").not.toBeNull();
     await act(async () => {
-      contact!.dispatchEvent(
+      destination!.dispatchEvent(
         new MouseEvent("click", { bubbles: true, cancelable: true }),
       );
     });
@@ -149,18 +152,16 @@ describe("global header navigation", () => {
     expect(host.querySelector("#site-nav")!.getAttribute("data-open")).toBe(
       "false",
     );
-    expect(window.location.hash).toBe("#contact");
+    expect(window.location.pathname).toBe("/projects");
   });
 });
 
-describe("the footer carries the documents only where there is no cover", () => {
-  /* `/experience` and `/projects` have no cover, so the footer is the only
-     place their pair survives. `/` has the pair in the first screen, so the
-     footer must not repeat it in the same closing viewport. Mounting the real
-     App is the only honest way to assert this per route - the Footer component
-     on its own cannot know which page it is on. */
+describe("the footer owns the documents on every route", () => {
+  /* It is the same component on all three routes (App.tsx), so mounting the
+     real App is the only honest way to assert this per route: the Footer cannot
+     know which page it is on, and it must not need to. */
   for (const route of ["/", "/experience", "/projects"] as const) {
-    test(`${route} keeps the pair out of the header and puts it on one surface`, async () => {
+    test(`${route} keeps the pair out of the header and main, in the footer`, async () => {
       act(() => {
         navigate(route);
       });
@@ -184,18 +185,11 @@ describe("the footer carries the documents only where there is no cover", () => 
         ...main!.querySelectorAll<HTMLAnchorElement>('a[href$=".pdf"]'),
       ];
 
-      if (route === "/") {
-        expect(footerDocs).toHaveLength(0);
-        expect(mainDocs.map((a) => a.getAttribute("href")).sort()).toEqual(
-          [CV_PATH, RESUME_PATH].sort(),
-        );
-      } else {
-        expect(mainDocs).toHaveLength(0);
-        expect(footerDocs.map((a) => a.getAttribute("href")).sort()).toEqual(
-          [CV_PATH, RESUME_PATH].sort(),
-        );
-      }
-      for (const anchor of [...footerDocs, ...mainDocs]) {
+      expect(mainDocs, `${route} main repeats a document`).toHaveLength(0);
+      expect(footerDocs.map((a) => a.getAttribute("href")).sort()).toEqual(
+        [CV_PATH, RESUME_PATH].sort(),
+      );
+      for (const anchor of footerDocs) {
         expect(anchor.getAttribute("download")).toMatch(
           /^Nathaniel-Nikolai-Ladero-/,
         );
@@ -205,63 +199,56 @@ describe("the footer carries the documents only where there is no cover", () => 
   }
 });
 
-describe("the wordmark", () => {
-  test("shows the monogram, and names the full person to assistive tech", async () => {
+describe("the mark", () => {
+  test("is the signature, and names the full person to assistive tech", async () => {
     await mount(createElement(Header));
-    const mark = host.querySelector<HTMLAnchorElement>("a.wordmark");
-    expect(mark, "the wordmark link is missing").not.toBeNull();
+    const mark = host.querySelector<HTMLAnchorElement>("a.masthead__mark");
+    expect(mark, "the author mark is missing").not.toBeNull();
 
     /* Two halves of one contract, asserted together so neither can regress
-       silently: the visible text is the mark alone, and the accessible name —
-       what a screen reader or voice control announces — stays the full name.
-       Three letters are meaningless on their own, and a full name painted back
-       in would undo the redesign. */
-    expect(mark!.textContent?.trim()).toBe("NNL");
+       silently: the visible content is the drawn signature alone, and the
+       accessible name — what a screen reader or voice control announces — is
+       the full name. The image is decorative because the link already names
+       the person. */
+    expect(mark!.textContent?.trim()).toBe("");
+    expect(mark!.querySelector("img")?.getAttribute("alt")).toBe("");
     expect(mark!.getAttribute("aria-label")).toBe(
-      "Nathaniel Nikolai Ladero — home",
+      "Nathaniel Nikolai Ladero, home",
     );
   });
 
   test("states the full name once, in the colophon, not as a display line", () => {
-    /* Only `/` carries the full name in its h1; `/experience` and `/projects`
-       open with a page title instead. The footer is therefore where the name
-       survives on those two routes, and it is the same component on all three
-       (App.tsx), so its absence here would be absence everywhere. It survives
-       in the colophon, which also carries the imprint and the source credit,
-       rather than being painted a second time above the links. */
+    /* Only `/` carries a display line, and it is the claim, not the name.
+       `/experience` and `/projects` open with a page title. The footer is
+       therefore where the name survives on those two routes, and it is the same
+       component on all three (App.tsx), so its absence here would be absence
+       everywhere. */
     const markup = renderToStaticMarkup(createElement(Footer));
-    expect(markup).not.toContain('class="site-footer__name"');
     expect(markup.match(/Nathaniel Nikolai Ladero/g)).toHaveLength(1);
     expect(markup).toContain(
       `© ${new Date().getFullYear()} Nathaniel Nikolai Ladero.`,
     );
-    expect(markup).toContain("Set in Inter.");
-    expect(markup).toContain("Source on GitHub.");
+    expect(markup).toContain(
+      "Set in Instrument Serif, Archivo and JetBrains Mono.",
+    );
+    expect(markup).toContain("Source on GitHub");
   });
 });
 
-describe("homepage document controls", () => {
-  test("the first screen offers the résumé and CV downloads", async () => {
+describe("homepage actions", () => {
+  test("the first screen offers the record's two actions, no documents", async () => {
     await mount(createElement(FirstScreen));
-    const resume = host.querySelector<HTMLAnchorElement>(
-      'a[href="/Nathaniel-Nikolai-Ladero-Resume.pdf"][download]',
-    );
-    expect(resume, "the homepage résumé download is missing").not.toBeNull();
-    expect(resume!.textContent).toContain("Résumé (PDF)");
-
-    const cv = host.querySelector<HTMLAnchorElement>(
-      'a[href="/Nathaniel-Nikolai-Ladero-CV.pdf"][download]',
-    );
-    expect(cv, "the homepage CV download is missing").not.toBeNull();
-    expect(cv!.textContent).toContain("CV (PDF)");
-    // Same treatment as the résumé control, not a one-off.
-    expect(cv!.className).toBe(resume!.className);
+    const hrefs = [
+      ...host.querySelectorAll<HTMLAnchorElement>("a[href]"),
+    ].map((anchor) => anchor.getAttribute("href"));
+    expect(hrefs).toContain("/#contact");
+    expect(hrefs).toContain("/#proof");
+    expect(host.querySelectorAll("a[download]")).toHaveLength(0);
   });
 
   test("the one contact action carries the one contact phrase", async () => {
     await mount(createElement(FirstScreen));
-    const primary = host.querySelector<HTMLAnchorElement>("a.button");
+    const primary = host.querySelector<HTMLAnchorElement>('a[href="/#contact"]');
     expect(primary?.textContent?.trim()).toBe("Email me");
-    expect(primary?.getAttribute("href")).toBe("/#contact");
   });
 });

@@ -1,21 +1,20 @@
 // @vitest-environment jsdom
 /**
- * The two documents: one pair per route, never two in the closing viewport.
+ * The two documents: one pair per route, in the footer, nowhere else.
  *
  * `/Nathaniel-Nikolai-Ladero-Resume.pdf` and `/Nathaniel-Nikolai-Ladero-CV.pdf`
  * are the immutable floor: root-absolute URLs with a download attribute, and
  * both files in the built `dist/`. Where they appear is the contract:
  *
- *   `/`           the cover's primary action row only. The contact band and
- *                 the footer repeat neither - the closing viewport used to
- *                 hold three copies of one pair.
- *   `/experience` the footer only; that route has no cover.
- *   `/projects`   the footer only; that route has no cover.
+ *   every route   the footer only. The cover's two actions are the record's own
+ *                 (Email me, Read the record) and the contact band states how to
+ *                 write; a third copy of the pair in the closing viewport made
+ *                 one action appear three times.
  *
- * The header carries neither on any route. A relative href, a renamed file, or
- * a second pair in the closing viewport fails here.
+ * The header carries neither on any route. A relative href, a renamed file, or a
+ * second pair anywhere fails here.
  *
- *   pnpm vitest run tests/downloads.test.tsx
+ *   bunx vitest run tests/downloads.test.tsx
  */
 import { act, createElement, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
@@ -110,7 +109,7 @@ describe("the document URLs are fixed", () => {
   });
 });
 
-describe("the single pair on the cover", () => {
+describe("the single pair on every route", () => {
   test("the header is navigation only: no download anchors at all", async () => {
     await mount(createElement(Header));
     expect(host.querySelectorAll("a[download]")).toHaveLength(0);
@@ -118,9 +117,15 @@ describe("the single pair on the cover", () => {
     expect(host.textContent).not.toMatch(/Résumé|Resume/);
   });
 
-  test("the first screen offers the pair as its primary documents", async () => {
+  test("the first screen offers no documents: its two actions are the record's", async () => {
     await mount(createElement(FirstScreen));
-    expectPair(downloadsIn(host), "the first screen");
+    expect(downloadsIn(host), "the first screen repeats the pair").toHaveLength(0);
+    expect(host.querySelectorAll('a[href$=".pdf"]')).toHaveLength(0);
+    const actions = [...host.querySelectorAll<HTMLAnchorElement>("a[href]")].map(
+      (anchor) => anchor.getAttribute("href"),
+    );
+    expect(actions).toContain("/#contact");
+    expect(actions).toContain("/#proof");
   });
 
   test("the contact band offers neither document", async () => {
@@ -133,11 +138,11 @@ describe("the single pair on the cover", () => {
 });
 
 describe.each([
-  ["/", { main: [RESUME, CV], footer: [] }],
+  ["/", { main: [], footer: [RESUME, CV] }],
   ["/experience", { main: [], footer: [RESUME, CV] }],
   ["/projects", { main: [], footer: [RESUME, CV] }],
 ] as const)("%s offers exactly one pair", (route, expected) => {
-  test("the header is empty, the cover or footer owns the pair, and the total is two", async () => {
+  test("the header and main are empty, the footer owns the pair, and the total is two", async () => {
     act(() => {
       navigate(route);
     });
