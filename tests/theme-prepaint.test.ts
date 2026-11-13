@@ -4,8 +4,8 @@ import { JSDOM } from "jsdom";
 import { describe, expect, test } from "vitest";
 
 // The FIRST inline `<script>` in index.html runs before first paint and seeds
-// `data-motion` on <html>. Its only failure mode is a flash of motion for a
-// visitor who already turned it off, so it is pinned here by executing the real
+// `data-theme` and `data-motion` on <html>. Its failure modes are a flash of the
+// wrong ground and a flash of motion, so it is pinned here by executing the real
 // script body against a controlled jsdom global rather than by asserting on its
 // text.
 const root = resolve(import.meta.dirname, "..");
@@ -24,21 +24,22 @@ type StoredBehavior = string | null | "throw";
 interface PrepaintCase {
   name: string;
   stored: StoredBehavior;
-  expected: "on" | "off";
+  /** What `(prefers-color-scheme: light)` answers, or null for no matchMedia. */
+  osLight: boolean | null;
+  expected: "light" | "dark";
 }
 
-/**
- * Run the real script body. The document carries no theme-color metas and no
- * media query of any kind: the motion script must not need either.
- */
+/** Run the real script body against a document with the shipped meta. */
 function runPrepaint(
   script: string,
   stored: StoredBehavior,
+  osLight: boolean | null,
+  reduceMotion = true,
 ): { motion: string; theme: string | null; themeColors: string[] } {
-  const dom = new JSDOM(`<!DOCTYPE html><html><head></head><body></body></html>`, {
-    url: "https://nathwn12.github.io/",
-    runScripts: "outside-only",
-  });
+  const dom = new JSDOM(
+    `<!DOCTYPE html><html><head><meta name="theme-color" content="#0A0C0E" /></head><body></body></html>`,
+    { url: "https://nathwn12.github.io/", runScripts: "outside-only" },
+  );
   const { window } = dom;
 
   Object.defineProperty(window, "localStorage", {
@@ -53,13 +54,19 @@ function runPrepaint(
     },
   });
 
-  /* A throwing matchMedia is the harshest environment available: the script
-     must still land on its default without asking the OS anything. */
+  /* No matchMedia at all is the harshest environment: the script must still
+     land on its defaults without asking the OS anything. */
   Object.defineProperty(window, "matchMedia", {
     configurable: true,
-    value: () => {
-      throw new Error("matchMedia must not be read before paint");
-    },
+    value:
+      osLight === null
+        ? undefined
+        : (query: string) => ({
+            matches: query.includes("light") ? osLight : reduceMotion,
+            media: query,
+            addEventListener: () => {},
+            removeEventListener: () => {},
+          }),
   });
 
   window.eval(script);
@@ -76,42 +83,77 @@ function runPrepaint(
 const script = readPrepaintScript();
 
 const matrix: PrepaintCase[] = [
-  { name: "an absent stored value leaves motion on", stored: null, expected: "on" },
-  { name: "a stored on is honoured", stored: "on", expected: "on" },
-  { name: "a stored off turns motion off", stored: "off", expected: "off" },
   {
-    name: "an unrecognized stored value falls through to on",
-    stored: "maybe",
-    expected: "on",
+    name: "an absent stored value follows a light OS",
+    stored: null,
+    osLight: true,
+    expected: "light",
+  },
+  {
+    name: "an absent stored value follows a dark OS",
+    stored: null,
+    osLight: false,
+    expected: "dark",
+  },
+  {
+    name: "a stored light pin beats a dark OS",
+    stored: "light",
+    osLight: false,
+    expected: "light",
+  },
+  {
+    name: "a stored dark pin beats a light OS",
+    stored: "dark",
+    osLight: true,
+    expected: "dark",
+  },
+  {
+    name: "an unrecognized stored value falls through to the OS",
+    stored: "solarized",
+    osLight: true,
+    expected: "light",
+  },
+  {
+    name: "no media query support falls back to the dark ground",
+    stored: null,
+    osLight: null,
+    expected: "dark",
   },
 ];
 
-describe("pre-paint motion script", () => {
-  test.each(matrix)("$name", ({ stored, expected }) => {
-    expect(runPrepaint(script, stored).motion).toBe(expected);
+describe("pre-paint theme script", () => {
+  test.each(matrix)("$name", ({ stored, osLight, expected }) => {
+    expect(runPrepaint(script, stored, osLight).theme).toBe(expected);
   });
 
   test("a storage exception still writes the attribute (its own try/catch)", () => {
     /* Load-bearing: localStorage.getItem throwing must not leave the page
-       without `data-motion`, because the CSS kill switch keys off it and the
-       first frame would then animate. */
-    expect(runPrepaint(script, "throw").motion).toBe("on");
+       without `data-theme`, because the first frame would then paint the dark
+       ground for a visitor who pinned Paper. */
+    expect(runPrepaint(script, "throw", false).theme).toBe("dark");
+    expect(runPrepaint(script, "throw", true).theme).toBe("light");
   });
 
-  test("never writes a theme, and never paints a theme-color meta", () => {
-    // There is one ground. A theme write here would be a second palette that
-    // the stylesheet does not have.
-    const result = runPrepaint(script, "off");
-    expect(result.theme).toBeNull();
-    expect(result.themeColors).toEqual([]);
-    expect(script).not.toMatch(/dataset\.theme|localStorage\.getItem\("nnl-theme"\)/);
-    expect(script).toContain("nnl-motion");
+  test("rewrites theme-color to the resolved ground", () => {
+    expect(runPrepaint(script, null, true).themeColors).toEqual(["#ECEDE9"]);
+    expect(runPrepaint(script, null, false).themeColors).toEqual(["#0A0C0E"]);
   });
 
-  test("index.html ships one static ground, not a media pair", () => {
-    const metas = [
-      ...HTML.matchAll(/<meta name="theme-color"[^>]*>/g),
-    ].map((match) => match[0]);
+  test("writes one static meta, which the script then rewrites", () => {
+    const metas = [...HTML.matchAll(/<meta name="theme-color"[^>]*>/g)].map(
+      (match) => match[0],
+    );
     expect(metas).toEqual(['<meta name="theme-color" content="#0A0C0E" />']);
+  });
+});
+
+describe("pre-paint motion state", () => {
+  test("is on by default and off only when the OS asks for less", () => {
+    expect(runPrepaint(script, null, false, false).motion).toBe("on");
+    expect(runPrepaint(script, null, false, true).motion).toBe("off");
+  });
+
+  test("never reads a stored motion switch — there is no switch", () => {
+    expect(script).not.toContain("nnl-motion");
   });
 });

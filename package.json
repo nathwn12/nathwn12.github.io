@@ -13,7 +13,7 @@
     "build": "vite build && node scripts/copy-404.mjs && node scripts/prerender-routes.mjs",
     "typecheck": "tsc -b",
     "test": "bun run build && vitest run",
-    "check": "bun run typecheck && bun run test",
+    "check": "bun run typecheck && node scripts/contrast-audit.mjs && bun run test",
     "preview": "vite preview"
   },
   "dependencies": {

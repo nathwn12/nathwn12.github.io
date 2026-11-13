@@ -1,9 +1,16 @@
 /* =========================================================================
    TOKENS — the single source of truth for colour, type, space and motion.
 
-   One theme, and it is dark. There is no light block and no scheme branch: the
-   record is an instrument panel, and a theme switch inside one reads as a theme
-   demo rather than a document.
+   Two themes, one mechanism: `<html data-theme="light|dark">`, written before
+   first paint from the OS preference and persisted under `nnl-theme`. There is
+   no `prefers-color-scheme` block in CSS — the attribute is the only switch, so
+   a stored choice and a system choice can never disagree on the page.
+
+   Dark is "Recorder": the instrument panel. Light is "Paper": the same
+   instrument printed — a cool drafting paper, not cream, and not the dark ramp
+   reversed. The light accent is deeper and less chromatic, its muted ink is a
+   warm-neutral, and its measured values are a deep teal because the dark
+   theme's cyan fails badly on paper.
 
    ROLES (never use a hex outside this file)
      ground    the panel's base plate
@@ -16,29 +23,31 @@
      signal    structural accent: links, focus, active rules, marks
      measure   measured values ONLY: numerals, the live readout
      alarm     exactly one use: the "before" bar and the retired project
+     on-signal the label on a filled signal surface
 
-   Contrast is measured, not assumed — src/test/theme.test.ts computes every
-   pair below from these values:
-     ink on ground 16.8:1   (floor 13)
-     muted on ground 6.6:1  (floor 5.2)
-     signal on ground 7.5:1 (floor 6)
-     measure on ground 11.1:1 (floor 9)
+   Contrast is measured, not assumed — `scripts/contrast-audit.mjs` (wired into
+   `bun run check`) and tests/contrast.test.ts compute every required pair from
+   these values, in both themes. The light block is the dark one overridden role
+   by role, never a partial patch.
    ========================================================================= */
 
 :root {
   color-scheme: dark;
 
-  /* --- COLOUR ----------------------------------------------------------- */
+  /* --- COLOUR — DARK, "Recorder" --------------------------------------- */
   --rec-ground: #0a0c0e;
   --rec-panel: #111417;
   --rec-panel-2: #171b1f;
   --rec-rule: #23282d;
   --rec-rule-strong: #39424a;
   --rec-ink: #e9eef2;
-  --rec-ink-muted: #8c979e;
-  --rec-signal: #7c9cff;
+  --rec-ink-muted: #97a2a9;
+  /* Structure is demoted, not the numbers: the signal loses chroma and stays
+     in the same hue family, so `measure` is the loudest thing on the page. */
+  --rec-signal: #6d8af2;
   --rec-measure: #4dd4e8;
   --rec-alarm: #ff5d5d;
+  --rec-on-signal: #0a0c0e;
 
   /* Selection is the signal at a wash, so it reads as a mark on the page
      rather than a second accent. */
@@ -122,6 +131,31 @@
   --rec-z-reticle: 70;
   --rec-z-curtain: 80;
   --rec-z-skip: 100;
+}
+
+/* =========================================================================
+   COLOUR — LIGHT, "Paper"
+
+   A cool drafting paper: neutral, faintly green-grey, so the same instrument
+   reads as a printed plot. Every colour role is overridden here; the type,
+   space, structure and motion tokens above are shared and stay untouched.
+   ========================================================================= */
+[data-theme="light"] {
+  color-scheme: light;
+
+  --rec-ground: #ecede9;
+  --rec-panel: #e3e5e0;
+  --rec-panel-2: #d9dcd6;
+  --rec-rule: #ccd0ca;
+  --rec-rule-strong: #a4aaa3;
+  --rec-ink: #14171a;
+  --rec-ink-muted: #4c545a;
+  /* App Blue, deepened for paper. */
+  --rec-signal: #2b49c4;
+  /* Deep teal: the dark theme's cyan fails badly on paper. */
+  --rec-measure: #0b6b77;
+  --rec-alarm: #b3261e;
+  --rec-on-signal: #f7f8f5;
 }
 
 /* =========================================================================
