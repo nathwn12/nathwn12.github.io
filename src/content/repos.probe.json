@@ -1,0 +1,141 @@
+{
+  "measuredAt": "2026-11-13",
+  "command": "gh repo list nathwn12 --limit 200 --json name,isFork,isArchived,visibility,primaryLanguage,createdAt,pushedAt,description",
+  "repos": [
+    {
+      "name": "aimp-discord-presence",
+      "isFork": true,
+      "parent": "Exle/aimp-discord-presence",
+      "primaryLanguage": "C++",
+      "createdAt": "2026-10-01",
+      "pushedAt": "2026-11-03",
+      "description": "Fork of Exle's AIMP plugin that shows what is playing as a Discord Rich Presence — C++."
+    },
+    {
+      "name": "arc-installer",
+      "isFork": false,
+      "parent": null,
+      "primaryLanguage": "PowerShell",
+      "createdAt": "2026-10-14",
+      "pushedAt": "2026-11-09",
+      "description": "Install, repair, and revert the ARC icon theme on Windows — C# and PowerShell."
+    },
+    {
+      "name": "gladius",
+      "isFork": false,
+      "parent": null,
+      "primaryLanguage": "Rust",
+      "createdAt": "2026-10-11",
+      "pushedAt": "2026-11-09",
+      "description": "Drive headless Chrome over CDP from any MCP client — Rust."
+    },
+    {
+      "name": "my-chromium-extensions",
+      "isFork": false,
+      "parent": null,
+      "primaryLanguage": "JavaScript",
+      "createdAt": "2026-11-02",
+      "pushedAt": "2026-11-13",
+      "description": "Normalize per-site loudness, slow playback with reverb, and report Crunchyroll presence — JavaScript."
+    },
+    {
+      "name": "nathwn12",
+      "isFork": false,
+      "parent": null,
+      "primaryLanguage": null,
+      "createdAt": "2026-10-02",
+      "pushedAt": "2026-11-04",
+      "description": "Profile README. The work lives in the repos linked below."
+    },
+    {
+      "name": "nathwn12.github.io",
+      "isFork": false,
+      "parent": null,
+      "primaryLanguage": "TypeScript",
+      "createdAt": "2026-04-05",
+      "pushedAt": "2026-11-12",
+      "description": "Explore the portfolio and resume in a terminal-themed single page — TypeScript."
+    },
+    {
+      "name": "oc-collections",
+      "isFork": false,
+      "parent": null,
+      "primaryLanguage": "Rust",
+      "createdAt": "2026-10-08",
+      "pushedAt": "2026-11-13",
+      "description": "Install OpenCode plugins, MCP servers, and tooling one package at a time — TypeScript."
+    },
+    {
+      "name": "oc-superpowers",
+      "isFork": true,
+      "parent": "obra/superpowers",
+      "primaryLanguage": "JavaScript",
+      "createdAt": "2026-11-11",
+      "pushedAt": "2026-11-12",
+      "description": "Run OpenCode sessions that manage themselves."
+    },
+    {
+      "name": "oc-templates",
+      "isFork": false,
+      "parent": null,
+      "primaryLanguage": "TypeScript",
+      "createdAt": "2026-10-30",
+      "pushedAt": "2026-11-02",
+      "description": "Scaffold an OpenCode v2 plugin with a dependency-free stdio MCP server — TypeScript."
+    },
+    {
+      "name": "pear-slowed-reverb",
+      "isFork": true,
+      "parent": "pear-devs/pear-desktop",
+      "primaryLanguage": "TypeScript",
+      "createdAt": "2026-09-04",
+      "pushedAt": "2026-11-02",
+      "description": "Fork of pear-desktop adding slowed + reverb playback and player plugins — TypeScript."
+    },
+    {
+      "name": "potflix",
+      "isFork": false,
+      "parent": null,
+      "primaryLanguage": "Rust",
+      "createdAt": "2026-10-04",
+      "pushedAt": "2026-11-04",
+      "description": "Mirror whatever plays in PotPlayer on your Discord card — Rust."
+    },
+    {
+      "name": "puppet",
+      "isFork": false,
+      "parent": null,
+      "primaryLanguage": "Rust",
+      "createdAt": "2026-10-11",
+      "pushedAt": "2026-11-09",
+      "description": "Control the Windows desktop from any MCP client: screenshot, window, input, cursor — Rust."
+    },
+    {
+      "name": "slowburn",
+      "isFork": false,
+      "parent": null,
+      "primaryLanguage": "TypeScript",
+      "createdAt": "2026-10-05",
+      "pushedAt": "2026-11-12",
+      "description": "Windows media player with slowed reverb and an A-B loop — TypeScript."
+    },
+    {
+      "name": "spotify-playlist-to-youtube",
+      "isFork": false,
+      "parent": null,
+      "primaryLanguage": "Python",
+      "createdAt": "2026-11-11",
+      "pushedAt": "2026-11-12",
+      "description": "Copy a public Spotify playlist into YouTube Music without an API key for Windows listeners - Python."
+    },
+    {
+      "name": "vencord-bootstrap",
+      "isFork": true,
+      "parent": "Vencord/Installer",
+      "primaryLanguage": "PowerShell",
+      "createdAt": "2026-09-26",
+      "pushedAt": "2026-11-03",
+      "description": "Install and repair Vencord from the official upstream release in one PowerShell line — fork of Vencord/Installer."
+    }
+  ]
+}

@@ -1,33 +1,32 @@
 import { ProjectSchema } from "../types/models";
 
 /**
- * Content module: Projects section data, moved verbatim out of
- * src/components/Projects.tsx. Validated against the (formerly dormant)
- * zod models at module load.
+ * Content module: Projects section data.
  *
- * Fields are the premium presentation contract (docs/premium-direction.md
- * § Per-route application, Projects): `name` and `dir` head the band,
- * `description` is the outcome sentence carrying its measured number, `tech`
- * renders as inline chips, and `stats` render as labeled sentences inside the
- * band's expanded notes. `token` feeds only the dormant-schema projection
- * below — no route paints a per-project hue.
+ * Fields are the presentation contract: `name` and `dir` head the band,
+ * `description` is the outcome sentence, `tech` renders as inline chips, and
+ * `stats` are labelled facts kept for the expanded notes. `token` feeds only
+ * the schema projection below — no route paints a per-project hue.
  *
- * Senior-flex pass (fleet brief): the band is now driven by the real public
- * repositories on github.com/nathwn12, each carrying its canonical `url`, plus
- * case-study fields (`kind`, `role`, `year`, `highlights`) for the expanded
- * notes. Every repo below is public and re-verified against its local source on
- * 2026-10-24; forks state their upstream in `role`, and no star count is stored
- * or rendered anywhere here (anti-flex). The flex is honest instead: recency
- * (what shipped, and when), the technology actually used, and own-brand
- * authorship where the work is the owner's.
+ * The list is a measurement, not a memory. It was written from
+ * `src/content/repos.probe.json`, measured on 2026-11-13 by
+ * `node scripts/probe-repos.mjs`, which reads the live account:
+ * `gh repo list nathwn12 --limit 200` filtered to public and non-archived.
+ * Fifteen repositories are public; thirteen are tools and are listed here, and
+ * the two that are the record itself (the profile README and this site) sit in
+ * `metaRepos` below. `node scripts/probe-repos.mjs --check` fails when the
+ * account and this file disagree, so a repository that appears, leaves, or
+ * changes its primary language cannot go unnoticed.
  *
- * Language order is a fact, not a flavour: `tech[0]` is the repository's
- * primary language as GitHub reports it (inventory read 2026-10-24), and any
- * further language named belongs to the source. oc-collections leads Rust
- * because GitHub primary is Rust and the two imported MCP crates carry the
- * larger share of the code (about 42k Rust lines across 59 files, against
- * about 30k TypeScript lines across 81 files in the seven packages); TypeScript
- * stays named because the packages are TypeScript.
+ * Language order is a fact: `tech[0]` is the repository's primary language as
+ * GitHub reports it. Any further language named belongs to the source.
+ * oc-collections leads Rust because GitHub's primary is Rust, and the two
+ * imported MCP crates carry the larger share of the code; TypeScript stays
+ * named because the packages are TypeScript.
+ *
+ * Forks state their upstream in `role` as `Fork of <owner>/<name>`, and the
+ * route renders that upstream beside the kind. No star count is stored or
+ * rendered: the signal is what each one does.
  */
 
 export type Token = "accent" | "accent-2" | "accent-3" | "accent-4";
@@ -70,13 +69,13 @@ export interface ProjectLore {
   id: string;
   /** Entry title of the project band */
   name: string;
-  /** Directory path shown beside the title, as a bordered chip */
+  /** Repository name, shown beside the title and used in the link text */
   dir: string;
   /** Canonical public repository */
   url: string;
   /** Artifact kind: plugin, tool, app, harness, or site */
   kind: string;
-  /** Authorship line — this is own-brand work, built and maintained solo */
+  /** Authorship line: "Own brand", or "Fork of <owner>/<name>" */
   role: string;
   /** Year of the most recent shipped work — the recency flex */
   year: string;
@@ -88,14 +87,12 @@ export interface ProjectLore {
   stats: { label: string; value: string; accent: Token }[];
 }
 
-// Open-source work published under github.com/nathwn12: featured work first
-// in the stated order, then the supporting tools. Eleven live entries, every
-// one public and re-verified against the local source on 2026-10-24. Forks
-// say so in `role`; no star counts, because the signal is what each one does.
-// Retired work lives separately in `archived` below — history, not current work.
+// Own work first, forks last, and within each group the harness and desktop
+// tools before the media work. The order is editorial; the membership is the
+// probe's. No star counts, because the signal is what each one does.
 export const projects: ProjectLore[] = [
   {
-    id: "10",
+    id: "01",
     name: "Puppet",
     dir: "puppet",
     url: "https://github.com/nathwn12/puppet",
@@ -118,7 +115,7 @@ export const projects: ProjectLore[] = [
     ],
   },
   {
-    id: "11",
+    id: "02",
     name: "Gladius",
     dir: "gladius",
     url: "https://github.com/nathwn12/gladius",
@@ -141,7 +138,7 @@ export const projects: ProjectLore[] = [
     ],
   },
   {
-    id: "02",
+    id: "03",
     name: "OC Collections",
     dir: "oc-collections",
     url: "https://github.com/nathwn12/oc-collections",
@@ -164,30 +161,82 @@ export const projects: ProjectLore[] = [
     ],
   },
   {
-    id: "14",
-    name: "Potflix",
-    dir: "potflix",
-    url: "https://github.com/nathwn12/potflix",
-    kind: "App",
+    id: "04",
+    name: "OC Superpowers",
+    dir: "oc-superpowers",
+    url: "https://github.com/nathwn12/oc-superpowers",
+    kind: "Plugin",
+    role: "Fork of obra/superpowers",
+    year: "2026",
+    description:
+      "An OpenCode plugin that makes a session run itself — the skill for the job is loaded before the answer, and multi-step work gets its own agents.",
+    tech: ["JavaScript", "OpenCode plugin API", "Skills", "Agents"],
+    highlights: [
+      "Registers 22 skills and 5 agents, then injects the harness identity into every session.",
+      "Multi-step jobs go to a coordinating agent, which dispatches implementer and reviewer subagents and reconciles what they report.",
+      "Four hard stops are the only waits: an irreversible act, a security-sensitive act, an outward side effect, and a request where every path is a guess.",
+    ],
+    accent: "accent-4",
+    stats: [
+      { label: "last shipped", value: "2026", accent: "accent-4" },
+      { label: "surface", value: "OpenCode 2.0.4 or later", accent: "accent-4" },
+      { label: "registers", value: "22 skills and 5 agents", accent: "accent-4" },
+    ],
+  },
+  {
+    id: "05",
+    name: "OC Templates",
+    dir: "oc-templates",
+    url: "https://github.com/nathwn12/oc-templates",
+    kind: "Tool",
     role: "Own brand",
     year: "2026",
     description:
-      "Whatever plays in PotPlayer mirrored on your Discord card — for listeners who want the card to show the real title.",
-    tech: ["Rust", "Win32", "Discord IPC", "TVmaze", "AniList"],
+      "A scaffold for an OpenCode v2 plugin that is also a stdio MCP server — one package, no SDK in the dependency tree.",
+    tech: ["TypeScript", "MCP", "stdio", "OpenCode plugin API", "Node.js"],
     highlights: [
-      "Cleans codecs, tags, and release groups out of filenames, parenthesizes years, and parses SxxEyy episode tags.",
-      "Resolves series and episode titles from keyless TVmaze, AniList, Jikan, and iTunes through an on-disk cache whose hits and misses both expire after 30 days.",
-      "Carries a parity oracle: the Rust title cleaner must reproduce the frozen Go output byte-for-byte.",
+      "Both halves in one package: a plugin registering a command and an `execute.before` hook, plus a stdio entry to wire into `mcp.servers`.",
+      "Implements the MCP handshake through revision `2025-11-25` with no SDK dependency.",
+      "Its own README calls it experimental: interfaces move, and a release can break the one before it.",
     ],
     accent: "accent-2",
     stats: [
       { label: "last shipped", value: "2026", accent: "accent-2" },
-      { label: "surface", value: "Windows tray", accent: "accent-2" },
-      { label: "implementation", value: "Rust port", accent: "accent-2" },
+      { label: "runtime", value: "Node.js 22 or later", accent: "accent-2" },
+      { label: "packages", value: "one", accent: "accent-2" },
     ],
   },
   {
-    id: "15",
+    id: "06",
+    name: "Chromium Extensions",
+    dir: "my-chromium-extensions",
+    url: "https://github.com/nathwn12/my-chromium-extensions",
+    kind: "Collection",
+    role: "Own brand",
+    year: "2026",
+    description:
+      "Four Chromium extensions in one workspace — per-site loudness, slowed reverb, and two Discord presence reporters — loaded unpacked, nothing published to a store.",
+    tech: [
+      "JavaScript",
+      "Chrome Extensions",
+      "Web Audio API",
+      "Native messaging",
+      "Discord IPC",
+    ],
+    highlights: [
+      "Audio Normalizer, Slowed Reverb, Crunchy Presence, and YouTube Presence: four package folders, each with its own manifest and no build step.",
+      "Crunchy Presence hands watch state to a native messaging host, because a browser cannot open the Discord pipe itself.",
+      "Checks run in Node with no Playwright, and pushing a `v*` tag attaches the four extension zips to the release.",
+    ],
+    accent: "accent-3",
+    stats: [
+      { label: "last shipped", value: "2026", accent: "accent-3" },
+      { label: "surface", value: "Chrome and Brave, unpacked", accent: "accent-3" },
+      { label: "packages", value: "four extensions", accent: "accent-3" },
+    ],
+  },
+  {
+    id: "07",
     name: "Slowburn",
     dir: "slowburn",
     url: "https://github.com/nathwn12/slowburn",
@@ -210,99 +259,53 @@ export const projects: ProjectLore[] = [
     ],
   },
   {
-    id: "18",
-    name: "AIMP Discord Presence",
-    dir: "aimp-discord-presence2",
-    url: "https://github.com/nathwn12/aimp-discord-presence2",
-    kind: "Plugin",
-    role: "Fork of Exle",
-    year: "2026",
-    description:
-      "AIMP playback as a Discord Rich Presence — track, artist, and cover art on your profile, the way Spotify does it.",
-    tech: ["C++", "AIMP SDK", "Discord IPC", "Win32"],
-    highlights: [
-      "Fork of Exle's aimp-discord-presence; this fork adds the multi-layer cover-art chain and the presence card.",
-      "Publishes local and looked-up covers through keyless hosts by default, with an optional GitHub host behind a token.",
-      "Ini-only configuration keeps the plugin to one DLL, and updates throttle under Discord's rate cap.",
-    ],
-    accent: "accent-4",
-    stats: [
-      { label: "last shipped", value: "2026", accent: "accent-4" },
-      { label: "surface", value: "AIMP on Windows x64", accent: "accent-4" },
-      { label: "base", value: "fork of Exle", accent: "accent-4" },
-    ],
-  },
-  {
-    id: "19",
-    name: "Pear Desktop",
-    dir: "pear-desktop",
-    url: "https://github.com/nathwn12/pear-desktop",
-    kind: "App",
-    role: "Fork of pear-devs",
-    year: "2026",
-    description:
-      "A nathwn12-maintained build of Pear Desktop — its own update channel and installer identity, with the Slowed Reverb and Section Repeat player plugins ahead of upstream.",
-    tech: ["TypeScript", "Electron", "SolidJS", "Vite"],
-    highlights: [
-      "Fork of pear-devs/pear-desktop; all upstream credit stays with pear-devs.",
-      "Updater, installer, and Discord links point at nathwn12/pear-desktop, so the build updates from its own channel.",
-      "Carries the Slowed Reverb and Section Repeat player plugins ahead of upstream.",
-    ],
-    accent: "accent",
-    stats: [
-      { label: "last shipped", value: "2026", accent: "accent" },
-      { label: "surface", value: "desktop app", accent: "accent" },
-      { label: "base", value: "fork of pear-devs", accent: "accent" },
-    ],
-  },
-  {
-    id: "20",
-    name: "Installer2",
-    dir: "vencord-bootstrap",
-    url: "https://github.com/nathwn12/vencord-bootstrap",
-    kind: "Tool",
-    role: "Fork of Vencord/Installer",
-    year: "2026",
-    description:
-      "Vencord installed or repaired on every Discord install with one line — an unofficial driver around the official installer engine.",
-    tech: ["PowerShell", "Vencord Installer", "Windows"],
-    highlights: [
-      "Detects stable, PTB, Canary, and Development installs and installs or repairs each one.",
-      "Pulls the officially released installer engine at run time, so the driver never pins a stale copy.",
-      "Flags for OpenAsar, one branch, one location, no-launch, and a dry run that prints the plan.",
-    ],
-    accent: "accent-2",
-    stats: [
-      { label: "last shipped", value: "2026", accent: "accent-2" },
-      { label: "surface", value: "Windows PowerShell", accent: "accent-2" },
-      { label: "install", value: "one line", accent: "accent-2" },
-    ],
-  },
-  {
-    id: "06",
-    name: "Tab Audio Normalizer",
-    dir: "tab-audio-normalizer",
-    url: "https://github.com/nathwn12/tab-audio-normalizer",
+    id: "08",
+    name: "sp2yt",
+    dir: "spotify-playlist-to-youtube",
+    url: "https://github.com/nathwn12/spotify-playlist-to-youtube",
     kind: "App",
     role: "Own brand",
     year: "2026",
     description:
-      "Every site at one comfortable loudness in Chrome and Brave — per-site levelling toward a fixed program target.",
-    tech: ["JavaScript", "Web Audio API", "Chrome Extensions", "ITU-R BS.1770-4"],
+      "A public Spotify playlist rebuilt in YouTube Music without an API key — one portable exe over a local backend bound to 127.0.0.1.",
+    tech: ["Python", "WebView2", "YouTube Music", "Spotify"],
     highlights: [
-      "One Active toggle and gain trim per site, remembered across tabs.",
-      "Levels toward a -20 LUFS program target, with a true-peak limiter at or below -1 dBTP.",
-      "Processes audio locally in the browser; nothing leaves the machine.",
+      "Reads the track list from Spotify's own public endpoints, matches each track in YouTube Music, and builds the new playlist on the account.",
+      "Writes a ledger row per track with its reason, then reads the landed count back from the new playlist instead of trusting its own counter.",
+      "Resumes rather than duplicating on a second run, keeps repeats, and holds the YouTube Music cookie DPAPI-encrypted on the machine.",
     ],
     accent: "accent-2",
     stats: [
       { label: "last shipped", value: "2026", accent: "accent-2" },
-      { label: "surface", value: "browser", accent: "accent-2" },
-      { label: "scope", value: "per site", accent: "accent-2" },
+      { label: "packaging", value: "one portable exe", accent: "accent-2" },
+      { label: "server", value: "127.0.0.1:8787", accent: "accent-2" },
     ],
   },
   {
-    id: "16",
+    id: "09",
+    name: "Potflix",
+    dir: "potflix",
+    url: "https://github.com/nathwn12/potflix",
+    kind: "App",
+    role: "Own brand",
+    year: "2026",
+    description:
+      "Whatever plays in PotPlayer mirrored on your Discord card — for listeners who want the card to show the real title.",
+    tech: ["Rust", "Win32", "Discord IPC", "TVmaze", "AniList"],
+    highlights: [
+      "Cleans codecs, tags, and release groups out of filenames, parenthesizes years, and parses SxxEyy episode tags.",
+      "Resolves series and episode titles from keyless TVmaze, AniList, Jikan, and iTunes through an on-disk cache whose hits and misses both expire after 30 days.",
+      "Carries a parity oracle: the Rust title cleaner must reproduce the frozen Go output byte-for-byte.",
+    ],
+    accent: "accent-2",
+    stats: [
+      { label: "last shipped", value: "2026", accent: "accent-2" },
+      { label: "surface", value: "Windows tray", accent: "accent-2" },
+      { label: "implementation", value: "Rust port", accent: "accent-2" },
+    ],
+  },
+  {
+    id: "10",
     name: "ArcInstaller",
     dir: "arc-installer",
     url: "https://github.com/nathwn12/arc-installer",
@@ -325,27 +328,102 @@ export const projects: ProjectLore[] = [
     ],
   },
   {
-    id: "07",
-    name: "Slowed + Reverb Audio",
-    dir: "slowed-reverb-audio",
-    url: "https://github.com/nathwn12/slowed-reverb-audio",
-    kind: "App",
-    role: "Own brand",
+    id: "11",
+    name: "AIMP Discord Presence",
+    dir: "aimp-discord-presence",
+    url: "https://github.com/nathwn12/aimp-discord-presence",
+    kind: "Plugin",
+    role: "Fork of Exle/aimp-discord-presence",
     year: "2026",
     description:
-      "YouTube audio slowed and washed in plate reverb entirely in the browser — settings per site, the clip never leaving the machine.",
-    tech: ["JavaScript", "Web Audio API", "AudioWorklet", "Chrome Extensions"],
+      "AIMP playback as a Discord Rich Presence — track, artist, and cover art on your profile, the way Spotify does it.",
+    tech: ["C++", "AIMP SDK", "Discord IPC", "Win32"],
     highlights: [
-      "Speed from 0.7x to 1.3x in 0.01 steps without pitch distortion.",
-      "Dattorro plate reverb from 0 to 100 percent, with per-site speed, reverb, and Active state remembered.",
-      "Runs locally in the tab; the source audio never leaves the browser.",
+      "Fork of Exle/aimp-discord-presence; this fork adds the multi-layer cover-art chain and the presence card.",
+      "Publishes local and looked-up covers through keyless hosts by default, with an optional GitHub host behind a token.",
+      "Ini-only configuration keeps the plugin to one DLL, and updates throttle under Discord's rate cap.",
     ],
-    accent: "accent-3",
+    accent: "accent-4",
     stats: [
-      { label: "last shipped", value: "2026", accent: "accent-3" },
-      { label: "surface", value: "browser extension", accent: "accent-3" },
-      { label: "output", value: "live audio", accent: "accent-3" },
+      { label: "last shipped", value: "2026", accent: "accent-4" },
+      { label: "surface", value: "AIMP on Windows x64", accent: "accent-4" },
+      { label: "base", value: "Exle/aimp-discord-presence", accent: "accent-4" },
     ],
+  },
+  {
+    id: "12",
+    name: "Pear Slowed + Reverb",
+    dir: "pear-slowed-reverb",
+    url: "https://github.com/nathwn12/pear-slowed-reverb",
+    kind: "App",
+    role: "Fork of pear-devs/pear-desktop",
+    year: "2026",
+    description:
+      "A nathwn12-maintained build of Pear Desktop — its own update channel and installer identity, with the Slowed Reverb and Section Repeat player plugins ahead of upstream.",
+    tech: ["TypeScript", "Electron", "SolidJS", "Vite"],
+    highlights: [
+      "Fork of pear-devs/pear-desktop; all upstream credit stays with pear-devs.",
+      "Updater, installer, and Discord links point at nathwn12/pear-slowed-reverb, so the build updates from its own channel.",
+      "Carries the Slowed Reverb and Section Repeat player plugins ahead of upstream.",
+    ],
+    accent: "accent",
+    stats: [
+      { label: "last shipped", value: "2026", accent: "accent" },
+      { label: "surface", value: "desktop app", accent: "accent" },
+      { label: "base", value: "pear-devs/pear-desktop", accent: "accent" },
+    ],
+  },
+  {
+    id: "13",
+    name: "Vencord Bootstrap",
+    dir: "vencord-bootstrap",
+    url: "https://github.com/nathwn12/vencord-bootstrap",
+    kind: "Tool",
+    role: "Fork of Vencord/Installer",
+    year: "2026",
+    description:
+      "Vencord installed or repaired on every Discord install with one line — an unofficial driver around the official installer engine.",
+    tech: ["PowerShell", "Vencord Installer", "Windows"],
+    highlights: [
+      "Detects stable, PTB, Canary, and Development installs and installs or repairs each one.",
+      "Pulls the officially released installer engine at run time, so the driver never pins a stale copy.",
+      "Flags for OpenAsar, one branch, one location, no-launch, and a dry run that prints the plan.",
+    ],
+    accent: "accent-2",
+    stats: [
+      { label: "last shipped", value: "2026", accent: "accent-2" },
+      { label: "surface", value: "Windows PowerShell", accent: "accent-2" },
+      { label: "install", value: "one line", accent: "accent-2" },
+    ],
+  },
+];
+
+/**
+ * The two public repositories that are the record itself rather than a tool:
+ * the account's profile README and this site. They are not case notes, so they
+ * are not project rows, and they are not counted in the tool total. They stay
+ * declared here because the account is public in exactly this shape — the probe
+ * check compares this list and `projects` together against the live account.
+ */
+export interface MetaRepo {
+  name: string;
+  dir: string;
+  url: string;
+  note: string;
+}
+
+export const metaRepos: MetaRepo[] = [
+  {
+    name: "Profile README",
+    dir: "nathwn12",
+    url: "https://github.com/nathwn12/nathwn12",
+    note: "The account's front page; the work is linked from it.",
+  },
+  {
+    name: "This site",
+    dir: "nathwn12.github.io",
+    url: "https://github.com/nathwn12/nathwn12.github.io",
+    note: "The portfolio you are reading, built with Vite and React.",
   },
 ];
 
@@ -354,7 +432,7 @@ export const projects: ProjectLore[] = [
  * 2026-10-21 and stays listed here so the record is complete without reading
  * as live. Typed plainly, not projected through ProjectSchema: that schema
  * describes live production entries (it demands a description, tech, stats,
- * and a PRODUCTION/SHIPPED status), and forcing a retired one-line record
+ * and a PRODUCTION/SHIPPED status), and forcing an archived one-line record
  * through it would be model work for no validation gain.
  */
 export interface ArchivedProject {
@@ -372,14 +450,14 @@ export const archived: ArchivedProject[] = [
     url: "https://github.com/nathwn12/oc-todo",
     year: "2025",
     reason:
-      "Deprecated 2026-10-21 — OpenCode 2.1 restored the built-in todowrite. See EOL.md.",
+      "Archived 2026-10-21 — OpenCode 2.1 restored the built-in todowrite. See EOL.md.",
   },
 ];
 
 /** Route lede: selection criteria (public repos under the owner) and reading
     order (featured first). Never restates the title, and counts the projects
     the page actually renders. */
-export const projectsLede = `${cap(countWords(projects.length))} projects published under github.com/nathwn12 — featured work first, then the supporting tools.`;
+export const projectsLede = `${cap(countWords(projects.length))} projects published under github.com/nathwn12 — featured work first, then the supporting tools, forks last.`;
 
 /** Route support line: what each band carries, and the two rules that keep it
     honest (no star counts, retired work separated). */
