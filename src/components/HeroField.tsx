@@ -1,8 +1,9 @@
 import { useEffect, useRef } from "react";
 import { MOTION_CHANGE_EVENT, motionAllowed } from "../lib/motion";
 import {
+  TIERS,
   createField,
-  degradeCount,
+  nextTier,
   stepField,
   type Field,
   type Particle,
@@ -18,17 +19,17 @@ import {
  *
  * The rules it lives inside:
  *
- *   - **DPR capped at 2.** A 3× phone buffer is four times the pixels for a
- *     difference nobody can see on a 2px mark.
+ *   - **A measured budget, with tiers.** Every 30 frames the loop reads its own
+ *     rolling average frame time and asks `nextTier()` for the next tier: over
+ *     22 ms it drops one (particles first, then the backing buffer's DPR, 2 →
+ *     1.5 → 1), and under 12 ms sustained it steps back up — never sooner than
+ *     two seconds after the last switch, so it cannot oscillate. The live tier,
+ *     count, average frame time and average paint cost are published on
+ *     `data-field-*` once a second, so "it holds 60 fps" can be checked against
+ *     the running page instead of believed.
  *   - **One frame loop, and only while it can be seen.** One
  *     `IntersectionObserver` on the canvas and `document.hidden` gate it; a
- *     field nobody is looking at costs nothing.
- *   - **A measured budget.** The loop keeps a 90-frame rolling average of its
- *     own frame time and sheds particles (via `degradeCount`) when that average
- *     passes 22 ms. The live count and average are published on
- *     `data-field-count` / `data-field-frame-ms` once a second, so the claim
- *     "it holds 60 fps" can be checked against the running page instead of
- *     believed.
+ *     field nobody is looking at costs nothing, and unmount cancels the frame.
  *   - **Reduced motion is a still frame, not a stopped loop.** Under
  *     `prefers-reduced-motion` or `data-motion="off"` the field is simulated
  *     once and painted once; `requestAnimationFrame` is never called. It is the
@@ -38,25 +39,39 @@ import {
  * ground-coloured wash that turns them into a current.
  */
 
-/** Density on a desktop viewport. A phone gets fewer, because it has fewer
- *  pixels and a smaller battery. */
-const COUNT = 1500;
-const COUNT_COMPACT = 720;
-
 /** Px of tail per unit of velocity — the streak length. */
 const TAIL = 9.5;
 
 /** The per-frame ground wash: this is what makes a trail instead of a dot. */
 const FADE = 0.075;
 
-/** The rolling window the budget is judged on (~1.5 s at 60 fps). */
-const WINDOW = 90;
+/** The rolling window the budget is judged on (30 frames ≈ half a second). */
+const WINDOW = 30;
+
+/** Load is not performance: the first two seconds are fonts, first paints and
+ *  the cover's own sequence, and a window taken there would ratchet the field
+ *  down a tier for the rest of the visit. */
+const WARMUP_MS = 2000;
 
 interface Ink {
   ground: string;
-  signal: string;
-  measure: string;
+  /** The two accents, in the order a particle's `band` selects them. */
+  accents: [string, string];
+  /** The alpha each band is drawn at. */
+  alphas: [number, number];
+  /** Additive on the dark ground; normal compositing on paper, where adding
+   *  light to an almost-white ground draws nothing at all. */
+  blend: GlobalCompositeOperation;
 }
+
+/** The dark field: two accents added together, which is what makes a crossing
+ *  read as a bright current rather than as two overlapping lines. */
+const DARK_ALPHAS: [number, number] = [0.055, 0.042];
+
+/** On paper the same strokes are ink, at a third of the alpha, and the cyan is
+ *  replaced by the rule colour: a measured cyan is a highlight on a dark ground
+ *  and a scribble on a light one. */
+const LIGHT_ALPHAS: [number, number] = [0.018, 0.012];
 
 export function HeroField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -67,39 +82,71 @@ export function HeroField() {
     const context = canvas.getContext("2d");
     if (!context) return;
 
+    /* A phone starts two tiers down: it has fewer pixels, a smaller battery and
+       no pointer to react to. The tier machine can still promote it. */
     const compact = window.matchMedia?.("(max-width: 767px)").matches ?? false;
-    let count = compact ? COUNT_COMPACT : COUNT;
+    let tier = compact ? 2 : 0;
 
     /* The palette is read off the element, not typed here: the canvas is the
-       one place on the site that paints a colour, and it still reads a token. */
-    const styles = getComputedStyle(canvas);
-    const ink: Ink = {
-      ground: styles.getPropertyValue("--rec-ground").trim() || "#0a0c0e",
-      signal: styles.getPropertyValue("--rec-signal").trim() || "#7c9cff",
-      measure: styles.getPropertyValue("--rec-measure").trim() || "#4dd4e8",
+       one place on the site that paints a colour, and it still reads a token.
+       It is re-read whenever `<html data-theme>` changes, because the field is
+       the only thing on the page whose ink is not a CSS rule. */
+    let ink: Ink = {
+      ground: "#0a0c0e",
+      accents: ["#7c9cff", "#4dd4e8"],
+      alphas: DARK_ALPHAS,
+      blend: "lighter",
     };
+
+    const readInk = () => {
+      const styles = getComputedStyle(canvas);
+      const token = (name: string, fallback: string) =>
+        styles.getPropertyValue(name).trim() || fallback;
+      const light = document.documentElement.dataset.theme === "light";
+      const signal = token("--rec-signal", "#7c9cff");
+      const measure = token("--rec-measure", "#4dd4e8");
+      const rule = token("--rec-rule", "#23282d");
+
+      ink = light
+        ? {
+            ground: token("--rec-ground", "#ecede9"),
+            accents: [signal, rule],
+            alphas: LIGHT_ALPHAS,
+            blend: "source-over",
+          }
+        : {
+            ground: token("--rec-ground", "#0a0c0e"),
+            accents: [signal, measure],
+            alphas: DARK_ALPHAS,
+            blend: "lighter",
+          };
+    };
+    readInk();
 
     let width = 0;
     let height = 0;
-    let field: Field = createField(1, 1, count);
+    let field: Field = createField(1, 1, TIERS[tier].count);
     let frame = 0;
     let last = 0;
+    let startedAt = 0;
+    let lastSwitch = 0;
     let visible = true;
     let pointer: { x: number; y: number } | null = null;
     let scroll = 0;
     let lastScrollY = window.scrollY;
-    const samples: number[] = [];
+    const frames: number[] = [];
+    const paints: number[] = [];
     let reported = 0;
 
     const size = () => {
       const box = canvas.getBoundingClientRect();
-      const dpr = Math.min(2, window.devicePixelRatio || 1);
+      const dpr = Math.min(TIERS[tier].dpr, window.devicePixelRatio || 1);
       width = Math.max(1, Math.round(box.width));
       height = Math.max(1, Math.round(box.height));
       canvas.width = Math.round(width * dpr);
       canvas.height = Math.round(height * dpr);
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
-      field = createField(width, height, count);
+      field = createField(width, height, TIERS[tier].count);
     };
 
     /** One particle's streak, at its own accent and its own faint alpha. */
@@ -113,7 +160,7 @@ export function HeroField() {
         Math.sin(nx * 5.4 - field.time * 0.19) +
         Math.sin((nx - ny) * 3.3 + field.time * 0.11) * 0.6;
       context.globalAlpha = alpha;
-      context.strokeStyle = particle.band === 0 ? ink.signal : ink.measure;
+      context.strokeStyle = ink.accents[particle.band];
       context.beginPath();
       context.moveTo(particle.x, particle.y);
       context.lineTo(particle.x + vx * length, particle.y + vy * length);
@@ -121,7 +168,7 @@ export function HeroField() {
     };
 
     const paint = () => {
-      /* The wash is the trail: the ground at 14% a frame, so a streak survives
+      /* The wash is the trail: the ground at 7.5% a frame, so a streak survives
          about a second and the field reads as a current with direction. */
       context.globalCompositeOperation = "source-over";
       context.globalAlpha = FADE;
@@ -129,26 +176,32 @@ export function HeroField() {
       context.fillRect(0, 0, width, height);
       context.globalAlpha = 1;
 
-      context.globalCompositeOperation = "lighter";
+      context.globalCompositeOperation = ink.blend;
       context.lineWidth = 1.1;
       context.lineCap = "round";
       for (const particle of field.particles) {
-        streak(particle, particle.band === 0 ? 0.055 : 0.042, TAIL);
+        streak(particle, ink.alphas[particle.band], TAIL);
       }
       context.globalAlpha = 1;
       context.globalCompositeOperation = "source-over";
     };
 
-    /** The reduced-motion frame: one simulation step, drawn once, no wash. */
+    /** The reduced-motion frame: one simulation step, drawn once, no wash.
+     *  Nested rays along each particle's own velocity give the still picture the
+     *  same direction the loop's trails would have — a single dash per particle
+     *  read as rain, not as a current. */
     const paintStill = () => {
       context.globalCompositeOperation = "source-over";
       context.globalAlpha = 1;
       context.clearRect(0, 0, width, height);
-      context.globalCompositeOperation = "lighter";
+      context.globalCompositeOperation = ink.blend;
       context.lineWidth = 1.1;
       context.lineCap = "round";
       for (const particle of field.particles) {
-        streak(particle, particle.band === 0 ? 0.16 : 0.12, TAIL * 1.6);
+        const alpha = ink.alphas[particle.band] * 0.9;
+        for (let step = 5; step >= 1; step -= 1) {
+          streak(particle, alpha, TAIL * step * 1.1);
+        }
       }
       context.globalAlpha = 1;
       context.globalCompositeOperation = "source-over";
@@ -156,6 +209,7 @@ export function HeroField() {
 
     const tick = (now: number) => {
       frame = window.requestAnimationFrame(tick);
+      if (!startedAt) startedAt = now;
       const delta = last ? now - last : 16.7;
       last = now;
       /* A tab that was parked must not teleport the field: one frame's worth of
@@ -164,23 +218,48 @@ export function HeroField() {
 
       stepField(field, { dt, pointer, scroll });
       scroll *= 0.9;
-      paint();
 
-      samples.push(delta);
-      if (samples.length > WINDOW) samples.shift();
-      if (samples.length === WINDOW) {
-        const average =
-          samples.reduce((total, value) => total + value, 0) / samples.length;
-        const next = degradeCount(count, average);
-        if (next !== count) {
-          count = next;
-          field.particles.length = Math.min(field.particles.length, count);
-        }
-        if (now - reported > 1000) {
-          reported = now;
-          canvas.dataset.fieldCount = String(count);
-          canvas.dataset.fieldFrameMs = average.toFixed(1);
-        }
+      const started = performance.now();
+      paint();
+      paints.push(performance.now() - started);
+      if (paints.length > WINDOW) paints.shift();
+
+      frames.push(delta);
+      if (frames.length < WINDOW) return;
+      if (frames.length > WINDOW) frames.shift();
+
+      if (now - startedAt < WARMUP_MS) {
+        frames.length = 0;
+        paints.length = 0;
+        return;
+      }
+
+      const average =
+        frames.reduce((total, value) => total + value, 0) / frames.length;
+      const next = nextTier(tier, average, now - lastSwitch);
+      if (next !== tier) {
+        tier = next;
+        lastSwitch = now;
+        frames.length = 0;
+        paints.length = 0;
+        /* A new tier is a new buffer and a new count; the field is rebuilt from
+           the same seed, so the change is a change of cost, not of character. */
+        size();
+        return;
+      }
+
+      if (now - reported > 1000) {
+        reported = now;
+        const paintAverage =
+          paints.reduce((total, value) => total + value, 0) /
+          Math.max(1, paints.length);
+        canvas.dataset.fieldTier = String(tier);
+        canvas.dataset.fieldCount = String(field.particles.length);
+        canvas.dataset.fieldFrameMs = average.toFixed(1);
+        canvas.dataset.fieldPaintMs = paintAverage.toFixed(2);
+        canvas.dataset.fieldDpr = String(
+          Math.min(TIERS[tier].dpr, window.devicePixelRatio || 1),
+        );
       }
     };
 
@@ -188,6 +267,9 @@ export function HeroField() {
       if (frame) window.cancelAnimationFrame(frame);
       frame = 0;
       last = 0;
+      startedAt = 0;
+      frames.length = 0;
+      paints.length = 0;
     };
 
     const start = () => {
@@ -248,6 +330,22 @@ export function HeroField() {
     };
     window.addEventListener(MOTION_CHANGE_EVENT, onMotionChange);
 
+    /* The field's ink is the one thing on the page that is not a CSS rule, so a
+       theme switch has to be handed to it: re-read the tokens, wipe the old
+       ground's trails and repaint. */
+    const themeObserver =
+      typeof MutationObserver === "function"
+        ? new MutationObserver(() => {
+            readInk();
+            context.clearRect(0, 0, width, height);
+            if (!motionAllowed()) paintStill();
+          })
+        : null;
+    themeObserver?.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+
     const resize =
       typeof ResizeObserver === "function"
         ? new ResizeObserver(() => {
@@ -264,6 +362,7 @@ export function HeroField() {
     return () => {
       stop();
       observer?.disconnect();
+      themeObserver?.disconnect();
       resize?.disconnect();
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("pointermove", onPointerMove);
@@ -279,6 +378,15 @@ export function HeroField() {
       data-hero-field
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 -z-10 h-full w-full"
+      /* The field is bounded by the cover's own box, so without a mask its
+         current stops on a hard horizontal line across the page where the next
+         band begins. The mask dissolves the last third into the ground instead:
+         an edge nobody can see, rather than a cut nobody asked for. */
+      style={{
+        maskImage: "linear-gradient(to bottom, #000 62%, transparent 100%)",
+        WebkitMaskImage:
+          "linear-gradient(to bottom, #000 62%, transparent 100%)",
+      }}
     />
   );
 }

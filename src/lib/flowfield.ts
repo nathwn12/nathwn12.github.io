@@ -41,11 +41,36 @@ export interface FieldInput {
   scroll: number;
 }
 
-/** The rolling-average frame time above which the field sheds particles. */
+/** The rolling-average frame time above which the field drops a tier. */
 export const FRAME_BUDGET_MS = 22;
 
-/** The floor: below this the field stops reading as a field. */
-export const MIN_PARTICLES = 360;
+/** The sustained frame time below which it may step back up a tier. */
+export const UPGRADE_MS = 12;
+
+/** The least time between two tier switches, so the field cannot oscillate. */
+export const COOLDOWN_MS = 2000;
+
+/**
+ * The tiers, cheapest last: fewer particles first, then the backing buffer's
+ * DPR, then fewer again. Both columns only ever fall as the index rises, so a
+ * drop is always a real drop and a step up is always a real saving.
+ */
+export interface Tier {
+  /** Particles in the field. */
+  count: number;
+  /** The cap on `devicePixelRatio` for the backing buffer. */
+  dpr: number;
+}
+
+export const TIERS: readonly Tier[] = [
+  { count: 1500, dpr: 2 },
+  { count: 1050, dpr: 2 },
+  { count: 720, dpr: 2 },
+  { count: 720, dpr: 1.5 },
+  { count: 520, dpr: 1.5 },
+  { count: 520, dpr: 1 },
+  { count: 360, dpr: 1 },
+];
 
 /** The pointer's reach, in px. Outside it a particle is untouched. */
 const REACH = 260;
@@ -126,14 +151,28 @@ export function stepField(field: Field, input: FieldInput): void {
 }
 
 /**
- * The particle budget for the next frame.
+ * The tier for the next window.
  *
- * Over budget it sheds 30% and never climbs back up during the same run — a
- * field that oscillated around the threshold would pump the layout every few
- * seconds, which is worse than a field that is simply cheaper than it looks.
+ * Down immediately, up slowly: a field that is over budget is corrected on the
+ * next evaluation, and a field that is comfortably inside it is only promoted
+ * after two full seconds at the faster rate. The cooldown is the anti-oscillation
+ * guarantee — without it a page hovering on the threshold would flip tiers every
+ * half second, which is worse than either tier.
  */
-export function degradeCount(count: number, rollingFrameMs: number): number {
-  if (rollingFrameMs <= FRAME_BUDGET_MS) return count;
-  const next = Math.floor(count * 0.7);
-  return next < MIN_PARTICLES ? Math.max(count, MIN_PARTICLES) : next;
+export function nextTier(
+  index: number,
+  rollingFrameMs: number,
+  sinceSwitchMs: number,
+): number {
+  if (rollingFrameMs > FRAME_BUDGET_MS && index < TIERS.length - 1) {
+    return index + 1;
+  }
+  if (
+    rollingFrameMs < UPGRADE_MS &&
+    sinceSwitchMs >= COOLDOWN_MS &&
+    index > 0
+  ) {
+    return index - 1;
+  }
+  return index;
 }
