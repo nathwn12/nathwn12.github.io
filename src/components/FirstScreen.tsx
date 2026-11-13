@@ -117,7 +117,7 @@ export function FirstScreen() {
       ref={coverRef}
       data-band="cover"
       aria-labelledby="claim-heading"
-      className="relative isolate overflow-x-clip pt-8 pb-[var(--rec-rhythm)] md:pt-12 md:pb-[var(--rec-rhythm-lg)] lg:flex lg:min-h-[100svh] lg:flex-col"
+      className="relative isolate overflow-x-clip pt-8 pb-[var(--rec-rhythm)] md:pt-12 md:pb-[var(--rec-rhythm-lg)] lg:flex lg:flex-col"
     >
       {/* The current behind the type. `isolate` keeps the canvas in this
           section's stacking context, so `-z-10` puts it above the ground and
@@ -213,7 +213,7 @@ export function FirstScreen() {
           <div
             data-cover-fade
             data-instrument-panel
-            className="lg:sticky lg:top-[calc(var(--rec-header-h)+var(--rec-space-3))] lg:self-start lg:pt-1"
+            className="lg:self-start lg:pt-1"
           >
             <LatencyInstrument />
             <p className="data data--sm mt-3 max-w-[46ch] text-[color:var(--rec-ink-muted)]">
