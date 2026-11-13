@@ -9,12 +9,11 @@ import {
   provenance,
   tenureEnd,
   tenureSpan,
-  type ExperienceEntry,
 } from "../content/experience";
-import { CONTACT_CTA, figures, percentIn } from "../content/ledger";
+import { CONTACT_CTA, figures } from "../content/ledger";
 import { RouteLink, SectionLink } from "../lib/router";
 import { revealLines, revealRule } from "../lib/motion";
-import { Timeline, TimelineReadout, type TimelineFigure, type TimelineItem } from "./Timeline";
+import { Timeline, TimelineReadout, type TimelineItem } from "./Timeline";
 
 /**
  * Experience — the production record, in the order it happened.
@@ -35,28 +34,6 @@ import { Timeline, TimelineReadout, type TimelineFigure, type TimelineItem } fro
  * in May 2026 — and the closing note is the provenance of the numbers above it.
  */
 
-/** The measured value an entry states once, in `metric`, or nothing at all. */
-function figureFor(entry: ExperienceEntry): TimelineFigure | null {
-  const source = entry.metric ?? "";
-  if (!source) return null;
-
-  if (/\bzero\b|^0$/.test(source.trim())) {
-    return {
-      value: 0,
-      format: (value) => Math.round(value).toString(),
-    };
-  }
-
-  const percent = percentIn(source);
-  const run = percent?.match(/[\d,.]+/)?.[0];
-  if (!percent || !run) return null;
-
-  return {
-    value: Number(run.replace(/,/g, "")),
-    format: (value) => percent.replace(run, Math.round(value).toString()),
-  };
-}
-
 const items: TimelineItem[] = experience.map((entry) => ({
   id: entry.id,
   date: entry.date,
@@ -65,7 +42,6 @@ const items: TimelineItem[] = experience.map((entry) => ({
   outcome: entry.outcome,
   description: entry.description,
   highlights: entry.highlights,
-  figure: figureFor(entry),
 }));
 
 /** The ledger's figures, read back out of the provenance string. */

@@ -44,7 +44,7 @@ export interface TimelineItem {
   outcome: string;
   description: string;
   highlights: string[];
-  figure: TimelineFigure | null;
+
 }
 
 /**
@@ -188,15 +188,6 @@ export function Timeline({ items }: { items: TimelineItem[] }) {
                 >
                   {item.date}
                 </p>
-
-                {item.figure && (
-                  <p
-                    data-timeline-figure
-                    className="mt-1 font-mono tnum text-[clamp(1.25rem,1rem+1vw,1.75rem)] leading-none tracking-[0.01em] text-[color:var(--rec-measure)]"
-                  >
-                    {item.figure.format(item.figure.value)}
-                  </p>
-                )}
               </div>
 
               <div className="md:col-start-1 md:row-start-1">
