@@ -4,7 +4,7 @@ import {
   formerRoleLine,
   provenance,
 } from "./experience";
-import { projects } from "./projects";
+import { countWords, projects } from "./projects";
 import { repos } from "./skills";
 import { availability, coreStack } from "./hero";
 
@@ -128,7 +128,7 @@ export const name = "Nathaniel Nikolai Ladero";
 
 /** The h1's supporting sentence: who, and what the work was. */
 export const standfirst =
-  "Backend developer for payment and cash-management systems that ran in production, and the author of eleven open-source developer tools.";
+  `Backend developer for payment and cash-management systems that ran in production, and the author of ${countWords(projects.length)} open-source developer tools.`;
 
 export const locatedIn = "Philippines";
 
@@ -239,7 +239,7 @@ export const workRows: WorkRow[] = projects.slice(0, 3).map((project) => ({
   url: project.url,
 }));
 
-export const workLede = `${countWord(figures.projectCount)} public repositories under one account; three are worth opening first. The rest sit on the projects page with their case notes.`;
+export const workLede = `${countWord(projects.length)} tools under one account; three are worth opening first. The rest sit on the projects page with their case notes.`;
 
 /* ------------------------------------------------------------------- system atlas */
 
