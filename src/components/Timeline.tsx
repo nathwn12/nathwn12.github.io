@@ -1,34 +1,28 @@
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import {
-  countUp,
-  motionAllowed,
-  revealLines,
-  type MotionHandle,
-} from "../lib/motion";
+import { countUp, motionAllowed } from "../lib/motion";
+import { activeIndexAt, READING_LINE } from "../lib/reading";
 
 /**
  * Timeline — the experience route's one structural motion.
  *
  * The page is a vertical rule down the left with nine entries hanging off it,
- * and the motion is the receipt being drawn: each entry's connector extends
- * from the rule (1px of `--rec-signal`, scaleX 0 to 1), its outcome line
- * masks up, and its measured figure counts once. Nothing else moves.
+ * and the motion is the record being filled in: the rule's fill extends from the
+ * top of the list to the bottom as the band crosses the reading line, and one
+ * sticky marker in the left gutter reads the year of the entry currently at that
+ * line. One scrubbed tween and one derived readout — not nine connectors each
+ * drawing themselves, which is what made the page feel like a festival of small
+ * entrances rather than one continuous movement.
  *
- * The scroll work is ONE batched trigger over the whole timeline
- * (`ScrollTrigger.batch`) rather than nine independent ones: a batch fires for
- * the rows that enter together, staggers nothing it does not own, and costs one
- * observer set for the page. Each row is fired at most once, whichever
- * direction it arrives from, so a refresh mid-page cannot leave a connector
- * undrawn or a figure counting twice.
+ * Both answers are derived from the live layout on every frame
+ * ({@link activeIndexAt}), so the year marker cannot name an entry that has
+ * already gone past, and the fill cannot disagree with the scroll position.
  *
- * With the OS asking for less motion, or the footer's switch off, the final
- * state is written straight in: every connector at full extent, every heading
- * plain text, every figure at its delivered value. A page whose scripts never
- * arrive paints the same thing, because the hidden state is set here and never
- * in CSS.
+ * With the OS asking for less motion the final state is written straight in:
+ * the rule is filled, the marker names the first entry, and no trigger is
+ * created. A page whose scripts never arrive paints the same thing, because the
+ * hidden state is set here and never in CSS.
  */
 
 if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
@@ -72,15 +66,12 @@ export function TimelineReadout({
 }) {
   const figureRef = useRef<HTMLSpanElement>(null);
 
-  useGSAP(
-    () => {
-      const handle = countUp(figureRef.current, value, format, {
-        duration: 1.2,
-      });
-      return () => handle.revert();
-    },
-    { dependencies: [value] },
-  );
+  useEffect(() => {
+    const handle = countUp(figureRef.current, value, format, {
+      duration: 1.2,
+    });
+    return () => handle.revert();
+  }, [value, format]);
 
   return (
     <div>
@@ -94,164 +85,157 @@ export function TimelineReadout({
   );
 }
 
-/** The timeline: one rule, nine rows, one batched trigger. */
+/** The year an entry's date names. */
+function yearOf(date: string): string {
+  return date.match(/\d{4}/)?.[0] ?? date;
+}
+
+/** The timeline: one rule, one fill, one year marker, one trigger. */
 export function Timeline({ items }: { items: TimelineItem[] }) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const fillRef = useRef<HTMLSpanElement>(null);
+  const [active, setActive] = useState(0);
 
-  useGSAP(
-    () => {
-      const root = rootRef.current;
-      if (!root) return;
+  useEffect(() => {
+    const root = rootRef.current;
+    const fill = fillRef.current;
+    if (!root || !fill) return;
 
-      const connectors = gsap.utils.toArray<HTMLElement>(
-        "[data-timeline-connector]",
-        root,
-      );
-      const rows = gsap.utils.toArray<HTMLElement>("[data-timeline-entry]", root);
+    const rows = [...root.querySelectorAll<HTMLElement>("[data-timeline-entry]")];
 
-      if (!motionAllowed()) {
-        gsap.set(connectors, { scaleX: 1, transformOrigin: "left center" });
-        return;
-      }
+    const update = () => {
+      const line = window.innerHeight * READING_LINE;
+      const tops = rows.map((row) => row.getBoundingClientRect().top);
+      const next = activeIndexAt(tops, line);
+      if (next < 0) return;
+      setActive((previous) => (previous === next ? previous : next));
+    };
 
-      gsap.set(connectors, { scaleX: 0, transformOrigin: "left center" });
+    if (!motionAllowed()) {
+      gsap.set(fill, { scaleY: 1, transformOrigin: "top center" });
+      update();
+      return;
+    }
 
-      const figures = new Map<Element, TimelineFigure>();
-      rows.forEach((row, index) => {
-        const figure = items[index]?.figure;
-        if (figure) figures.set(row, figure);
-      });
+    gsap.set(fill, { scaleY: 0, transformOrigin: "top center" });
 
-      const handles: MotionHandle[] = [];
-      const fired = new Set<Element>();
+    const tween = gsap.to(fill, {
+      scaleY: 1,
+      ease: "none",
+      scrollTrigger: {
+        trigger: root,
+        start: "top 70%",
+        end: "bottom 70%",
+        scrub: true,
+        onUpdate: update,
+        onRefresh: update,
+      },
+    });
 
-      const fire = (elements: Element[]) => {
-        for (const row of elements) {
-          if (fired.has(row)) continue;
-          fired.add(row);
+    update();
 
-          const connector = row.querySelector<HTMLElement>(
-            "[data-timeline-connector]",
-          );
-          if (connector) {
-            gsap.to(connector, {
-              scaleX: 1,
-              duration: 0.7,
-              ease: "power2.out",
-            });
-          }
+    return () => {
+      tween.scrollTrigger?.kill();
+      tween.kill();
+    };
+  }, []);
 
-          const heading = row.querySelector<HTMLElement>(
-            "[data-timeline-heading]",
-          );
-          if (heading) handles.push(revealLines(heading, { delay: 0.08 }));
-
-          const figureEl = row.querySelector<HTMLElement>(
-            "[data-timeline-figure]",
-          );
-          const figure = figures.get(row);
-          if (figureEl && figure) {
-            handles.push(
-              countUp(figureEl, figure.value, figure.format, {
-                duration: 1.1,
-              }),
-            );
-          }
-        }
-      };
-
-      const triggers = ScrollTrigger.batch(rows, {
-        start: "top 88%",
-        onEnter: fire,
-        onEnterBack: fire,
-      });
-
-      return () => {
-        triggers.forEach((trigger) => trigger.kill());
-        handles.forEach((handle) => handle.revert());
-      };
-    },
-    { scope: rootRef, dependencies: [] },
-  );
+  const years = items.map((item) => yearOf(item.date));
+  const marker = years[active] ?? years[0] ?? "";
 
   return (
-    <div ref={rootRef} className="relative">
-      {/* The spine. It is full-height by construction, so it ends where the
-          last entry does rather than at an assumed row height. */}
-      <span
-        aria-hidden="true"
-        className="absolute inset-y-0 left-0 w-px bg-[var(--rec-rule)]"
-      />
+    <div
+      ref={rootRef}
+      className="relative grid grid-cols-[2.75rem_minmax(0,1fr)] gap-x-3 md:grid-cols-[4.5rem_minmax(0,1fr)] md:gap-x-6"
+    >
+      {/* The marker's column is as tall as the list, so the year holds under the
+          bar while the entries it names go past. */}
+      <div aria-hidden="true" className="relative">
+        <p
+          data-year-marker
+          className="data data--lg sticky top-[calc(var(--rec-header-h)+var(--rec-space-4))] tabular-nums text-[color:var(--rec-measure)]"
+        >
+          {marker}
+        </p>
+      </div>
 
-      <ol>
-        {items.map((item) => (
-          <li
-            key={item.id}
-            data-timeline-entry
-            className="relative grid gap-x-10 gap-y-2 py-8 pl-6 md:grid-cols-[minmax(0,1fr)_9rem] md:py-10 md:pl-10"
-          >
-            {/* The connector into the spine: 1px of signal, drawn from the
-                rule outwards by the batch trigger above. */}
-            <span
-              aria-hidden="true"
-              data-timeline-connector
-              className="absolute top-2 left-0 h-px w-4 origin-left bg-[var(--rec-signal)] md:top-3 md:w-6"
-            />
+      <div className="relative">
+        {/* The spine, and its fill: one element scaled from the top by the
+            band's single scrubbed trigger. */}
+        <span
+          aria-hidden="true"
+          className="absolute inset-y-0 left-0 w-px bg-[var(--rec-rule)]"
+        />
+        <span
+          ref={fillRef}
+          aria-hidden="true"
+          data-spine-fill
+          className="absolute inset-y-0 left-0 w-px origin-top bg-[var(--rec-signal)]"
+          style={{ transform: "scaleY(0)" }}
+        />
 
-            <p
-              data-timeline-date
-              className="data tnum text-[color:var(--rec-ink-muted)] md:col-start-2 md:row-start-1 md:pt-1 md:text-right"
+        <ol>
+          {items.map((item) => (
+            <li
+              key={item.id}
+              data-timeline-entry
+              className="relative grid gap-x-10 gap-y-2 py-8 pl-6 md:grid-cols-[minmax(0,1fr)_9rem] md:py-10 md:pl-10"
             >
-              {item.date}
-            </p>
-
-            <div className="md:col-start-1 md:row-start-1">
-              <h3
-                data-timeline-heading
-                className="max-w-[var(--rec-prose-measure)] text-[1.0625rem] leading-[1.35] font-medium text-[color:var(--rec-ink)]"
+              <p
+                data-timeline-date
+                className="data tnum text-[color:var(--rec-ink-muted)] md:col-start-2 md:row-start-1 md:pt-1 md:text-right"
               >
-                {item.outcome}
-              </h3>
-
-              <p className="prose mt-2 text-[color:var(--rec-ink-muted)]">
-                {item.description}
+                {item.date}
               </p>
 
-              {item.highlights.length > 0 && (
-                <ul className="mt-3 grid max-w-[var(--rec-prose-measure)] gap-y-1.5">
-                  {item.highlights.map((highlight) => (
-                    <li
-                      key={highlight}
-                      className="flex gap-3 text-[0.9375rem] leading-[1.5] text-[color:var(--rec-ink-muted)]"
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="mt-[0.72em] h-px w-3 shrink-0 bg-[var(--rec-rule-strong)]"
-                      />
-                      {highlight}
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <div className="md:col-start-1 md:row-start-1">
+                <h3
+                  data-timeline-heading
+                  className="max-w-[var(--rec-prose-measure)] text-[1.0625rem] leading-[1.35] font-medium text-[color:var(--rec-ink)]"
+                >
+                  {item.outcome}
+                </h3>
 
-              <div className="mt-5 flex flex-wrap items-baseline gap-x-6 gap-y-2">
-                {item.figure && (
-                  <p
-                    data-timeline-figure
-                    className="font-mono tnum text-[clamp(1.5rem,1.1rem+1.4vw,2.25rem)] leading-none tracking-[0.01em] text-[color:var(--rec-measure)]"
-                  >
-                    {item.figure.format(item.figure.value)}
-                  </p>
-                )}
-                <p className="data text-[color:var(--rec-ink-muted)]">{item.name}</p>
-                <p className="data text-[color:var(--rec-ink-muted)]">
-                  {item.status}
+                <p className="prose mt-2 text-[color:var(--rec-ink-muted)]">
+                  {item.description}
                 </p>
+
+                {item.highlights.length > 0 && (
+                  <ul className="mt-3 grid max-w-[var(--rec-prose-measure)] gap-y-1.5">
+                    {item.highlights.map((highlight) => (
+                      <li
+                        key={highlight}
+                        className="flex gap-3 text-[0.9375rem] leading-[1.5] text-[color:var(--rec-ink-muted)]"
+                      >
+                        <span
+                          aria-hidden="true"
+                          className="mt-[0.72em] h-px w-3 shrink-0 bg-[var(--rec-rule-strong)]"
+                        />
+                        {highlight}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                <div className="mt-5 flex flex-wrap items-baseline gap-x-6 gap-y-2">
+                  {item.figure && (
+                    <p
+                      data-timeline-figure
+                      className="font-mono tnum text-[clamp(1.5rem,1.1rem+1.4vw,2.25rem)] leading-none tracking-[0.01em] text-[color:var(--rec-measure)]"
+                    >
+                      {item.figure.format(item.figure.value)}
+                    </p>
+                  )}
+                  <p className="data text-[color:var(--rec-ink-muted)]">{item.name}</p>
+                  <p className="data text-[color:var(--rec-ink-muted)]">
+                    {item.status}
+                  </p>
+                </div>
               </div>
-            </div>
-          </li>
-        ))}
-      </ol>
+            </li>
+          ))}
+        </ol>
+      </div>
     </div>
   );
 }
