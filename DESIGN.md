@@ -21,7 +21,8 @@ file is a bug in one of them.
 ## 1. Art direction — "Recorder"
 
 A near-black instrument panel, film grain, mono readouts, hairline rules, one
-serif display face, and exactly one piece of theatre: the cover's load sequence.
+serif display face, a live flow field behind the cover, and exactly one piece of
+theatre: the cover's load sequence.
 
 - **One ground.** The page is dark, and only dark. There is no light block, no
   scheme branch and no theme switch. `color-scheme: dark` is declared on `:root`.
@@ -308,8 +309,10 @@ then fights.
 ## 8. Performance floor
 
 - Transform and opacity only. `will-change` is added and removed, never left on.
-- The canvas DPR is capped at 2, and it redraws on resize and during its one
-  sweep — there is no frame loop to pause.
+- The canvas DPR is capped at 2, and the plot redraws on resize and during its
+  one sweep. The hero's flow field is the only frame loop on the site: one
+  `IntersectionObserver` and `document.hidden` gate it, and it tiers itself down
+  (particles, then DPR) when its own 30-frame average passes 22 ms.
 - No runtime font request; latin subsets only; `font-display: swap`; the display
   cut is the single preload.
 - No images to decode, no third-party script, no runtime CSS-in-JS. The bundle
@@ -344,8 +347,11 @@ build size.
   theme demo, and a second palette doubles every contrast number for a reader who
   arrived to judge one page.
 - **No pins.** See §5.
-- **No WebGL, no shaders, no video.** The grain is one SVG filter; the only
-  canvas on the site draws a grid, three ticks and one sweep.
+- **No WebGL, no shaders, no video.** The grain is one SVG filter; the plot's
+  canvas draws a grid, three ticks and one sweep, and the cover's field is raw
+  2D canvas — short streaks, additive on the dark ground and plain ink at a third
+  of the alpha on paper, so the display type stays the loudest thing in both
+  themes.
 - **No fake screenshots.** No image of a dashboard that does not exist. The
   evidence is numbers, repository names and dates.
 - **No contact form.** A relay form is a third party, a key and a failure mode;
