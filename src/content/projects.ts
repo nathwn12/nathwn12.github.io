@@ -427,42 +427,21 @@ export const metaRepos: MetaRepo[] = [
   },
 ];
 
-/**
- * Retired work — history, never current work. `oc-todo` was archived on
- * 2026-10-21 and stays listed here so the record is complete without reading
- * as live. Typed plainly, not projected through ProjectSchema: that schema
- * describes live production entries (it demands a description, tech, stats,
- * and a PRODUCTION/SHIPPED status), and forcing an archived one-line record
- * through it would be model work for no validation gain.
- */
-export interface ArchivedProject {
-  name: string;
-  dir: string;
-  url: string;
-  year: string;
-  reason: string;
-}
-
-export const archived: ArchivedProject[] = [
-  {
-    name: "OC Todo",
-    dir: "oc-todo",
-    url: "https://github.com/nathwn12/oc-todo",
-    year: "2025",
-    reason:
-      "Archived 2026-10-21 — OpenCode 2.1 restored the built-in todowrite. See EOL.md.",
-  },
-];
+/* Archived, private and retired repositories are NOT listed here. The list is
+ * exactly what the live account publishes: public, non-archived. A repository
+ * that goes private or gets archived disappears from this page on the next
+ * probe, because `scripts/probe-repos.mjs --check` fails on the difference.
+ * History is not current work, and a dead link on a portfolio is a lie. */
 
 /** Route lede: selection criteria (public repos under the owner) and reading
     order (featured first). Never restates the title, and counts the projects
     the page actually renders. */
 export const projectsLede = `${cap(countWords(projects.length))} projects published under github.com/nathwn12 — featured work first, then the supporting tools, forks last.`;
 
-/** Route support line: what each band carries, and the two rules that keep it
-    honest (no star counts, retired work separated). */
+/** Route support line: what each band carries, and the rules that keep it
+    honest (no star counts, and only what the account publishes today). */
 export const projectsSupport =
-  "Each band pairs what the project does with the facts behind it: stack, role, and ship year. No star counts; retired work sits at the foot of the page.";
+  "Each band pairs what the project does with the facts behind it: stack, role, and ship year. No star counts, and only what the account publishes today.";
 
 /** Landing teaser lede: what the three rows are and where a title leads. */
 export const workTeaserLede =

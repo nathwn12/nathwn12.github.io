@@ -18,9 +18,9 @@
  *   bunx vitest run tests/project-inventory.test.ts
  */
 import { describe, expect, test } from "vitest";
+import { readFileSync } from "node:fs";
 import {
   allProjectsLabel,
-  archived,
   countWords,
   projects,
   projectsLede,
@@ -195,9 +195,28 @@ describe("project inventory is the current public work", () => {
     );
   });
 
-  test("retired work is not also listed as live", () => {
-    for (const entry of archived) {
-      expect(projects.some((project) => project.dir === entry.dir)).toBe(false);
+  test("lists only what the account publishes today", () => {
+    // Archived, private and retired repositories must not appear at all — not
+    // in the live list and not in a separate band. The probe file is the
+    // source of truth for what the account publishes.
+    const probe = JSON.parse(
+      readFileSync(new URL("../src/content/repos.probe.json", import.meta.url), "utf8"),
+    ) as { repos: { name: string; archived: boolean; private: boolean }[] };
+    const published = new Set(
+      probe.repos
+        .filter((repo) => !repo.archived && !repo.private)
+        .map((repo) => repo.name.toLowerCase()),
+    );
+
+    for (const project of projects) {
+      expect(published.has(project.dir.toLowerCase())).toBe(true);
     }
+
+    // Nothing that stopped being public may linger in the page's markup.
+    const source = readFileSync(
+      new URL("../src/components/Projects.tsx", import.meta.url),
+      "utf8",
+    );
+    expect(source).not.toMatch(/oc-todo/i);
   });
 });
