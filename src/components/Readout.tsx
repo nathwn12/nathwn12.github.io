@@ -1,49 +1,26 @@
 import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
-import { motionAllowed, revealRule } from "../lib/motion";
 
 /**
  * Readout — the two primitives every band on the record shares.
  *
- * `Seam` is the band boundary: one hairline, drawn in from its left edge the
- * first time it enters the viewport. It encodes structure (this band ends,
- * that one begins) and nothing else, so it is a rule and never a card edge.
- * The hidden state is set by the script rather than by CSS, which is what lets
- * a visitor with no JavaScript — or no motion — see a solid rule.
+ * `Seam` is the band boundary: one hairline, drawn from its left edge. It is
+ * static. It used to draw itself in the first time it entered the viewport —
+ * seven seams on the record, each a scroll-triggered entrance — and that is
+ * exactly the festival the owner asked to end: many small things animating as
+ * you scroll. The record's motion is now one scrubbed timeline per band (the
+ * instrument's bars, the four figures counting, the projects readout, the
+ * experience spine); the seam is structure and draws nothing.
  *
- * `useOnEnter` runs a callback once, the first time an element is seen. The
- * counters and the marquee both use it; nothing in this file loops.
+ * `useOnEnter` runs a callback once, the first time an element is seen. Nothing
+ * on the record uses it now; it stays because a one-shot observer is a small,
+ * honest utility, and the `revealLines` / `revealRule` primitives it pairs with
+ * are still the experience route's load sequence.
  */
 
 export function Seam() {
-  const ruleRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const rule = ruleRef.current;
-    if (!rule) return;
-    if (!motionAllowed()) return;
-    /* Held at zero until the seam is seen, so the draw is visible where the
-       visitor meets it rather than played out above the fold. */
-    gsap.set(rule, { scaleX: 0, transformOrigin: "left center" });
-    if (typeof IntersectionObserver !== "function") {
-      revealRule(rule);
-      return;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((entry) => entry.isIntersecting)) return;
-        observer.disconnect();
-        revealRule(rule);
-      },
-      { rootMargin: "0px 0px -6% 0px" },
-    );
-    observer.observe(rule);
-    return () => observer.disconnect();
-  }, []);
-
   return (
     <div className="frame" aria-hidden="true">
-      <div ref={ruleRef} className="rule rule--draw" />
+      <div className="rule" />
     </div>
   );
 }
