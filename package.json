@@ -15,7 +15,8 @@
     "test": "bun run build && vitest run",
     "check": "bun run typecheck && node scripts/contrast-audit.mjs && bun run test",
     "preview": "vite preview",
-    "preview:live": "node scripts/preview.mjs"
+    "preview:live": "node scripts/preview.mjs",
+    "probe:repos": "node scripts/probe-repos.mjs --check"
   },
   "dependencies": {
     "@gsap/react": "2.1.2",

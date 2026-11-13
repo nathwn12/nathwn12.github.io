@@ -1,55 +1,56 @@
 # nathwn12.github.io
 
-Terminal-themed single-page portfolio and resume site for nathwn12, Backend Developer (C#, ASP.NET Core, fintech systems), where you explore experience, skills, projects, and contact through a command terminal with keyboard navigation, in light and dark themes.
+The portfolio and record of Nathaniel Nikolai Ladero — software developer, C# and .NET
+backend, in production since 2023. A near-black instrument panel that states what was
+shipped and what it measurably did, with the receipts in the DOM: payment latency
+60 s → under one second, reads down 40 %+, zero high or critical findings, 1,182 commits
+recovered from 21 scanned repositories.
 
-## Install
+Live at **https://nathwn12.github.io**.
 
-Prerequisites: Node.js >= 20.11 and bun 1.4.4.
+## Run it
+
+Prerequisites: Node 20.19+ and bun 1.4.4.
 
 ```powershell
 git clone https://github.com/nathwn12/nathwn12.github.io.git
 cd nathwn12.github.io
 bun install --frozen-lockfile
-bun run dev
+bun run preview:live
+```
+
+`preview:live` is the one to use while editing: a long-lived Vite server on
+`http://127.0.0.1:5277` with the HMR overlay off, so a half-written save shows the last
+good render instead of a red screen. It logs every module it pushes and writes
+`preview-status.json`.
+
+## Check it
+
+```powershell
 bun run check
-bun run build
 ```
 
-`bun run build` runs `vite build`, copies `Nathaniel-Nikolai-Ladero-Resume.pdf`, `Nathaniel-Nikolai-Ladero-CV.pdf`, and `404.html` into `dist/`, and prerenders routes. Publishing runs through `.github/workflows/deploy.yml`: on push to `main` the build job installs, builds, and uploads `dist` as a Pages artifact, and the deploy job publishes it via `actions/deploy-pages` to the `github-pages` environment. No branch is published directly and no manual command deploys it.
+Typecheck, then the contrast audit (28 pairs across both themes, exit 1 on any failure),
+then the build and 367 tests. `bun run build` runs `vite build`, copies the résumé and CV
+PDFs plus `404.html` into `dist/`, and prerenders each route to its own HTML file with its
+own canonical and Open Graph tags.
 
-## Development
+`bun run probe:repos` re-reads the GitHub account and fails when the project list in
+`src/content/projects.ts` no longer matches what is actually published — private and
+archived repositories are excluded by definition, so the page cannot advertise a dead link.
 
-```powershell
-bun run typecheck
-bun run test
-```
+## Deploy it
 
-`bun run check` runs the typecheck and the test (which builds first, then runs vitest).
+Push to `main`. `.github/workflows/deploy.yml` installs with a frozen lockfile, builds, and
+publishes `dist` through `actions/deploy-pages` to the `github-pages` environment. Nothing
+is published from a branch, and no manual command deploys it.
 
-## Updating from npm or pnpm
+## Stack
 
-This repo uses [Bun](https://bun.sh) to install dependencies and run scripts; Node still runs the code.
+React 19 · TypeScript 7 · Vite 8 · Tailwind CSS 4 (CSS-first) · GSAP 3.15 + Lenis ·
+self-hosted Instrument Serif, Archivo and JetBrains Mono · Vitest 4 · bun.
 
-```powershell
-# once, if bun is missing
-scoop install bun        # or: npm i -g bun / winget install Oven-sh.Bun
+## Design
 
-# in the repo
-Remove-Item package-lock.json,pnpm-lock.yaml -ErrorAction SilentlyContinue
-Remove-Item node_modules -Recurse -Force -ErrorAction SilentlyContinue
-bun install
-```
-
-Use `bun run <script>` from then on. Commit `bun.lock` and never recreate the old lockfile; the repo pins `"packageManager": "bun@1.4.4"`.
-
-## Status
-
-Experimental and still moving. It works today, but it is not a finished
-product: interfaces may change, features may be improved or removed, and a
-release can break the one before it. This is maintained by one person, not a
-team. If it breaks, open an issue with the command you ran and what you saw.
-
-## Links
-
-- [Live site](https://nathwn12.github.io)
-- [MIT](LICENSE)
+`DESIGN.md` is the spec as it ships — palette with measured contrast, type scale, motion
+rules, and the eyeball mandate that governs every visual claim.

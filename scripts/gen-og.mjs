@@ -74,37 +74,37 @@ const LIGHT_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="
   <text x="1120" y="592" font-size="18" font-weight="600" text-anchor="end" fill="#0a5c60">Email me</text>
 </svg>`;
 
-/* The dark card: the full name, the approved claim, and the one figure that
-   carries the record — the worst-case payment query after the provider change.
-   The bar encodes the same 60:1 comparison the first screen's panel does: the
-   accent sliver against a 60-second track. */
+/* The dark card: the identity line, the stack, and the one figure that carries
+   the record — the worst-case payment query after the provider change. The bar
+   encodes the same 60:1 comparison the cover's panel does: the accent sliver
+   against a 60-second track. Colours come from tokens.css, so a palette edit
+   flows into the card on the next run. */
 const DARK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif">
   <rect width="1200" height="630" fill="${dark["--rec-ground"]}"/>
   <rect x="80" y="64" width="1040" height="4" fill="${dark["--rec-ink"]}"/>
 
   <text x="80" y="142" font-size="22" font-weight="400" fill="${dark["--rec-ink-muted"]}">Nathaniel Nikolai Ladero</text>
 
-  <text x="80" y="250" font-size="52" font-weight="700" letter-spacing="-2" fill="${dark["--rec-ink"]}">Backend developer for</text>
-  <text x="80" y="312" font-size="52" font-weight="700" letter-spacing="-2" fill="${dark["--rec-ink"]}">payment and cash-management</text>
-  <text x="80" y="374" font-size="52" font-weight="700" letter-spacing="-2" fill="${dark["--rec-ink"]}">systems that ran in production</text>
+  <text x="80" y="250" font-size="56" font-weight="700" letter-spacing="-2" fill="${dark["--rec-ink"]}">Software developer.</text>
+  <text x="80" y="316" font-size="56" font-weight="700" letter-spacing="-2" fill="${dark["--rec-ink"]}">C# and .NET,</text>
+  <text x="80" y="382" font-size="56" font-weight="700" letter-spacing="-2" fill="${dark["--rec-ink"]}">in production since 2023.</text>
 
-  <text x="80" y="414" font-size="19" font-weight="400" fill="${dark["--rec-ink-muted"]}">…and the author of eleven open-source developer tools.</text>
+  <text x="80" y="424" font-size="19" font-weight="400" fill="${dark["--rec-ink-muted"]}">Payment, cash-management and access-control systems — and thirteen open-source tools.</text>
 
-  <rect x="80" y="446" width="1040" height="18" fill="${dark["--rec-panel-2"]}"/>
-  <rect x="80" y="446" width="17" height="18" fill="${dark["--rec-measure"]}"/>
+  <rect x="80" y="452" width="1040" height="18" fill="${dark["--rec-panel-2"]}"/>
+  <rect x="80" y="452" width="17" height="18" fill="${dark["--rec-measure"]}"/>
 
-  <text x="80" y="488" font-size="15" font-weight="400" fill="${dark["--rec-ink-muted"]}">0 s</text>
-  <text x="1120" y="488" font-size="15" font-weight="400" text-anchor="end" fill="${dark["--rec-ink-muted"]}">60 s</text>
+  <text x="80" y="494" font-size="15" font-weight="400" fill="${dark["--rec-ink-muted"]}">0 s</text>
+  <text x="1120" y="494" font-size="15" font-weight="400" text-anchor="end" fill="${dark["--rec-ink-muted"]}">60 s</text>
 
-  <text x="80" y="530" font-size="20" font-weight="400" fill="${dark["--rec-ink-muted"]}">Worst-case payment query, after the provider change</text>
-  <text x="1120" y="538" font-size="42" font-weight="700" text-anchor="end" fill="${dark["--rec-measure"]}">&lt;1 s</text>
+  <text x="80" y="536" font-size="20" font-weight="400" fill="${dark["--rec-ink-muted"]}">Worst-case payment query, after the provider change</text>
+  <text x="1120" y="544" font-size="42" font-weight="700" text-anchor="end" fill="${dark["--rec-measure"]}">&lt;1 s</text>
 
   <text x="80" y="592" font-size="18" font-weight="400" fill="${dark["--rec-ink-muted"]}">nathwn12.github.io</text>
   <text x="1120" y="592" font-size="18" font-weight="600" text-anchor="end" fill="${dark["--rec-signal"]}">Email me</text>
 </svg>`;
 
 const cards = [
-  ["og-image-2026-10.png", LIGHT_SVG],
   ["og-image-2026-11-13.png", DARK_SVG],
 ];
 
