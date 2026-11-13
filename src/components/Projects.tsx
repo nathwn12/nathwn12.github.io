@@ -5,6 +5,7 @@ import {
 } from "../content/projects";
 import { CONTACT_CTA } from "../content/ledger";
 import { RouteLink, SectionLink } from "../lib/router";
+import { ProjectReadout } from "./ProjectReadout";
 
 /**
  * Projects — the open-source ledger, featured work first.
@@ -68,18 +69,25 @@ export default function Projects() {
             Repositories
           </h2>
 
-          <ol className="border-b border-[color:var(--rec-rule)]">
-            {projects.map((project, index) => {
-              const isFork = project.role.startsWith("Fork of ");
-              const upstream = isFork
-                ? project.role.slice("Fork of ".length)
-                : null;
+          {/* One scrubbed readout on the left, the rows on the right: the band
+              reads as a single movement tied to scroll instead of thirteen rows
+              each announcing themselves. */}
+          <div className="lg:grid lg:grid-cols-[minmax(0,15rem)_minmax(0,1fr)] lg:gap-x-12">
+            <ProjectReadout projects={projects} />
 
-              return (
-                <li
-                  key={project.id}
-                  className="group border-t border-[color:var(--rec-rule)] transition-colors duration-[140ms] hover:border-[color:var(--rec-rule-strong)] focus-within:border-[color:var(--rec-rule-strong)]"
-                >
+            <ol data-project-list className="border-b border-[color:var(--rec-rule)]">
+              {projects.map((project, index) => {
+                const isFork = project.role.startsWith("Fork of ");
+                const upstream = isFork
+                  ? project.role.slice("Fork of ".length)
+                  : null;
+
+                return (
+                  <li
+                    key={project.id}
+                    data-project-row
+                    className="group border-t border-[color:var(--rec-rule)] transition-colors duration-[140ms] hover:border-[color:var(--rec-rule-strong)] focus-within:border-[color:var(--rec-rule-strong)]"
+                  >
                   <div className="grid gap-y-3 py-6 md:grid-cols-[2.25rem_minmax(0,1fr)_5.5rem] md:gap-x-8 md:py-7">
                     {/* Narrow: the index and the year share one mono line above
                         the name, and the wrapper dissolves into the row grid on
@@ -136,7 +144,8 @@ export default function Projects() {
                 </li>
               );
             })}
-          </ol>
+            </ol>
+          </div>
 
           <div className="mt-12 flex flex-wrap items-center gap-x-7 gap-y-2 border-t border-[color:var(--rec-rule)] pt-8">
             <SectionLink section="contact" className="button">
