@@ -7,3 +7,4 @@ dist/
 AGENTS.md
 .playwright-mcp/
 .stitch/
+preview-status.json
