@@ -44,8 +44,8 @@
    bar instead of a full band's distance below it. */
 @media (min-width: 900px) {
   .band--first {
-    padding-top: 3rem;
-    padding-bottom: 3rem;
+    padding-top: 2rem;
+    padding-bottom: 2rem;
   }
 }
 

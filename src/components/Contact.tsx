@@ -101,7 +101,7 @@ export function Contact() {
         <div className="frame">
           <h2
             id="contact-heading"
-            className="max-w-[20ch] font-display text-[length:clamp(2.25rem,1.2rem+3.6vw,4.75rem)] leading-[0.96] font-normal! tracking-[-0.02em]! text-[color:var(--rec-ink)]"
+            className="max-w-[20ch] font-display text-[length:clamp(2rem,1.2rem+2.8vw,3.75rem)] leading-[0.96] font-normal! tracking-[-0.02em]! text-[color:var(--rec-ink)]"
           >
             Tell me what has to hold up.
           </h2>
@@ -110,7 +110,7 @@ export function Contact() {
             {contactBlock.line}
           </p>
 
-          <p className="mt-10">
+          <p className="mt-6">
             <a
               ref={addressRef}
               href={MAILTO_HREF}

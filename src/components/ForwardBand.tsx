@@ -38,11 +38,11 @@ export function ForwardBand() {
             </p>
           </div>
 
-          <ul className="mt-8 border-t border-[color:var(--rec-rule)]">
+          <ul className="mt-6 grid gap-x-10 border-t border-[color:var(--rec-rule)] md:grid-cols-2">
             {forward.map((item) => (
               <li
                 key={item.id}
-                className="grid gap-x-8 gap-y-2 border-b border-[color:var(--rec-rule)] py-5 last:border-b-0 md:grid-cols-[7rem_minmax(0,1fr)]"
+                className="grid gap-x-6 gap-y-1 border-b border-[color:var(--rec-rule)] py-3 md:grid-cols-[5.5rem_minmax(0,1fr)]"
               >
                 <p className="data data--sm pt-1 text-[color:var(--rec-signal)]">
                   {item.section}
@@ -54,7 +54,7 @@ export function ForwardBand() {
                   <p className="mt-1 max-w-[var(--rec-prose-measure)] text-[color:var(--rec-ink-muted)]">
                     {item.body}
                   </p>
-                  <p className="data data--sm mt-3 text-[color:var(--rec-ink-muted)]">
+                  <p className="data data--sm mt-2 text-[color:var(--rec-ink-muted)]">
                     {item.tech.join(", ")}
                   </p>
                 </div>

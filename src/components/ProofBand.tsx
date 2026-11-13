@@ -120,7 +120,7 @@ export function ProofBand() {
           <ul
             ref={listRef}
             data-proof-scrub
-            className="mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4"
+            className="mt-6 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4"
           >
             {proofRows.map((row) => (
               <li
@@ -143,7 +143,7 @@ export function ProofBand() {
             ))}
           </ul>
 
-          <div className="mt-8">
+          <div className="mt-6">
             <RouteLink
               href="/experience"
               className="data inline-flex min-h-11 items-center border-b border-[color:var(--rec-rule-strong)] text-[color:var(--rec-signal)] transition-[color,border-color] duration-150 hover:border-[color:var(--rec-signal)]"

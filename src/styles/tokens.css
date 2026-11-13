@@ -108,9 +108,11 @@
      content and the seam that closes it. One step, and the same step at every
      seam, so the record reads as one measured column instead of a stack of
      slides with gaps between them. (--rec-band is the section-banded pages'
-     air and is deliberately larger; the home record does not use it.) */
-  --rec-rhythm: var(--rec-space-6);
-  --rec-rhythm-lg: var(--rec-space-7);
+     air and is deliberately larger; the home record does not use it.) The
+     record is a few scrolls, not a festival: 24px between bands, 20px at a
+     phone width, and every band inherits it from here. */
+  --rec-rhythm: var(--rec-space-5);
+  --rec-rhythm-lg: var(--rec-space-5);
 
   /* --- STRUCTURE -------------------------------------------------------- */
   --rec-rule-w: 1px;

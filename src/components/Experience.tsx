@@ -109,11 +109,11 @@ export function Experience() {
               <h1
                 ref={titleRef}
                 id="experience-heading"
-                className="font-display text-[clamp(2.75rem,1.4rem+5.4vw,6.5rem)] leading-[0.9] tracking-[-0.02em]"
+                className="font-display text-[clamp(2.5rem,1.4rem+4.4vw,5.5rem)] leading-[0.9] tracking-[-0.02em]"
               >
                 Experience
               </h1>
-              <p className="lede mt-6 max-w-[46ch] text-[color:var(--rec-ink-muted)]">
+              <p className="lede mt-4 max-w-[46ch] text-[color:var(--rec-ink-muted)]">
                 {experienceLede}
               </p>
             </div>
@@ -125,7 +125,7 @@ export function Experience() {
             <div className="lg:col-span-3 lg:col-start-10">
               <div
                 data-tenure-span
-                className="grid gap-y-5 border-t border-[color:var(--rec-rule)] pt-4"
+                  className="grid gap-y-2 border-t border-[color:var(--rec-rule)] pt-4"
               >
                 <div className="grid gap-y-1">
                   <p className="data text-[color:var(--rec-ink-muted)]">Tenure</p>
@@ -148,12 +148,12 @@ export function Experience() {
             </div>
           </div>
 
-          <span ref={seamRef} aria-hidden="true" className="rule rule--draw mt-10 lg:mt-12" />
+          <span ref={seamRef} aria-hidden="true" className="rule rule--draw mt-4 lg:mt-5" />
 
           {/* The commit ledger: why the page exists, above the list it proves.
               The seam above is the strip's top rule; this block closes on its
               own bottom rule, so the strip never draws two rules 1px apart. */}
-          <div className="grid grid-cols-2 gap-x-8 gap-y-8 border-b border-[color:var(--rec-rule)] py-7 md:grid-cols-[repeat(2,auto)_minmax(0,1fr)] md:gap-x-12 md:items-baseline">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-6 border-b border-[color:var(--rec-rule)] py-3 md:grid-cols-[repeat(2,auto)_minmax(0,1fr)] md:gap-x-12 md:items-baseline">
             {commits !== null && (
               <TimelineReadout value={commits} format={grouped} label="commits" />
             )}
@@ -179,17 +179,17 @@ export function Experience() {
           >
             Selected contributions
           </h2>
-          <p className="prose mt-3 text-[color:var(--rec-ink-muted)]">
+          <p className="prose mt-1.5 text-[color:var(--rec-ink-muted)]">
             {experience.length} dated records, newest first — a selection, not an
             exhaustive log. The latest is {latestRecordDate}; the tenure ran to{" "}
             {tenureEnd}.
           </p>
 
-          <div className="mt-10 lg:mt-12">
+          <div className="mt-5 lg:mt-6">
             <Timeline items={items} />
           </div>
 
-          <div className="mt-12 flex flex-wrap items-center gap-x-7 gap-y-2 border-t border-[color:var(--rec-rule)] pt-8">
+          <div className="mt-5 flex flex-wrap items-center gap-x-7 gap-y-2 border-t border-[color:var(--rec-rule)] pt-4">
             <SectionLink section="contact" className="button">
               {CONTACT_CTA}
             </SectionLink>
