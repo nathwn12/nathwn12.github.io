@@ -53,7 +53,7 @@ export function AiPractice() {
             </ul>
           </div>
 
-          <p className="mt-4 max-w-[62ch] text-[length:var(--rec-text-lead)] leading-[var(--rec-leading-lead)] text-[color:var(--rec-ink)]">
+          <p className="mt-4 max-w-[var(--rec-prose-measure)] text-[length:var(--rec-text-lead)] leading-[var(--rec-leading-lead)] text-[color:var(--rec-ink)]">
             {aiPractice.sentences.join(" ")}
           </p>
         </div>

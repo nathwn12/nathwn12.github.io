@@ -1,5 +1,4 @@
 import { ExperienceSchema } from "../types/models";
-import { countWords } from "./projects";
 
 /**
  * Content module: Experience section data, moved verbatim out of
@@ -208,8 +207,9 @@ export const experience: ExperienceEntry[] = [
     id: "01",
     name: "Fintech platform services",
     date: "April 2023",
-    status: "Delivered across 17 repositories",
-    outcome: "Shipped 1,182 commits across 17 repositories.",
+    status: "Delivered",
+    outcome:
+      "Shipped the fintech platform's services across the company's repositories from 2023 to 2026.",
     description:
       "Built ASP.NET Web APIs, gRPC endpoints, SignalR hubs, and RabbitMQ messaging for fintech products spanning payments, cash management, and access control. Configured Serilog for centralized structured logging across environments.",
     highlights: [
@@ -242,9 +242,10 @@ export const tenureSpan = employer.period.replace(" to ", " – ");
     last dated entry read as the end of employment. */
 export const latestRecordDate = experience[0]?.date ?? "";
 
-/** Route lede: tenure, count in words, reading order (newest first), and what
-    each entry carries - never a restatement of the title. */
-export const experienceLede = `Three years building and running fintech systems in production — ${countWords(experience.length)} entries, newest first, each pairing its outcome with the moves behind it.`;
+/** Route lede: the shape of each entry, not the count (the list states its own
+    count and order) and not the tenure (the block above owns the span). */
+export const experienceLede =
+  "Every entry pairs its outcome with the moves behind it.";
 
 /** Landing marginalia: the credibility of the figures, not a repeat of the
     reading order or the tenure already stated above. */

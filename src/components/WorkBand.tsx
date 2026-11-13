@@ -69,7 +69,7 @@ export function WorkBand() {
               All projects
             </RouteLink>
           </div>
-          <p className="mt-4 max-w-[62ch] text-[color:var(--rec-ink-muted)]">
+          <p className="mt-4 max-w-[var(--rec-prose-measure)] text-[color:var(--rec-ink-muted)]">
             {workLede}
           </p>
 

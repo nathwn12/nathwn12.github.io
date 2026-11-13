@@ -1,4 +1,3 @@
-import { type RefObject } from "react";
 import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import { SplitText } from "gsap/SplitText";
@@ -122,7 +121,7 @@ export interface RevealOptions {
  * spans behind.
  *
  * Paragraphs are never split: line masks on running copy make a paragraph feel
- * like a title sequence. Body copy reveals with {@link useReveal}.
+ * like a title sequence. Body copy is static and reads at its measure.
  */
 export function revealLines(
   el: HTMLElement | null | undefined,
@@ -230,44 +229,4 @@ export function countUp(
     },
   });
   return { revert: () => tween.kill() };
-}
-
-/**
- * Reveal a block once, the first time it enters the viewport.
- *
- * The element is measured, not assumed: it fades and lifts 14px on the house
- * ease, and with motion off (or a reduced preference) it is left exactly as it
- * is — the final state is the resting state. `useGSAP` scopes the tween and
- * reverts it on unmount, so a route change leaves nothing running.
- */
-export function useReveal(
-  ref: RefObject<HTMLElement | null>,
-  options: { delay?: number; y?: number } = {},
-): void {
-  useGSAP(
-    () => {
-      const el = ref.current;
-      if (!el) return;
-      if (!motionAllowed()) return;
-
-      gsap.set(el, { opacity: 0, y: options.y ?? 14 });
-      const observer = new IntersectionObserver(
-        (entries) => {
-          if (!entries.some((entry) => entry.isIntersecting)) return;
-          observer.disconnect();
-          gsap.to(el, {
-            opacity: 1,
-            y: 0,
-            duration: 0.6,
-            ease: "power2.out",
-            delay: options.delay ?? 0,
-          });
-        },
-        { rootMargin: "0px 0px -8% 0px" },
-      );
-      observer.observe(el);
-      return () => observer.disconnect();
-    },
-    { scope: ref, dependencies: [] },
-  );
 }

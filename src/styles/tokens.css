@@ -62,7 +62,11 @@
   --rec-leading-body: 1.6;
   --rec-text-lead: clamp(1.0625rem, 1rem + 0.4vw, 1.3125rem);
   --rec-leading-lead: 1.45;
-  --rec-prose-measure: 62ch;
+  /* 56ch of Archivo is ~70 average characters per line: `ch` is the advance of
+     "0", which is wider than the lowercase the measure actually carries, so the
+     old 62ch landed at ~84 characters and read as a magazine column. Every
+     prose block asks for this token, never a literal. */
+  --rec-prose-measure: 56ch;
 
   /* Data: JetBrains Mono, 11–13px, tracked open. Numbers, units, repo names,
      timestamps, keycaps — true data only, never an eyebrow over a heading. */
