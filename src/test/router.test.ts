@@ -50,7 +50,7 @@ describe("router", () => {
         .querySelector('meta[name="description"]')
         ?.getAttribute("content"),
     ).toBe(
-      "Backend developer for payment and cash-management systems that ran in production — and the author of thirteen open-source developer tools.",
+      "Software developer in the Philippines, building C# and .NET payment, cash management and access control systems in production since 2023, and current in AI-assisted development with local models.",
     );
     expect(
       document

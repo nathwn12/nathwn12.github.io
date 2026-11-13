@@ -1,24 +1,21 @@
 /**
- * Content module: Hero — the landing page's two authored claims.
+ * Content module: Hero — the page's opening claim and its availability line.
  *
- * Owns the opening claim (the static h1 hook) and the one prose line naming
- * the stack the career was built on. Every other claim on this site already
- * lives in src/content/*.ts; this module gives these two the same single
- * home so copy can be corrected without touching a component.
+ * Owns the sentence the record band opens on, and the one line that says what
+ * kind of work is wanted. The identity itself (the three display lines and the
+ * standfirst) lives in src/content/ledger.ts with the rest of the home copy.
  *
  * Validation choice: a plain typed export with no module-load check. The
  * other content modules validate at load because they project domain records
- * against zod models; these are two fixed copy strings with no shared domain
+ * against zod models; these are fixed copy strings with no shared domain
  * primitive, so a schema would add ceremony without a mismatch it could catch.
  */
 
-/** The fixed opening hook — leads every visit, static default. */
-export const heroClaim: string =
+/** The record band's opening sentence. It was the cover's headline; it is a
+ *  sentence now, and the payment figure underneath it is what backs it. */
+export const recordOpener: string =
   "Payment backends that hold up under production load.";
 
-/** The one prose line naming the systems the stack carried. */
-export const coreStack: string =
-  "C# and ASP.NET services for payments, cash management, and access control.";
-
-/** The availability status line shown directly under the contact CTA. */
-export const availability: string = "Open to backend roles — remote.";
+/** The availability status line shown on the cover. */
+export const availability: string =
+  "Open to software engineering roles — remote.";

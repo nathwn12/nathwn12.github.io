@@ -3,40 +3,43 @@ import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
 import {
   CONTACT_CTA,
-  contractLine,
+  locatedIn,
   measurement,
   standfirst,
-  stackLine,
   statusLine,
 } from "../content/ledger";
-import { employer } from "../content/experience";
+import { employer, tenureSpan } from "../content/experience";
 import { SectionLink, RouteLink } from "../lib/router";
 import { motionAllowed } from "../lib/motion";
 import { LatencyInstrument } from "./LatencyInstrument";
 
 /**
- * FirstScreen — the record's cover: a claim, and the instrument that proves it.
+ * FirstScreen — the cover: who this is, then the instrument that proves it.
+ *
+ * The page opens on identity, not on a claim. Three display lines state the
+ * role, the platform and the record's one date fact; the standfirst names the
+ * employer once and what the work was; the fact row states the span, the mode
+ * and the country as three hairline-separated cells. The four numbers the work
+ * measured are the next band's job — a cover that opens on figures makes a
+ * reader do the arithmetic before they know whose figures they are.
  *
  * Three parts, one orchestration:
- *   1. The claim is hand-set on three lines and masked up line by line. The
- *      line breaks are structure, not styling: "Payment backends / that hold up
- *      under / production load." is how the sentence is meant to be read. All
- *      three lines start on the frame's own left edge — the block is measured,
- *      not bled: one line hanging 112px outside its siblings is a crop, not a
- *      decision, and the P lost five pixels of stem to prove it.
- *   2. The standfirst, the stack and the availability line — the only running
- *      copy above the fold, all of it content strings.
+ *   1. The display lines are hand-set and masked up line by line. The breaks
+ *      are structure, not styling. All three lines start on the frame's own
+ *      left edge — the block is measured, not bled: one line hanging 112px
+ *      outside its siblings is a crop, not a decision.
+ *   2. The standfirst, the fact row and the availability line — the only
+ *      running copy above the fold, all of it content strings.
  *   3. The instrument: the payment query before and after the provider change,
- *      with every number in the DOM (see LatencyInstrument).
+ *      scrubbed by scroll, with every number in the DOM (see LatencyInstrument).
  *
  * The two columns close on one line: the actions sit on the left column's
  * bottom edge, which is the instrument's bottom edge, so the seam below the
  * cover measures one block rather than two ragged ones.
  *
  * The whole sequence runs once per session and lasts about 1.4 s: display lines
- * mask up, then the copy and the actions fade in on a 60 ms stagger, then the
- * instrument boots. Nothing else on the page auto-plays, so this is the one
- * loud moment and the rest of the record stays quiet around it.
+ * mask up, then the copy and the actions fade in on a 60 ms stagger. Nothing
+ * else on the page auto-plays, so this is the one loud moment.
  *
  * With motion off — the OS preference or the footer's switch — the resting
  * state IS the final state: no masks, no fades, no counting. Nothing is hidden
@@ -45,7 +48,11 @@ import { LatencyInstrument } from "./LatencyInstrument";
  */
 
 /** Lines in the order they are read, not in the order they fit. */
-const CLAIM_LINES = ["Payment backends", "that hold up under", "production load."];
+const IDENTITY_LINES = [
+  "Software developer.",
+  "C# and .NET,",
+  "in production since 2023.",
+];
 
 /**
  * Once per session, not once per mount: a route change back to the record
@@ -55,6 +62,10 @@ const CLAIM_LINES = ["Payment backends", "that hold up under", "production load.
  * animation at all on the second run.
  */
 let coverPlayed = false;
+
+/** The three facts under the standfirst. The span is read off the employment
+ *  record's own period string, so the hero cannot drift from `/experience`. */
+const FACTS = [tenureSpan, employer.location, locatedIn];
 
 export function FirstScreen() {
   const coverRef = useRef<HTMLElement>(null);
@@ -81,7 +92,7 @@ export function FirstScreen() {
       );
 
       /* 60 ms apart, after the second line has started to land: the copy reads
-         as following the claim rather than racing it. */
+         as following the identity rather than racing it. */
       sequence.from(
         fades,
         {
@@ -107,9 +118,9 @@ export function FirstScreen() {
       <div className="frame">
         <h1
           id="claim-heading"
-          className="font-display text-[length:clamp(3rem,9.5vw,11rem)] leading-[0.87] font-normal! tracking-[-0.02em]! text-[color:var(--rec-ink)]"
+          className="font-display text-[length:clamp(2.6rem,9.5vw,11rem)] leading-[0.87] font-normal! tracking-[-0.02em]! text-[color:var(--rec-ink)]"
         >
-          {CLAIM_LINES.map((line) => (
+          {IDENTITY_LINES.map((line) => (
             <span
               key={line}
               /* Every line shares the frame's left edge. The display size is
@@ -134,32 +145,27 @@ export function FirstScreen() {
               {standfirst}
             </p>
 
-            <p
+            {/* Three facts, separated by rules rather than by a meta string.
+                The span is a closed range that matches the employment record —
+                the company made it to May 2026 — so nothing here can read as a
+                current role, and no duration is spelled out in words. */}
+            <ul
               data-cover-fade
-              className="mt-4 max-w-[62ch] text-[color:var(--rec-ink-muted)]"
+              className="data data--sm mt-5 grid gap-y-2 border-t border-[color:var(--rec-rule)] pt-3 text-[color:var(--rec-ink-muted)] sm:grid-cols-3 sm:gap-x-5 sm:gap-y-0"
             >
-              {stackLine}
-            </p>
-
-            {/* The employment, stated in the past tense with the period it
-                covers: the record must never read as a current role. Three
-                facts, separated by rules rather than by a meta string. */}
-            <p
-              data-cover-fade
-              className="data data--sm mt-4 flex flex-col gap-y-1 text-[color:var(--rec-ink-muted)] sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-x-4"
-            >
-              <span>{contractLine}</span>
-              <span
-                aria-hidden="true"
-                className="hidden h-3 w-px bg-[color:var(--rec-rule-strong)] sm:inline-block"
-              />
-              <span>{employer.location}</span>
-              <span
-                aria-hidden="true"
-                className="hidden h-3 w-px bg-[color:var(--rec-rule-strong)] sm:inline-block"
-              />
-              <span>{employer.period}</span>
-            </p>
+              {FACTS.map((fact, index) => (
+                <li
+                  key={fact}
+                  className={
+                    index === 0
+                      ? ""
+                      : "sm:border-l sm:border-[color:var(--rec-rule)] sm:pl-5"
+                  }
+                >
+                  {fact}
+                </li>
+              ))}
+            </ul>
 
             <p
               data-cover-fade

@@ -23,7 +23,7 @@ const root = resolve(import.meta.dirname, "..");
 const read = (rel: string) => readFileSync(resolve(root, rel), "utf8");
 
 describe("the availability sentence", () => {
-  const EXPECTED = "Open to backend roles \u2014 remote.";
+  const EXPECTED = "Open to software engineering roles \u2014 remote.";
 
   test("is the confirmed string, with an em dash", () => {
     expect(availability).toBe(EXPECTED);
@@ -119,13 +119,24 @@ describe("the figures", () => {
   });
 
   test("the four proof rows state only derived figures", () => {
+    /* The record band's four outcomes, in reading order: the payment reduction
+       first because the opener sentence is backed by it. Every figure is parsed
+       from the record — none is typed into the band. */
     expect(proofRows).toHaveLength(4);
     expect(proofRows.map((row) => row.figure)).toEqual([
-      "over 40%",
+      "−98%",
+      "−40%+",
       "0",
       "1,182",
-      "3 yrs 2 mos",
     ]);
+    /* The band states outcomes, not biography: the closure and the recovery
+       that produced the commit count are the experience route's to state. */
+    const bandCopy = proofRows
+      .flatMap((row) => [row.claim, row.detail])
+      .join(" ");
+    expect(bandCopy).not.toContain("Xentra");
+    expect(bandCopy).not.toContain("scanned");
+    expect(bandCopy).not.toContain("closed");
   });
 });
 

@@ -10,9 +10,10 @@
  * canonical instead of all pointing at `/`.
  *
  * The redesign cut five routes to two detail routes plus the record: the home
- * page is one continuous document (identity, proof, work, atlas, forward,
- * credentials, contact), and `/experience` and `/projects` carry the long-form
- * material that would have made that record too tall.
+ * page is one continuous document (identity, the record, AI practice, public
+ * work, the atlas, forward, credentials, contact), and `/experience` and
+ * `/projects` carry the long-form material that would have made that record
+ * too tall.
  *
  * What the old site published but no longer warrants a page lives in
  * {@link RETIRED_ROUTES}: `/skills` and `/contact` are bands of the record now,
@@ -47,7 +48,7 @@ const FULL_NAME = "Nathaniel Nikolai Ladero";
 /** index.html default meta content — kept verbatim for home-route parity.
    Keep in sync with index.html's <head> if either is edited. */
 export const HOME_META_DESCRIPTION =
-  "Backend developer for payment and cash-management systems that ran in production — and the author of thirteen open-source developer tools.";
+  "Software developer in the Philippines, building C# and .NET payment, cash management and access control systems in production since 2023, and current in AI-assisted development with local models.";
 export const HOME_OG_DESCRIPTION = HOME_META_DESCRIPTION;
 
 export const ROUTES: readonly RouteDef[] = [
@@ -56,7 +57,7 @@ export const ROUTES: readonly RouteDef[] = [
     id: "record",
     label: "RECORD",
     metaDescription: HOME_META_DESCRIPTION,
-    title: `The record — ${FULL_NAME}`,
+    title: `${FULL_NAME} — software developer, C# and .NET`,
   },
   {
     path: "/experience",

@@ -39,12 +39,6 @@ import {
 
 const root = resolve(import.meta.dirname, "..");
 
-/** The strip's readouts, in reading order. */
-const stripReadouts = (scope: ParentNode): string[] =>
-  [...scope.querySelectorAll("dd")].map((cell) =>
-    (cell.textContent ?? "").trim(),
-  );
-
 const sentences = (text: string): string[] =>
   text
     .replace(/\s+/g, " ")
@@ -194,25 +188,25 @@ describe("the rendered record", () => {
     host?.remove();
   });
 
-  test("exactly one h1, and the identity is carried by the mark and the imprint", () => {
-    /* The display block is the claim, not the name: a hero set in the person's
-       own name is a business card, and the record opens on what it can prove.
-       The identity still has to be present and findable — it is the header
-       mark's accessible name and the colophon's imprint, both on every route. */
+  test("exactly one h1, and the identity is carried by the display block and the imprint", () => {
+    /* The display block is the identity, not a claim: three hand-set lines that
+       say who this is, on what platform, and since when. The record's figures
+       are the next band's job. The name still has to be present and findable —
+       it is the header mark's accessible name and the colophon's imprint, both
+       on every route. */
     const h1s = host.querySelectorAll("h1");
     expect(h1s).toHaveLength(1);
-    /* The claim is set as three hand-broken lines; the break is structure, so
-       the lines are asserted as lines and then as the one sentence. */
+    /* The lines are asserted as lines and then as the one statement. */
     const lines = [...h1s[0].querySelectorAll("[data-cover-line]")].map((node) =>
       (node.textContent ?? "").trim(),
     );
     expect(lines).toEqual([
-      "Payment backends",
-      "that hold up under",
-      "production load.",
+      "Software developer.",
+      "C# and .NET,",
+      "in production since 2023.",
     ]);
     expect(lines.join(" ")).toBe(
-      "Payment backends that hold up under production load.",
+      "Software developer. C# and .NET, in production since 2023.",
     );
 
     const header = renderToStaticMarkup(createElement(Header));
@@ -226,16 +220,18 @@ describe("the rendered record", () => {
 
   test("every band is a labelled section with a real heading", () => {
     const sections = [...host.querySelectorAll("section")];
-    expect(sections.length).toBeGreaterThanOrEqual(7);
+    expect(sections.length).toBeGreaterThanOrEqual(8);
     for (const section of sections) {
       const labelledBy = section.getAttribute("aria-labelledby");
       expect(labelledBy, "a section has no accessible name").toBeTruthy();
       expect(host.querySelector(`#${labelledBy}`), labelledBy).not.toBeNull();
     }
-    // The seven bands of the record, in reading order.
+    // The eight bands of the record, in reading order: identity, the record, AI
+    // practice, public work, then the reference material and the way out.
     expect(sections.map((section) => section.id)).toEqual([
       "",
       "proof",
+      "practice",
       "work",
       "atlas",
       "forward",
@@ -287,19 +283,25 @@ describe("the rendered record", () => {
     }
   });
 
-  test("the delivery figure is stated once per surface, and never invented", () => {
-    /* The strip states the three measured results; the delivery figure lives in
-       the provenance sentence that says where it came from, and in the marquee —
-       whose second copy is `aria-hidden`, so a screen reader hears it once. Any
-       further appearance would be the page repeating itself. */
+  test("each outcome is stated once per surface, and never invented", () => {
+    /* The record band states four outcomes, one figure each, in reading order.
+       The delivery figure appears there and nowhere else on the record now that
+       the marquee carries repository names instead of repeating the numbers. */
     const proof = host.querySelector("#proof")!;
-    expect(stripReadouts(proof)).toEqual(["−98%", "−40%+", "0"]);
+    expect(
+      [...proof.querySelectorAll("[data-figure]")].map((figure) =>
+        (figure.textContent ?? "").trim(),
+      ),
+    ).toEqual(["−98%", "−40%+", "0", "1,182"]);
 
     const proofText = proof.textContent ?? "";
     expect(proofText.match(/1,182/g)).toHaveLength(1);
 
     const outside = (host.textContent ?? "").replace(proofText, "");
-    expect(outside.match(/1,182/g)).toHaveLength(2);
+    expect(outside.match(/1,182/g) ?? []).toHaveLength(0);
+    /* The ambient strip carries the names, so a reader meets the public work
+       twice — as rows and as evidence of how many rows there are. */
+    expect(host.textContent).toContain("nathwn12/puppet");
   });
 
   test("one contact CTA phrase, used for every contact action", () => {

@@ -11,8 +11,9 @@
  * Covered here:
  *   · the availability sentence, byte-exact with its em dash
  *   · the four credential IDs
- *   · the provenance's scanned / carrying repository figures (21 and 17)
- *   · the delivery figure (1,182) on the record and in the delivered outcome
+ *   · the record band's four outcomes, with the delivery figure stated once
+ *   · the recovery sentence (21 scanned, 1,182 across 17) on the route that
+ *     owns it: the record band no longer carries the closure
  *
  *   bunx vitest run tests/rendered-facts.test.tsx
  */
@@ -23,7 +24,7 @@ import { Experience } from "../src/components/Experience";
 import { Record } from "../src/components/Record";
 import { availability } from "../src/content/hero";
 
-const AVAILABILITY = "Open to backend roles \u2014 remote.";
+const AVAILABILITY = "Open to software engineering roles \u2014 remote.";
 const CREDENTIAL_IDS = [
   "RFS2G5ZT9GPK",
   "NEBB575RT5LU",
@@ -108,29 +109,39 @@ describe("the four credential IDs reach the screen", () => {
 });
 
 describe("the proof figures reach the screen", () => {
-  test("the provenance sentence renders 21 scanned and 1,182 across 17 repositories", async () => {
+  test("the record band states four outcomes and no recovery story", async () => {
     const record = await mount(createElement(Record));
     const proof = record.querySelector("#proof");
     expect(proof, "the proof band is not rendered").not.toBeNull();
 
     const text = proof!.textContent ?? "";
-    // The delivered sentence, quoted: it is where both counts are stated.
-    expect(text).toContain("21 scanned internal repositories");
-    expect(text).toContain("1,182 commits across 17 repositories");
+    /* The band's job is the measurements. The closure and the scan that
+       produced the ledger are the experience route's to state, once. */
+    expect(text).not.toContain("scanned");
+    expect(text).not.toContain("May 2026");
+    expect(text.match(/1,182/g) ?? []).toHaveLength(1);
   });
 
-  test("1,182 renders on the record: in the provenance, and in the marquee", async () => {
+  test("1,182 renders once on the record, and the marquee carries names", async () => {
     const record = await mount(createElement(Record));
     const proof = record.querySelector("#proof");
     expect(proof, "the proof band is not rendered").not.toBeNull();
 
-    /* The strip states the three measured results. The delivery figure is the
-       provenance's own sentence, and the marquee below the band carries it
-       twice — the second copy `aria-hidden`, so a screen reader hears it once. */
     const proofText = proof!.textContent ?? "";
     expect(proofText).toContain("1,182");
     const outside = (record.textContent ?? "").replace(proofText, "");
-    expect(outside.match(/1,182/g) ?? []).toHaveLength(2);
+    expect(outside.match(/1,182/g) ?? []).toHaveLength(0);
+
+    /* The ambient strip is the repository names now, not a second copy of the
+       figures the band above already counted. */
+    expect(record.textContent).toContain("nathwn12/puppet");
+  });
+
+  test("the recovery sentence renders on the experience route", async () => {
+    const experience = await mount(createElement(Experience));
+    const text = experience.textContent ?? "";
+    expect(text).toContain("21 scanned internal repositories");
+    expect(text).toContain("1,182 commits across 17 repositories");
   });
 
   test("the delivered outcome carrying 1,182 renders on the experience route", async () => {

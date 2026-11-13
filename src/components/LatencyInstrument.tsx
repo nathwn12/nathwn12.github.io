@@ -1,7 +1,9 @@
 import { useEffect, useRef, type CSSProperties } from "react";
+import { useGSAP } from "@gsap/react";
 import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { figures, measurement, queryFigure } from "../content/ledger";
-import { MOTION_CHANGE_EVENT, countUp, motionAllowed } from "../lib/motion";
+import { MOTION_CHANGE_EVENT, motionAllowed } from "../lib/motion";
 
 /**
  * LatencyInstrument — the one measurement the page exists to prove.
@@ -12,24 +14,44 @@ import { MOTION_CHANGE_EVENT, countUp, motionAllowed } from "../lib/motion";
  * rather than as sixty times the work. The axis spans 0.5 s to 100 s and says
  * so, because a log axis that does not announce itself is a misleading chart.
  *
- * Every number is DOM text. The canvas is decoration only — the decade grid,
- * the tick marks, and one sweep on load — so a visitor with no canvas, no
- * JavaScript, or a screen reader still gets the full fact from the `<dl>`:
- * `MySql.Data` before, `60 s`; `MySqlConnector` after, `under one second`; the
- * reduction, `−98%`. The `−98%` is the content's own 98% restated as a
- * reduction; it is not a second figure.
+ * The scrub. One ScrollTrigger on the cover, `scrub: true` and no pin, drives a
+ * single proxy from 0 to 1 as the hero crosses the viewport. Both bar lengths
+ * are computed from the value the plot has reached — the log position of that
+ * value on the stated 0.5–100 s axis — so a bar is never a fraction of a
+ * pre-computed width, and once the hero has crossed, the bar is 60 s, the after
+ * bar is 1 s, and the pair implies the recorded 98%. A tween that grew a bar to
+ * a fixed length while a separate tween counted a number was two descriptions of
+ * one measurement, and the axis was the thing that lied whenever they drifted.
  *
- * Motion: the bars grow from zero, the readouts count up, and the sweep crosses
- * the plot once — then nothing runs again. There is no animation frame loop to
- * pause: the canvas is redrawn on resize and during that one sweep, and with
- * motion off (or an OS asking for less) it is drawn once in its final state.
- * The DPR is capped at 2, which is the difference between a crisp hairline and
- * a four-times-buffer on a phone.
+ * The two printed values are the delivered facts and never move: the replay
+ * draws the plot the numbers name, it does not restate the numbers. At rest the
+ * plot is undrawn and the derived reduction reads as an em dash — there is
+ * nothing yet to derive it from — so the cover never claims a zero. The range
+ * closes while the instrument is still on screen, so a reader who scrolls at all
+ * sees the measurement complete rather than scroll it away unfinished.
+ *
+ * There is no pin. A pin holds the cover against the performance floor and
+ * delays everything after it by a viewport; scrubbing needs none of that.
+ *
+ * With motion off — the OS preference or the footer's switch — no trigger is
+ * created at all: the markup already carries the final frame (the bars at their
+ * log positions, `60 s`, `−98%`), so a visitor with no JavaScript, no motion or
+ * a screen reader gets the full fact from the `<dl>` and never sees a zero.
+ *
+ * The canvas is decoration only: the decade grid and the scrub's playhead. The
+ * DPR is capped at 2, which is the difference between a crisp hairline and a
+ * four-times-buffer on a phone.
  */
 
+/** The scrub needs the plugin; a DOM without media queries cannot have a
+ *  scroller to read, so registration is gated the same way `lib/smooth.ts`
+ *  gates Lenis. */
+if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
 /** The axis, in seconds. Both values are plotted on it by log10 position. */
-const AXIS = { min: 0.5, max: 100 } as const;
-const BEFORE_SECONDS = 60;
+const AXIS = { min: 0.5, max: 100 } as const;const BEFORE_SECONDS = 60;
 const AFTER_SECONDS = 1;
 /**
  * The ticks that are drawn AND labelled — the same list, so a label can never
@@ -44,6 +66,15 @@ function axisPosition(seconds: number): number {
   const low = Math.log10(AXIS.min);
   const high = Math.log10(AXIS.max);
   return (Math.log10(seconds) - low) / (high - low);
+}
+
+/** The value at scrub progress `t`, interpolated in log space between the axis
+ *  floor and the recorded value — so a bar's length is always the position of
+ *  the value the plot has reached. */
+function secondsAt(t: number, target: number): number {
+  const low = Math.log10(AXIS.min);
+  const high = Math.log10(target);
+  return 10 ** (low + (high - low) * t);
 }
 
 const BEFORE_POSITION = axisPosition(BEFORE_SECONDS);
@@ -65,14 +96,16 @@ function tickStyle(seconds: number): CSSProperties {
 }
 
 export function LatencyInstrument() {
+  const rootRef = useRef<HTMLDivElement>(null);
   const plotRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const beforeBarRef = useRef<HTMLDivElement>(null);
   const afterBarRef = useRef<HTMLDivElement>(null);
-  const beforeValueRef = useRef<HTMLElement>(null);
   const reductionValueRef = useRef<HTMLSpanElement>(null);
+  /** The canvas owns the playhead; the scrub only says where it is. */
+  const playheadRef = useRef<((at: number | null) => void) | null>(null);
 
-  /* --- the decoration: grid, ticks, one sweep ---------------------------- */
+  /* --- the decoration: grid and the scrub's playhead ---------------------- */
   useEffect(() => {
     const canvas = canvasRef.current;
     const plot = plotRef.current;
@@ -85,7 +118,6 @@ export function LatencyInstrument() {
     let grid = "rgba(57, 66, 74, 0.45)";
     let sweep = "rgba(124, 156, 255, 0.65)";
     let sweepAt: number | null = null;
-    let sweepTween: gsap.core.Tween | null = null;
 
     const draw = () => {
       context.clearRect(0, 0, width, height);
@@ -144,94 +176,93 @@ export function LatencyInstrument() {
     observer?.observe(plot);
     measure();
 
-    const proxy = { at: 0 };
-    if (motionAllowed()) {
-      sweepTween = gsap.to(proxy, {
-        at: 1,
-        duration: 0.8,
-        delay: 1.05,
-        ease: "power2.inOut",
-        onUpdate: () => {
-          sweepAt = proxy.at;
-          draw();
-        },
-        onComplete: () => {
-          sweepAt = null;
-          draw();
-        },
-      });
-    }
-
-    const onMotionChange = () => {
-      if (motionAllowed()) return;
-      sweepTween?.kill();
-      sweepTween = null;
-      sweepAt = null;
+    playheadRef.current = (at: number | null) => {
+      sweepAt = at;
       draw();
     };
-    window.addEventListener(MOTION_CHANGE_EVENT, onMotionChange);
 
     return () => {
       observer?.disconnect();
-      sweepTween?.kill();
-      window.removeEventListener(MOTION_CHANGE_EVENT, onMotionChange);
+      playheadRef.current = null;
     };
   }, []);
 
-  /* --- the measurement: bars grow, readouts count ------------------------ */
-  useEffect(() => {
-    if (!motionAllowed()) return;
-    const bars = [beforeBarRef.current, afterBarRef.current].filter(
-      (bar): bar is HTMLDivElement => bar !== null,
-    );
-    const pending: Array<{ kill: () => void }> = [];
+  /* --- the measurement: one scroll-scrubbed readout ---------------------- */
+  useGSAP(
+    () => {
+      /* No motion, no trigger, no zero: the markup is already the final frame. */
+      if (!motionAllowed()) return;
 
-    const growth = gsap.from(bars, {
-      scaleX: 0,
-      transformOrigin: "left center",
-      duration: 0.9,
-      delay: 0.45,
-      stagger: 0.15,
-      ease: "power3.out",
-    });
-    pending.push(growth);
+      const beforeBar = beforeBarRef.current;
+      const afterBar = afterBarRef.current;
+      const reductionValue = reductionValueRef.current;
+      if (!beforeBar || !afterBar) return;
 
-    const before = beforeValueRef.current;
-    if (before && queryFigure.before) {
-      const count = gsap.delayedCall(0.55, () => {
-        countUp(before, BEFORE_SECONDS, (value) => `${Math.round(value)} s`, {
-          duration: 1.0,
-        });
+      /* The trigger is the cover, not the instrument: the measurement is driven
+         by how far the hero has travelled through the viewport. */
+      const hero =
+        beforeBar.closest<HTMLElement>("[data-band=cover]") ?? beforeBar;
+
+      const apply = (t: number) => {
+        const before = secondsAt(t, BEFORE_SECONDS);
+        const after = secondsAt(t, AFTER_SECONDS);
+        const reduction = Math.round((1 - after / before) * 100);
+
+        beforeBar.style.width = `${axisPosition(before) * 100}%`;
+        afterBar.style.width = `${axisPosition(after) * 100}%`;
+        /* The printed values are the facts and never move; only the derived
+           reduction scrubs, and at rest it is a dash rather than a zero. */
+        if (reductionValue) {
+          reductionValue.textContent = t > 0 ? `−${reduction}%` : "—";
+        }
+        /* The playhead marks where the plot has reached; at rest and at the end
+           of the range the drawing is the bars alone. */
+        playheadRef.current?.(
+          t > 0 && t < 1 ? axisPosition(before) : null,
+        );
+      };
+
+      const proxy = { t: 0 };
+      const tween = gsap.to(proxy, {
+        t: 1,
+        ease: "none",
+        onUpdate: () => apply(proxy.t),
+        scrollTrigger: {
+          trigger: hero,
+          start: "top top",
+          /* The range closes while the instrument is still on screen: the hero's
+             centre reaching the top of the viewport. A reader who scrolls at all
+             sees the measurement finish. */
+          end: "center top",
+          scrub: true,
+          /* No pin: the cover is never held. */
+        },
       });
-      pending.push(count);
-    }
 
-    const reduction = reductionValueRef.current;
-    if (reduction && REDUCTION !== null) {
-      const count = gsap.delayedCall(0.95, () => {
-        countUp(reduction, REDUCTION, (value) => `−${Math.round(value)}%`, {
-          duration: 0.9,
-        });
-      });
-      pending.push(count);
-    }
+      /* Land on the frame the scroll position actually implies before paint. */
+      apply(tween.scrollTrigger?.progress ?? 0);
 
-    const onMotionChange = () => {
-      if (motionAllowed()) return;
-      for (const item of pending) item.kill();
-      gsap.set(bars, { scaleX: 1 });
-      if (before && queryFigure.before) before.textContent = queryFigure.before;
-      if (reduction && REDUCTION !== null) {
-        reduction.textContent = `−${REDUCTION}%`;
-      }
-    };
-    window.addEventListener(MOTION_CHANGE_EVENT, onMotionChange);
+      const onMotionChange = () => {
+        if (motionAllowed()) return;
+        tween.scrollTrigger?.kill();
+        tween.kill();
+        beforeBar.style.width = `${BEFORE_POSITION * 100}%`;
+        afterBar.style.width = `${AFTER_POSITION * 100}%`;
+        if (reductionValue && REDUCTION !== null) {
+          reductionValue.textContent = `−${REDUCTION}%`;
+        }
+        playheadRef.current?.(null);
+      };
+      window.addEventListener(MOTION_CHANGE_EVENT, onMotionChange);
 
-    return () => {
-      window.removeEventListener(MOTION_CHANGE_EVENT, onMotionChange);
-      for (const item of pending) item.kill();
-    };
-  }, []);
+      return () => {
+        window.removeEventListener(MOTION_CHANGE_EVENT, onMotionChange);
+        tween.scrollTrigger?.kill();
+        tween.kill();
+      };
+    },
+    { scope: rootRef, dependencies: [] },
+  );
 
   return (
     /* No border and no fill: the instrument is a region of the record, held by
@@ -239,6 +270,7 @@ export function LatencyInstrument() {
        of it. The top rule is the stronger of the two because it is the edge the
        column starts at. */
     <div
+      ref={rootRef}
       data-instrument
       className="border-t border-[color:var(--rec-rule-strong)] pt-4"
     >
@@ -283,14 +315,18 @@ export function LatencyInstrument() {
                 </span>
                 {measurement.beforeName}
               </dt>
-              <dd
-                ref={beforeValueRef}
-                className="data whitespace-nowrap tabular-nums text-[color:var(--rec-ink)]"
-              >
+              <dd className="data whitespace-nowrap tabular-nums text-[color:var(--rec-ink)]">
                 {queryFigure.before ?? "—"}
               </dd>
             </div>
-            <div className="mt-2.5 h-[5px] w-full" aria-hidden="true">
+            {/* The track is the axis itself: a 5px rule spanning the full
+                measured range, so an undrawn plot reads as a scale awaiting its
+                value rather than as a missing element. The bar fills the part
+                of that range the value occupies. */}
+            <div
+              className="mt-2.5 h-[5px] w-full bg-[color:var(--rec-rule)]"
+              aria-hidden="true"
+            >
               <div
                 ref={beforeBarRef}
                 className="h-full origin-left bg-[color:var(--rec-alarm)]"
@@ -309,7 +345,10 @@ export function LatencyInstrument() {
                 {queryFigure.afterLong ?? queryFigure.after ?? "—"}
               </dd>
             </div>
-            <div className="mt-2.5 h-[5px] w-full" aria-hidden="true">
+            <div
+              className="mt-2.5 h-[5px] w-full bg-[color:var(--rec-rule)]"
+              aria-hidden="true"
+            >
               <div
                 ref={afterBarRef}
                 className="h-full origin-left bg-[color:var(--rec-measure)]"
@@ -338,7 +377,7 @@ export function LatencyInstrument() {
       </div>
 
       <p className="data data--sm mt-3 border-b border-[color:var(--rec-rule)] pb-3 text-[color:var(--rec-ink-muted)]">
-        Log scale, 0.5 s to 100 s. Bars are drawn to those positions.
+        Log scale, 0.5 s to 100 s.
       </p>
     </div>
   );
