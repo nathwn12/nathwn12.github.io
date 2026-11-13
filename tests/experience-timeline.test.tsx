@@ -100,7 +100,7 @@ describe("experience timeline", () => {
       "The latest is November 2025; the tenure ran to May 2026.",
     );
 
-    const dates = Array.from(host.querySelectorAll("ol > li > p")).map(
+    const dates = Array.from(host.querySelectorAll("[data-timeline-date]")).map(
       (item) => item.textContent?.trim() ?? "",
     );
     expect(dates[0]).toBe("November 2025");
