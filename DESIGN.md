@@ -56,17 +56,27 @@ value is written. A component reads a token; it never writes a hex.
 
 | Token | Value | Role |
 |---|---|---|
-| `--rec-ground` | `#0A0C0E` | the page ground |
-| `--rec-panel` | `#111417` | a raised surface: inset readout, instrument panel |
-| `--rec-panel-2` | `#171B1F` | the step above panel: hover, one inset row |
-| `--rec-rule` | `#23282D` | hairline structure: table rows, panel edges, seams |
+| `--rec-ground` | `#07090B` | the page ground |
+| `--rec-panel` | `#0E1114` | a raised surface: inset readout, instrument panel |
+| `--rec-panel-2` | `#151A1E` | the step above panel: hover, one inset row |
+| `--rec-rule` | `#20262B` | hairline structure: table rows, panel edges, seams |
 | `--rec-rule-strong` | `#39424A` | an active edge: underline, cap, scrollbar thumb |
-| `--rec-ink` | `#E9EEF2` | primary text |
-| `--rec-ink-muted` | `#8C979E` | secondary text only — never body |
-| `--rec-signal` | `#7C9CFF` | structural accent: links, focus, active rules, marks |
-| `--rec-measure` | `#4DD4E8` | **measured values only**: numerals, the live readout |
-| `--rec-alarm` | `#FF5D5D` | exactly one use per page: the "before" bar, the retired project |
+| `--rec-ink` | `#F2F6F8` | primary text |
+| `--rec-ink-muted` | `#8E9BA3` | secondary text only - never body |
+| `--rec-signal` | `#4DD4E8` | structural accent: links, focus, active rules, marks |
+| `--rec-measure` | `#F5A524` | **measured values only**: numerals, the live readout |
+| `--rec-alarm` | `#FF5D5D` | exactly one use per page |
 | `--rec-selection` | signal at 22% | `::selection` background |
+
+The light theme is the same eleven roles, re-pointed: ground `#F1F2ED`, ink `#0D1013`,
+signal `#1B2ED1`, measure `#9A4708`, alarm `#C81E1E`. One switching mechanism -
+`data-theme` on `<html>`, seeded from the OS before first paint and persisted in
+`nnl-theme`; F2 and the footer switch both write it.
+
+The direction is **chroma × area**: the ground stays quiet and chroma is spent only on the
+data, so the eye lands on the numbers. Warm measure against cold signal is deliberate
+simultaneous contrast, and the alarm sits more than 45° away from the measure hue so it
+never reads as a figure.
 
 Contrast is computed from these values by `src/test/theme.test.ts` and
 `tests/contrast.test.ts`, so a palette edit flows into the numbers:
@@ -196,20 +206,22 @@ it.
   and each renders its own seam.
 - The cover is a two-column row from 1024px: the claim, standfirst, stack,
   former-employment line, availability and two actions on the left; the latency
-  instrument as a 20–23rem right-hand panel. All three display lines start on the
-  frame's left edge.
-- Hairlines carry the atlas: the six group rows are a grid whose column headings
-  are the three tiers themselves (`Daily driver`, `Production shipped`, `Working
-  knowledge`). The column is the tier, so no badge, pill, bar or legend encodes
-  it. All 88 packages render once each; below `md` the table folds into one block
-  per group with each tier block labelled, so the fold costs no tier.
-- The work ledger is a single column of eleven repository rows. Each row is
-  complete on its own — name, the year flush on the frame's right edge, the line
-  about the project, then one mono run of kind, authorship and stack — so no two
-  rows share state and the scroll has no opinion about what is being read. Hover
-  and focus draw one 1px signal rule sweeping the row's width while the name
-  steps one space left; there is no panel to fall out of sync with the row under
-  the pointer.
+  instrument as a 20-23rem right-hand panel. All three display lines start on the
+  frame's left edge. The cover is content-height (about 740px at 1440) - it is
+  **not** a viewport tall and the instrument column is **not** sticky: the panel
+  scrolls with the page and states the measurement once.
+- Hairlines carry the atlas: the six group rows run the package names as
+  comma-separated runs with the tier as a word at the head of each run
+  (`Daily driver`, `Production shipped`, `Working knowledge`), so the tier costs
+  a word instead of a column. All 88 packages render once each; below `md` the
+  table folds into one block per group.
+- The work ledger on the home page is **four** featured rows; the other nine live
+  on `/projects`, where all thirteen render as one column. Each row is complete on
+  its own - name, the year flush on the frame's right edge, the line about the
+  project, then one mono run of kind, authorship and stack - so no two rows share
+  state and the scroll has no opinion about what is being read. Hover and focus
+  draw one 1px signal rule sweeping the row's width while the name steps one
+  space left.
 - The closed `footer.colophon` is the ways-out matrix: contact (mail), GitHub,
   LinkedIn, the two documents, the source, and the one setting. One surface per
   fact — no band repeats it.
