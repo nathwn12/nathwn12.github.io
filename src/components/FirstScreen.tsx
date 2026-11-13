@@ -118,7 +118,7 @@ export function FirstScreen() {
       <div className="frame">
         <h1
           id="claim-heading"
-          className="font-display text-[length:clamp(2.6rem,9.5vw,11rem)] leading-[0.87] font-normal! tracking-[-0.02em]! text-[color:var(--rec-ink)]"
+          className="font-display text-[length:clamp(2.6rem,9.5vw,8.5rem)] leading-[0.87] font-normal! tracking-[-0.02em]! text-[color:var(--rec-ink)]"
         >
           {IDENTITY_LINES.map((line) => (
             <span
