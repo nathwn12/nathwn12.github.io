@@ -10,9 +10,12 @@
  */
 import { describe, expect, test } from "vitest";
 import {
+  COOLDOWN_MS,
   FRAME_BUDGET_MS,
+  TIERS,
+  UPGRADE_MS,
   createField,
-  degradeCount,
+  nextTier,
   stepField,
   type Field,
 } from "../src/lib/flowfield";
@@ -113,23 +116,60 @@ describe("stepField", () => {
 });
 
 describe("the frame budget", () => {
-  test("holds the count under budget", () => {
+  test("the tiers only ever get cheaper, and DPR falls after particles", () => {
     expect(FRAME_BUDGET_MS).toBe(22);
-    expect(degradeCount(1600, 12)).toBe(1600);
-    expect(degradeCount(1600, 21.9)).toBe(1600);
+    expect(UPGRADE_MS).toBe(12);
+    expect(COOLDOWN_MS).toBeGreaterThanOrEqual(2000);
+    expect(TIERS[0]).toEqual({ count: 1500, dpr: 2 });
+    for (let index = 1; index < TIERS.length; index += 1) {
+      const previous = TIERS[index - 1];
+      const current = TIERS[index];
+      expect(current.count).toBeLessThanOrEqual(previous.count);
+      expect(current.dpr).toBeLessThanOrEqual(previous.dpr);
+      // A tier must save something: no rung is a relabelled copy of its parent.
+      expect(current).not.toEqual(previous);
+    }
+    // Particles are shed before the buffer is: the first drop keeps DPR 2.
+    expect(TIERS[1].dpr).toBe(2);
+    expect(TIERS[1].count).toBeLessThan(TIERS[0].count);
   });
 
-  test("steps the count down once the rolling average exceeds the budget", () => {
-    const next = degradeCount(1600, 26);
-    expect(next).toBeLessThan(1600);
-    expect(next).toBe(1120);
-    // And it steps again, so a field that is still too slow keeps shedding.
-    expect(degradeCount(next, 30)).toBeLessThan(next);
+  test("holds the tier inside the band, both ways", () => {
+    expect(nextTier(0, 16, 10_000)).toBe(0);
+    expect(nextTier(3, 16, 10_000)).toBe(3);
+    expect(nextTier(0, 21.9, 10_000)).toBe(0);
+    expect(nextTier(0, 22.1, 10_000)).toBe(1);
   });
 
-  test("never climbs back up mid-run, and never falls below the floor", () => {
-    expect(degradeCount(1120, 8)).toBe(1120);
-    expect(degradeCount(360, 40)).toBe(360);
-    expect(degradeCount(400, 40)).toBe(400);
+  test("drops a tier when over budget, and stops at the cheapest", () => {
+    expect(nextTier(2, 30, 10_000)).toBe(3);
+    expect(nextTier(TIERS.length - 1, 40, 10_000)).toBe(TIERS.length - 1);
+  });
+
+  test("steps back up only after a sustained fast window and the cooldown", () => {
+    expect(nextTier(2, 11, 500)).toBe(2); // fast, but no cooldown elapsed
+    expect(nextTier(2, 11, 1_999)).toBe(2);
+    expect(nextTier(2, 11, 2_000)).toBe(1);
+    expect(nextTier(0, 8, 10_000)).toBe(0); // never above the top tier
+    expect(nextTier(2, 12.5, 10_000)).toBe(2); // not "sustained fast" yet
+  });
+
+  test("cannot oscillate: a page flipping either side of the budget stays put", () => {
+    let index = 2;
+    let sinceSwitch = 0;
+    for (let window = 0; window < 200; window += 1) {
+      /* Alternating 10 ms and 30 ms windows — exactly the pattern that makes a
+         naive controller switch every time. */
+      const frameMs = window % 2 === 0 ? 10 : 30;
+      const next = nextTier(index, frameMs, sinceSwitch);
+      if (next !== index) {
+        index = next;
+        sinceSwitch = 0;
+      }
+      sinceSwitch += 500;
+    }
+    // It settles at the cheapest tier and never climbs back out of it, because
+    // every promotion is immediately followed by a 30 ms window.
+    expect(index).toBe(TIERS.length - 1);
   });
 });
