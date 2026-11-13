@@ -25,7 +25,7 @@ serif display face, a live flow field behind the cover, and exactly one piece of
 theatre: the cover's load sequence.
 
 - **One ground.** The page is dark, and only dark. There is no light block, no
-  scheme branch and no theme switch. `color-scheme: dark` is declared on `:root`.
+  two theme blocks and one switch. `color-scheme` is declared per theme, and `data-theme` on `<html>` is the only selector that repoints the roles.
 - **Radius 0 everywhere.** Enforced by a single `*` rule reading
   `--rec-radius`, so a component cannot quietly soften an edge and start a
   second visual language. No shadows, no cards, no glass.
@@ -234,14 +234,12 @@ Motion is a measurement aid, not decoration. It runs once, it resolves to a
 finished state, and every part of it has a fallback that renders that finished
 state immediately.
 
-Two preferences gate everything, and both must allow motion (`motionAllowed()`
-in `src/lib/motion.ts`):
-
-1. the OS preference, `prefers-reduced-motion: reduce` — never persisted, never
-   overridden;
-2. the site switch — the footer's **Motion** control, stored under `nnl-motion`,
-   mirrored onto `<html data-motion="on|off">` by a pre-paint script so a visitor
-   who turned it off never sees a frame of animation.
+One preference gates everything: the OS setting, `prefers-reduced-motion: reduce`,
+read by `motionAllowed()` in `src/lib/motion.ts`. There is no site switch and no
+stored override — the site follows the machine. `data-motion="on|off"` mirrors
+that answer onto `<html>` from a pre-paint script so a reduced-motion visitor
+never sees a frame of animation, and `watchMotionPreference()` re-reads it if the
+OS setting changes mid-visit.
 
 | Where | With motion | Reduced / `data-motion="off"` |
 |---|---|---|
@@ -278,7 +276,7 @@ then fights.
   offset, never removed. The single exception is `#main:focus`, which receives
   focus programmatically on a route change and must not paint a ring.
 - 44px targets: every header link, the author mark (both axes), the footer's
-  links, `.button`, `.text-action` and the Motion switch.
+  links, `.button` and `.text-action`.
 - The skip link is the first tab stop, visible when focused, and moves focus to
   `main`.
 - Landmarks: one `<main id="main" tabindex="-1">`, one `<header>`, one
@@ -355,7 +353,7 @@ build size.
 
 ## 9. Not doing
 
-- **No light mode.** One ground. A theme switch inside an instrument reads as a
+- **Two grounds, one system.** Light is the same eleven roles re-pointed, not a
   theme demo, and a second palette doubles every contrast number for a reader who
   arrived to judge one page.
 - **No pins.** See §5.
