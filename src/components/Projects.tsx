@@ -1,5 +1,3 @@
-import { useRef } from "react";
-import { useGSAP } from "@gsap/react";
 import {
   archived,
   projects,
@@ -8,7 +6,6 @@ import {
 } from "../content/projects";
 import { CONTACT_CTA } from "../content/ledger";
 import { RouteLink, SectionLink } from "../lib/router";
-import { revealRule } from "../lib/motion";
 
 /**
  * Projects — the open-source ledger, featured work first.
@@ -35,16 +32,6 @@ function retiredOn(reason: string): string | null {
 }
 
 export default function Projects() {
-  const seamRef = useRef<HTMLSpanElement>(null);
-
-  useGSAP(
-    () => {
-      const seam = revealRule(seamRef.current);
-      return () => seam.revert();
-    },
-    { dependencies: [] },
-  );
-
   return (
     <>
       <section className="band band--first" aria-labelledby="projects-heading">
@@ -82,7 +69,8 @@ export default function Projects() {
             </dl>
           </div>
 
-          <span ref={seamRef} aria-hidden="true" className="rule rule--draw mt-10 lg:mt-12" />
+          {/* The table's own top rule closes this band — no drawn seam above
+              it, because a second rule 48px further up reads as an empty strip. */}
         </div>
       </section>
 

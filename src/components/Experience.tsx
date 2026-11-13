@@ -150,8 +150,10 @@ export function Experience() {
 
           <span ref={seamRef} aria-hidden="true" className="rule rule--draw mt-10 lg:mt-12" />
 
-          {/* The commit ledger: why the page exists, above the list it proves. */}
-          <div className="grid grid-cols-2 gap-x-8 gap-y-8 border-y border-[color:var(--rec-rule)] py-7 md:grid-cols-[repeat(2,auto)_minmax(0,1fr)] md:gap-x-12 md:items-start">
+          {/* The commit ledger: why the page exists, above the list it proves.
+              The seam above is the strip's top rule; this block closes on its
+              own bottom rule, so the strip never draws two rules 1px apart. */}
+          <div className="grid grid-cols-2 gap-x-8 gap-y-8 border-b border-[color:var(--rec-rule)] py-7 md:grid-cols-[repeat(2,auto)_minmax(0,1fr)] md:gap-x-12 md:items-start">
             {commits !== null && (
               <TimelineReadout value={commits} format={grouped} label="commits" />
             )}
