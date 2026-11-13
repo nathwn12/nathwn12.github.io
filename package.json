@@ -14,7 +14,8 @@
     "typecheck": "tsc -b",
     "test": "bun run build && vitest run",
     "check": "bun run typecheck && node scripts/contrast-audit.mjs && bun run test",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "preview:live": "node scripts/preview.mjs"
   },
   "dependencies": {
     "@gsap/react": "2.1.2",
