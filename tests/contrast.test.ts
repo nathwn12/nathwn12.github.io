@@ -199,23 +199,50 @@ describe("the tokens are the ones the stylesheet defines", () => {
   test("no component hard-codes a colour literal", () => {
     // The token block owns every colour; a hex in a component is a second
     // palette that this test cannot see — and it would not follow the theme.
+    // The list is every component that paints, not a sample: a new file that
+    // types its own colour has to fail here rather than be forgotten.
     const components = [
-      "src/components/FirstScreen.tsx",
-      "src/components/LatencyInstrument.tsx",
-      "src/components/ProofBand.tsx",
-      "src/components/WorkBand.tsx",
+      "src/components/AiPractice.tsx",
       "src/components/AtlasBand.tsx",
-      "src/components/ForwardBand.tsx",
-      "src/components/CredentialsBand.tsx",
+      "src/components/Chrome.tsx",
       "src/components/Contact.tsx",
-      "src/components/Header.tsx",
-      "src/components/Footer.tsx",
-      "src/components/ThemeToggle.tsx",
+      "src/components/CredentialsBand.tsx",
       "src/components/Experience.tsx",
-      "src/components/Projects.tsx",
+      "src/components/FirstScreen.tsx",
+      "src/components/Footer.tsx",
+      "src/components/ForwardBand.tsx",
+      "src/components/Grain.tsx",
+      "src/components/Header.tsx",
+      "src/components/HeroField.tsx",
+      "src/components/LatencyInstrument.tsx",
+      "src/components/Marquee.tsx",
       "src/components/NotFound.tsx",
+      "src/components/ProjectReadout.tsx",
+      "src/components/Projects.tsx",
+      "src/components/ProofBand.tsx",
+      "src/components/Readout.tsx",
+      "src/components/Record.tsx",
+      "src/components/Reticle.tsx",
+      "src/components/RouteCurtain.tsx",
+      "src/components/ThemeToggle.tsx",
+      "src/components/Timeline.tsx",
+      "src/components/WorkBand.tsx",
     ];
     for (const file of components) {
+      const source = readFileSync(resolve(root, file), "utf8");
+      expect(source, file).not.toMatch(/#[0-9a-f]{3,8}\b/i);
+    }
+  });
+
+  test("the stylesheet layers carry no colour literal outside the token block", () => {
+    // tokens.css is the one file allowed to name a colour. A hex in base,
+    // chrome or legacy is the same second palette as a hex in a component, and
+    // it is the harder one to find because nothing imports it by name.
+    for (const file of [
+      "src/styles/base.css",
+      "src/styles/chrome.css",
+      "src/styles/legacy.css",
+    ]) {
       const source = readFileSync(resolve(root, file), "utf8");
       expect(source, file).not.toMatch(/#[0-9a-f]{3,8}\b/i);
     }

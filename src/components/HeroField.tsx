@@ -64,13 +64,14 @@ interface Ink {
   blend: GlobalCompositeOperation;
 }
 
-/** The dark field: two accents added together, which is what makes a crossing
- *  read as a bright current rather than as two overlapping lines. */
+/** The dark field: the measurement added over the structure, which is what
+ *  makes a crossing read as a bright current rather than as two overlapping
+ *  lines — amber over black, with the cyan as the quieter second voice. */
 const DARK_ALPHAS: [number, number] = [0.055, 0.042];
 
-/** On paper the same strokes are ink, at a third of the alpha, and the cyan is
- *  replaced by the rule colour: a measured cyan is a highlight on a dark ground
- *  and a scribble on a light one. */
+/** On paper the same strokes are ink at a third of the alpha, and the second
+ *  voice is the rule colour: a cyan measurement is a highlight on a black
+ *  ground and a scribble on paper, so paper draws ink-blue over a faint rule. */
 const LIGHT_ALPHAS: [number, number] = [0.018, 0.012];
 
 export function HeroField() {
@@ -90,33 +91,37 @@ export function HeroField() {
     /* The palette is read off the element, not typed here: the canvas is the
        one place on the site that paints a colour, and it still reads a token.
        It is re-read whenever `<html data-theme>` changes, because the field is
-       the only thing on the page whose ink is not a CSS rule. */
+       the only thing on the page whose ink is not a CSS rule.
+
+       There is deliberately no hex fallback. A fallback colour in this file
+       would be a second palette that the theme switch cannot see; `transparent`
+       is the honest empty value, so a missing token draws nothing rather than
+       the wrong colour. */
     let ink: Ink = {
-      ground: "#0a0c0e",
-      accents: ["#7c9cff", "#4dd4e8"],
+      ground: "transparent",
+      accents: ["transparent", "transparent"],
       alphas: DARK_ALPHAS,
       blend: "lighter",
     };
 
     const readInk = () => {
       const styles = getComputedStyle(canvas);
-      const token = (name: string, fallback: string) =>
-        styles.getPropertyValue(name).trim() || fallback;
+      const token = (name: string) => styles.getPropertyValue(name).trim();
       const light = document.documentElement.dataset.theme === "light";
-      const signal = token("--rec-signal", "#7c9cff");
-      const measure = token("--rec-measure", "#4dd4e8");
-      const rule = token("--rec-rule", "#23282d");
+      const signal = token("--rec-signal");
+      const measure = token("--rec-measure");
+      const rule = token("--rec-rule");
 
       ink = light
         ? {
-            ground: token("--rec-ground", "#ecede9"),
+            ground: token("--rec-ground"),
             accents: [signal, rule],
             alphas: LIGHT_ALPHAS,
             blend: "source-over",
           }
         : {
-            ground: token("--rec-ground", "#0a0c0e"),
-            accents: [signal, measure],
+            ground: token("--rec-ground"),
+            accents: [measure, signal],
             alphas: DARK_ALPHAS,
             blend: "lighter",
           };
@@ -383,9 +388,9 @@ export function HeroField() {
          band begins. The mask dissolves the last third into the ground instead:
          an edge nobody can see, rather than a cut nobody asked for. */
       style={{
-        maskImage: "linear-gradient(to bottom, #000 62%, transparent 100%)",
+        maskImage: "linear-gradient(to bottom, black 62%, transparent 100%)",
         WebkitMaskImage:
-          "linear-gradient(to bottom, #000 62%, transparent 100%)",
+          "linear-gradient(to bottom, black 62%, transparent 100%)",
       }}
     />
   );

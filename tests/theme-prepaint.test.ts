@@ -37,7 +37,7 @@ function runPrepaint(
   reduceMotion = true,
 ): { motion: string; theme: string | null; themeColors: string[] } {
   const dom = new JSDOM(
-    `<!DOCTYPE html><html><head><meta name="theme-color" content="#0A0C0E" /></head><body></body></html>`,
+    `<!DOCTYPE html><html><head><meta name="theme-color" content="#07090B" /></head><body></body></html>`,
     { url: "https://nathwn12.github.io/", runScripts: "outside-only" },
   );
   const { window } = dom;
@@ -135,15 +135,15 @@ describe("pre-paint theme script", () => {
   });
 
   test("rewrites theme-color to the resolved ground", () => {
-    expect(runPrepaint(script, null, true).themeColors).toEqual(["#ECEDE9"]);
-    expect(runPrepaint(script, null, false).themeColors).toEqual(["#0A0C0E"]);
+    expect(runPrepaint(script, null, true).themeColors).toEqual(["#F1F2ED"]);
+    expect(runPrepaint(script, null, false).themeColors).toEqual(["#07090B"]);
   });
 
   test("writes one static meta, which the script then rewrites", () => {
     const metas = [...HTML.matchAll(/<meta name="theme-color"[^>]*>/g)].map(
       (match) => match[0],
     );
-    expect(metas).toEqual(['<meta name="theme-color" content="#0A0C0E" />']);
+    expect(metas).toEqual(['<meta name="theme-color" content="#07090B" />']);
   });
 });
 

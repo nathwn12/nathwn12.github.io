@@ -22,7 +22,7 @@ import {
   motionAllowed,
   prefersReducedMotion,
 } from "../lib/motion";
-import { THEME_COLORS, THEME_KEY } from "../lib/theme";
+import { applyTheme, THEME_KEY } from "../lib/theme";
 
 const root = resolve(import.meta.dirname, "..", "..");
 const read = (rel: string) => readFileSync(resolve(root, rel), "utf8");
@@ -75,17 +75,17 @@ const PAPER = { ...REC, ...hexTokens(block(TOKENS, '[data-theme="light"]'), "--r
 
 describe("the recorder palette is the brief's table, verbatim", () => {
   it.each([
-    ["--rec-ground", "#0a0c0e"],
-    ["--rec-panel", "#111417"],
-    ["--rec-panel-2", "#171b1f"],
-    ["--rec-rule", "#23282d"],
+    ["--rec-ground", "#07090b"],
+    ["--rec-panel", "#0e1114"],
+    ["--rec-panel-2", "#151a1e"],
+    ["--rec-rule", "#20262b"],
     ["--rec-rule-strong", "#39424a"],
-    ["--rec-ink", "#e9eef2"],
-    ["--rec-ink-muted", "#97a2a9"],
-    ["--rec-signal", "#6d8af2"],
-    ["--rec-measure", "#4dd4e8"],
+    ["--rec-ink", "#f2f6f8"],
+    ["--rec-ink-muted", "#8e9ba3"],
+    ["--rec-signal", "#4dd4e8"],
+    ["--rec-measure", "#f5a524"],
     ["--rec-alarm", "#ff5d5d"],
-    ["--rec-on-signal", "#0a0c0e"],
+    ["--rec-on-signal", "#04070a"],
   ])("%s is %s", (name, hex) => {
     expect(REC[name]).toBe(hex);
   });
@@ -93,17 +93,17 @@ describe("the recorder palette is the brief's table, verbatim", () => {
 
 describe("the paper palette is the brief's table, verbatim", () => {
   it.each([
-    ["--rec-ground", "#ecede9"],
-    ["--rec-panel", "#e3e5e0"],
-    ["--rec-panel-2", "#d9dcd6"],
-    ["--rec-rule", "#ccd0ca"],
-    ["--rec-rule-strong", "#a4aaa3"],
-    ["--rec-ink", "#14171a"],
-    ["--rec-ink-muted", "#4c545a"],
-    ["--rec-signal", "#2b49c4"],
-    ["--rec-measure", "#0b6b77"],
-    ["--rec-alarm", "#b3261e"],
-    ["--rec-on-signal", "#f7f8f5"],
+    ["--rec-ground", "#f1f2ed"],
+    ["--rec-panel", "#e8eae4"],
+    ["--rec-panel-2", "#dde0d9"],
+    ["--rec-rule", "#c9cdc6"],
+    ["--rec-rule-strong", "#9aa09a"],
+    ["--rec-ink", "#0d1013"],
+    ["--rec-ink-muted", "#4a5257"],
+    ["--rec-signal", "#1b2ed1"],
+    ["--rec-measure", "#9a4708"],
+    ["--rec-alarm", "#c81e1e"],
+    ["--rec-on-signal", "#f7f8f4"],
   ])("%s is %s", (name, hex) => {
     expect(PAPER[name]).toBe(hex);
   });
@@ -140,9 +140,28 @@ describe("two themes, one switch", () => {
     expect(TOKENS).not.toMatch(/@media[^{]*prefers-color-scheme/);
   });
 
-  it("states the light ground as the browser-chrome colour it paints", () => {
-    expect(THEME_COLORS.light.toLowerCase()).toBe(PAPER["--rec-ground"]);
-    expect(THEME_COLORS.dark.toLowerCase()).toBe(REC["--rec-ground"]);
+  it("paints the browser chrome from the resolved ground, not a second palette", () => {
+    /* `theme-color` cannot read a custom property, so the meta is written from
+       the ground the page resolved. Pinned through the cascade: the token is
+       the only place the colour is named, and the meta follows it. */
+    const meta = document.createElement("meta");
+    meta.setAttribute("name", "theme-color");
+    meta.setAttribute("content", "#000000");
+    document.head.appendChild(meta);
+    const root = document.documentElement;
+    try {
+      root.style.setProperty("--rec-ground", REC["--rec-ground"]);
+      applyTheme("dark");
+      expect(meta.getAttribute("content")).toBe(REC["--rec-ground"]);
+
+      root.style.setProperty("--rec-ground", PAPER["--rec-ground"]);
+      applyTheme("light");
+      expect(meta.getAttribute("content")).toBe(PAPER["--rec-ground"]);
+    } finally {
+      meta.remove();
+      root.style.removeProperty("--rec-ground");
+      delete root.dataset.theme;
+    }
     expect(THEME_KEY).toBe("nnl-theme");
   });
 

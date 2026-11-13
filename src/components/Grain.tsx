@@ -12,7 +12,7 @@
  * The values are measured, not guessed. At `overlay` and 5.5% the grain was
  * invisible on this ground — an empty patch of the page varied by one single
  * luminance level (spread 0.18), because overlay multiplies the base and a
- * #0A0C0E base is almost nothing to multiply. Soft-light at 85% with a coarser
+ * near-black ground is almost nothing to multiply. Soft-light at 85% with a coarser
  * field gives that same patch a spread of ~2.1 levels (mean 17.5, range 12–27)
  * — visible as texture at 1:1 — while the ink's peak moves from 238 to 241, so
  * the type keeps its edge and the ground stays a dark ground. Both numbers are

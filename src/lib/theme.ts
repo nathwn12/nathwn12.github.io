@@ -10,9 +10,11 @@ import { useCallback, useEffect, useState } from "react";
  * so there is no flash), and from then on the attribute is the truth, persisted
  * under `nnl-theme`.
  *
- * `theme-color` cannot read a custom property, so the two grounds are restated
- * in `THEME_COLORS` for the meta rewrite — pinned against tokens.css by
- * tests/theme.test.ts.
+ * `theme-color` cannot read a custom property, so the browser chrome is painted
+ * from the ground the page actually resolved rather than from a hex copied into
+ * this file: the meta is a mirror of `--rec-ground`, and there is no second
+ * palette here to keep in step. Before the stylesheet applies, index.html's
+ * pre-paint script has already set the same value.
  */
 
 export type Theme = "light" | "dark";
@@ -21,12 +23,6 @@ export const THEME_KEY = "nnl-theme";
 
 /** Fired on `<window>` whenever the theme changes, with the new value. */
 export const THEME_CHANGE_EVENT = "nnl-theme-change";
-
-/** The ground each theme paints, mirrored from `--rec-ground` in tokens.css. */
-export const THEME_COLORS: Record<Theme, string> = {
-  dark: "#0A0C0E",
-  light: "#ECEDE9",
-};
 
 /** The OS/browser preference, or dark where the probe is missing or throws —
  *  the dark ground is the identity, so an unreadable system is not a reason to
@@ -61,9 +57,19 @@ export function currentTheme(): Theme {
   return document.documentElement.dataset.theme === "light" ? "light" : "dark";
 }
 
+/** The ground the page is painting, read back from the cascade. Empty when the
+ *  stylesheet has not applied yet — in which case the pre-paint value stands. */
+function groundColor(): string {
+  if (typeof document === "undefined") return "";
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue("--rec-ground")
+    .trim();
+}
+
 /** Point the `theme-color` meta at the active ground. Idempotent. */
-function applyThemeColor(theme: Theme): void {
-  const content = THEME_COLORS[theme];
+function applyThemeColor(): void {
+  const content = groundColor();
+  if (!content) return;
   document
     .querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
     .forEach((meta) => {
@@ -76,7 +82,7 @@ function applyThemeColor(theme: Theme): void {
 /** Paint a theme on `<html>` and its browser chrome. Never persists. */
 export function applyTheme(theme: Theme): void {
   document.documentElement.dataset.theme = theme;
-  applyThemeColor(theme);
+  applyThemeColor();
 }
 
 /** Apply + persist the visitor's explicit choice, then broadcast. */
