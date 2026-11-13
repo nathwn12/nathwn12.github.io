@@ -77,19 +77,23 @@ export function ProofBand() {
     };
 
     const proxy = { t: 0 };
+    /* Count once, on entry, and never rewind. A figure that changes because the
+       reader scrolled is a figure that can read wrong: the owner saw "87
+       commits" mid-scrub and it is not a measurement any more. It runs to its
+       delivered value, then holds it for the rest of the visit. */
     const tween = gsap.to(proxy, {
       t: 1,
-      ease: "none",
+      duration: 1.1,
+      ease: "power2.out",
       onUpdate: () => apply(proxy.t),
       scrollTrigger: {
         trigger: list,
         start: "top 85%",
-        end: "bottom 55%",
-        scrub: true,
+        once: true,
       },
     });
 
-    apply(tween.scrollTrigger?.progress ?? 0);
+    apply(0);
 
     return () => {
       tween.scrollTrigger?.kill();

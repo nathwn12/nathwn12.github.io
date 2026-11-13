@@ -59,6 +59,7 @@ export function getLenis(): Lenis | null {
       autoRaf: false,
       respectReducedMotion: true,
       smoothWheel: true,
+      lerp: 0.14,
     });
     lenis.on("scroll", ScrollTrigger.update);
     const handler = (time: number) => lenis.raf(time * 1000);

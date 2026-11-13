@@ -27,8 +27,8 @@ import { motionAllowed } from "../lib/motion";
 let panel: HTMLElement | null = null;
 let running: { cancel(): void } | null = null;
 
-const EXIT_S = 0.24;
-const ENTER_S = 0.42;
+const EXIT_S = 0.14;
+const ENTER_S = 0.24;
 
 /** The mounted overlay element, registered by <RouteCurtain />. */
 export function registerCurtain(el: HTMLElement | null): void {
