@@ -21,7 +21,7 @@ import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import App from "../src/App";
 import { Record } from "../src/components/Record";
-import { PROOF_FIGURES } from "../src/components/ProofBand";
+import { proofRows } from "../src/content/ledger";
 import { SHIPPED_CSS, cssVar, remToPx } from "./shipped-css";
 
 const root = resolve(import.meta.dirname, "..");
@@ -150,12 +150,13 @@ describe("motion — two states, one resting truth", () => {
     await mount(createElement(Record));
 
     /* The measured results are in the DOM at their final values on the first
-       paint: the counter is an enhancement, never the only source of the
-       number. A GSAP tween would have written `0` over each of them first. */
-    const figures = [...host.querySelectorAll<HTMLElement>("#proof dd")].map(
-      (figure) => figure.textContent?.trim(),
-    );
-    expect(figures).toEqual(PROOF_FIGURES.map((figure) => figure.value));
+       paint: no script writes a zero over them, and no scroll trigger is
+       created when motion is off, so the record band's four figures are the
+       delivered ones before anything runs. */
+    const figures = [
+      ...host.querySelectorAll<HTMLElement>("#proof [data-figure]"),
+    ].map((figure) => figure.textContent?.trim());
+    expect(figures).toEqual(proofRows.map((row) => row.figure));
     expect(host.textContent).toContain("1,182");
 
     delete (window as { matchMedia?: unknown }).matchMedia;

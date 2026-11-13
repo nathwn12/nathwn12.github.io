@@ -1,11 +1,20 @@
 import { projects } from "../content/projects";
-import { countWord, figures, workLede, workRows } from "../content/ledger";
+import { workLede, workRows } from "../content/ledger";
 import { RouteLink } from "../lib/router";
+import { Marquee } from "./Marquee";
 import { Seam } from "./Readout";
 
 /**
- * WorkBand — the ledger roll: thirteen live repositories, each one carrying its
- * own readout.
+ * WorkBand — the public work, compact and low: thirteen live repositories, each
+ * one carrying its own readout.
+ *
+ * The band sits below the record and the AI practice on purpose. It is
+ * supporting evidence, so it states the list and gets out of the way: one row
+ * per repository, a name, a year at the frame's right edge, a line about the
+ * three worth opening first, and one row of mono facts — kind, authorship,
+ * stack. The close is the marquee: the same thirteen repository names running
+ * past as ambient evidence, so a reader who does not scroll the whole list still
+ * sees how much of it there is.
  *
  * The band used to hold a sticky column that described "the active row". It was
  * a panel that could be wrong: the pointer crossing a row latched it, so wheeling
@@ -13,10 +22,8 @@ import { Seam } from "./Readout";
  * `nathwn12/puppet` while Potflix, Slowburn and nine others went past it, and a
  * reader had no way to tell that the panel had stopped tracking. A panel that
  * shows the wrong project's data is worse than no panel, so the readout is now
- * inline: the name, the year at the frame's right edge, the line about the
- * project, and one row of mono facts under it — kind, authorship, stack. Every
- * row is complete on its own, nothing is shared state, and the scroll has no
- * opinion about what is being read.
+ * inline: every row is complete on its own, nothing is shared state, and the
+ * scroll has no opinion about what is being read.
  *
  * The columns are fixed, so the year ends on the frame's right edge on every
  * row, and the kind/role/stack line starts on the row's left edge on every row.
@@ -30,6 +37,13 @@ import { Seam } from "./Readout";
 
 /** The three repositories that also have a written line in the record. */
 const FEATURED = new Map(workRows.map((row) => [row.name, row]));
+
+/** What the marquee carries: every repository under the account, with the
+ *  language GitHub reports as its primary. A name and a fact, no figure. */
+const MARQUEE_ITEMS = projects.map((project) => ({
+  value: `nathwn12/${project.dir}`,
+  label: project.tech[0] ?? "",
+}));
 
 export function WorkBand() {
   return (
@@ -52,7 +66,7 @@ export function WorkBand() {
               href="/projects"
               className="data inline-flex min-h-11 items-center border-b border-[color:var(--rec-rule-strong)] text-[color:var(--rec-signal)] transition-[color,border-color] duration-150 hover:border-[color:var(--rec-signal)]"
             >
-              All {countWord(figures.projectCount).toLowerCase()} projects
+              All projects
             </RouteLink>
           </div>
           <p className="mt-4 max-w-[62ch] text-[color:var(--rec-ink-muted)]">
@@ -119,6 +133,11 @@ export function WorkBand() {
           </ol>
         </div>
       </section>
+
+      {/* The band closes on the names themselves: every repository under the
+          account, running past once. The rows above are the argument; this is
+          the size of the set they were drawn from. */}
+      <Marquee items={MARQUEE_ITEMS} />
     </>
   );
 }

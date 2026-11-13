@@ -4,9 +4,9 @@ import {
   formerRoleLine,
   provenance,
 } from "./experience";
-import { countWords, projects } from "./projects";
+import { projects } from "./projects";
 import { repos } from "./skills";
-import { availability, coreStack } from "./hero";
+import { availability, recordOpener } from "./hero";
 
 /**
  * Content module: The record — the home page's rewritten voice.
@@ -126,9 +126,10 @@ export const figures = {
 
 export const name = "Nathaniel Nikolai Ladero";
 
-/** The h1's supporting sentence: who, and what the work was. */
+/** The h1's supporting sentence: who, and what the work was. One sentence,
+    read as identity first and capability second — it names the company once. */
 export const standfirst =
-  `Backend developer for payment and cash-management systems that ran in production, and the author of ${countWords(projects.length)} open-source developer tools.`;
+  "Backend developer at Xentra Infotech Solutions for three years — payments, cash management and access control — and current in AI-assisted development, agent tooling and local models.";
 
 export const locatedIn = "Philippines";
 
@@ -162,14 +163,41 @@ export interface RecordRow {
   figure: string;
 }
 
-/** Home proof rows. Every figure is derived above; a null figure drops the row. */
+/** A parsed percentage as the reduction the band states: "98%" → "−98%",
+ *  "over 40%" → "−40%+". Null when the record holds no percentage. */
+function reductionFigure(text: string | null, plus = false): string | null {
+  if (!text) return null;
+  const value = text.replace(/[^\d.]/g, "");
+  if (!value) return null;
+  return `−${value}%${plus ? "+" : ""}`;
+}
+
+const paymentsFigure = reductionFigure(figures.paymentsPercent);
+const readsFigure = reductionFigure(figures.readLatency, true);
+
+/**
+ * The record band's four outcomes: what the work measured, each with one line
+ * of mechanism. Every figure is derived above — a null figure drops the row.
+ *
+ * The band states outcomes, not biography: the tenure is the cover's fact row,
+ * and the recovery that produced the commit count is stated once, on the
+ * experience route, so the home page never carries the closure a second time.
+ */
 export const proofRows: RecordRow[] = [
-  dataAccess && figures.readLatency
+  payments && paymentsFigure
+    ? {
+        claim: "Payment query latency",
+        detail:
+          "The slow ADO.NET provider replaced across the payment services, profiled and verified on production traffic.",
+        figure: paymentsFigure,
+      }
+    : null,
+  dataAccess && readsFigure
     ? {
         claim: "Reads on high-traffic financial tables",
         detail:
           "Hot read paths moved to Dapper with Redis caching and explicit invalidation on write; indexes were tuned against real query plans.",
-        figure: figures.readLatency,
+        figure: readsFigure,
       }
     : null,
   auth
@@ -180,18 +208,12 @@ export const proofRows: RecordRow[] = [
         figure: "0",
       }
     : null,
-  figures.commits && figures.repositories && figures.scanned
+  figures.commits
     ? {
-        claim: "Commits recovered from the closed company's repositories",
-        detail: `The ledger was rebuilt by scanning ${figures.scanned} internal repositories after Xentra closed in May 2026; ${figures.repositories} of them carry the work.`,
+        claim: "Commits across the fintech platform",
+        detail:
+          "ASP.NET APIs, gRPC, SignalR and RabbitMQ across the fintech product family.",
         figure: figures.commits,
-      }
-    : null,
-  figures.tenure
-    ? {
-        claim: "Continuous employment, remote",
-        detail: `Formerly employed remotely by ${employer.company}, ${employer.period}; the company closed in May 2026.`,
-        figure: figures.tenure,
       }
     : null,
 ].filter((row): row is RecordRow => row !== null);
@@ -200,15 +222,13 @@ export const proofRows: RecordRow[] = [
 
 export interface WorkRow {
   name: string;
-  meta: string;
   line: string;
   url: string;
 }
 
 /**
  * Three featured repositories, in `projects` order, each with a rewritten line.
- * The meta line is derived from the record (kind, authorship, year); the line is
- * new prose, so it cannot duplicate the case notes.
+ * The line is new prose, so it cannot duplicate the case notes.
  */
 const WORK_LINES: Readonly<Record<string, string>> = {
   puppet:
@@ -234,7 +254,6 @@ export function countWord(n: number): string {
 
 export const workRows: WorkRow[] = projects.slice(0, 3).map((project) => ({
   name: project.name,
-  meta: `${project.kind} · ${project.role} · ${project.year}`,
   line: WORK_LINES[project.dir] ?? project.description,
   url: project.url,
 }));
@@ -250,6 +269,25 @@ export const atlasLede = `${repos.length} groups, ${figures.packageCount} named 
 export const forwardLede =
   "The tools are the other half of the record. Every one below is public.";
 
+/* ------------------------------------------------------------------- ai practice */
+
+/**
+ * The capability band: what he does with AI, in his own voice, as prose.
+ *
+ * It is deliberately not an inventory — no repository, product or model name
+ * appears here. The facts under the prose are capabilities; the record of what
+ * ran where is the public work below and the forward notes at the back.
+ */
+export const aiPractice = {
+  heading: "AI practice",
+  sentences: [
+    "Builds the tooling agents run on: MCP servers, editor plugins and the harness that connects them.",
+    "Works with local models daily — prompts, specs and documentation held to the same standard as the code they describe.",
+    "Runs an AI-assisted development loop end to end, from spec to reviewed change.",
+  ],
+  facts: ["MCP servers", "local models", "spec-driven builds"],
+} as const;
+
 /* ------------------------------------------------------------------------ contact */
 
 export const contactBlock = {
@@ -264,21 +302,20 @@ export const CONTACT_CTA = "Email me";
 
 /** Everything the home page says, for the duplication guard in the tests. */
 export const homeSentences: string[] = [
+  recordOpener,
   standfirst,
-  contractLine,
   measurement.label,
   measurement.provenance,
   workLede,
   atlasLede,
+  aiPractice.heading,
+  ...aiPractice.sentences,
   forwardLede,
   contactBlock.line,
   contactBlock.nextStep,
   ...proofRows.flatMap((row) => [row.claim, row.detail]),
   ...workRows.map((row) => row.line),
 ];
-
-/** The stack line, kept from the hero content module. */
-export const stackLine = coreStack;
 
 /** Availability, kept from the hero content module. */
 export const statusLine = availability;

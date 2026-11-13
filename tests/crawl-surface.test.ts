@@ -163,10 +163,10 @@ describe("llms.txt", () => {
 
   test("states the confirmed availability string byte-identically", () => {
     // Case-insensitive, so the shipped capitalised line is actually matched.
-    expect(llms).toMatch(/Open to backend roles \u2014 remote\./i);
+    expect(llms).toMatch(/Open to software engineering roles \u2014 remote\./i);
     expect(llms).toMatch(/\bremote\b/i);
     // The plain-hyphen form is retired; this guard can fire on it.
-    expect(llms).not.toMatch(/Open to backend roles\s*-\s*remote/i);
+    expect(llms).not.toMatch(/Open to software engineering roles\s*-\s*remote/i);
     // The old unresolved phrasing is retired.
     expect(llms).not.toMatch(/open to work/i);
   });

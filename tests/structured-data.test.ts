@@ -63,7 +63,7 @@ describe("JSON-LD Person", () => {
     expect(person?.seeks).toMatchObject({ "@type": "Demand" });
     expect(person?.seeks).not.toHaveProperty("availability");
     const seeks = person?.seeks as { description?: string };
-    expect(seeks.description).toBe("Open to backend roles \u2014 remote.");
+    expect(seeks.description).toBe("Open to software engineering roles \u2014 remote.");
   });
 
   test("does not claim current employment at the closed company", () => {

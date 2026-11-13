@@ -24,7 +24,7 @@ import { Contact } from "../src/components/Contact";
 import { CONTACT_EMAIL } from "../src/lib/contact";
 
 const root = resolve(import.meta.dirname, "..");
-const AVAILABILITY = "Open to backend roles \u2014 remote.";
+const AVAILABILITY = "Open to software engineering roles \u2014 remote.";
 
 let host: HTMLDivElement;
 let mounted: Root | null = null;
@@ -152,6 +152,6 @@ describe("the band does not repeat the documents", () => {
        not as a suffix, not in the markup. */
     await mount();
     expect(host.textContent).not.toContain(AVAILABILITY);
-    expect(host.textContent).not.toMatch(/Open to backend roles/i);
+    expect(host.textContent).not.toMatch(/Open to software engineering roles/i);
   });
 });

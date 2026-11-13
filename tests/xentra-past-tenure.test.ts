@@ -21,6 +21,7 @@ import {
   latestRecordDate,
   provenance,
   tenureEnd,
+  tenureSpan,
 } from "../src/content/experience";
 import { contractLine } from "../src/content/ledger";
 import { ROUTES } from "../src/lib/router";
@@ -28,9 +29,11 @@ import { ROUTES } from "../src/lib/router";
 const root = resolve(import.meta.dirname, "..");
 const read = (rel: string) => readFileSync(resolve(root, rel), "utf8");
 
-/** Components that render the role line must use the past-tense constant. */
+/** Components that render the role line must use the past-tense constant.
+    The cover no longer composes a role line at all — it names the company once
+    in the standfirst and states the closed span as its fact row — so the rule
+    covers the two surfaces that do. */
 const ROLE_SURFACES = [
-  "src/components/FirstScreen.tsx",
   "src/components/Experience.tsx",
   "src/content/ledger.ts",
 ];
@@ -50,7 +53,7 @@ describe("Xentra is stated as past employment", () => {
     expect(contractLine).toBe(formerRoleLine);
   });
 
-  test("every role surface renders the former-employment line", () => {
+  test("every surface that states the role renders the former-employment line", () => {
     for (const rel of ROLE_SURFACES) {
       const source = read(rel);
       expect(
@@ -125,8 +128,12 @@ describe("the record renders the role in the past", () => {
   test("the first screen states the former employment", async () => {
     await mount(FirstScreen);
     const text = host.textContent ?? "";
-    expect(text).toContain(formerRoleLine);
-    expect(text).toContain("March 2023 to May 2026");
+    /* The cover names the company once, inside the standfirst, and states the
+       employment as a closed span that ends in May 2026 — the past framing is
+       carried by the date and the count of names, not by a role line. */
+    expect(text.match(/Xentra Infotech Solutions/g) ?? []).toHaveLength(1);
+    expect(text).toContain(tenureSpan);
+    expect(tenureSpan).toContain("May 2026");
     // The old present-tense composition never reaches the page.
     expect(text).not.toContain("Backend Developer, Xentra");
   });

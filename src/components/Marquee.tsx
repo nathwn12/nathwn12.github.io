@@ -3,14 +3,19 @@ import { gsap } from "gsap";
 import { MOTION_CHANGE_EVENT, motionAllowed } from "../lib/motion";
 
 /**
- * MarqueeFigures — the measured strip, moving.
+ * Marquee — one set of facts, moving as ambient evidence.
  *
- * One linear loop: the figures travel left by exactly half the track, which is
- * the width of one copy, so the join is invisible and the second copy is the
- * first. The duplicate is `aria-hidden` — a screen reader hears seven figures,
- * once — and the whole strip stops when a pointer or a focus lands on it, and
- * does not start at all when motion is off. With motion off the track sits at
- * its origin and the first copy is the strip.
+ * One linear loop: the items travel left by exactly half the track, which is the
+ * width of one copy, so the join is invisible and the second copy is the first.
+ * The duplicate is `aria-hidden` — a screen reader hears the set once — and the
+ * whole strip stops when a pointer or a focus lands on it, and does not start at
+ * all when motion is off. With motion off the track sits at its origin and the
+ * first copy is the strip.
+ *
+ * The band decides what it carries. On the record it is the public work's
+ * repository names: the same list the rows above state, running past as
+ * evidence that there is more than three of them, without restating a figure
+ * the band above already counted.
  *
  * This is the only looping motion on the site. Everything else resolves once.
  */
@@ -22,7 +27,7 @@ interface MarqueeItem {
 
 const DURATION = 42;
 
-export function MarqueeFigures({ items }: { items: MarqueeItem[] }) {
+export function Marquee({ items }: { items: MarqueeItem[] }) {
   const trackRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -68,15 +73,14 @@ export function MarqueeFigures({ items }: { items: MarqueeItem[] }) {
   return (
     /* Inside the frame, so the strip's own rules end on the same two edges as
        every seam and every table on the page. One copy of the track is wider
-       than the frame at every width the frame allows (1820px against a 1216px
-       window at 1440), which is what makes the loop's join invisible: the window
-       never reaches the end of a copy.
+       than the frame at every width the frame allows, which is what makes the
+       loop's join invisible: the window never reaches the end of a copy.
 
        The last 48px at each end are an alpha mask, not painted decoration —
        nothing is drawn there. Without it the window guillotines a word at the
        frame's rule on every frame, which is the "cut mid-word" defect: a ticker
        has to end somewhere, and a mask ends it without leaving half a letter.
-       The track carries a 48px left margin so that at rest the first figure sits
+       The track carries a 48px left margin so that at rest the first item sits
        inside the solid part of the mask, and `xPercent: -50` is measured on the
        track's own box, so the margin cannot drift the loop. */
     <div className="frame">
@@ -99,10 +103,10 @@ export function MarqueeFigures({ items }: { items: MarqueeItem[] }) {
               >
                 {items.map((item) => (
                   <li
-                    key={`${copy}-${item.label}`}
+                    key={`${copy}-${item.value}`}
                     className="flex shrink-0 items-center gap-3 py-5 pr-8 whitespace-nowrap"
                   >
-                    <span className="font-mono text-[0.9375rem] leading-none tracking-[-0.01em] tabular-nums text-[color:var(--rec-measure)]">
+                    <span className="font-mono text-[0.9375rem] leading-none tracking-[-0.01em] text-[color:var(--rec-measure)]">
                       {item.value}
                     </span>
                     <span className="text-[0.8125rem] leading-none text-[color:var(--rec-ink-muted)]">
