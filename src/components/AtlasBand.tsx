@@ -5,23 +5,34 @@ import { Seam } from "./Readout";
 /**
  * AtlasBand — the system atlas, set as a manifest.
  *
- * Six groups on a hairline table: the group, its count, and its packages under
- * three column headings that are the tiers themselves — Daily driver,
- * Production shipped, Working knowledge. The column a package sits in *is* its
- * tier, so no badge, pill, bar or legend has to encode it, and the heading row
- * makes the encoding explicit for a screen reader as well as an eye.
+ * Six groups on a hairline table: the group, its count in a column of its own,
+ * and its packages under three column headings that are the tiers themselves —
+ * Daily driver, Production shipped, Working knowledge. The column a package
+ * sits in *is* its tier, so no badge, pill, bar or legend has to encode it, and
+ * the heading row makes the encoding explicit for a screen reader as well as an
+ * eye.
  *
- * Every one of the 88 packages from content/skills.ts is rendered, once, in
- * mono at 12.5px. Nothing is dropped and nothing is added: this is the list,
- * not a selection, and the band says so. On a phone the table folds into one
- * block per group, each tier block carrying its own heading, so the fold does
- * not cost a reader the tier.
+ * The count used to trail the group's note as a lone number on its own line,
+ * aligned to nothing; it is now its own column under its own heading, so a
+ * column of counts reads down the page. A tier with nothing in it says so with
+ * an em dash rather than an empty cell — a blank reads as a loading failure, and
+ * "this group has no daily-driver package" is a fact about the group.
+ *
+ * The group name is set in the record's heading face at a table's size: the
+ * same Instrument Serif, normal weight and tracking as every claim on the page,
+ * so the manifest's rows introduce themselves the way the page does.
+ *
+ * Every one of the packages from content/skills.ts is rendered, once, in mono at
+ * 12.5px. Nothing is dropped and nothing is added: this is the list, not a
+ * selection, and the band says so. On a phone the table folds into one block per
+ * group, each tier block carrying its own heading, so the fold does not cost a
+ * reader the tier.
  */
 
 const TIER_ORDER: Tier[] = ["DAILY", "PROD", "WORKING"];
 
 const GRID =
-  "grid gap-x-8 gap-y-4 md:grid-cols-[minmax(0,12rem)_repeat(3,minmax(0,1fr))]";
+  "grid gap-x-8 gap-y-4 md:grid-cols-[minmax(0,13rem)_3.5rem_repeat(3,minmax(0,1fr))]";
 
 export function AtlasBand() {
   return (
@@ -30,7 +41,7 @@ export function AtlasBand() {
       <section
         id="atlas"
         aria-labelledby="atlas-heading"
-        className="py-[var(--rec-band)] md:py-[var(--rec-band-lg)]"
+        className="py-[var(--rec-rhythm)] md:py-[var(--rec-rhythm-lg)]"
       >
         <div className="frame">
           <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
@@ -58,6 +69,9 @@ export function AtlasBand() {
               <span className="data data--sm text-[color:var(--rec-ink-muted)]">
                 group
               </span>
+              <span className="data data--sm text-right text-[color:var(--rec-ink-muted)]">
+                packages
+              </span>
               {TIER_ORDER.map((tier) => (
                 <span
                   key={tier}
@@ -75,34 +89,51 @@ export function AtlasBand() {
                 className={`atlas__group ${GRID} border-b border-[color:var(--rec-rule)] py-5`}
               >
                 <div>
-                  <h3 className="text-[0.9375rem]! font-semibold tracking-[-0.01em] text-[color:var(--rec-ink)]">
+                  <h3 className="font-display text-[1.0625rem]! leading-[1.25]! font-normal! tracking-[-0.01em]! text-[color:var(--rec-ink)]">
                     {group.label}
                   </h3>
-                  <p className="mt-1 hidden max-w-[30ch] text-[0.75rem] leading-[1.45] text-[color:var(--rec-ink-muted)] md:block">
+                  <p className="mt-1 hidden max-w-[28ch] text-[0.75rem] leading-[1.45] text-[color:var(--rec-ink-muted)] md:block">
                     {GROUP_NOTES[group.label]}
-                  </p>
-                  <p className="data data--sm mt-2 text-[color:var(--rec-measure)] tabular-nums">
-                    {group.packages.length}
                   </p>
                 </div>
 
-                {TIER_ORDER.map((tier) => (
-                  <div key={tier}>
-                    <p className="data data--sm mb-1 text-[color:var(--rec-ink-muted)] md:hidden">
-                      {TIER_WORDS[tier]}
-                    </p>
-                    <p className="font-mono text-[0.78125rem] leading-[1.6] text-[color:var(--rec-ink-muted)]">
-                      {group.packages
-                        .filter((pkg) => pkg.tier === tier)
-                        .map((pkg, position, list) => (
-                          <span key={pkg.slug}>
-                            <span data-package={pkg.slug}>{pkg.name}</span>
-                            {position < list.length - 1 ? ", " : ""}
+                <p
+                  data-atlas-count
+                  className="data data--sm tabular-nums text-[color:var(--rec-measure)] md:self-start md:text-right"
+                >
+                  {group.packages.length}
+                  <span className="md:hidden"> packages</span>
+                </p>
+
+                {TIER_ORDER.map((tier) => {
+                  const packages = group.packages.filter(
+                    (pkg) => pkg.tier === tier,
+                  );
+                  return (
+                    <div key={tier} data-atlas-cell>
+                      <p className="data data--sm mb-1 text-[color:var(--rec-ink-muted)] md:hidden">
+                        {TIER_WORDS[tier]}
+                      </p>
+                      <p className="font-mono text-[0.78125rem] leading-[1.6] text-[color:var(--rec-ink-muted)]">
+                        {packages.length > 0 ? (
+                          packages.map((pkg, position) => (
+                            <span key={pkg.slug}>
+                              <span data-package={pkg.slug}>{pkg.name}</span>
+                              {position < packages.length - 1 ? ", " : ""}
+                            </span>
+                          ))
+                        ) : (
+                          <span
+                            className="text-[color:var(--rec-ink-muted)]"
+                            aria-label="no package in this tier"
+                          >
+                            —
                           </span>
-                        ))}
-                    </p>
-                  </div>
-                ))}
+                        )}
+                      </p>
+                    </div>
+                  );
+                })}
               </div>
             ))}
           </div>

@@ -91,6 +91,14 @@
   --rec-band: 4rem;
   --rec-band-lg: 7rem;
 
+  /* The seamed bands' rhythm: the most air a band may leave between its own
+     content and the seam that closes it. One step, and the same step at every
+     seam, so the record reads as one measured column instead of a stack of
+     slides with gaps between them. (--rec-band is the section-banded pages'
+     air and is deliberately larger; the home record does not use it.) */
+  --rec-rhythm: var(--rec-space-6);
+  --rec-rhythm-lg: var(--rec-space-7);
+
   /* --- STRUCTURE -------------------------------------------------------- */
   --rec-rule-w: 1px;
   /* The sticky bar's own height: the scroll offset in base.css is derived from

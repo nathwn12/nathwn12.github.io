@@ -8,22 +8,25 @@ import { MarqueeFigures } from "./MarqueeFigures";
 /**
  * ProofBand — the record, as measured.
  *
- * Seven readouts on one hairline strip: the recovered commits, the repositories
- * that carry them, the tools, the packages, and the three results that were
- * measured in production. Each one counts up once, the first time the band is
- * seen — and each one renders its final value in the DOM from the first paint,
- * so a visitor with no JavaScript, no motion, or a screen reader gets the
- * number and not a zero. The script starts the count from zero; the document
- * never contains a placeholder.
+ * Seven figures exist on this page and they say it once each:
+ *   • the strip carries the three results the band is actually about — the
+ *     payment latency, the read latency, and the zero security findings — each
+ *     counting up once, the first time the band is seen, and each rendering its
+ *     final value in the DOM from the first paint, so a visitor with no
+ *     JavaScript, no motion, or a screen reader gets the number and not a zero;
+ *   • the provenance sentence carries the recovery story, once, in prose: the
+ *     ledger was rebuilt by scanning twenty-one internal repositories after the
+ *     company closed, and 1,182 commits across 17 repositories came back;
+ *   • the marquee is the ambient repeat of the whole set.
  *
- * The provenance sentence sits under the strip in its own hairline panel rather
- * than as a caption, because it is the strongest sentence on the page: the
- * ledger was rebuilt by scanning twenty-one internal repositories after the
- * company closed, and the figures above are what came back.
+ * The seven-on-one-strip version stated the inventory twice inside 400px — the
+ * count of commits in a cell and again in the sentence directly beneath it —
+ * and then a third time as the marquee crossed. A figure repeated in the same
+ * eyeful reads as a page that does not know what it has said.
  *
- * The marquee repeats the same seven figures across the seam below the band. It
- * is the only looping thing on the site, its duplicate copy is `aria-hidden`,
- * and it stops on hover, on focus, and entirely when motion is off.
+ * The strip is one grid with two rows — every value on the first, every label on
+ * the second — so the figures share a baseline even when a label wraps, and each
+ * figure opens on its own hairline, aligned with the others.
  */
 
 interface Figure {
@@ -34,6 +37,8 @@ interface Figure {
   /** Which format the tween writes. */
   format: "grouped" | "plain" | "percent" | "percentPlus";
   label: string;
+  /** True for the three results the strip states; the rest are the marquee's. */
+  proof?: boolean;
 }
 
 const percentNumber = (text: string | null): number | null =>
@@ -43,7 +48,7 @@ const payments = percentNumber(figures.paymentsPercent);
 const readLatency = percentNumber(figures.readLatency);
 
 /** The seven figures, in the order they are read. A null is dropped, not faked. */
-export const PROOF_FIGURES: Figure[] = [
+const RECORD_FIGURE_CANDIDATES: Array<Figure | null> = [
   figures.commits
     ? {
         value: figures.commits,
@@ -78,6 +83,7 @@ export const PROOF_FIGURES: Figure[] = [
         target: payments,
         format: "percent" as const,
         label: "payment latency, after the provider change",
+        proof: true,
       }
     : null,
   readLatency !== null
@@ -86,6 +92,7 @@ export const PROOF_FIGURES: Figure[] = [
         target: readLatency,
         format: "percentPlus" as const,
         label: "read latency on high-traffic tables",
+        proof: true,
       }
     : null,
   {
@@ -93,8 +100,23 @@ export const PROOF_FIGURES: Figure[] = [
     target: 0,
     format: "plain" as const,
     label: "high or critical Snyk findings",
+    proof: true,
   },
-].filter((figure): figure is Figure => figure !== null);
+];
+
+/** The seven, for the marquee: the ambient repeat of the whole set. A null is
+ *  dropped rather than faked, so a figure that cannot be derived is absent. */
+export const RECORD_FIGURES: Figure[] = RECORD_FIGURE_CANDIDATES.filter(
+  (figure): figure is Figure => figure !== null,
+);
+
+/** The three results that were measured in production: what the strip states. */
+export const PROOF_FIGURES: Figure[] = RECORD_FIGURES.filter(
+  (figure) => figure.proof,
+);
+
+/** Hardcoded, because Tailwind only sees a class it can read in the source. */
+const COLUMNS = ["sm:col-start-1", "sm:col-start-2", "sm:col-start-3"] as const;
 
 /** Write a counted value in the figure's own format. */
 function formatFigure(format: Figure["format"], value: number): string {
@@ -121,7 +143,7 @@ export function ProofBand() {
       <section
         id="proof"
         aria-labelledby="proof-heading"
-        className="py-[var(--rec-band)] md:py-[var(--rec-band-lg)]"
+        className="py-[var(--rec-rhythm)] md:py-[var(--rec-rhythm-lg)]"
       >
         <div className="frame">
           <h2
@@ -131,47 +153,51 @@ export function ProofBand() {
             What the record shows
           </h2>
 
+          {/* Below `sm` each figure is its own ruled row; from `sm` up the
+              wrappers dissolve (`contents`) and the dl itself is the grid, so a
+              wrapped label cannot push its number off the shared baseline. */}
           <dl
             ref={stripRef}
-            className="mt-8 grid grid-cols-2 gap-x-6 sm:grid-cols-3 lg:grid-cols-7"
+            className="mt-8 grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-3 sm:grid-rows-[auto_auto] sm:gap-y-3"
           >
-            {PROOF_FIGURES.map((figure) => (
+            {PROOF_FIGURES.map((figure, index) => (
               <div
                 key={figure.label}
-                className="flex flex-col-reverse gap-3 border-t border-[color:var(--rec-rule)] py-4"
+                className="border-t border-[color:var(--rec-rule)] py-4 sm:contents"
               >
-                <dt className="max-w-[22ch] text-[0.8125rem] leading-[1.4] text-[color:var(--rec-ink-muted)]">
-                  {figure.label}
-                </dt>
                 <dd
                   data-target={figure.target}
                   data-format={figure.format}
-                  className="font-mono text-[length:clamp(1.5rem,1.1rem+1.2vw,2rem)] leading-none tracking-[-0.02em] tabular-nums text-[color:var(--rec-measure)]"
+                  className={`font-mono text-[length:clamp(1.75rem,1.2rem+1.6vw,2.25rem)] leading-none tracking-[-0.02em] tabular-nums text-[color:var(--rec-measure)] sm:row-start-1 sm:self-end sm:border-t sm:border-[color:var(--rec-rule)] sm:pt-4 ${COLUMNS[index]}`}
                 >
                   {figure.value}
                 </dd>
+                <dt className="mt-3 max-w-[26ch] text-[0.8125rem] leading-[1.4] text-[color:var(--rec-ink-muted)] sm:row-start-2 sm:mt-0 sm:self-start">
+                  {figure.label}
+                </dt>
               </div>
             ))}
           </dl>
 
-          <div className="mt-8 border border-[color:var(--rec-rule)] p-5 md:p-6">
-            <p className="max-w-[72ch] text-[0.9375rem] leading-[1.55] text-[color:var(--rec-ink-muted)]">
+          {/* The recovery story, once, in prose — and the way into the detail
+              route on the frame's own right edge. A rule above it, no box: the
+              band is a column of the record, not a card on it. */}
+          <div className="mt-8 grid gap-x-12 gap-y-4 border-t border-[color:var(--rec-rule)] pt-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-baseline">
+            <p className="max-w-[62ch] text-[0.9375rem] leading-[1.55] text-[color:var(--rec-ink-muted)]">
               {provenance}
             </p>
-            <p>
-              <RouteLink
-                href="/experience"
-                className="data mt-2 inline-flex min-h-11 items-center text-[color:var(--rec-signal)] underline decoration-[color:var(--rec-rule-strong)] decoration-1 underline-offset-[0.3em] transition-[color,text-decoration-color,border-color] duration-150 hover:decoration-[color:var(--rec-signal)]"
-              >
-                Read the delivered record
-              </RouteLink>
-            </p>
+            <RouteLink
+              href="/experience"
+              className="data inline-flex min-h-11 items-center border-b border-[color:var(--rec-rule-strong)] text-[color:var(--rec-signal)] transition-[color,border-color] duration-150 hover:border-[color:var(--rec-signal)]"
+            >
+              Read the delivered record
+            </RouteLink>
           </div>
         </div>
       </section>
 
       <MarqueeFigures
-        items={PROOF_FIGURES.map((figure) => ({
+        items={RECORD_FIGURES.map((figure) => ({
           value: figure.value,
           label: figure.label,
         }))}

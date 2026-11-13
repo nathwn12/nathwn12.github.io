@@ -66,33 +66,58 @@ export function MarqueeFigures({ items }: { items: MarqueeItem[] }) {
   }, []);
 
   return (
-    <div className="overflow-hidden border-y border-[color:var(--rec-rule)]">
-      <div ref={trackRef} className="flex w-max">
-        {[0, 1].map((copy) => (
-          <ul
-            key={copy}
-            aria-hidden={copy === 1 ? "true" : undefined}
-            className="flex items-center"
-          >
-            {items.map((item) => (
-              <li
-                key={`${copy}-${item.label}`}
-                className="flex shrink-0 items-center gap-3 py-3 pr-0 pl-6 whitespace-nowrap"
+    /* Inside the frame, so the strip's own rules end on the same two edges as
+       every seam and every table on the page. One copy of the track is wider
+       than the frame at every width the frame allows (1820px against a 1216px
+       window at 1440), which is what makes the loop's join invisible: the window
+       never reaches the end of a copy.
+
+       The last 48px at each end are an alpha mask, not painted decoration —
+       nothing is drawn there. Without it the window guillotines a word at the
+       frame's rule on every frame, which is the "cut mid-word" defect: a ticker
+       has to end somewhere, and a mask ends it without leaving half a letter.
+       The track carries a 48px left margin so that at rest the first figure sits
+       inside the solid part of the mask, and `xPercent: -50` is measured on the
+       track's own box, so the margin cannot drift the loop. */
+    <div className="frame">
+      <div className="overflow-hidden border-y border-[color:var(--rec-rule)]">
+        <div
+          className="overflow-hidden"
+          style={{
+            maskImage:
+              "linear-gradient(to right, transparent 0, #000 48px, #000 calc(100% - 48px), transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0, #000 48px, #000 calc(100% - 48px), transparent 100%)",
+          }}
+        >
+          <div ref={trackRef} className="ml-12 flex w-max">
+            {[0, 1].map((copy) => (
+              <ul
+                key={copy}
+                aria-hidden={copy === 1 ? "true" : undefined}
+                className="flex items-center"
               >
-                <span className="font-mono text-[0.9375rem] leading-none tracking-[-0.01em] tabular-nums text-[color:var(--rec-measure)]">
-                  {item.value}
-                </span>
-                <span className="text-[0.8125rem] leading-[1.3] text-[color:var(--rec-ink-muted)]">
-                  {item.label}
-                </span>
-                <span
-                  aria-hidden="true"
-                  className="ml-3 inline-block h-3 w-px bg-[color:var(--rec-rule-strong)]"
-                />
-              </li>
+                {items.map((item) => (
+                  <li
+                    key={`${copy}-${item.label}`}
+                    className="flex shrink-0 items-center gap-3 py-5 pr-8 whitespace-nowrap"
+                  >
+                    <span className="font-mono text-[0.9375rem] leading-none tracking-[-0.01em] tabular-nums text-[color:var(--rec-measure)]">
+                      {item.value}
+                    </span>
+                    <span className="text-[0.8125rem] leading-none text-[color:var(--rec-ink-muted)]">
+                      {item.label}
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className="ml-3 inline-block h-3 w-px bg-[color:var(--rec-rule-strong)]"
+                    />
+                  </li>
+                ))}
+              </ul>
             ))}
-          </ul>
-        ))}
+          </div>
+        </div>
       </div>
     </div>
   );
