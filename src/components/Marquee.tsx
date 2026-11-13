@@ -71,8 +71,11 @@ export function Marquee({ items }: { items: MarqueeItem[] }) {
   }, []);
 
   return (
-    /* Inside the frame, so the strip's own rules end on the same two edges as
-       every seam and every table on the page. One copy of the track is wider
+    /* Inside the frame, so the strip's own rule ends on the same two edges as
+       every seam and every table on the page. The strip is held by a rule on its
+       top edge only: the seam that closes the band is its bottom edge, and a
+       second border there painted a 2px line where every other rule on the page
+       is 1px. One copy of the track is wider
        than the frame at every width the frame allows, which is what makes the
        loop's join invisible: the window never reaches the end of a copy.
 
@@ -84,7 +87,7 @@ export function Marquee({ items }: { items: MarqueeItem[] }) {
        inside the solid part of the mask, and `xPercent: -50` is measured on the
        track's own box, so the margin cannot drift the loop. */
     <div className="frame">
-      <div className="overflow-hidden border-y border-[color:var(--rec-rule)]">
+      <div className="overflow-hidden border-t border-[color:var(--rec-rule)]">
         <div
           className="overflow-hidden"
           style={{

@@ -31,7 +31,7 @@ export function CredentialsBand() {
       <section
         id="credentials"
         aria-labelledby="credentials-heading"
-        className="py-[var(--rec-rhythm)] md:py-[var(--rec-rhythm-lg)]"
+        className="pt-[var(--rec-rhythm)] pb-0 md:pt-[var(--rec-rhythm-lg)]"
       >
         <div className="frame">
           <h2
@@ -45,7 +45,7 @@ export function CredentialsBand() {
             {credentials.map((cert) => (
               <li
                 key={cert.id}
-                className="grid gap-x-8 gap-y-2 border-b border-[color:var(--rec-rule)] py-4 md:grid-cols-[minmax(0,1fr)_max-content] md:items-baseline"
+                className="grid gap-x-8 gap-y-2 border-b border-[color:var(--rec-rule)] py-4 last:border-b-0 md:grid-cols-[minmax(0,1fr)_max-content] md:items-baseline"
               >
                 <div>
                   <p className="font-semibold tracking-[-0.01em] text-[color:var(--rec-ink)]">
