@@ -10,9 +10,12 @@
    Instrument Serif  InstrumentSerif-Regular.woff2  400        OFL-InstrumentSerif.txt
    Instrument Serif  InstrumentSerif-Italic.woff2   400 italic OFL-InstrumentSerif.txt
    Archivo           Archivo-Variable.woff2          100–900    OFL-Archivo.txt
-   JetBrains Mono    JetBrainsMono-Regular.woff2     400        OFL-JetBrainsMono.txt
-   JetBrains Mono    JetBrainsMono-Medium.woff2      500        OFL-JetBrainsMono.txt
+   JetBrains Mono    JetBrainsMono-Regular.woff2     400–500    OFL-JetBrainsMono.txt
    Inter             inter-latin.woff2               400–700    OFL-Inter.txt
+
+   The JetBrains Mono slice Google serves covers 400 and 500 in one file, and
+   the two files it was committed as were byte-identical: one file, declared
+   `400 500`, is the same face with one fewer request on the critical path.
 
    Inter is kept as the metric-matched body fallback (see the face below), not
    as a primary role: the record is set in Archivo.
@@ -57,21 +60,11 @@
     U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* --- Data: JetBrains Mono, two cuts ------------------------------------- */
+/* --- Data: JetBrains Mono, one slice for both weights -------------------- */
 @font-face {
   font-family: "JetBrains Mono";
   src: url("/fonts/JetBrainsMono-Regular.woff2") format("woff2");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
-    U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
-    U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-  font-family: "JetBrains Mono";
-  src: url("/fonts/JetBrainsMono-Medium.woff2") format("woff2");
-  font-weight: 500;
+  font-weight: 400 500;
   font-style: normal;
   font-display: swap;
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,

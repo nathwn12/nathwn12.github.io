@@ -109,11 +109,8 @@
 
   /* --- MOTION ----------------------------------------------------------- */
   --rec-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-  --rec-ease-seam: cubic-bezier(0.65, 0, 0.35, 1);
   --rec-dur-quick: 140ms;
   --rec-dur-base: 280ms;
-  --rec-dur-exit: 240ms; /* route change: the page leaves */
-  --rec-dur-enter: 420ms; /* route change: the page arrives */
 
   /* --- LAYERS — content, then chrome, then the instruments --------------- */
   --rec-z-header: 50;

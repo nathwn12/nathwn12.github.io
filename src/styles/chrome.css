@@ -136,28 +136,6 @@ html[data-motion="off"] .grain {
   opacity: 0.92;
 }
 
-/* Where the browser owns the transition, its two halves run on the same clock
-   and in the same direction as the curtain: the old page rises out, the new one
-   rises in. A plain cross-fade would read as a different product. */
-::view-transition-old(root) {
-  animation: rec-seam-out var(--rec-dur-exit) var(--rec-ease-seam) both;
-}
-::view-transition-new(root) {
-  animation: rec-seam-in var(--rec-dur-enter) var(--rec-ease-seam) both;
-}
-@keyframes rec-seam-out {
-  to {
-    transform: translateY(-6%);
-    opacity: 0;
-  }
-}
-@keyframes rec-seam-in {
-  from {
-    transform: translateY(6%);
-    opacity: 0;
-  }
-}
-
 /* --- MASTHEAD -----------------------------------------------------------
    Sticky, one hairline under it, the mark on the left and three destinations
    on the right. Below 900px the same nav becomes a panel under the rail. */

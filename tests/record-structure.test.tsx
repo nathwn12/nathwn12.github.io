@@ -18,10 +18,13 @@
  */
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
+import { renderToStaticMarkup } from "react-dom/server";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { Record } from "../src/components/Record";
+import { Header } from "../src/components/Header";
+import { Footer } from "../src/components/Footer";
 import { experience, provenance } from "../src/content/experience";
 import { projects } from "../src/content/projects";
 import { repos } from "../src/content/skills";
@@ -35,6 +38,12 @@ import {
 } from "../src/content/ledger";
 
 const root = resolve(import.meta.dirname, "..");
+
+/** The strip's readouts, in reading order. */
+const stripReadouts = (scope: ParentNode): string[] =>
+  [...scope.querySelectorAll("dd")].map((cell) =>
+    (cell.textContent ?? "").trim(),
+  );
 
 const sentences = (text: string): string[] =>
   text
@@ -105,7 +114,7 @@ describe("figures are derived from the delivered record", () => {
 
   test("counts equal the content they count", () => {
     expect(figures.projectCount).toBe(projects.length);
-    expect(figures.projectCount).toBe(11);
+    expect(figures.projectCount).toBe(13);
     expect(figures.groupCount).toBe(repos.length);
     expect(figures.packageCount).toBe(
       repos.reduce((total, group) => total + group.packages.length, 0),
@@ -185,10 +194,34 @@ describe("the rendered record", () => {
     host?.remove();
   });
 
-  test("exactly one h1, and it names the person", () => {
+  test("exactly one h1, and the identity is carried by the mark and the imprint", () => {
+    /* The display block is the claim, not the name: a hero set in the person's
+       own name is a business card, and the record opens on what it can prove.
+       The identity still has to be present and findable — it is the header
+       mark's accessible name and the colophon's imprint, both on every route. */
     const h1s = host.querySelectorAll("h1");
     expect(h1s).toHaveLength(1);
-    expect(h1s[0].textContent).toContain("Nathaniel Nikolai Ladero");
+    /* The claim is set as three hand-broken lines; the break is structure, so
+       the lines are asserted as lines and then as the one sentence. */
+    const lines = [...h1s[0].querySelectorAll("[data-cover-line]")].map((node) =>
+      (node.textContent ?? "").trim(),
+    );
+    expect(lines).toEqual([
+      "Payment backends",
+      "that hold up under",
+      "production load.",
+    ]);
+    expect(lines.join(" ")).toBe(
+      "Payment backends that hold up under production load.",
+    );
+
+    const header = renderToStaticMarkup(createElement(Header));
+    expect(header).toContain('aria-label="Nathaniel Nikolai Ladero, home"');
+
+    const footer = renderToStaticMarkup(createElement(Footer));
+    expect(footer).toContain(
+      `© ${new Date().getFullYear()} Nathaniel Nikolai Ladero.`,
+    );
   });
 
   test("every band is a labelled section with a real heading", () => {
@@ -254,9 +287,19 @@ describe("the rendered record", () => {
     }
   });
 
-  test("the delivery figure appears exactly once", () => {
-    const matches = (host.textContent ?? "").match(/1,182/g) ?? [];
-    expect(matches).toHaveLength(1);
+  test("the delivery figure is stated once per surface, and never invented", () => {
+    /* The strip states the three measured results; the delivery figure lives in
+       the provenance sentence that says where it came from, and in the marquee —
+       whose second copy is `aria-hidden`, so a screen reader hears it once. Any
+       further appearance would be the page repeating itself. */
+    const proof = host.querySelector("#proof")!;
+    expect(stripReadouts(proof)).toEqual(["−98%", "−40%+", "0"]);
+
+    const proofText = proof.textContent ?? "";
+    expect(proofText.match(/1,182/g)).toHaveLength(1);
+
+    const outside = (host.textContent ?? "").replace(proofText, "");
+    expect(outside.match(/1,182/g)).toHaveLength(2);
   });
 
   test("one contact CTA phrase, used for every contact action", () => {

@@ -108,9 +108,12 @@ describe("the figures", () => {
     expect(figures.scanned).toBe("21");
   });
 
-  test("eleven projects and 88 packages", () => {
-    expect(projects).toHaveLength(11);
-    expect(figures.projectCount).toBe(11);
+  test("thirteen projects and 88 packages", () => {
+    /* Thirteen cards: the fifteen public repositories in the 2026-11-13 probe
+       (src/content/repos.probe.json) minus the profile README and this site.
+       tests/project-inventory.test.ts holds the per-card mapping. */
+    expect(projects).toHaveLength(13);
+    expect(figures.projectCount).toBe(13);
     expect(repos).toHaveLength(6);
     expect(figures.packageCount).toBe(88);
   });

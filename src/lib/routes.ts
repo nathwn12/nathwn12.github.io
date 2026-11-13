@@ -47,7 +47,7 @@ const FULL_NAME = "Nathaniel Nikolai Ladero";
 /** index.html default meta content — kept verbatim for home-route parity.
    Keep in sync with index.html's <head> if either is edited. */
 export const HOME_META_DESCRIPTION =
-  "Backend developer for payment and cash-management systems that ran in production — and the author of eleven open-source developer tools.";
+  "Backend developer for payment and cash-management systems that ran in production — and the author of thirteen open-source developer tools.";
 export const HOME_OG_DESCRIPTION = HOME_META_DESCRIPTION;
 
 export const ROUTES: readonly RouteDef[] = [

@@ -1,16 +1,20 @@
 /**
- * Local font integration — Inter, one family, one file.
+ * Local font integration — four files, three families, no remote request.
  *
- * The redesign retired Newsreader: the record is set in a single grotesque and
- * spends the 132 kB the second face cost on nothing at all. Inter ships from
- * `public/fonts` as a latin WOFF2 with its official OFL 1.1 licence; there is no
- * remote font request and no package dependency. The hash pins the owner-
- * approved staged file, so a swap cannot slip in unnoticed, and `font-display:
- * swap` is asserted because a blocking swap would move the first paint.
+ * The record is set in Instrument Serif (display), Archivo (text) and
+ * JetBrains Mono (data), all self-hosted from `public/fonts` with their OFL 1.1
+ * licences. Inter survives as the metric-matched body fallback: its average
+ * advance is within ~2% of the adjusted local face that follows it, so the swap
+ * from fallback to Archivo moves letterforms and not line breaks.
+ *
+ * The hash pins the owner-approved Inter asset, so a swap cannot slip in
+ * unnoticed; `font-display: swap` is asserted because a blocking swap would move
+ * the first paint; and the preload is asserted against the display cut, which is
+ * the face the LCP line is set in.
  *
  * Every assertion below can go red.
  *
- *   pnpm vitest run tests/fonts.test.ts
+ *   bunx vitest run tests/fonts.test.ts
  */
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
@@ -21,7 +25,8 @@ const root = resolve(import.meta.dirname, "..");
 const read = (rel: string) => readFileSync(resolve(root, rel), "utf8");
 const bytes = (rel: string) => readFileSync(resolve(root, rel));
 
-const CSS = read("src/index.css");
+const CSS = read("src/styles/fonts.css");
+const TOKENS = read("src/styles/tokens.css");
 const HTML = read("index.html");
 
 /** The staged 2026-10-24 asset, pinned by SHA-256. */
@@ -49,34 +54,53 @@ describe("the font is local, licensed, and correctly declared", () => {
     ).toBe("wOF2");
   });
 
-  test("Inter sets both display and text at weight 400-700", () => {
+  test("Inter is the fallback face, declared 400-700 behind Archivo", () => {
     const face = faceBlock("Inter");
     expect(face).toContain('url("/fonts/inter-latin.woff2") format("woff2")');
     expect(face).toContain("font-weight: 400 700");
     expect(face).toContain("font-display: swap");
     expect(face).toContain("unicode-range: U+0000-00FF");
     expect(face).toContain("U+FFFD");
-    expect(CSS).toContain('--font-sans: "Inter"');
-    expect(CSS).toContain('--font-display: "Inter"');
-    // The mono slot stays an alias of the body face — never a second family.
-    expect(CSS).toContain('--font-mono: "Inter"');
+    // The stack decides the role: Archivo first, Inter second, and the mono
+    // slot never falls back to a proportional face.
+    expect(TOKENS).toContain('--font-sans: "Archivo", "Inter"');
+    expect(TOKENS).toContain('--font-mono: "JetBrains Mono"');
   });
 
-  test("index.html preloads the one shipped WOFF2", () => {
+  test("index.html preloads the one shipped display cut", () => {
     const preloads = [
-      ...HTML.matchAll(/<link rel="preload" as="font"[^>]*href="([^"]+)"/g),
-    ].map((match) => match[1]);
-    expect(preloads).toEqual(["/fonts/inter-latin.woff2"]);
+      ...HTML.matchAll(/<link\b[^>]*\brel="preload"[^>]*>/gs),
+    ]
+      .filter((match) => /as="font"/.test(match[0]))
+      .map((match) => match[0].match(/href="([^"]+)"/)?.[1]);
+    expect(preloads).toEqual(["/fonts/InstrumentSerif-Regular.woff2"]);
+  });
+
+  test("the two byte-identical mono cuts ship as one file", () => {
+    /* Google serves one variable slice for JetBrains Mono; committing it twice
+       under two names cost a second request on the critical path. One file,
+       declared 400 500. */
+    expect(
+      existsSync(resolve(root, "public/fonts/JetBrainsMono-Medium.woff2")),
+    ).toBe(false);
+    expect(CSS.match(/url\("\/fonts\/JetBrainsMono-Regular\.woff2"\)/g)).toHaveLength(
+      1,
+    );
+    expect(faceBlock("JetBrains Mono")).toContain("font-weight: 400 500");
   });
 
   test("no retired face is still served or referenced", () => {
-    for (const retired of ["fraunces", "public-sans", "newsreader"]) {
+    for (const retired of ["fraunces", "public-sans", "newsreader", "opencode"]) {
       expect(CSS.toLowerCase()).not.toContain(retired);
       expect(HTML.toLowerCase()).not.toContain(retired);
     }
-    expect(
-      existsSync(resolve(root, "public/fonts/newsreader-latin.woff2")),
-    ).toBe(false);
+    for (const file of [
+      "newsreader-latin.woff2",
+      "OpenCode.otf",
+      "JetBrainsMono-Medium.woff2",
+    ]) {
+      expect(existsSync(resolve(root, "public/fonts", file)), file).toBe(false);
+    }
   });
 
   test("no remote font request anywhere in the shipped sources", () => {
@@ -91,7 +115,9 @@ describe("the font is local, licensed, and correctly declared", () => {
     expect(licence).toContain("The Inter Project Authors");
   });
 
-  test("the colophon credits the shipped family", () => {
-    expect(read("src/components/Footer.tsx")).toContain("Set in Inter.");
+  test("the colophon credits the shipped families", () => {
+    expect(read("src/components/Footer.tsx")).toContain(
+      "Set in Instrument Serif, Archivo and JetBrains Mono.",
+    );
   });
 });

@@ -4,14 +4,15 @@ import { JSDOM } from "jsdom";
 import { describe, expect, test } from "vitest";
 
 // The FIRST inline `<script>` in index.html runs before first paint and seeds
-// `data-theme` on <html>. Its only failure mode is a flash of the wrong theme
-// for every visitor, so it is pinned here by executing the real script body
-// against a controlled jsdom global rather than by asserting on its text.
+// `data-motion` on <html>. Its only failure mode is a flash of motion for a
+// visitor who already turned it off, so it is pinned here by executing the real
+// script body against a controlled jsdom global rather than by asserting on its
+// text.
 const root = resolve(import.meta.dirname, "..");
+const HTML = readFileSync(resolve(root, "index.html"), "utf8");
 
 function readPrepaintScript(): string {
-  const html = readFileSync(resolve(root, "index.html"), "utf8");
-  const match = html.match(/<script>([\s\S]*?)<\/script>/);
+  const match = HTML.match(/<script>([\s\S]*?)<\/script>/);
   if (!match) {
     throw new Error("index.html has no inline <script> block to test");
   }
@@ -19,216 +20,98 @@ function readPrepaintScript(): string {
 }
 
 type StoredBehavior = string | null | "throw";
-type MatchMediaBehavior = "absent" | "throw" | "matches" | "no-match";
 
 interface PrepaintCase {
   name: string;
   stored: StoredBehavior;
-  matchMedia: MatchMediaBehavior;
-  expected: "light" | "dark";
+  expected: "on" | "off";
 }
 
-/** The theme-color pair index.html ships as its no-JS fallback. */
-const THEME_COLOR_METAS = [
-  '<meta name="theme-color" media="(prefers-color-scheme: light)" content="#F2F1EC" />',
-  '<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101315" />',
-].join("");
-
-function runPrepaintDocument(
+/**
+ * Run the real script body. The document carries no theme-color metas and no
+ * media query of any kind: the motion script must not need either.
+ */
+function runPrepaint(
   script: string,
-  behavior: Pick<PrepaintCase, "stored" | "matchMedia">,
-  { metas = false }: { metas?: boolean } = {},
-): { theme: string; themeColors: string[] } {
-  const dom = new JSDOM(
-    `<!DOCTYPE html><html><head>${metas ? THEME_COLOR_METAS : ""}</head><body></body></html>`,
-    { url: "https://nathwn12.github.io/", runScripts: "outside-only" },
-  );
+  stored: StoredBehavior,
+): { motion: string; theme: string | null; themeColors: string[] } {
+  const dom = new JSDOM(`<!DOCTYPE html><html><head></head><body></body></html>`, {
+    url: "https://nathwn12.github.io/",
+    runScripts: "outside-only",
+  });
   const { window } = dom;
 
   Object.defineProperty(window, "localStorage", {
     configurable: true,
     value: {
       getItem: (key: string) => {
-        if (behavior.stored === "throw") {
+        if (stored === "throw") {
           throw new Error(`storage blocked while reading ${key}`);
         }
-        return behavior.stored;
+        return stored;
       },
     },
   });
 
-  if (behavior.matchMedia === "absent") {
-    Object.defineProperty(window, "matchMedia", {
-      configurable: true,
-      value: undefined,
-    });
-  } else if (behavior.matchMedia === "throw") {
-    Object.defineProperty(window, "matchMedia", {
-      configurable: true,
-      value: () => {
-        throw new Error("matchMedia unavailable");
-      },
-    });
-  } else {
-    const matches = behavior.matchMedia === "matches";
-    Object.defineProperty(window, "matchMedia", {
-      configurable: true,
-      value: (query: string) => ({
-        matches,
-        media: query,
-        onchange: null,
-        addListener: () => undefined,
-        removeListener: () => undefined,
-        addEventListener: () => undefined,
-        removeEventListener: () => undefined,
-        dispatchEvent: () => false,
-      }),
-    });
-  }
+  /* A throwing matchMedia is the harshest environment available: the script
+     must still land on its default without asking the OS anything. */
+  Object.defineProperty(window, "matchMedia", {
+    configurable: true,
+    value: () => {
+      throw new Error("matchMedia must not be read before paint");
+    },
+  });
 
   window.eval(script);
+
   return {
-    theme: window.document.documentElement.dataset.theme ?? "",
+    motion: window.document.documentElement.dataset.motion ?? "",
+    theme: window.document.documentElement.getAttribute("data-theme"),
     themeColors: [
       ...window.document.querySelectorAll('meta[name="theme-color"]'),
     ].map((meta) => meta.getAttribute("content") ?? ""),
   };
 }
 
-function runPrepaint(
-  script: string,
-  behavior: Pick<PrepaintCase, "stored" | "matchMedia">,
-): string {
-  return runPrepaintDocument(script, behavior).theme;
-}
-
 const script = readPrepaintScript();
 
 const matrix: PrepaintCase[] = [
+  { name: "an absent stored value leaves motion on", stored: null, expected: "on" },
+  { name: "a stored on is honoured", stored: "on", expected: "on" },
+  { name: "a stored off turns motion off", stored: "off", expected: "off" },
   {
-    name: "stored dark wins over a light OS",
-    stored: "dark",
-    matchMedia: "no-match",
-    expected: "dark",
-  },
-  {
-    name: "stored light wins over a dark OS",
-    stored: "light",
-    matchMedia: "matches",
-    expected: "light",
-  },
-  {
-    name: "an unrecognized stored value falls through to the OS probe",
-    stored: "solarized",
-    matchMedia: "matches",
-    expected: "dark",
-  },
-  {
-    name: "an absent stored value probes the OS",
-    stored: null,
-    matchMedia: "no-match",
-    expected: "light",
-  },
-  {
-    name: "a storage read that throws still probes the OS",
-    stored: "throw",
-    matchMedia: "matches",
-    expected: "dark",
-  },
-  {
-    name: "a missing matchMedia degrades to light",
-    stored: null,
-    matchMedia: "absent",
-    expected: "light",
-  },
-  {
-    name: "a matchMedia that throws degrades to light",
-    stored: null,
-    matchMedia: "throw",
-    expected: "light",
+    name: "an unrecognized stored value falls through to on",
+    stored: "maybe",
+    expected: "on",
   },
 ];
 
-describe("pre-paint theme script", () => {
-  test.each(matrix)("$name", ({ stored, matchMedia, expected }) => {
-    expect(runPrepaint(script, { stored, matchMedia })).toBe(expected);
+describe("pre-paint motion script", () => {
+  test.each(matrix)("$name", ({ stored, expected }) => {
+    expect(runPrepaint(script, stored).motion).toBe(expected);
   });
 
-  test("a storage exception never suppresses OS detection (independent try/catches)", () => {
-    // Load-bearing: localStorage.getItem throwing must not force the light
-    // theme onto a dark-OS visitor. If the two try/catches are ever merged,
-    // the OS probe becomes unreachable on the storage-failure path and the
-    // first case here flips to "light".
-    expect(runPrepaint(script, { stored: "throw", matchMedia: "matches" })).toBe(
-      "dark",
-    );
-    expect(
-      runPrepaint(script, { stored: "throw", matchMedia: "no-match" }),
-    ).toBe("light");
+  test("a storage exception still writes the attribute (its own try/catch)", () => {
+    /* Load-bearing: localStorage.getItem throwing must not leave the page
+       without `data-motion`, because the CSS kill switch keys off it and the
+       first frame would then animate. */
+    expect(runPrepaint(script, "throw").motion).toBe("on");
   });
 
-  test("empty storage resolves the OS scheme and its theme-color before paint", () => {
-    /* Case 1/2: no stored preference. The ground the meta advertises must be
-       the ground the page paints, or mobile browser chrome flashes the other
-       palette on the first frame. */
-    expect(
-      runPrepaintDocument(
-        script,
-        { stored: null, matchMedia: "no-match" },
-        { metas: true },
-      ),
-    ).toEqual({ theme: "light", themeColors: ["#F2F1EC", "#F2F1EC"] });
-
-    expect(
-      runPrepaintDocument(
-        script,
-        { stored: null, matchMedia: "matches" },
-        { metas: true },
-      ),
-    ).toEqual({ theme: "dark", themeColors: ["#101315", "#101315"] });
+  test("never writes a theme, and never paints a theme-color meta", () => {
+    // There is one ground. A theme write here would be a second palette that
+    // the stylesheet does not have.
+    const result = runPrepaint(script, "off");
+    expect(result.theme).toBeNull();
+    expect(result.themeColors).toEqual([]);
+    expect(script).not.toMatch(/dataset\.theme|localStorage\.getItem\("nnl-theme"\)/);
+    expect(script).toContain("nnl-motion");
   });
 
-  test("a stored pin paints its own theme-color, not the OS scheme's", () => {
-    /* Cases 3/4: the media pair alone would announce the OS palette while the
-       page paints the pinned one — the visible mobile-chrome defect. */
-    expect(
-      runPrepaintDocument(
-        script,
-        { stored: "light", matchMedia: "matches" },
-        { metas: true },
-      ),
-    ).toEqual({ theme: "light", themeColors: ["#F2F1EC", "#F2F1EC"] });
-
-    expect(
-      runPrepaintDocument(
-        script,
-        { stored: "dark", matchMedia: "no-match" },
-        { metas: true },
-      ),
-    ).toEqual({ theme: "dark", themeColors: ["#101315", "#101315"] });
-  });
-
-  test("a retired stored value follows the OS scheme and its theme-color", () => {
-    /* Case 5: "auto" is not a pin, so it resolves like an absent value — and
-       the chrome colour must follow the OS, not the retired value. */
-    expect(
-      runPrepaintDocument(
-        script,
-        { stored: "auto", matchMedia: "matches" },
-        { metas: true },
-      ),
-    ).toEqual({ theme: "dark", themeColors: ["#101315", "#101315"] });
-  });
-
-  test("only ever writes a resolved light/dark value", () => {
-    // CSS has no "auto" branch — the script must resolve before it writes.
-    expect(script).not.toMatch(/dataset\.theme\s*=\s*["']auto["']/);
-
-    const written = matrix.map((entry) =>
-      runPrepaint(script, { stored: entry.stored, matchMedia: entry.matchMedia }),
-    );
-    for (const theme of written) {
-      expect(["light", "dark"]).toContain(theme);
-    }
+  test("index.html ships one static ground, not a media pair", () => {
+    const metas = [
+      ...HTML.matchAll(/<meta name="theme-color"[^>]*>/g),
+    ].map((match) => match[0]);
+    expect(metas).toEqual(['<meta name="theme-color" content="#0A0C0E" />']);
   });
 });

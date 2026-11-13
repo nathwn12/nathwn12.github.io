@@ -11,10 +11,10 @@
  * Covered here:
  *   · the availability sentence, byte-exact with its em dash
  *   · the four credential IDs
- *   · the proof row's scanned/repository figures (21 and 17)
+ *   · the provenance's scanned / carrying repository figures (21 and 17)
  *   · the delivery figure (1,182) on the record and in the delivered outcome
  *
- *   pnpm vitest run tests/rendered-facts.test.tsx
+ *   bunx vitest run tests/rendered-facts.test.tsx
  */
 import { act, createElement, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
@@ -72,7 +72,7 @@ afterEach(async () => {
 describe("the availability sentence reaches the screen", () => {
   test("renders exactly once, on the first screen, with the em dash", async () => {
     const record = await mount(createElement(Record));
-    const first = record.querySelector("section.band--first");
+    const first = record.querySelector('[data-band="cover"]');
     expect(first, "first screen is not rendered").not.toBeNull();
 
     const status = [...first!.querySelectorAll("p")].find(
@@ -108,21 +108,29 @@ describe("the four credential IDs reach the screen", () => {
 });
 
 describe("the proof figures reach the screen", () => {
-  test("the proof row renders 21 scanned and 17 carrying repositories", async () => {
+  test("the provenance sentence renders 21 scanned and 1,182 across 17 repositories", async () => {
     const record = await mount(createElement(Record));
     const proof = record.querySelector("#proof");
     expect(proof, "the proof band is not rendered").not.toBeNull();
 
     const text = proof!.textContent ?? "";
-    expect(text).toContain("scanning 21 internal repositories");
-    expect(text).toContain("17 of them carry the work");
+    // The delivered sentence, quoted: it is where both counts are stated.
+    expect(text).toContain("21 scanned internal repositories");
+    expect(text).toContain("1,182 commits across 17 repositories");
   });
 
-  test("1,182 renders on the record as a proof figure", async () => {
+  test("1,182 renders on the record: in the provenance, and in the marquee", async () => {
     const record = await mount(createElement(Record));
-    const figures = [...record.querySelectorAll("#proof .record-row__figure")]
-      .map((figure) => figure.textContent?.trim());
-    expect(figures, "no proof figures rendered").toContain("1,182");
+    const proof = record.querySelector("#proof");
+    expect(proof, "the proof band is not rendered").not.toBeNull();
+
+    /* The strip states the three measured results. The delivery figure is the
+       provenance's own sentence, and the marquee below the band carries it
+       twice — the second copy `aria-hidden`, so a screen reader hears it once. */
+    const proofText = proof!.textContent ?? "";
+    expect(proofText).toContain("1,182");
+    const outside = (record.textContent ?? "").replace(proofText, "");
+    expect(outside.match(/1,182/g) ?? []).toHaveLength(2);
   });
 
   test("the delivered outcome carrying 1,182 renders on the experience route", async () => {
