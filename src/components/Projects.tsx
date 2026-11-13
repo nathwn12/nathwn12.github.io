@@ -151,12 +151,12 @@ export default function Projects() {
           </ol>
 
           {archived.length > 0 && (
-            <div className="mt-16 border-t border-[color:var(--rec-rule)] pt-8">
+            <div className="mt-16 border-t border-[color:var(--rec-rule)] pt-12">
               <h2 className="text-[length:var(--rec-text-title)] leading-[1.12] font-semibold tracking-[-0.01em]">
                 Retired
               </h2>
 
-              <div className="mt-6 grid gap-y-2">
+              <div className="mt-3 grid gap-y-2">
                 {archived.map((entry) => {
                   const retiredOnDate = retiredOn(entry.reason);
                   return (
