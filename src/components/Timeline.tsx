@@ -181,12 +181,23 @@ export function Timeline({ items }: { items: TimelineItem[] }) {
               data-timeline-entry
               className="relative grid gap-x-10 gap-y-1 py-3 pl-6 md:grid-cols-[minmax(0,1fr)_9rem] md:py-3 md:pl-10"
             >
-              <p
-                data-timeline-date
-                className="data tnum text-[color:var(--rec-ink-muted)] md:col-start-2 md:row-start-1 md:pt-1 md:text-right"
-              >
-                {item.date}
-              </p>
+              <div className="md:col-start-2 md:row-start-1 md:text-right">
+                <p
+                  data-timeline-date
+                  className="data tnum text-[color:var(--rec-ink-muted)] md:pt-1"
+                >
+                  {item.date}
+                </p>
+
+                {item.figure && (
+                  <p
+                    data-timeline-figure
+                    className="mt-1 font-mono tnum text-[clamp(1.25rem,1rem+1vw,1.75rem)] leading-none tracking-[0.01em] text-[color:var(--rec-measure)]"
+                  >
+                    {item.figure.format(item.figure.value)}
+                  </p>
+                )}
+              </div>
 
               <div className="md:col-start-1 md:row-start-1">
                 <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1">
@@ -196,15 +207,6 @@ export function Timeline({ items }: { items: TimelineItem[] }) {
                   >
                     {item.outcome}
                   </h3>
-
-                  {item.figure && (
-                    <p
-                      data-timeline-figure
-                      className="ml-auto font-mono tnum text-[clamp(1.25rem,1rem+1vw,1.75rem)] leading-none tracking-[0.01em] text-[color:var(--rec-measure)]"
-                    >
-                      {item.figure.format(item.figure.value)}
-                    </p>
-                  )}
                 </div>
 
                 <div className="mt-1.5 lg:grid lg:grid-cols-2 lg:gap-x-8">
