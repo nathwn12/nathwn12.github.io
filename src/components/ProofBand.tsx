@@ -1,5 +1,10 @@
+import { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { proofRows } from "../content/ledger";
 import { recordOpener } from "../content/hero";
+import { figureParts, renderFigure, type FigureParts } from "../lib/figure";
+import { motionAllowed } from "../lib/motion";
 import { RouteLink } from "../lib/router";
 import { Seam } from "./Readout";
 
@@ -17,6 +22,14 @@ import { Seam } from "./Readout";
  * the band cannot drift from `/experience`. A figure that cannot be derived
  * drops its row rather than printing a placeholder.
  *
+ * The motion is ONE scrubbed timeline over the four figures: as the band crosses
+ * the viewport each figure counts up in turn, 60 ms of overlap between one and
+ * the next, from a single scroll-driven proxy. It is not four reveals — no cell
+ * fades, lifts or masks itself in — because four little entrances read as a
+ * festival while one count reads as a measurement being taken. With motion off
+ * no trigger is created and the markup's delivered figures stand, which is also
+ * what a reader with no JavaScript gets.
+ *
  * What the band deliberately does not carry: the tenure (that is the cover's
  * fact row) and the recovery that produced the commit count (that is stated
  * once, on the experience route). Two bands, one company name, no closure
@@ -26,7 +39,64 @@ import { Seam } from "./Readout";
  * and it is the only way out of this band, so the numbers never become a
  * navigation decision.
  */
+
+if (typeof window !== "undefined" && typeof window.matchMedia === "function") {
+  gsap.registerPlugin(ScrollTrigger);
+}
+
+/** Each figure's slice of the scrub, as a fraction of the whole. */
+const STEP = 0.2;
+/** How long one figure's count takes, as a fraction of the whole. */
+const COUNT = 0.34;
+
+const PARTS: FigureParts[] = proofRows.map((row) => figureParts(row.figure));
+
 export function ProofBand() {
+  const listRef = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    const list = listRef.current;
+    if (!list) return;
+    if (!motionAllowed()) return;
+
+    const figures = [
+      ...list.querySelectorAll<HTMLElement>("[data-figure]"),
+    ];
+    if (figures.length === 0) return;
+
+    const apply = (progress: number) => {
+      figures.forEach((element, index) => {
+        const parts = PARTS[index];
+        if (!parts) return;
+        const local = Math.min(
+          1,
+          Math.max(0, (progress - index * STEP) / COUNT),
+        );
+        element.textContent = renderFigure(parts, parts.value * local);
+      });
+    };
+
+    const proxy = { t: 0 };
+    const tween = gsap.to(proxy, {
+      t: 1,
+      ease: "none",
+      onUpdate: () => apply(proxy.t),
+      scrollTrigger: {
+        trigger: list,
+        start: "top 85%",
+        end: "bottom 55%",
+        scrub: true,
+      },
+    });
+
+    apply(tween.scrollTrigger?.progress ?? 0);
+
+    return () => {
+      tween.scrollTrigger?.kill();
+      tween.kill();
+    };
+  }, []);
+
   return (
     <>
       <Seam />
@@ -47,7 +117,11 @@ export function ProofBand() {
               `lg`: the figure, the claim it measures, and the move behind it.
               Every cell opens on its own hairline, so the row reads as one
               table of results rather than four cards. */}
-          <ul className="mt-10 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
+          <ul
+            ref={listRef}
+            data-proof-scrub
+            className="mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4"
+          >
             {proofRows.map((row) => (
               <li
                 key={row.claim}
@@ -69,7 +143,7 @@ export function ProofBand() {
             ))}
           </ul>
 
-          <div className="mt-10">
+          <div className="mt-8">
             <RouteLink
               href="/experience"
               className="data inline-flex min-h-11 items-center border-b border-[color:var(--rec-rule-strong)] text-[color:var(--rec-signal)] transition-[color,border-color] duration-150 hover:border-[color:var(--rec-signal)]"
