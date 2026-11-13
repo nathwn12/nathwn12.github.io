@@ -140,7 +140,7 @@ export function FirstScreen() {
           <div className="flex flex-col">
             <p
               data-cover-fade
-              className="max-w-[62ch] text-[length:var(--rec-text-lead)] leading-[var(--rec-leading-lead)] text-[color:var(--rec-ink)]"
+              className="max-w-[var(--rec-prose-measure)] text-[length:var(--rec-text-lead)] leading-[var(--rec-leading-lead)] text-[color:var(--rec-ink)]"
             >
               {standfirst}
             </p>

@@ -165,7 +165,7 @@ describe.skipIf(!CHROMIUM_AVAILABLE)("the prose ceiling at 1440", () => {
   test(
     "no prose block is set wider than the reading measure",
     async () => {
-      expect(MEASURE_CH, "tokens.css declares no --rec-prose-measure").toBe(62);
+      expect(MEASURE_CH, "tokens.css declares no --rec-prose-measure").toBe(56);
 
       for (const route of ROUTES) {
         const context = await browser.newContext({

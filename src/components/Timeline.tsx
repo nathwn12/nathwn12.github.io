@@ -208,7 +208,7 @@ export function Timeline({ items }: { items: TimelineItem[] }) {
             <div className="md:col-start-1 md:row-start-1">
               <h3
                 data-timeline-heading
-                className="max-w-[62ch] text-[1.0625rem] leading-[1.35] font-medium text-[color:var(--rec-ink)]"
+                className="max-w-[var(--rec-prose-measure)] text-[1.0625rem] leading-[1.35] font-medium text-[color:var(--rec-ink)]"
               >
                 {item.outcome}
               </h3>
@@ -218,7 +218,7 @@ export function Timeline({ items }: { items: TimelineItem[] }) {
               </p>
 
               {item.highlights.length > 0 && (
-                <ul className="mt-3 grid max-w-[62ch] gap-y-1.5">
+                <ul className="mt-3 grid max-w-[var(--rec-prose-measure)] gap-y-1.5">
                   {item.highlights.map((highlight) => (
                     <li
                       key={highlight}

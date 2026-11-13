@@ -30,7 +30,7 @@ export function NotFound() {
   return (
     <section className="band band--first" aria-labelledby="not-found-heading">
       <div className="frame">
-        <div className="lg:max-w-[62ch]">
+        <div className="lg:max-w-[var(--rec-prose-measure)]">
           <p className="data text-[color:var(--rec-ink-muted)]">404</p>
 
           <h1

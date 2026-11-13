@@ -144,10 +144,14 @@ describe("the proof figures reach the screen", () => {
     expect(text).toContain("1,182 commits across 17 repositories");
   });
 
-  test("the delivered outcome carrying 1,182 renders on the experience route", async () => {
+  test("the delivered outcome renders on the experience route, with 1,182 stated once", async () => {
     const experience = await mount(createElement(Experience));
-    expect(experience.textContent).toContain(
-      "Shipped 1,182 commits across 17 repositories.",
+    const text = experience.textContent ?? "";
+    expect(text).toContain(
+      "Shipped the fintech platform's services across the company's repositories from 2023 to 2026.",
     );
+    /* The number belongs to the ledger readout and to the provenance sentence
+       that says where it came from — not to a third restatement in the entry. */
+    expect(text.match(/1,182/g) ?? []).toHaveLength(2);
   });
 });

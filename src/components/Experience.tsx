@@ -132,12 +132,6 @@ export function Experience() {
                   <p className="data tnum text-[color:var(--rec-ink)]">
                     {tenureSpan}
                   </p>
-                  <p className="data text-[color:var(--rec-ink-muted)]">
-                    {figures.tenure}
-                  </p>
-                  <p className="data text-[color:var(--rec-ink-muted)]">
-                    Continuous employment at {employer.company}
-                  </p>
                 </div>
 
                 <div className="grid gap-y-1">
@@ -148,7 +142,7 @@ export function Experience() {
                 </div>
 
                 <p className="text-[0.9375rem] leading-[1.5] text-[color:var(--rec-ink-muted)]">
-                  {formerRoleLine} The company closed in May 2026.
+                  {formerRoleLine}
                 </p>
               </div>
             </div>

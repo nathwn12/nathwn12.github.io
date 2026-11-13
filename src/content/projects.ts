@@ -474,27 +474,19 @@ export const projectsMarginalia = "Built and maintained solo";
 /** Landing link to the route page: the count in words. */
 export const allProjectsLabel = `All ${countWords(projects.length)} projects`;
 
-/* Dormant zod models wired in: token → palette hex (dark theme) so the real
-   data can be validated against ProjectSchema at module load. */
-const TOKEN_HEX: Record<Token, string> = {
-  accent: "#8ae234",
-  "accent-2": "#729fcf",
-  "accent-3": "#f57900",
-  "accent-4": "#ad7fa8",
-};
-
+/* Dormant zod models wired in: the real data is validated against
+   ProjectSchema at module load. No colour is projected — the schema no longer
+   demands one and no route paints a per-project hue. */
 const projectsProjection = projects.map((project) => ({
   id: project.id,
   name: project.name,
   description: project.description,
   tech: project.tech,
   status: "PRODUCTION" as const,
-  color: TOKEN_HEX[project.accent],
   url: project.url,
   stats: project.stats.map((stat) => ({
     label: stat.label,
     value: stat.value,
-    color: TOKEN_HEX[stat.accent],
   })),
 }));
 

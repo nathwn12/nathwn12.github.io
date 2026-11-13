@@ -38,7 +38,9 @@ export const ProjectSchema = z.object({
   description: z.string(),
   tech: z.array(z.string()),
   status: z.enum(["PRODUCTION", "SHIPPED"]),
-  color: z.string().regex(/^#[0-9a-fA-F]{3,8}$/),
+  /* No route paints a per-project hue, so the schema does not demand one: a
+     colour here was a second palette outside tokens.css, kept alive by nothing. */
+  color: z.string().regex(/^#[0-9a-fA-F]{3,8}$/).optional(),
   /* Canonical public repository for the case study; optional so the schema
      still accepts an internal project entry with no public link. */
   url: z.string().url().optional(),
@@ -46,7 +48,7 @@ export const ProjectSchema = z.object({
     z.object({
       label: z.string(),
       value: z.string(),
-      color: z.string().regex(/^#[0-9a-fA-F]{3,8}$/),
+      color: z.string().regex(/^#[0-9a-fA-F]{3,8}$/).optional(),
     })
   ),
 });

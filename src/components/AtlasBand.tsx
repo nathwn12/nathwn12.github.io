@@ -55,7 +55,7 @@ export function AtlasBand() {
               {figures.packageCount} packages, {repos.length} groups
             </p>
           </div>
-          <p className="mt-4 max-w-[62ch] text-[color:var(--rec-ink-muted)]">
+          <p className="mt-4 max-w-[var(--rec-prose-measure)] text-[color:var(--rec-ink-muted)]">
             {atlasLede}
           </p>
 

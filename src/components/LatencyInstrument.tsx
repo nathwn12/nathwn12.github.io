@@ -87,12 +87,13 @@ const REDUCTION = figures.paymentsPercent
 
 const tickLabel = (seconds: number): string => `${seconds} s`;
 
-/** Flush right at the end of the track, left-aligned on its own gridline in
- *  between: every label's left edge is the position it names, and no two labels
- *  can collide on a narrow column. */
+/** Centred on its own gridline, so the label's optical centre is the position it
+ *  names; the last tick is set flush right against the track's end. Without the
+ *  translate a label began at its tick and every one of them read 12–16px to the
+ *  right of the line it labelled. */
 function tickStyle(seconds: number): CSSProperties {
   if (seconds === AXIS.max) return { right: 0 };
-  return { left: `${axisPosition(seconds) * 100}%` };
+  return { left: `${axisPosition(seconds) * 100}%`, transform: "translateX(-50%)" };
 }
 
 export function LatencyInstrument() {

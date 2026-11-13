@@ -142,7 +142,7 @@ function withRouteHead(html, route, { ogTitle, canonical }) {
 /** A retired path: a redirect stub, not a second copy of the record. */
 function stubHtml(route, notFoundTitle) {
   return `<!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

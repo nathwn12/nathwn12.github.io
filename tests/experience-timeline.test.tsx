@@ -57,9 +57,12 @@ describe("experience timeline", () => {
     expect(tenure, "the tenure span is missing").not.toBeNull();
     expect(tenure!.textContent).toContain("March 2023 – May 2026");
     expect(tenure!.textContent).toContain("Tenure");
+    /* The company is named once on the page — in the closing note under this
+       block — so the span states the period and nothing repeats it. */
     expect(tenure!.textContent).toContain(
-      "Continuous employment at Xentra Infotech Solutions Inc.",
+      "Formerly a Backend Developer at Xentra Infotech Solutions Inc.",
     );
+    expect(tenure!.textContent).not.toContain("Continuous employment at");
     // It is not one more dated record: the span lives outside the <ol>.
     expect(tenure!.closest("ol")).toBeNull();
   });

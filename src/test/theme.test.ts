@@ -123,7 +123,7 @@ describe("one theme, and it is dark", () => {
     expect(TOKENS).toMatch(/--rec-tracking-display:\s*-0\.02em/);
     expect(TOKENS).toMatch(/--rec-text-body:\s*1\.0625rem/); // 17px
     expect(TOKENS).toMatch(/--rec-leading-body:\s*1\.6/);
-    expect(TOKENS).toMatch(/--rec-prose-measure:\s*62ch/);
+    expect(TOKENS).toMatch(/--rec-prose-measure:\s*56ch/);
     expect(TOKENS).toMatch(/--rec-text-data:\s*0\.75rem/); // 12px
     expect(TOKENS).toMatch(/--rec-tracking-data:\s*0\.06em/);
   });

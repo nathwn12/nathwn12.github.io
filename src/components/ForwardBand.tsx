@@ -51,7 +51,7 @@ export function ForwardBand() {
                   <h3 className="text-[1.0625rem] font-semibold tracking-[-0.01em] text-[color:var(--rec-ink)]">
                     {item.title}
                   </h3>
-                  <p className="mt-1 max-w-[62ch] text-[color:var(--rec-ink-muted)]">
+                  <p className="mt-1 max-w-[var(--rec-prose-measure)] text-[color:var(--rec-ink-muted)]">
                     {item.body}
                   </p>
                   <p className="data data--sm mt-3 text-[color:var(--rec-ink-muted)]">
