@@ -153,7 +153,7 @@ export function Experience() {
           {/* The commit ledger: why the page exists, above the list it proves.
               The seam above is the strip's top rule; this block closes on its
               own bottom rule, so the strip never draws two rules 1px apart. */}
-          <div className="grid grid-cols-2 gap-x-8 gap-y-8 border-b border-[color:var(--rec-rule)] py-7 md:grid-cols-[repeat(2,auto)_minmax(0,1fr)] md:gap-x-12 md:items-start">
+          <div className="grid grid-cols-2 gap-x-8 gap-y-8 border-b border-[color:var(--rec-rule)] py-7 md:grid-cols-[repeat(2,auto)_minmax(0,1fr)] md:gap-x-12 md:items-baseline">
             {commits !== null && (
               <TimelineReadout value={commits} format={grouped} label="commits" />
             )}
