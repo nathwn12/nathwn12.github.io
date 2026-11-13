@@ -1,5 +1,4 @@
 import {
-  archived,
   projects,
   projectsLede,
   projectsSupport,
@@ -20,16 +19,11 @@ import { RouteLink, SectionLink } from "../lib/router";
  * a real anchor whose accessible name says where it goes — the repository path,
  * plus that it opens in a new tab — and never "here".
  *
- * A fork states its upstream in the row instead of hiding it, and the retired
- * project sits below a seam in the one alarm colour the page spends, marked
- * retired with its deprecation date. No screenshots are faked; the row is the
+ * A fork states its upstream in the row instead of hiding it. Only what the
+ * account publishes today is listed: a private or archived repository is not
+ * history, it is a dead link. No screenshots are faked; the row is the
  * evidence.
  */
-
-/** The deprecation date an archived entry's own reason states. */
-function retiredOn(reason: string): string | null {
-  return reason.match(/\d{4}-\d{2}-\d{2}/)?.[0] ?? null;
-}
 
 export default function Projects() {
   return (
@@ -58,12 +52,6 @@ export default function Projects() {
                 <dt className="data text-[color:var(--rec-ink-muted)]">published</dt>
                 <dd className="data--lg data tnum text-[color:var(--rec-ink)]">
                   {projects.length}
-                </dd>
-              </div>
-              <div className="grid gap-y-1">
-                <dt className="data text-[color:var(--rec-ink-muted)]">retired</dt>
-                <dd className="data--lg data tnum text-[color:var(--rec-ink)]">
-                  {archived.length}
                 </dd>
               </div>
             </dl>
@@ -149,56 +137,6 @@ export default function Projects() {
               );
             })}
           </ol>
-
-          {archived.length > 0 && (
-            <div className="mt-16 border-t border-[color:var(--rec-rule)] pt-12">
-              <h2 className="text-[length:var(--rec-text-title)] leading-[1.12] font-semibold tracking-[-0.01em]">
-                Retired
-              </h2>
-
-              <div className="mt-3 grid gap-y-2">
-                {archived.map((entry) => {
-                  const retiredOnDate = retiredOn(entry.reason);
-                  return (
-                    <div
-                      key={entry.dir}
-                      className="grid grid-cols-[minmax(0,1fr)_5.5rem] gap-x-6 gap-y-2 md:grid-cols-[2.25rem_minmax(0,1fr)_5.5rem] md:gap-x-8"
-                    >
-                      <div className="md:col-start-2 md:row-start-1">
-                        <p className="data text-[color:var(--rec-alarm)]">
-                          retired
-                        </p>
-                        <h3 className="mt-1 text-[1.0625rem] leading-[1.3] font-semibold text-[color:var(--rec-alarm)]">
-                          {entry.name}
-                        </h3>
-                        <p className="prose mt-1 text-[color:var(--rec-ink-muted)]">
-                          {entry.reason}
-                        </p>
-                        <a
-                          href={entry.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="data mt-2 inline-flex min-h-[2.75rem] items-center text-[color:var(--rec-alarm)] underline decoration-1 underline-offset-[0.25em] transition-colors duration-[140ms] hover:decoration-current"
-                        >
-                          nathwn12/{entry.dir}
-                          <span className="sr-only">
-                            {" "}
-                            on GitHub, opens in a new tab
-                          </span>
-                        </a>
-                      </div>
-
-                      {retiredOnDate && (
-                        <p className="data tnum col-start-2 row-start-1 justify-self-end text-[color:var(--rec-alarm)] md:col-start-3 md:row-start-1 md:pt-1">
-                          {retiredOnDate}
-                        </p>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
 
           <div className="mt-12 flex flex-wrap items-center gap-x-7 gap-y-2 border-t border-[color:var(--rec-rule)] pt-8">
             <SectionLink section="contact" className="button">
