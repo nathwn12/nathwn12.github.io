@@ -23,7 +23,7 @@ export function ForwardBand() {
       <section
         id="forward"
         aria-labelledby="forward-heading"
-        className="py-[var(--rec-rhythm)] md:py-[var(--rec-rhythm-lg)]"
+        className="pt-[var(--rec-rhythm)] pb-0 md:pt-[var(--rec-rhythm-lg)]"
       >
         <div className="frame">
           <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-3">
@@ -42,7 +42,7 @@ export function ForwardBand() {
             {forward.map((item) => (
               <li
                 key={item.id}
-                className="grid gap-x-8 gap-y-2 border-b border-[color:var(--rec-rule)] py-5 md:grid-cols-[7rem_minmax(0,1fr)]"
+                className="grid gap-x-8 gap-y-2 border-b border-[color:var(--rec-rule)] py-5 last:border-b-0 md:grid-cols-[7rem_minmax(0,1fr)]"
               >
                 <p className="data data--sm pt-1 text-[color:var(--rec-signal)]">
                   {item.section}

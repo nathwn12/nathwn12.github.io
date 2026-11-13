@@ -41,7 +41,7 @@ export function AtlasBand() {
       <section
         id="atlas"
         aria-labelledby="atlas-heading"
-        className="py-[var(--rec-rhythm)] md:py-[var(--rec-rhythm-lg)]"
+        className="pt-[var(--rec-rhythm)] pb-0 md:pt-[var(--rec-rhythm-lg)]"
       >
         <div className="frame">
           <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-4">
@@ -86,7 +86,7 @@ export function AtlasBand() {
               <div
                 key={group.label}
                 data-atlas-group={group.label}
-                className={`atlas__group ${GRID} border-b border-[color:var(--rec-rule)] py-5`}
+                className={`atlas__group ${GRID} border-b border-[color:var(--rec-rule)] py-5 last:border-b-0`}
               >
                 <div>
                   <h3 className="font-display text-[1.0625rem]! leading-[1.25]! font-normal! tracking-[-0.01em]! text-[color:var(--rec-ink)]">
