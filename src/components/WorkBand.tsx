@@ -38,6 +38,14 @@ import { Seam } from "./Readout";
 /** The three repositories that also have a written line in the record. */
 const FEATURED = new Map(workRows.map((row) => [row.name, row]));
 
+/**
+ * The four the band shows. The full thirteen live on `/projects` with their case
+ * notes, and the "All projects" link above carries the reader there: the record
+ * states the set's size, names the four worth opening first, and does not spend
+ * four viewports on the rest.
+ */
+const SHOWN = projects.slice(0, 4);
+
 /** What the marquee carries: every repository under the account, with the
  *  language GitHub reports as its primary. A name and a fact, no figure. */
 const MARQUEE_ITEMS = projects.map((project) => ({
@@ -73,21 +81,25 @@ export function WorkBand() {
             {workLede}
           </p>
 
-          {/* One rule above the first row and one after the last: the ledger is
-              a closed table, not a list that stops in mid-air. */}
-          <ol className="mt-8 border-b border-[color:var(--rec-rule)]">
-            {projects.map((project) => {
+          {/* Four rows, two abreast from `sm` up, so the band is one screen
+              rather than four: the set's size is the marquee's job and the
+              other nine are one link away. One rule above the first row and one
+              after the last: the ledger is a closed table, not a list that stops
+              in mid-air. */}
+          <ol className="mt-5 grid gap-x-8 border-b border-[color:var(--rec-rule)] sm:grid-cols-2 lg:grid-cols-4">
+            {SHOWN.map((project) => {
               const featured = FEATURED.get(project.name);
               return (
                 <li
                   key={project.dir}
+                  data-work-row
                   className="group border-t border-[color:var(--rec-rule)]"
                 >
                   <a
                     href={project.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="relative block py-5"
+                    className="relative block py-3"
                   >
                     {/* the scan: one hairline, drawn left to right, hover and
                         focus only. Nothing moves but its scale. */}
@@ -106,7 +118,7 @@ export function WorkBand() {
                     </div>
 
                     {featured ? (
-                      <p className="mt-2 max-w-[54ch] text-[0.9375rem] leading-[1.5] text-[color:var(--rec-ink-muted)]">
+                      <p className="mt-1.5 max-w-[54ch] text-[0.9375rem] leading-[1.45] text-[color:var(--rec-ink-muted)]">
                         {featured.line}
                       </p>
                     ) : null}
@@ -115,7 +127,7 @@ export function WorkBand() {
                         and whose it is on the first, what it is made of on the
                         second. A single wrapping line left its separator
                         stranded at the end of a line on a phone. */}
-                    <div className="data data--sm mt-2 flex flex-col gap-y-1 text-[color:var(--rec-ink-muted)]">
+                    <div className="data data--sm mt-1.5 flex flex-col gap-y-0.5 text-[color:var(--rec-ink-muted)]">
                       <span className="flex items-center gap-x-4">
                         <span>{project.kind}</span>
                         <span

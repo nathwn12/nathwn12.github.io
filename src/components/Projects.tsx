@@ -33,7 +33,7 @@ export default function Projects() {
         <div className="frame">
           <h1
             id="projects-heading"
-            className="font-display text-[clamp(2.75rem,1.4rem+5.4vw,6.5rem)] leading-[0.9] tracking-[-0.02em]"
+            className="font-display text-[clamp(2.5rem,1.4rem+4.4vw,5.5rem)] leading-[0.9] tracking-[-0.02em]"
           >
             Projects
           </h1>
@@ -88,7 +88,7 @@ export default function Projects() {
                     data-project-row
                     className="group border-t border-[color:var(--rec-rule)] transition-colors duration-[140ms] hover:border-[color:var(--rec-rule-strong)] focus-within:border-[color:var(--rec-rule-strong)]"
                   >
-                  <div className="grid gap-y-3 py-6 md:grid-cols-[2.25rem_minmax(0,1fr)_5.5rem] md:gap-x-8 md:py-7">
+                  <div className="grid gap-y-2 py-4 md:grid-cols-[2.25rem_minmax(0,1fr)_5.5rem] md:gap-x-8 md:py-4">
                     {/* Narrow: the index and the year share one mono line above
                         the name, and the wrapper dissolves into the row grid on
                         a wide screen. */}
@@ -102,11 +102,10 @@ export default function Projects() {
                     </div>
 
                     <div className="md:col-start-2 md:row-start-1">
-                      <h3 className="text-[1.0625rem] leading-[1.3] font-semibold text-[color:var(--rec-ink)]">
-                        {project.name}
-                      </h3>
-
-                      <div className="mt-1 flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                      <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
+                        <h3 className="text-[1.0625rem] leading-[1.3] font-semibold text-[color:var(--rec-ink)]">
+                          {project.name}
+                        </h3>
                         <p className="data text-[color:var(--rec-ink-muted)]">
                           {project.kind}
                         </p>
@@ -117,28 +116,32 @@ export default function Projects() {
                         )}
                       </div>
 
-                      <p className="prose mt-2 transition-transform duration-[140ms] group-hover:-translate-y-0.5 group-focus-within:-translate-y-0.5">
+                      <p className="mt-1.5 max-w-[var(--rec-prose-measure)] text-[0.9375rem] leading-[1.5] transition-transform duration-[140ms] group-hover:-translate-y-0.5 group-focus-within:-translate-y-0.5">
                         {project.description}
                       </p>
 
-                      <ul className="data data--sm mt-3 flex flex-wrap gap-x-3 gap-y-1 text-[color:var(--rec-ink-muted)]">
-                        {project.tech.map((tag) => (
-                          <li key={tag}>{tag}</li>
-                        ))}
-                      </ul>
-
-                      <a
-                        href={project.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="data mt-2 inline-flex min-h-[2.75rem] items-center text-[color:var(--rec-signal)] underline decoration-1 underline-offset-[0.25em] transition-colors duration-[140ms] hover:decoration-current"
-                      >
-                        nathwn12/{project.dir}
-                        <span className="sr-only">
-                          {" "}
-                          on GitHub, opens in a new tab
-                        </span>
-                      </a>
+                      {/* The stack and the repository on one line: two mono
+                          runs that answer "what is it made of" and "where is
+                          it" without a third band of whitespace. */}
+                      <div className="data data--sm mt-2 flex flex-wrap items-baseline gap-x-4 gap-y-1 text-[color:var(--rec-ink-muted)]">
+                        <ul className="flex flex-wrap gap-x-3 gap-y-1">
+                          {project.tech.map((tag) => (
+                            <li key={tag}>{tag}</li>
+                          ))}
+                        </ul>
+                        <a
+                          href={project.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex min-h-[2.75rem] items-center text-[color:var(--rec-signal)] underline decoration-1 underline-offset-[0.25em] transition-colors duration-[140ms] hover:decoration-current"
+                        >
+                          nathwn12/{project.dir}
+                          <span className="sr-only">
+                            {" "}
+                            on GitHub, opens in a new tab
+                          </span>
+                        </a>
+                      </div>
                     </div>
                   </div>
                 </li>
@@ -147,7 +150,7 @@ export default function Projects() {
             </ol>
           </div>
 
-          <div className="mt-12 flex flex-wrap items-center gap-x-7 gap-y-2 border-t border-[color:var(--rec-rule)] pt-8">
+          <div className="mt-7 flex flex-wrap items-center gap-x-7 gap-y-2 border-t border-[color:var(--rec-rule)] pt-6">
             <SectionLink section="contact" className="button">
               {CONTACT_CTA}
             </SectionLink>

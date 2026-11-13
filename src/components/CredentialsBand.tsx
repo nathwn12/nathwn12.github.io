@@ -41,11 +41,11 @@ export function CredentialsBand() {
             Credentials
           </h2>
 
-          <ul className="mt-6 border-t border-[color:var(--rec-rule)]">
+          <ul className="mt-5 grid gap-x-10 border-t border-[color:var(--rec-rule)] lg:grid-cols-2">
             {credentials.map((cert) => (
               <li
                 key={cert.id}
-                className="grid gap-x-8 gap-y-2 border-b border-[color:var(--rec-rule)] py-4 last:border-b-0 md:grid-cols-[minmax(0,1fr)_max-content] md:items-baseline"
+                className="grid gap-x-8 gap-y-1 border-b border-[color:var(--rec-rule)] py-3 md:grid-cols-[minmax(0,1fr)_max-content] md:items-baseline"
               >
                 <div>
                   <p className="font-semibold tracking-[-0.01em] text-[color:var(--rec-ink)]">

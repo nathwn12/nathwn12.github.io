@@ -179,7 +179,7 @@ export function Timeline({ items }: { items: TimelineItem[] }) {
             <li
               key={item.id}
               data-timeline-entry
-              className="relative grid gap-x-10 gap-y-2 py-8 pl-6 md:grid-cols-[minmax(0,1fr)_9rem] md:py-10 md:pl-10"
+              className="relative grid gap-x-10 gap-y-1 py-3 pl-6 md:grid-cols-[minmax(0,1fr)_9rem] md:py-3 md:pl-10"
             >
               <p
                 data-timeline-date
@@ -189,43 +189,48 @@ export function Timeline({ items }: { items: TimelineItem[] }) {
               </p>
 
               <div className="md:col-start-1 md:row-start-1">
-                <h3
-                  data-timeline-heading
-                  className="max-w-[var(--rec-prose-measure)] text-[1.0625rem] leading-[1.35] font-medium text-[color:var(--rec-ink)]"
-                >
-                  {item.outcome}
-                </h3>
+                <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1">
+                  <h3
+                    data-timeline-heading
+                    className="max-w-[var(--rec-prose-measure)] flex-1 text-[1.0625rem] leading-[1.35] font-medium text-[color:var(--rec-ink)]"
+                  >
+                    {item.outcome}
+                  </h3>
 
-                <p className="prose mt-2 text-[color:var(--rec-ink-muted)]">
-                  {item.description}
-                </p>
-
-                {item.highlights.length > 0 && (
-                  <ul className="mt-3 grid max-w-[var(--rec-prose-measure)] gap-y-1.5">
-                    {item.highlights.map((highlight) => (
-                      <li
-                        key={highlight}
-                        className="flex gap-3 text-[0.9375rem] leading-[1.5] text-[color:var(--rec-ink-muted)]"
-                      >
-                        <span
-                          aria-hidden="true"
-                          className="mt-[0.72em] h-px w-3 shrink-0 bg-[var(--rec-rule-strong)]"
-                        />
-                        {highlight}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-
-                <div className="mt-5 flex flex-wrap items-baseline gap-x-6 gap-y-2">
                   {item.figure && (
                     <p
                       data-timeline-figure
-                      className="font-mono tnum text-[clamp(1.5rem,1.1rem+1.4vw,2.25rem)] leading-none tracking-[0.01em] text-[color:var(--rec-measure)]"
+                      className="font-mono tnum text-[clamp(1.25rem,1rem+1vw,1.75rem)] leading-none tracking-[0.01em] text-[color:var(--rec-measure)]"
                     >
                       {item.figure.format(item.figure.value)}
                     </p>
                   )}
+                </div>
+
+                <div className="mt-1.5 lg:grid lg:grid-cols-2 lg:gap-x-8">
+                  <p className="max-w-[var(--rec-prose-measure)] text-[0.9375rem] leading-[1.5] text-[color:var(--rec-ink-muted)]">
+                    {item.description}
+                  </p>
+
+                  {item.highlights.length > 0 && (
+                    <ul className="mt-2 grid max-w-[var(--rec-prose-measure)] gap-y-0.5 lg:mt-0">
+                      {item.highlights.map((highlight) => (
+                        <li
+                          key={highlight}
+                          className="flex gap-3 text-[0.9375rem] leading-[1.5] text-[color:var(--rec-ink-muted)]"
+                        >
+                          <span
+                            aria-hidden="true"
+                            className="mt-[0.72em] h-px w-3 shrink-0 bg-[var(--rec-rule-strong)]"
+                          />
+                          {highlight}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                <div className="mt-2 flex flex-wrap items-baseline gap-x-6 gap-y-1">
                   <p className="data text-[color:var(--rec-ink-muted)]">{item.name}</p>
                   <p className="data text-[color:var(--rec-ink-muted)]">
                     {item.status}

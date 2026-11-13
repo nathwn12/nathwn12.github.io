@@ -247,7 +247,7 @@ html[data-motion="off"] .grain {
    The close: the mark, three columns of exits, the one setting, the imprint. */
 .colophon {
   border-top: var(--rec-rule-w) solid var(--rec-rule);
-  padding-block: var(--rec-space-6) var(--rec-space-7);
+  padding-block: var(--rec-space-5) var(--rec-space-6);
 }
 .colophon__top {
   display: grid;
@@ -298,8 +298,8 @@ html[data-motion="off"] .grain {
   display: flex;
   flex-wrap: wrap;
   gap: var(--rec-space-2) var(--rec-space-6);
-  margin-top: var(--rec-space-6);
-  padding-top: var(--rec-space-4);
+  margin-top: var(--rec-space-4);
+  padding-top: var(--rec-space-3);
   border-top: var(--rec-rule-w) solid var(--rec-rule);
   color: var(--rec-ink-muted);
 }
