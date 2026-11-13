@@ -80,10 +80,10 @@ describe("figures are derived from the delivered record", () => {
   const dataAccess = experience.find((entry) => entry.id === "04")!;
 
   test("the percentages are the record's own", () => {
-    expect(figures.paymentsPercent).toBe(percentIn(payments.outcome));
+    expect(figures.paymentsPercent).toBe(percentIn(payments.metric ?? ""));
     expect(figures.paymentsPercent).toBe("98%");
     expect(figures.readLatency).toBe("over 40%");
-    expect(percentIn(dataAccess.outcome)).toBe(figures.readLatency);
+    expect(percentIn(dataAccess.metric ?? "")).toBe(figures.readLatency);
   });
 
   test("the before/after timings are parsed from the payments description", () => {

@@ -35,24 +35,19 @@ import { Timeline, TimelineReadout, type TimelineFigure, type TimelineItem } fro
  * in May 2026 — and the closing note is the provenance of the numbers above it.
  */
 
-/** The measured value an entry's own outcome sentence carries, or nothing. */
+/** The measured value an entry states once, in `metric`, or nothing at all. */
 function figureFor(entry: ExperienceEntry): TimelineFigure | null {
-  const commits = entry.outcome.match(/([\d,]+)\s+commits\b/);
-  if (commits) {
-    return {
-      value: Number(commits[1].replace(/,/g, "")),
-      format: (value) => Math.round(value).toLocaleString("en-US"),
-    };
-  }
+  const source = entry.metric ?? "";
+  if (!source) return null;
 
-  if (/\bzero\b[^.]*\bfindings\b/i.test(entry.outcome)) {
+  if (/\bzero\b|^0$/.test(source.trim())) {
     return {
       value: 0,
       format: (value) => Math.round(value).toString(),
     };
   }
 
-  const percent = percentIn(entry.outcome);
+  const percent = percentIn(source);
   const run = percent?.match(/[\d,.]+/)?.[0];
   if (!percent || !run) return null;
 
