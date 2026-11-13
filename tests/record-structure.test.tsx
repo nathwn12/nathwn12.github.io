@@ -218,6 +218,22 @@ describe("the rendered record", () => {
     );
   });
 
+  test("the display clamp caps at the 1440 size, so the three lines hold wide", () => {
+    /* At 1440 the h1 computes 136.8px (9.5vw) inside a 1312px frame — the
+       ~10.4% ratio the three-line composition is set to. A clamp that keeps
+       growing after the frame has stopped breaks that: at 11rem the h1 reaches
+       176px at 1920 and 2560, and "in production since 2023." wraps to a fourth
+       line. The max is therefore the 1440 size, not a bigger ceiling. */
+    const h1 = host.querySelector("h1")!;
+    const clamp = /clamp\(([^)]*)\)/.exec(h1.className);
+    expect(clamp, "the h1 carries no display clamp").not.toBeNull();
+    const [min, fluid, max] = clamp![1].split(",").map((value) => value.trim());
+    expect(min).toBe("2.6rem");
+    expect(fluid).toBe("9.5vw");
+    expect(max).toMatch(/rem$/);
+    expect(parseFloat(max)).toBeLessThanOrEqual(8.5);
+  });
+
   test("every band is a labelled section with a real heading", () => {
     const sections = [...host.querySelectorAll("section")];
     expect(sections.length).toBeGreaterThanOrEqual(8);
