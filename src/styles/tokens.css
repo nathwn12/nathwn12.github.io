@@ -6,11 +6,16 @@
    no `prefers-color-scheme` block in CSS — the attribute is the only switch, so
    a stored choice and a system choice can never disagree on the page.
 
-   Dark is "Recorder": the instrument panel. Light is "Paper": the same
-   instrument printed — a cool drafting paper, not cream, and not the dark ramp
-   reversed. The light accent is deeper and less chromatic, its muted ink is a
-   warm-neutral, and its measured values are a deep teal because the dark
-   theme's cyan fails badly on paper.
+   Dark is "Recorder": a high-gain instrument in a dark room. Structure is the
+   brand cyan; every measured value is Forge Amber, so the numbers are the
+   loudest thing on the page and the one warm object in a cold room.
+
+   Light is "Paper": the same instrument printed — a neutral drafting paper,
+   not cream, and not the dark ramp reversed. Its structure is electric blue,
+   its measured values ochre, and its alarm a deep red. The two accents are a
+   hundred degrees of hue apart in both themes, so a warning never reads as a
+   measurement; chroma is spent on small areas (a figure, a rule, a link) and
+   the ground stays quiet.
 
    ROLES (never use a hex outside this file)
      ground    the panel's base plate
@@ -35,19 +40,20 @@
   color-scheme: dark;
 
   /* --- COLOUR — DARK, "Recorder" --------------------------------------- */
-  --rec-ground: #0a0c0e;
-  --rec-panel: #111417;
-  --rec-panel-2: #171b1f;
-  --rec-rule: #23282d;
+  --rec-ground: #07090b;
+  --rec-panel: #0e1114;
+  --rec-panel-2: #151a1e;
+  --rec-rule: #20262b;
   --rec-rule-strong: #39424a;
-  --rec-ink: #e9eef2;
-  --rec-ink-muted: #97a2a9;
-  /* Structure is demoted, not the numbers: the signal loses chroma and stays
-     in the same hue family, so `measure` is the loudest thing on the page. */
-  --rec-signal: #6d8af2;
-  --rec-measure: #4dd4e8;
+  --rec-ink: #f2f6f8;
+  --rec-ink-muted: #8e9ba3;
+  /* Structure stays cyan and stays cool; the measurement is the one warm
+     object, so `measure` is the loudest thing on the page by hue, not by
+     brightness. */
+  --rec-signal: #4dd4e8;
+  --rec-measure: #f5a524;
   --rec-alarm: #ff5d5d;
-  --rec-on-signal: #0a0c0e;
+  --rec-on-signal: #04070a;
 
   /* Selection is the signal at a wash, so it reads as a mark on the page
      rather than a second accent. */
@@ -145,19 +151,20 @@
 [data-theme="light"] {
   color-scheme: light;
 
-  --rec-ground: #ecede9;
-  --rec-panel: #e3e5e0;
-  --rec-panel-2: #d9dcd6;
-  --rec-rule: #ccd0ca;
-  --rec-rule-strong: #a4aaa3;
-  --rec-ink: #14171a;
-  --rec-ink-muted: #4c545a;
-  /* App Blue, deepened for paper. */
-  --rec-signal: #2b49c4;
-  /* Deep teal: the dark theme's cyan fails badly on paper. */
-  --rec-measure: #0b6b77;
-  --rec-alarm: #b3261e;
-  --rec-on-signal: #f7f8f5;
+  --rec-ground: #f1f2ed;
+  --rec-panel: #e8eae4;
+  --rec-panel-2: #dde0d9;
+  --rec-rule: #c9cdc6;
+  --rec-rule-strong: #9aa09a;
+  --rec-ink: #0d1013;
+  --rec-ink-muted: #4a5257;
+  /* Electric blue for structure, ochre for measurement: the dark theme's cyan
+     is a highlight on a black ground and a smudge on paper, so paper gets its
+     own pair at the same hue separation rather than a dimmed copy. */
+  --rec-signal: #1b2ed1;
+  --rec-measure: #9a4708;
+  --rec-alarm: #c81e1e;
+  --rec-on-signal: #f7f8f4;
 }
 
 /* =========================================================================

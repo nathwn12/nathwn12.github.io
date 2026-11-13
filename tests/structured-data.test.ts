@@ -42,7 +42,7 @@ describe("JSON-LD Person", () => {
     expect(person?.jobTitle).toBe("Backend Developer");
     expect(person?.email).toBe("mailto:nathanielnikolai.ladero@gmail.com");
     expect(person?.image).toBe(
-      "https://nathwn12.github.io/og-image-2026-10-28.png",
+      "https://nathwn12.github.io/og-image-2026-11-13.png",
     );
     expect(person?.address).toMatchObject({
       "@type": "PostalAddress",
@@ -151,7 +151,7 @@ describe("canonical and Open Graph URLs", () => {
     const ogImage = html.match(
       /<meta property="og:image" content="([^"]+)"/,
     )?.[1];
-    expect(ogImage).toBe("https://nathwn12.github.io/og-image-2026-10-28.png");
+    expect(ogImage).toBe("https://nathwn12.github.io/og-image-2026-11-13.png");
     expect(person?.image).toBe(ogImage);
   });
 });

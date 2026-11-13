@@ -92,9 +92,9 @@ export function Marquee({ items }: { items: MarqueeItem[] }) {
           className="overflow-hidden"
           style={{
             maskImage:
-              "linear-gradient(to right, transparent 0, #000 48px, #000 calc(100% - 48px), transparent 100%)",
+              "linear-gradient(to right, transparent 0, black 48px, black calc(100% - 48px), transparent 100%)",
             WebkitMaskImage:
-              "linear-gradient(to right, transparent 0, #000 48px, #000 calc(100% - 48px), transparent 100%)",
+              "linear-gradient(to right, transparent 0, black 48px, black calc(100% - 48px), transparent 100%)",
           }}
         >
           <div ref={trackRef} className="ml-12 flex w-max">

@@ -20,7 +20,8 @@
 export interface Particle {
   x: number;
   y: number;
-  /** 0 = `--rec-signal`, 1 = `--rec-measure`. Two accents, never a third. */
+  /** 0 = the louder accent (`measure` on dark, `signal` on paper), 1 = the
+   *  quieter one. Two accents, never a third. */
   band: 0 | 1;
 }
 

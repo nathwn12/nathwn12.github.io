@@ -21,16 +21,16 @@ import { ROUTES } from "../src/lib/routes";
  */
 
 const root = resolve(import.meta.dirname, "..");
-const CARD_URL = "https://nathwn12.github.io/og-image-2026-10-28.png";
-const CARD_FILE = "og-image-2026-10-28.png";
-const LEGACY_FILE = "og-image-2026-10.png";
+const CARD_URL = "https://nathwn12.github.io/og-image-2026-11-13.png";
+const CARD_FILE = "og-image-2026-11-13.png";
+const LEGACY_FILES = ["og-image-2026-10.png", "og-image-2026-10-28.png"];
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 const DARK = {
-  bg: [16, 19, 21], // #101315
-  text: [236, 235, 229], // #ecebe5
-  accent: [142, 230, 216], // #8ee6d8
-  surface2: [35, 40, 43], // #23282b
+  bg: [7, 9, 11], // #07090b
+  text: [242, 246, 248], // #f2f6f8
+  measure: [245, 165, 36], // #f5a524
+  surface2: [21, 26, 30], // #151a1e
 } as const;
 
 const read = (rel: string) => readFileSync(resolve(root, rel), "utf8");
@@ -125,15 +125,18 @@ describe("every emitted route head points at the dated card", () => {
     }
   });
 
-  test("no emitted head still points at the legacy October card", () => {
+  test("no emitted head still points at a retired card", () => {
     for (const file of [
       "dist/index.html",
       "dist/experience/index.html",
       "dist/projects/index.html",
       "dist/404.html",
     ]) {
-      expect(read(file), file).not.toContain(LEGACY_FILE);
-      expect(read(file), file).not.toContain("og-image-2026-10.png");
+      for (const retired of LEGACY_FILES) {
+        expect(read(file), `${file} still points at ${retired}`).not.toContain(
+          retired,
+        );
+      }
     }
   });
 });
@@ -149,13 +152,13 @@ describe("the card file", () => {
     }
   });
 
-  test("is drawn from the actual dark and petrol tokens", async () => {
+  test("is drawn from the actual dark, measure and signal tokens", async () => {
     const file = resolve(root, "public", CARD_FILE);
     /* Solid fills, sampled away from type: the ground, the structural rule,
-       the 60-second track, and the 1/60 accent sliver. */
+       the 60-second track, and the 1/60 measured sliver. */
     expect(await pixel(file, 10, 10)).toEqual(DARK.bg);
     expect(await pixel(file, 100, 65)).toEqual(DARK.text);
     expect(await pixel(file, 600, 455)).toEqual(DARK.surface2);
-    expect(await pixel(file, 85, 455)).toEqual(DARK.accent);
+    expect(await pixel(file, 85, 455)).toEqual(DARK.measure);
   });
 });
