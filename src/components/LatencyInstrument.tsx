@@ -15,23 +15,28 @@ import { MOTION_CHANGE_EVENT, motionAllowed } from "../lib/motion";
  * so, because a log axis that does not announce itself is a misleading chart.
  *
  * The scrub. One ScrollTrigger on the cover, `scrub: true` and no pin, drives a
- * single proxy from 0 to 1 as the hero crosses the viewport. Both bar lengths
- * are computed from the value the plot has reached — the log position of that
- * value on the stated 0.5–100 s axis — so a bar is never a fraction of a
- * pre-computed width, and once the hero has crossed, the bar is 60 s, the after
- * bar is 1 s, and the pair implies the recorded 98%. A tween that grew a bar to
- * a fixed length while a separate tween counted a number was two descriptions of
- * one measurement, and the axis was the thing that lied whenever they drifted.
+ * single proxy from 0 to 1 while the cover crosses the top of the viewport.
+ * Both bar lengths are computed from the value the plot has reached — the log
+ * position of that value on the stated 0.5–100 s axis — so a bar is never a
+ * fraction of a pre-computed width, and once the scrub has closed, the bar is
+ * 60 s, the after bar is 1 s, and the pair implies the recorded 98%. A tween
+ * that grew a bar to a fixed length while a separate tween counted a number was
+ * two descriptions of one measurement, and the axis was the thing that lied
+ * whenever they drifted.
+ *
+ * The panel is held by CSS `position: sticky` (FirstScreen's instrument column)
+ * for the length of that scrub. That is the fix for the defect the owner saw
+ * twice: the range used to outlive the panel's visibility, so the bars only
+ * travelled once the instrument was already leaving the frame — the payoff
+ * played off-screen. The range now closes at 85% of the panel's sticky travel,
+ * so the last frame lands while the panel is still pinned under the bar and
+ * fully visible. There is no `pin` and no `pinSpacing`: the cover keeps its own
+ * height, the scrub adds no scroll length, and the LCP element is never trapped.
  *
  * The two printed values are the delivered facts and never move: the replay
  * draws the plot the numbers name, it does not restate the numbers. At rest the
  * plot is undrawn and the derived reduction reads as an em dash — there is
- * nothing yet to derive it from — so the cover never claims a zero. The range
- * closes while the instrument is still on screen, so a reader who scrolls at all
- * sees the measurement complete rather than scroll it away unfinished.
- *
- * There is no pin. A pin holds the cover against the performance floor and
- * delays everything after it by a viewport; scrubbing needs none of that.
+ * nothing yet to derive it from — so the cover never claims a zero.
  *
  * With motion off — the OS preference or the footer's switch — no trigger is
  * created at all: the markup already carries the final frame (the bars at their
@@ -224,6 +229,27 @@ export function LatencyInstrument() {
       };
 
       const proxy = { t: 0 };
+
+      /* The panel is the sticky column the instrument lives in (FirstScreen):
+         it holds under the bar for the length of the scrub, so the bars travel
+         while the instrument is fully on screen instead of while it leaves. */
+      const panel = rootRef.current?.closest<HTMLElement>(
+        "[data-instrument-panel]",
+      );
+
+      /** How far the scrub runs, in px: 85% of the panel's sticky travel, so
+       *  the last frame lands while the panel is still pinned and fully visible
+       *  rather than on the frame the hero releases it. */
+      const scrubDistance = (): number => {
+        if (!hero || !panel) return 480;
+        const heroTop = hero.getBoundingClientRect().top + window.scrollY;
+        const padding = parseFloat(getComputedStyle(hero).paddingBottom) || 0;
+        const stickyTop = parseFloat(getComputedStyle(panel).top) || 0;
+        const travel = heroTop + hero.offsetHeight - padding - stickyTop -
+          panel.offsetHeight;
+        return Math.max(240, Math.round(travel * 0.85));
+      };
+
       const tween = gsap.to(proxy, {
         t: 1,
         ease: "none",
@@ -231,12 +257,11 @@ export function LatencyInstrument() {
         scrollTrigger: {
           trigger: hero,
           start: "top top",
-          /* The range closes while the instrument is still on screen: the hero's
-             centre reaching the top of the viewport. A reader who scrolls at all
-             sees the measurement finish. */
-          end: "center top",
+          end: () => `+=${scrubDistance()}`,
           scrub: true,
-          /* No pin: the cover is never held. */
+          invalidateOnRefresh: true,
+          /* No pin and no pinSpacing: the panel is held by CSS sticky, so the
+             cover keeps its own height and the LCP element is never trapped. */
         },
       });
 

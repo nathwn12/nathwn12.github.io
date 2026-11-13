@@ -34,9 +34,12 @@ import { LatencyInstrument } from "./LatencyInstrument";
  *   3. The instrument: the payment query before and after the provider change,
  *      scrubbed by scroll, with every number in the DOM (see LatencyInstrument).
  *
- * The two columns close on one line: the actions sit on the left column's
- * bottom edge, which is the instrument's bottom edge, so the seam below the
- * cover measures one block rather than two ragged ones.
+ * The cover is a viewport tall at a desktop width, and the instrument column is
+ * `position: sticky` inside it: the measurement holds under the bar while its
+ * bars travel, so the scrub's payoff lands on screen instead of while the panel
+ * is leaving. The actions sit under the status line rather than on the column's
+ * bottom edge — with the cover held open for the scrub, a bottom-aligned action
+ * row fell below the fold.
  *
  * The whole sequence runs once per session and lasts about 1.4 s: display lines
  * mask up, then the copy and the actions fade in on a 60 ms stagger. Nothing
@@ -114,7 +117,7 @@ export function FirstScreen() {
       ref={coverRef}
       data-band="cover"
       aria-labelledby="claim-heading"
-      className="relative isolate overflow-x-clip pt-8 pb-[var(--rec-rhythm)] md:pt-12 md:pb-[var(--rec-rhythm-lg)]"
+      className="relative isolate overflow-x-clip pt-8 pb-[var(--rec-rhythm)] md:pt-12 md:pb-[var(--rec-rhythm-lg)] lg:flex lg:min-h-[calc(100svh+2rem)] lg:flex-col"
     >
       {/* The current behind the type. `isolate` keeps the canvas in this
           section's stacking context, so `-z-10` puts it above the ground and
@@ -122,7 +125,7 @@ export function FirstScreen() {
           above it. */}
       <HeroField />
 
-      <div className="frame">
+      <div className="frame lg:flex lg:flex-1 lg:flex-col">
         <h1
           id="claim-heading"
           className="font-display text-[length:clamp(2.6rem,9.5vw,8.5rem)] leading-[0.87] font-normal! tracking-[-0.02em]! text-[color:var(--rec-ink)]"
@@ -143,7 +146,7 @@ export function FirstScreen() {
           ))}
         </h1>
 
-        <div className="mt-8 grid gap-x-12 gap-y-10 md:mt-10 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_23rem]">
+        <div className="mt-8 grid gap-x-12 gap-y-10 md:mt-10 lg:flex-1 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_23rem]">
           <div className="flex flex-col">
             <p
               data-cover-fade
@@ -183,7 +186,7 @@ export function FirstScreen() {
 
             <div
               data-cover-fade
-              className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3 lg:mt-auto"
+              className="mt-8 flex flex-wrap items-center gap-x-8 gap-y-3"
             >
               <SectionLink
                 section="contact"
@@ -207,7 +210,11 @@ export function FirstScreen() {
             </div>
           </div>
 
-          <div data-cover-fade className="lg:pt-1">
+          <div
+            data-cover-fade
+            data-instrument-panel
+            className="lg:sticky lg:top-[calc(var(--rec-header-h)+var(--rec-space-3))] lg:self-start lg:pt-1"
+          >
             <LatencyInstrument />
             <p className="data data--sm mt-3 max-w-[38ch] text-[color:var(--rec-ink-muted)]">
               <RouteLink
