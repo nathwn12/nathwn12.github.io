@@ -1,6 +1,4 @@
 import { useEffect } from "react";
-import { Grain } from "./Grain";
-import { Reticle } from "./Reticle";
 import { RouteCurtain } from "./RouteCurtain";
 import { applyStoredMotion, watchMotionPreference } from "../lib/motion";
 import { useSmoothScroll } from "../lib/smooth";
@@ -8,11 +6,9 @@ import { useSmoothScroll } from "../lib/smooth";
 /**
  * Chrome — the instruments around the record, mounted once at the layout root.
  *
- * Grain, reticle and the route curtain are not content and are not per page:
- * they are the frame the pages are read through, so they mount above the router
- * and never remount on a route change. `aria-hidden` on all three keeps them out
- * of the accessibility tree; the skip link that jumps past them belongs to the
- * shell (App.tsx), not here.
+ * The route curtain mounts above the router and never remounts on navigation.
+ * The rest of the frame stays quiet so the person and the work remain the
+ * subject of the page.
  *
  * The smooth scroller is initialised here too, because there is exactly one
  * document to smooth and exactly one place that can own it.
@@ -31,8 +27,6 @@ export function Chrome() {
 
   return (
     <>
-      <Grain />
-      <Reticle />
       <RouteCurtain />
     </>
   );

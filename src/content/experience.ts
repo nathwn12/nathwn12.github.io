@@ -12,12 +12,9 @@ import { ExperienceSchema } from "../types/models";
  * result, and its tech as code-adjacent identifiers (real casing, rendered as
  * Line-bordered chips). Entries run newest first.
  *
- * Senior-flex pass (fleet brief): the record is densified to senior level —
- * each entry now carries `highlights`, a short ordered list of the concrete
- * moves behind the outcome sentence, so the ledger states how the work was done
- * and not only that it shipped. Dates, statuses, and tech are grounded in the
- * delivered Xentra record; prose detail is expanded filler (owner-authorized).
- * No metric here is a vanity number: every figure is a delivered result.
+ * The visible account follows the role periods and concrete work described in
+ * the current résumé/CV. It does not assign individual projects to invented
+ * months or add process details that are not in those records.
  */
 
 export const employer = {
@@ -56,185 +53,55 @@ export interface ExperienceEntry {
 
 export const experience: ExperienceEntry[] = [
   {
-    id: "07",
-    name: "Release and environment automation",
-    date: "November 2025",
-    status: "Ran in production",
-    outcome:
-      "Cut release hand-off from a manual checklist to a single reproducible pipeline.",
-    description:
-      "Automated build, migration, and deploy steps for staging and production so a release was one reviewed action instead of a hand-run sequence. Environment configuration moved into versioned templates, and a dry-run stage gated production so a failed migration could never reach live data.",
-    highlights: [
-      "Replaced the manual deploy checklist with a single pipeline run.",
-      "Moved environment configuration into versioned, diffable templates.",
-      "Added a dry-run gate that blocked a bad migration before production.",
-    ],
-    tech: [
-      "GitHub Actions",
-      "Docker",
-      "Bash",
-      "PowerShell",
-      "Nginx",
-      "CI/CD",
-    ],
-  },
-  {
-    id: "05",
-    name: "Server and deployment infrastructure",
-    date: "September 2025",
-    status: "Ran in production",
-    outcome:
-      "Managed DevOps infrastructure and deployment end to end: Ubuntu/Linux servers, Nginx, Docker, and CI/CD.",
-    description:
-      "Managed Ubuntu/Linux servers; configured Nginx reverse proxies, Let's Encrypt SSL, and UFW firewall rules. Built Docker images with multi-stage builds and automated CI/CD deployments through GitHub Actions. Wrote Bash and PowerShell automation scripts for backups, log rotation, and environment bootstrapping.",
-    highlights: [
-      "Hardened hosts with UFW rules and automated Let's Encrypt renewal.",
-      "Trimmed image size with multi-stage Docker builds.",
-      "Automated backups, log rotation, and environment bootstrap with Bash and PowerShell.",
-    ],
-    tech: [
-      "Ubuntu",
-      "Nginx",
-      "Let's Encrypt",
-      "UFW",
-      "Docker",
-      "GitHub Actions",
-      "Bash",
-      "PowerShell",
-    ],
-  },
-  {
-    id: "04",
-    name: "Data access layer",
-    date: "March 2025",
-    status: "Shipped in production",
-    outcome: "Cut read latency by over 40% with EF Core, Dapper and Redis.",
-    metric: "over 40%",
-    description:
-      "Designed EF Core and Dapper data layers for high-throughput financial transactions. Tuned SQL indexes and integrated Redis caching on frequently accessed reference data. Kept read models thin and cache invalidation explicit so correctness never depended on a stale cache.",
-    highlights: [
-      "Split hot read paths onto Dapper and kept EF Core for writes.",
-      "Added Redis caching with explicit invalidation on write.",
-      "Tuned indexes against real query plans instead of guesswork.",
-    ],
-    tech: ["EF Core", "Dapper", "SQL", "Redis", "Index tuning"],
-  },
-  {
-    id: "08",
-    name: "API contracts and versioning",
-    date: "January 2025",
-    status: "Shipped in production",
-    outcome:
-      "Stabilized the public API contract so downstream services upgraded independently.",
-    description:
-      "Introduced versioned ASP.NET Web API contracts with an explicit compatibility policy: additive changes were shipped in place, breaking changes waited for a new version. Documented every endpoint with Swagger/OpenAPI and added contract tests so a schema drift failed the build instead of a consumer.",
-    highlights: [
-      "Defined an additive-only policy for the current API version.",
-      "Added contract tests that fail the build on schema drift.",
-      "Published OpenAPI docs as the single source of endpoint truth.",
-    ],
-    tech: ["ASP.NET Web APIs", "Swagger/OpenAPI", "REST", "Contract testing"],
-  },
-  {
     id: "03",
-    name: "Authentication and authorization",
-    date: "November 2024",
-    status: "Shipped in production",
+    name: "Payments and platform services",
+    date: "June 2024 – May 2026",
+    status: "Backend Developer",
     outcome:
-      "Hardened service security and held zero high or critical Snyk findings.",
-    metric: "0",
+      "Reduced worst-case payment-query time from about 60 seconds to under one second.",
+    metric: "98%",
     description:
-      "JWT, OAuth 2.0, OpenID Connect with RBAC and ABAC authorization, on production deployments hardened by proactive dependency scanning and secure code review. Access decisions were centralized so a policy change shipped in one place, not across every endpoint.",
+      "Migrated AWS-hosted services from MySql.Data to MySqlConnector and tuned indexes; worst-case query time fell from about 60 seconds to under one second.",
     highlights: [
-      "Centralized authorization so policy changes shipped in one place.",
-      "Ran dependency scanning in CI and triaged every finding before release.",
-      "Reviewed authentication paths against the OWASP guidance before release.",
+      "Implemented JWT, OAuth 2.0, and OpenID Connect authentication with RBAC/ABAC authorization across payment services and admin tooling.",
+      "Kept production-bound services free of high or critical Snyk findings through dependency scanning and code review.",
     ],
-    tech: ["JWT", "OAuth 2.0", "OpenID Connect", "RBAC", "ABAC", "Snyk"],
+    tech: ["C#", "MySqlConnector", "AWS", "JWT", "OAuth 2.0", "OpenID Connect", "RBAC", "ABAC", "Snyk"],
   },
   {
     id: "02",
-    name: "Payments API",
-    date: "August 2024",
-    status: "Shipped in production",
-    outcome:
-      "Cut payment API latency by 98% by moving from MySql.Data to MySqlConnector on AWS.",
-    metric: "98%",
+    name: "Payments and cash-management endpoints",
+    date: "June 2023 – May 2024",
+    status: "Junior Backend Developer",
+    outcome: "Cut read latency by over 40% with EF Core, Dapper, and Redis.",
+    metric: "over 40%",
     description:
-      "Migrated payment services from MySql.Data to MySqlConnector on AWS: worst-case query times fell from about 60 seconds to under one second. Profiled slow queries and tuned indexes on high-frequency access patterns to eliminate a critical production bottleneck.",
+      "Built ASP.NET Core endpoints for payments and cash management with EF Core and Dapper data access and Redis caching.",
     highlights: [
-      "Replaced the slow ADO.NET provider across the payment services.",
-      "Profiled the worst offenders and fixed the query plans behind them.",
-      "Verified the drop with before/after timings on production traffic.",
+      "Removed N+1 queries and added missing indexes on reporting endpoints, cutting repeated database round trips.",
+      "Documented endpoints with Swagger/OpenAPI and carried API versioning through active contract changes.",
     ],
-    tech: [
-      "C#",
-      "MySqlConnector",
-      "AWS",
-      "MySQL",
-      "Index tuning",
-      "SQL profiling",
-    ],
-  },
-  {
-    id: "09",
-    name: "Observability and incident readiness",
-    date: "May 2024",
-    status: "Ran in production",
-    outcome:
-      "Made production failures diagnosable from logs alone, without a live debugger.",
-    description:
-      "Wired Serilog structured logging across every service with a shared message template and correlation id, so one request could be followed across process and host boundaries. Wrote runbooks for the recurring failure modes and tuned alert thresholds to cut wake-up noise without missing real incidents.",
-    highlights: [
-      "Added a shared correlation id spanning services and hosts.",
-      "Wrote runbooks for the failure modes the team hit most.",
-      "Tuned alerts to cut noise while keeping real incidents visible.",
-    ],
-    tech: ["Serilog", "Structured logging", "Runbooks", "Alerting"],
-  },
-  {
-    id: "10",
-    name: "Mentoring and code review",
-    date: "January 2024",
-    status: "Ongoing throughout",
-    outcome:
-      "Raised review quality and shortened feedback loops across the backend team.",
-    description:
-      "Reviewed backend pull requests with a focus on correctness, query cost, and auth boundaries rather than style. Paired with newer teammates on C#, EF Core, and SQL fundamentals, and left written notes on recurring issues so the same review comment did not have to be made twice.",
-    highlights: [
-      "Set a review focus on correctness, query cost, and auth boundaries.",
-      "Paired on C#, EF Core, and SQL fundamentals.",
-      "Turned repeated review comments into written team notes.",
-    ],
-    tech: ["Code review", "C#", "EF Core", "SQL", "Mentoring"],
+    tech: ["ASP.NET Core", "EF Core", "SQL", "Swagger/OpenAPI", "API versioning"],
   },
   {
     id: "01",
-    name: "Fintech platform services",
-    date: "April 2023",
-    status: "Delivered",
-    outcome:
-      "Shipped the fintech platform's services across the company's repositories from 2023 to 2026.",
+    name: "Scoped ASP.NET Core and MySQL fixes",
+    date: "March 2023 – June 2023",
+    status: "Backend Developer Intern",
+    outcome: "Completed a four-month final-year software-development internship.",
     description:
-      "Built ASP.NET Web APIs, gRPC endpoints, SignalR hubs, and RabbitMQ messaging for fintech products spanning payments, cash management, and access control. Configured Serilog for centralized structured logging across environments.",
+      "Worked from existing controllers, services, and SQL to isolate defects in assigned modules.",
     highlights: [
-      "Built HTTP, gRPC, and realtime surfaces for one product family.",
-      "Moved cross-service work onto RabbitMQ messaging.",
-      "Standardized structured logging across every environment.",
+      "Prepared small ASP.NET Core and MySQL fixes with endpoint tests.",
+      "Carried changes through the team's Git and code-review workflow.",
     ],
-    tech: [
-      "ASP.NET Web APIs",
-      "gRPC",
-      "SignalR",
-      "RabbitMQ",
-      "Serilog",
-    ],
+    tech: ["ASP.NET Core", "MySQL", "Endpoint tests", "Git"],
   },
 ];
 
 /** One line of provenance for the delivery numbers above. */
 export const provenance =
-  "Commit ledger recovered from 21 scanned internal repositories after Xentra closed in May 2026: 1,182 commits across 17 repositories from 2023 to 2026.";
+  "1,182 commits across 17 repositories from 2023 to 2026; 21 scanned repositories.";
 
 /** Tenure end, read off the one period string — never typed twice. */
 export const tenureEnd = employer.period.split(" to ")[1] ?? employer.period;
@@ -250,7 +117,7 @@ export const latestRecordDate = experience[0]?.date ?? "";
 /** Route lede: the shape of each entry, not the count (the list states its own
     count and order) and not the tenure (the block above owns the span). */
 export const experienceLede =
-  "Every entry pairs its outcome with the moves behind it.";
+  "Three roles, with the work attached to the period it belongs to.";
 
 /** Landing marginalia: the credibility of the figures, not a repeat of the
     reading order or the tenure already stated above. */

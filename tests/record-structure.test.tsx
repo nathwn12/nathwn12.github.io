@@ -76,8 +76,8 @@ const detailCopy = [  ...experience.flatMap((entry) => [
 ];
 
 describe("figures are derived from the delivered record", () => {
-  const payments = experience.find((entry) => entry.id === "02")!;
-  const dataAccess = experience.find((entry) => entry.id === "04")!;
+  const payments = experience.find((entry) => entry.id === "03")!;
+  const dataAccess = experience.find((entry) => entry.id === "02")!;
 
   test("the percentages are the record's own", () => {
     expect(figures.paymentsPercent).toBe(percentIn(payments.metric ?? ""));
@@ -108,7 +108,7 @@ describe("figures are derived from the delivered record", () => {
 
   test("counts equal the content they count", () => {
     expect(figures.projectCount).toBe(projects.length);
-    expect(figures.projectCount).toBe(13);
+    expect(figures.projectCount).toBe(12);
     expect(figures.groupCount).toBe(repos.length);
     expect(figures.packageCount).toBe(
       repos.reduce((total, group) => total + group.packages.length, 0),
@@ -201,12 +201,11 @@ describe("the rendered record", () => {
       (node.textContent ?? "").trim(),
     );
     expect(lines).toEqual([
-      "Software developer.",
-      "C# and .NET,",
-      "in production since 2023.",
+      "I build backend",
+      "systems for production.",
     ]);
     expect(lines.join(" ")).toBe(
-      "Software developer. C# and .NET, in production since 2023.",
+      "I build backend systems for production.",
     );
 
     const header = renderToStaticMarkup(createElement(Header));
@@ -218,12 +217,9 @@ describe("the rendered record", () => {
     );
   });
 
-  test("the display clamp caps at the 1440 size, so the three lines hold wide", () => {
-    /* At 1440 the h1 computes 136.8px (9.5vw) inside a 1312px frame — the
-       ~10.4% ratio the three-line composition is set to. A clamp that keeps
-       growing after the frame has stopped breaks that: at 11rem the h1 reaches
-       176px at 1920 and 2560, and "in production since 2023." wraps to a fourth
-       line. The max is therefore the 1440 size, not a bigger ceiling. */
+  test("the display clamp stops growing after the wide desktop frame", () => {
+    /* The title is set in hand-broken lines, so the fluid type must stop
+       scaling once the frame stops growing. */
     const h1 = host.querySelector("h1")!;
     const clamp = /clamp\(([^)]*)\)/.exec(h1.className);
     expect(clamp, "the h1 carries no display clamp").not.toBeNull();

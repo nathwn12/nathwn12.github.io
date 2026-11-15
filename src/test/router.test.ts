@@ -50,7 +50,7 @@ describe("router", () => {
         .querySelector('meta[name="description"]')
         ?.getAttribute("content"),
     ).toBe(
-      "Software developer in the Philippines, building C# and .NET payment, cash management and access control systems in production since 2023, and current in AI-assisted development with local models.",
+      "Software developer in the Philippines with three years of production C#/.NET backend experience. Now building solo public projects, frontend apps, and practical tools for AI-assisted development.",
     );
     expect(
       document

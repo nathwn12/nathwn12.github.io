@@ -69,25 +69,19 @@ describe("employment", () => {
     expect(employer.period).toBe("March 2023 to May 2026");
   });
 
-  test("the nine dated records are unchanged, newest first", () => {
-    expect(experience).toHaveLength(9);
-    expect(experience[0].date).toBe("November 2025");
+  test("the three role periods are listed newest first", () => {
+    expect(experience).toHaveLength(3);
+    expect(experience[0].date).toBe("June 2024 – May 2026");
     expect(experience.map((entry) => entry.date)).toEqual([
-      "November 2025",
-      "September 2025",
-      "March 2025",
-      "January 2025",
-      "November 2024",
-      "August 2024",
-      "May 2024",
-      "January 2024",
-      "April 2023",
+      "June 2024 – May 2026",
+      "June 2023 – May 2024",
+      "March 2023 – June 2023",
     ]);
   });
 
-  test("the closure is stated in the past", () => {
-    expect(provenance).toContain("after Xentra closed in May 2026");
+  test("the recovered work ledger is dated and bounded", () => {
     expect(provenance).toContain("1,182 commits across 17 repositories");
+    expect(provenance).toContain("21 scanned repositories");
   });
 });
 
@@ -109,11 +103,10 @@ describe("the figures", () => {
   });
 
   test("thirteen projects and 88 packages", () => {
-    /* Thirteen cards: the fifteen public repositories in the 2026-11-13 probe
-       (src/content/repos.probe.json) minus the profile README and this site.
-       tests/project-inventory.test.ts holds the per-card mapping. */
-    expect(projects).toHaveLength(13);
-    expect(figures.projectCount).toBe(13);
+    /* Twelve case studies: the public repo probe minus the profile README, this
+       site, and repositories without evidenced solo work. */
+    expect(projects).toHaveLength(12);
+    expect(figures.projectCount).toBe(12);
     expect(repos).toHaveLength(6);
     expect(figures.packageCount).toBe(88);
   });

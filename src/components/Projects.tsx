@@ -6,6 +6,7 @@ import {
 import { CONTACT_CTA } from "../content/ledger";
 import { RouteLink, SectionLink } from "../lib/router";
 import { ProjectReadout } from "./ProjectReadout";
+import { NpmDownloadsReadout } from "./NpmDownloadsReadout";
 
 /**
  * Projects — the open-source ledger, featured work first.
@@ -48,14 +49,17 @@ export default function Projects() {
               </p>
             </div>
 
-            <dl className="flex flex-wrap items-start gap-x-10 gap-y-4 border-t border-[color:var(--rec-rule)] pt-4 lg:col-span-4 lg:col-start-9 lg:self-start">
+            <div className="border-t border-[color:var(--rec-rule)] pt-4 lg:col-span-4 lg:col-start-9 lg:self-start">
+              <dl className="flex flex-wrap items-start gap-x-10 gap-y-4">
               <div className="grid gap-y-1">
                 <dt className="data text-[color:var(--rec-ink-muted)]">published</dt>
                 <dd className="data--lg data tnum text-[color:var(--rec-ink)]">
                   {projects.length}
                 </dd>
               </div>
-            </dl>
+              </dl>
+              <NpmDownloadsReadout />
+            </div>
           </div>
 
           {/* The table's own top rule closes this band — no drawn seam above

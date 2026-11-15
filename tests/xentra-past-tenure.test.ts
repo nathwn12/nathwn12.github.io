@@ -70,13 +70,13 @@ describe("Xentra is stated as past employment", () => {
     expect(route?.metaDescription).toContain(formerRoleLine);
   });
 
-  test("provenance keeps the closure in the past", () => {
-    expect(provenance).toContain("after Xentra closed in May 2026");
+  test("provenance retains the dated ledger scope", () => {
+    expect(provenance).toContain("from 2023 to 2026");
   });
 
   test("the tenure end month and the newest dated entry are exact", () => {
     expect(tenureEnd).toBe("May 2026");
-    expect(latestRecordDate).toBe("November 2025");
+    expect(latestRecordDate).toBe("June 2024 – May 2026");
   });
 
   test("published llms.txt names the role as former", () => {
@@ -144,9 +144,9 @@ describe("the record renders the role in the past", () => {
     // The continuous tenure and the dated record are stated as two facts.
     expect(text).toContain("March 2023 – May 2026");
     expect(text).toContain(
-      "The latest is November 2025; the tenure ran to May 2026.",
+      "The latest is June 2024 – May 2026; the tenure ran to May 2026.",
     );
-    // The real November 2025 date survives on its own entry.
-    expect(text).toContain("November 2025");
+    // The prior role period remains independently visible.
+    expect(text).toContain("June 2023 – May 2024");
   });
 });

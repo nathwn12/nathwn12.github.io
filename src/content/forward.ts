@@ -41,7 +41,7 @@ export const forward: ForwardItem[] = [
     id: "fw-workflow",
     section: "workflow",
     title: "AI-assisted development workflow",
-    body: "Uses LM Studio, OpenCode, and Codex daily for coding, refactoring, investigative development, and prompt engineering. Works with preferred local models including DeepSeek V4 Flash (9B, MTP), Gemma 4 (26B, A4B), and Qwen 3.8 (35B, A3B) for local LLM workflows, keeping prompts and code off hosted services. Investigation and refactoring happen without a network round trip, supported by reusable prompt libraries for review, migration, and test scaffolding.",
+    body: "Uses LM Studio, OpenCode, and Codex for coding, refactoring, investigative development, and prompt engineering. Local models include DeepSeek V4 Flash (9B, MTP), Gemma 4 (26B, A4B), and Qwen 3.8 (35B, A3B). When a local model is selected, inference runs locally; data handling for hosted tools depends on the service and configuration.",
     tech: [
       "LM Studio",
       "OpenCode",

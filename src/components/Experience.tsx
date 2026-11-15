@@ -91,8 +91,7 @@ export function Experience() {
 
             {/* The tenure is its own readout, outside the dated list, so the
                 employment period can never be read as one more shipped
-                milestone: the newest dated entry is November 2025 and the
-                tenure ran to May 2026. */}
+                role period and the employment tenure both end in May 2026. */}
             <div className="lg:col-span-3 lg:col-start-10">
               <div
                 data-tenure-span

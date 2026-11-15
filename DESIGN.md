@@ -1,9 +1,10 @@
 # DESIGN — the record
 
-The site is a **flight recorder for a career**. Not a portfolio of pictures: an
-instrument panel that states what was shipped, when, and what changed when it
-shipped. Every loud thing on the page is a measurement, and the one kinetic
-moment on the page exists to make a measurement visible.
+The site is a **working record, told by the person who did the work**. It opens
+with three years of production backend experience, then shows what Nathan builds
+now: solo public software, frontend projects, and practical AI tooling. The
+figures are receipts, not the personality. The visual system stays editorial
+and restrained so the work and the first-person account lead.
 
 The audience is a hiring manager who has ninety seconds and has read a hundred
 developer sites this week. The page has to make one claim credible — payment
@@ -20,12 +21,13 @@ file is a bug in one of them.
 
 ## 1. Art direction — "Recorder"
 
-A near-black instrument panel, film grain, mono readouts, hairline rules, one
-serif display face, a live flow field behind the cover, and exactly one piece of
-theatre: the cover's load sequence.
+A quiet, type-led page with a serif display face, plain first-person copy,
+hairline rules, and one concrete before/after measurement. No generated
+backdrop, pointer gimmick, or texture layer.
 
-- **One ground.** The page is dark, and only dark. There is no light block, no
-  two theme blocks and one switch. `color-scheme` is declared per theme, and `data-theme` on `<html>` is the only selector that repoints the roles.
+- **Two themes, one system.** Dark and light themes share the same semantic
+  roles. `color-scheme` is declared per theme, and `data-theme` on `<html>` is
+  the only selector that repoints the roles.
 - **Radius 0 everywhere.** Enforced by a single `*` rule reading
   `--rec-radius`, so a component cannot quietly soften an edge and start a
   second visual language. No shadows, no cards, no glass.
@@ -33,14 +35,7 @@ theatre: the cover's load sequence.
   active edge (`--rec-rule-strong`). A rule appears where it encodes structure —
   a panel edge, a table row, a section seam — never under a heading as
   decoration.
-- **Grain, once.** One generated `feTurbulence` noise field, `fractalNoise`,
-  `baseFrequency 0.82`, `numOctaves 3`, `stitchTiles=stitch`, saturate 0,
-  `opacity 0.055`, `mix-blend-mode: overlay`, fixed over the page, jittered by a
-  `steps()` transform at 6fps. The filter itself is never animated — only the
-  transform.
-- **Reticle.** Pointer-fine devices only: a 1px crosshair plus the pointer's
-  `x/y` in mono in the corner, faded in on the first pointer move. It starts
-  invisible, so a keyboard visitor never sees a mark parked at 0,0.
+- **No ambient effects.** No grain, pointer reticle, or generated field.
 - **No imagery.** There are no screenshots, no portraits and no abstract art.
   The only pictures on the site are the two brand marks (`/brand/signature.svg`)
   and the icon.
@@ -147,8 +142,6 @@ stack of slides.
 | `--rec-dur-quick` | `140ms` | hover, colour |
 | `--rec-dur-base` | `280ms` | a moving indicator |
 | `--rec-z-header` | `50` | masthead |
-| `--rec-z-grain` | `60` | grain overlay |
-| `--rec-z-reticle` | `70` | reticle |
 | `--rec-z-curtain` | `80` | route curtain |
 | `--rec-z-skip` | `100` | skip link |
 
@@ -174,9 +167,9 @@ it.
 | Text | Archivo (variable) | 100–900 | `Archivo-Variable.woff2` | all running copy, UI labels, names |
 | Data | JetBrains Mono | 400–500 (one slice) | `JetBrainsMono-Regular.woff2` | numbers, units, repo names, timestamps, ticks, keycaps |
 
-- The cover is set in Instrument Serif at `clamp(3rem, 9.5vw, 11rem)`, leading
-  `0.87`, tracking `-0.02em`, hand-broken into three lines. The break is
-  structure: `Payment backends / that hold up under / production load.`
+- The cover is set in Instrument Serif at `clamp(2.6rem, 9.5vw, 8.5rem)`, leading
+  `0.87`, tracking `-0.02em`, hand-broken into two lines: `I build backend /
+  systems for production.`
 - Running copy is Archivo at 17px/1.6, never wider than the reading measure.
 - Mono is **true data only**. A mono row of uppercase words over a heading is an
   eyebrow, and there are none: no ALL-CAPS kicker, no `·`-joined meta string, no
@@ -204,9 +197,10 @@ it.
   left the first time it enters the viewport. The home record mounts seven bands
   in reading order — cover, proof, work, atlas, forward, credentials, contact —
   and each renders its own seam.
-- The cover is a two-column row from 1024px: the claim, standfirst, stack,
+- The cover is a two-column row from 1024px: the claim, first-person standfirst,
+  tenure and location,
   former-employment line, availability and two actions on the left; the latency
-  instrument as a 20-23rem right-hand panel. All three display lines start on the
+  instrument as a 20-23rem right-hand panel. Both display lines start on the
   frame's left edge. The cover is content-height (about 740px at 1440) - it is
   **not** a viewport tall and the instrument column is **not** sticky: the panel
   scrolls with the page and states the measurement once.
@@ -243,7 +237,7 @@ OS setting changes mid-visit.
 
 | Where | With motion | Reduced / `data-motion="off"` |
 |---|---|---|
-| Cover load, once per session, ~1.4s | three display lines `yPercent 110→0` (0.9s, 90ms stagger, power3.out), then copy and actions fade `y 12→0` (0.6s, 60ms stagger from 0.34s) | nothing runs; the resting DOM is the final state — no CSS-hidden start, so a JS-less page paints the finished cover |
+| Cover load, once per session, ~1.4s | two display lines `yPercent 110→0` (0.9s, 90ms stagger, power3.out), then copy and actions fade `y 12→0` (0.6s, 60ms stagger from 0.34s) | nothing runs; the resting DOM is the final state — no CSS-hidden start, so a JS-less page paints the finished cover |
 | Instrument | bars `scaleX 0→1` (0.9s, 150ms stagger, from 0.45s); `60 s` counts 0→60 from 0.55s; `−98%` counts 0→98 from 0.95s; one sweep crosses the plot and is erased | bars drawn at final width, every value is the final text in the markup, the grid draws once, the sweep never runs |
 | Band seams | hairline `scaleX 0→1` from the left, 0.7s, on first intersection | `revealRule` writes `scaleX: 1` instantly; a JS-less page paints the rule |
 | Proof figures | `countUp` once on the band's first intersection, formatted per figure | final values are already in the DOM and are never written to 0 |
@@ -319,10 +313,8 @@ then fights.
 ## 8. Performance floor
 
 - Transform and opacity only. `will-change` is added and removed, never left on.
-- The canvas DPR is capped at 2, and the plot redraws on resize and during its
-  one sweep. The hero's flow field is the only frame loop on the site: one
-  `IntersectionObserver` and `document.hidden` gate it, and it tiers itself down
-  (particles, then DPR) when its own 30-frame average passes 22 ms.
+- No ambient canvas or frame loop runs on the page. The latency plot is the only
+  drawn measurement surface and it redraws only when its dimensions change.
 - No runtime font request; latin subsets only; `font-display: swap`; the display
   cut is the single preload.
 - No images to decode, no third-party script, no runtime CSS-in-JS. The bundle
@@ -357,11 +349,8 @@ build size.
   theme demo, and a second palette doubles every contrast number for a reader who
   arrived to judge one page.
 - **No pins.** See §5.
-- **No WebGL, no shaders, no video.** The grain is one SVG filter; the plot's
-  canvas draws a grid, three ticks and one sweep, and the cover's field is raw
-  2D canvas — short streaks, additive on the dark ground and plain ink at a third
-  of the alpha on paper, so the display type stays the loudest thing in both
-  themes.
+- **No ambient animation.** The latency plot's canvas draws only its labeled
+  scale; no generated illustration or pointer effect competes with the work.
 - **No fake screenshots.** No image of a dashboard that does not exist. The
   evidence is numbers, repository names and dates.
 - **No contact form.** A relay form is a third party, a key and a failure mode;
