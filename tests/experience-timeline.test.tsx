@@ -4,9 +4,8 @@
  * different things, and the page must say so.
  *
  * The route renders one labeled tenure span (March 2023 – May 2026) outside
- * the dated list, then a "Selected contributions" heading over the nine dated
- * records, newest first. The latest dated record is November 2025; the tenure
- * continues to May 2026, and no milestone is invented for the gap.
+ * the dated list, then a "Selected contributions" heading over the three role
+ * periods, newest first.
  *
  * Every assertion below can go red:
  *
@@ -67,7 +66,7 @@ describe("experience timeline", () => {
     expect(tenure!.closest("ol")).toBeNull();
   });
 
-  test("labels the nine dated records as selected contributions, newest first", () => {
+  test("labels the three role periods as selected contributions, newest first", () => {
     const heading = Array.from(host.querySelectorAll("h2")).find(
       (item) => item.textContent?.trim() === "Selected contributions",
     );
@@ -76,41 +75,30 @@ describe("experience timeline", () => {
     const list = host.querySelector("ol");
     expect(list, "the dated list is missing").not.toBeNull();
     const items = Array.from(list!.querySelectorAll(":scope > li"));
-    expect(items).toHaveLength(9);
+    expect(items).toHaveLength(3);
 
     const dates = items.map((item) =>
       item.querySelector("p")?.textContent?.trim(),
     );
     expect(dates).toEqual([
-      "November 2025",
-      "September 2025",
-      "March 2025",
-      "January 2025",
-      "November 2024",
-      "August 2024",
-      "May 2024",
-      "January 2024",
-      "April 2023",
+      "June 2024 – May 2026",
+      "June 2023 – May 2024",
+      "March 2023 – June 2023",
     ]);
   });
 
-  test("the latest dated contribution stays November 2025 and no gap milestone is invented", () => {
+  test("the newest role period agrees with the tenure", () => {
     const text = host.textContent ?? "";
     expect(text).toContain(
-      "The latest is November 2025; the tenure ran to May 2026.",
+      "The latest is June 2024 – May 2026; the tenure ran to May 2026.",
     );
 
     const dates = Array.from(host.querySelectorAll("[data-timeline-date]")).map(
       (item) => item.textContent?.trim() ?? "",
     );
-    expect(dates[0]).toBe("November 2025");
+    expect(dates[0]).toBe("June 2024 – May 2026");
     for (const invented of [
       "December 2025",
-      "January 2026",
-      "February 2026",
-      "March 2026",
-      "April 2026",
-      "May 2026",
     ]) {
       expect(dates).not.toContain(invented);
     }

@@ -1,0 +1,11 @@
+[
+  "puppet-mcp",
+  "gladius-mcp",
+  "@nathwn12/janua",
+  "@nathwn12/oc-bifrost",
+  "oc-flight-deck",
+  "oc-harness-setup",
+  "oc-plugin-view",
+  "oc-talk",
+  "rea-shim"
+]

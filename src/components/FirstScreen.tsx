@@ -11,51 +11,20 @@ import {
 import { employer, tenureSpan } from "../content/experience";
 import { SectionLink, RouteLink } from "../lib/router";
 import { motionAllowed } from "../lib/motion";
-import { HeroField } from "./HeroField";
 import { LatencyInstrument } from "./LatencyInstrument";
 
 /**
- * FirstScreen — the cover: who this is, then the instrument that proves it.
- *
- * The page opens on identity, not on a claim. Three display lines state the
- * role, the platform and the record's one date fact; the standfirst names the
- * employer once and what the work was; the fact row states the span, the mode
- * and the country as three hairline-separated cells. The four numbers the work
- * measured are the next band's job — a cover that opens on figures makes a
- * reader do the arithmetic before they know whose figures they are.
- *
- * Three parts, one orchestration:
- *   1. The display lines are hand-set and masked up line by line. The breaks
- *      are structure, not styling. All three lines start on the frame's own
- *      left edge — the block is measured, not bled: one line hanging 112px
- *      outside its siblings is a crop, not a decision.
- *   2. The standfirst, the fact row and the availability line — the only
- *      running copy above the fold, all of it content strings.
- *   3. The instrument: the payment query before and after the provider change,
- *      scrubbed by scroll, with every number in the DOM (see LatencyInstrument).
- *
- * The cover is a viewport tall at a desktop width, and the instrument column is
- * `position: sticky` inside it: the measurement holds under the bar while its
- * bars travel, so the scrub's payoff lands on screen instead of while the panel
- * is leaving. The actions sit under the status line rather than on the column's
- * bottom edge — with the cover held open for the scrub, a bottom-aligned action
- * row fell below the fold.
- *
- * The whole sequence runs once per session and lasts about 1.4 s: display lines
- * mask up, then the copy and the actions fade in on a 60 ms stagger. Nothing
- * else on the page auto-plays, so this is the one loud moment.
- *
- * With motion off — the OS preference or the footer's switch — the resting
- * state IS the final state: no masks, no fades, no counting. Nothing is hidden
- * by CSS and then revealed by script, so a browser that never runs a transition
- * still gets the finished cover.
+ * The cover opens with the work and the person behind it. The short display
+ * claim is followed by a first-person account of three years in production
+ * backend development and the solo projects and AI tooling built alongside it.
+ * A small, sourced before/after readout makes the experience concrete without
+ * turning the whole page into an instrument panel.
  */
 
 /** Lines in the order they are read, not in the order they fit. */
 const IDENTITY_LINES = [
-  "Software developer.",
-  "C# and .NET,",
-  "in production since 2023.",
+  "I build backend",
+  "systems for production.",
 ];
 
 /**
@@ -117,26 +86,18 @@ export function FirstScreen() {
       ref={coverRef}
       data-band="cover"
       aria-labelledby="claim-heading"
-      className="relative isolate overflow-x-clip pt-8 pb-[var(--rec-rhythm)] md:pt-12 md:pb-[var(--rec-rhythm-lg)] lg:flex lg:flex-col"
+      className="overflow-x-clip pt-8 pb-[var(--rec-rhythm)] md:pt-12 md:pb-[var(--rec-rhythm-lg)] lg:flex lg:flex-col"
     >
-      {/* The current behind the type. `isolate` keeps the canvas in this
-          section's stacking context, so `-z-10` puts it above the ground and
-          below every word, and the grain overlay (z 60, fixed) still reads
-          above it. */}
-      <HeroField />
-
       <div className="frame lg:flex lg:flex-1 lg:flex-col">
         <h1
           id="claim-heading"
-          className="font-display text-[length:clamp(2.6rem,9.5vw,8.5rem)] leading-[0.87] font-normal! tracking-[-0.02em]! text-[color:var(--rec-ink)]"
+          className="font-display text-[length:clamp(2.6rem,9.5vw,8.5rem)] leading-[1] font-normal! tracking-[-0.02em]! text-[color:var(--rec-ink)]"
         >
           {IDENTITY_LINES.map((line) => (
             <span
               key={line}
-              /* Every line shares the frame's left edge. The display size is
-                 already the widest thing on the page; bleeding one line past
-                 the other two cropped a glyph and read as a mistake, so the
-                 three lines are the block, and the block is the frame. */
+              /* The hand-broken lines share the frame's left edge; their width
+                 follows the copy, not a decorative offset. */
               className="block overflow-hidden pb-[0.04em]"
             >
               <span data-cover-line className="block">

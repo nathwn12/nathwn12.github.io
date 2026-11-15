@@ -26,10 +26,10 @@ import { availability, recordOpener } from "./hero";
  *      whole — the duplication that made the old site read twice.
  */
 
-const payments = experience.find((entry) => entry.id === "02");
-const dataAccess = experience.find((entry) => entry.id === "04");
+const payments = experience.find((entry) => entry.id === "03");
+const dataAccess = experience.find((entry) => entry.id === "02");
 const auth = experience.find((entry) => entry.id === "03");
-const contracts = experience.find((entry) => entry.id === "08");
+const contracts = payments;
 
 /** The single percentage a sentence carries, e.g. "98%" or "over 40%". */
 export function percentIn(sentence: string): string | null {
@@ -129,7 +129,7 @@ export const name = "Nathaniel Nikolai Ladero";
 /** The h1's supporting sentence: who, and what the work was. One sentence,
     read as identity first and capability second — it names the company once. */
 export const standfirst =
-  "Backend developer at Xentra Infotech Solutions for three years — payments, cash management and access control — and current in AI-assisted development, agent tooling and local models.";
+  "At Xentra Infotech Solutions, I spent three years building C#/.NET services for payments, cash management, and access control. I still build every day: solo public projects, frontend apps, and practical tools for AI-assisted development.";
 
 export const locatedIn = "Philippines";
 
@@ -196,7 +196,7 @@ export const proofRows: RecordRow[] = [
     ? {
         claim: "Reads on high-traffic financial tables",
         detail:
-          "Hot read paths moved to Dapper with Redis caching and explicit invalidation on write; indexes were tuned against real query plans.",
+          "Used Dapper and Redis on read paths, with indexes tuned against query plans.",
         figure: readsFigure,
       }
     : null,
@@ -204,15 +204,15 @@ export const proofRows: RecordRow[] = [
     ? {
         claim: "Security findings on production deployments",
         detail:
-          "JWT, OAuth 2.0 and OpenID Connect behind centralized RBAC and ABAC, with dependency scanning triaged to zero high or critical findings.",
+          "JWT, OAuth 2.0, OpenID Connect, RBAC, and ABAC; no high or critical Snyk findings on production deployments.",
         figure: "0",
       }
     : null,
   figures.commits
     ? {
-        claim: "Commits across the fintech platform",
+        claim: "Recovered work history",
         detail:
-          "ASP.NET APIs, gRPC, SignalR and RabbitMQ across the fintech product family.",
+          "The recovered record spans 17 repositories from 2023 to 2026.",
         figure: figures.commits,
       }
     : null,
@@ -281,9 +281,9 @@ export const forwardLede =
 export const aiPractice = {
   heading: "AI practice",
   sentences: [
-    "Builds the tooling agents run on: MCP servers, editor plugins and the harness that connects them.",
-    "Works with local models daily — prompts, specs and documentation held to the same standard as the code they describe.",
-    "Runs an AI-assisted development loop end to end, from spec to reviewed change.",
+    "I use AI every day to investigate code and work through changes from a written spec to tests and review.",
+    "I use local models alongside hosted tools; OpenCode and Codex are part of the development loop.",
+    "I also build agent tools. The interesting systems work is giving a model a useful, bounded way into a real browser or desktop, then checking what it did.",
   ],
   facts: ["MCP servers", "local models", "spec-driven builds"],
 } as const;
@@ -292,8 +292,8 @@ export const aiPractice = {
 
 export const contactBlock = {
   heading: "Contact",
-  line: "Tell me about the role, the system, or the problem. Notes reach my inbox directly.",
-  nextStep: "I read every note and usually answer within a day or two.",
+  line: "Tell me about the role, the system, or the problem.",
+  nextStep: "The address opens a message in your mail app.",
   directLabel: "Or write to the address directly",
 } as const;
 

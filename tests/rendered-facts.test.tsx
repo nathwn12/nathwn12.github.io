@@ -140,7 +140,7 @@ describe("the proof figures reach the screen", () => {
   test("the recovery sentence renders on the experience route", async () => {
     const experience = await mount(createElement(Experience));
     const text = experience.textContent ?? "";
-    expect(text).toContain("21 scanned internal repositories");
+    expect(text).toContain("21 scanned repositories");
     expect(text).toContain("1,182 commits across 17 repositories");
   });
 
@@ -148,7 +148,7 @@ describe("the proof figures reach the screen", () => {
     const experience = await mount(createElement(Experience));
     const text = experience.textContent ?? "";
     expect(text).toContain(
-      "Shipped the fintech platform's services across the company's repositories from 2023 to 2026.",
+      "Reduced worst-case payment-query time from about 60 seconds to under one second.",
     );
     /* The number belongs to the ledger readout and to the provenance sentence
        that says where it came from — not to a third restatement in the entry. */

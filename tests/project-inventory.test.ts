@@ -24,6 +24,7 @@ import {
   countWords,
   projects,
   projectsLede,
+  projectsSupport,
 } from "../src/content/projects";
 import probe from "../src/content/repos.probe.json";
 
@@ -36,8 +37,8 @@ interface ProbeRepo {
 
 const REPOS = (probe as { repos: ProbeRepo[] }).repos;
 
-/** Never a project card: the profile README and this site. */
-const EXCLUDED = ["nathwn12", "nathwn12.github.io"];
+/** Not case studies: the profile, this site, and projects without evidenced solo work. */
+const EXCLUDED = ["nathwn12", "nathwn12.github.io", "pear-slowed-reverb"];
 
 /** dir → the repository's PRIMARY language, from GitHub's own field. */
 const PRIMARY_LANGUAGE: Record<string, string> = Object.fromEntries(
@@ -149,6 +150,12 @@ describe("project inventory is the current public work", () => {
     }
   });
 
+  test("the project page keeps outside contributions separate from owned work", () => {
+    expect(projectsSupport).toContain("repositories I own");
+    expect(projectsSupport).toContain("forks I maintain solo");
+    expect(projectsSupport).toContain("Contributions elsewhere are separate");
+  });
+
   test("profile and site never render", () => {
     const names = projects
       .map((project) => `${project.dir} ${project.name}`)
@@ -158,6 +165,12 @@ describe("project inventory is the current public work", () => {
       expect(names).not.toContain(excluded);
       expect(urls).not.toContain(`https://github.com/nathwn12/${excluded}`);
     }
+  });
+
+  test("the Pear fork is omitted from project marketing", () => {
+    expect(projects.some((project) => project.dir === "pear-slowed-reverb")).toBe(
+      false,
+    );
   });
 
   test("counts and copy equal the rendered card count", () => {

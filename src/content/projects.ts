@@ -12,11 +12,12 @@ import { ProjectSchema } from "../types/models";
  * `src/content/repos.probe.json`, measured on 2026-11-13 by
  * `node scripts/probe-repos.mjs`, which reads the live account:
  * `gh repo list nathwn12 --limit 200` filtered to public and non-archived.
- * Fifteen repositories are public; thirteen are tools and are listed here, and
- * the two that are the record itself (the profile README and this site) sit in
- * `metaRepos` below. `node scripts/probe-repos.mjs --check` fails when the
- * account and this file disagree, so a repository that appears, leaves, or
- * changes its primary language cannot go unnoticed.
+ * Fifteen repositories are public; twelve are listed as case studies, the
+ * profile README and this site are metadata entries, and the remaining public
+ * fork is omitted because its current source does not support the advertised
+ * feature work. The inventory test fails when this selection and the probe
+ * disagree, so a repository that appears, leaves, or changes primary language
+ * cannot go unnoticed.
  *
  * Language order is a fact: `tech[0]` is the repository's primary language as
  * GitHub reports it. Any further language named belongs to the source.
@@ -244,7 +245,7 @@ export const projects: ProjectLore[] = [
     role: "Own brand",
     year: "2026",
     description:
-      "Music practice on Windows with studio-grade Slow + Reverb and A-B loop — for practicing musicians, offline with no account.",
+      "Music practice on Windows with Slow + Reverb and an A-B loop — no account required.",
     tech: ["TypeScript", "Rust", "Tauri", "React", "TanStack Router"],
     highlights: [
       "A-B loop points live on the seek bar and save per track, auto-applying when the track reopens.",
@@ -336,7 +337,7 @@ export const projects: ProjectLore[] = [
     role: "Fork of Exle/aimp-discord-presence",
     year: "2026",
     description:
-      "AIMP playback as a Discord Rich Presence — track, artist, and cover art on your profile, the way Spotify does it.",
+      "AIMP playback as a Discord Rich Presence, with track, artist, and cover art on your profile.",
     tech: ["C++", "AIMP SDK", "Discord IPC", "Win32"],
     highlights: [
       "Fork of Exle/aimp-discord-presence; this fork adds the multi-layer cover-art chain and the presence card.",
@@ -351,29 +352,6 @@ export const projects: ProjectLore[] = [
     ],
   },
   {
-    id: "12",
-    name: "Pear Slowed + Reverb",
-    dir: "pear-slowed-reverb",
-    url: "https://github.com/nathwn12/pear-slowed-reverb",
-    kind: "App",
-    role: "Fork of pear-devs/pear-desktop",
-    year: "2026",
-    description:
-      "A nathwn12-maintained build of Pear Desktop — its own update channel and installer identity, with the Slowed Reverb and Section Repeat player plugins ahead of upstream.",
-    tech: ["TypeScript", "Electron", "SolidJS", "Vite"],
-    highlights: [
-      "Fork of pear-devs/pear-desktop; all upstream credit stays with pear-devs.",
-      "Updater, installer, and Discord links point at nathwn12/pear-slowed-reverb, so the build updates from its own channel.",
-      "Carries the Slowed Reverb and Section Repeat player plugins ahead of upstream.",
-    ],
-    accent: "accent",
-    stats: [
-      { label: "last shipped", value: "2026", accent: "accent" },
-      { label: "surface", value: "desktop app", accent: "accent" },
-      { label: "base", value: "pear-devs/pear-desktop", accent: "accent" },
-    ],
-  },
-  {
     id: "13",
     name: "Vencord Bootstrap",
     dir: "vencord-bootstrap",
@@ -382,10 +360,10 @@ export const projects: ProjectLore[] = [
     role: "Fork of Vencord/Installer",
     year: "2026",
     description:
-      "Vencord installed or repaired on every Discord install with one line — an unofficial driver around the official installer engine.",
+      "Install or repair Vencord with one line on supported Discord installs — an unofficial driver around the official installer engine.",
     tech: ["PowerShell", "Vencord Installer", "Windows"],
     highlights: [
-      "Detects stable, PTB, Canary, and Development installs and installs or repairs each one.",
+      "Detects stable, PTB, Canary, and Development Discord installs and installs or repairs supported copies.",
       "Pulls the officially released installer engine at run time, so the driver never pins a stale copy.",
       "Flags for OpenAsar, one branch, one location, no-launch, and a dry run that prints the plan.",
     ],
@@ -441,7 +419,7 @@ export const projectsLede = `${cap(countWords(projects.length))} projects publis
 /** Route support line: what each band carries, and the rules that keep it
     honest (no star counts, and only what the account publishes today). */
 export const projectsSupport =
-  "Each band pairs what the project does with the facts behind it: stack, role, and ship year. No star counts, and only what the account publishes today.";
+  "I like building, using, and maintaining open-source software. This list stays with repositories I own and forks I maintain solo; each fork names its upstream. Contributions elsewhere are separate from the projects listed here.";
 
 /** Landing teaser lede: what the three rows are and where a title leads. */
 export const workTeaserLede =

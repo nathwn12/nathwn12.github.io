@@ -127,7 +127,7 @@ describe("mailto is the primary action", () => {
   test("says what happens next in one honest line", async () => {
     await mount();
     expect(host.textContent).toContain(
-      "I read every note and usually answer within a day or two.",
+      "The address opens a message in your mail app.",
     );
   });
 });
