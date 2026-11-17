@@ -11,7 +11,7 @@
  * block wider than 78 characters is a magazine measure, not a reading measure,
  * and fails.
  *
- * The measurement is the same one `visual-audit.mjs` records: content width from
+ * The measurement is the same one `scripts/visual-audit.mjs` records: content width from
  * the rendered rect divided by the canvas advance of the element's own text in
  * its own font. Narrow atlas columns are legitimate; this is a ceiling, not a
  * floor.
