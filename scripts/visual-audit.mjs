@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
  * started, and nothing is proxied to a dev server — so what is measured and
  * photographed is the artefact that ships (`vite build` → `dist`).
  *
- *   node visual-audit.mjs [outDir]
+ *   node scripts/visual-audit.mjs [outDir]
  *
  * Writes: one full-page shot per route and viewport, one shot per band, a
  * before/after pair for the measurement control, and `metrics.json` with the
@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
  * contrast of every text element against its real background.
  */
 
-const DIST = fileURLToPath(new URL("./dist/", import.meta.url));
+const DIST = fileURLToPath(new URL("../dist/", import.meta.url));
 const OUT = path.resolve(
   process.argv[2] ??
     path.join(process.env.TEMP ?? ".", "opencode", "polish-b"),
