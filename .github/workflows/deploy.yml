@@ -30,7 +30,7 @@ jobs:
       - name: Refresh npm download snapshot
         run: node scripts/npm-downloads.mjs
       - run: bun run build
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: dist
 
