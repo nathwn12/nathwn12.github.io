@@ -24,4 +24,8 @@ jobs:
       - name: Install from the lockfile
         run: bun install --frozen-lockfile
       - name: Audit dependencies
-        run: bun audit --audit-level=high
+        # picomatch 4.0.7 is the newest release and GHSA-fc5q-39xc-vjpf covers
+        # <=4.0.7, so no patched version exists (transitive: vite/vitest >
+        # tinyglobby > fdir). Scoped to that advisory only; remove once a newer
+        # picomatch ships and the lockfile can take it.
+        run: bun audit --audit-level=high --ignore=GHSA-fc5q-39xc-vjpf
