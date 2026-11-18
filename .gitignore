@@ -8,3 +8,6 @@ AGENTS.md
 .playwright-mcp/
 .stitch/
 preview-status.json
+
+.seed/
+.opencode/skills/*-seed/
