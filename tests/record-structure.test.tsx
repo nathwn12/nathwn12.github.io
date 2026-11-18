@@ -189,7 +189,7 @@ describe("the rendered record", () => {
   });
 
   test("exactly one h1, and the identity is carried by the display block and the imprint", () => {
-    /* The display block is the identity, not a claim: three hand-set lines that
+    /* The display block is the identity, not a claim: two hand-set lines that
        say who this is, on what platform, and since when. The record's figures
        are the next band's job. The name still has to be present and findable —
        it is the header mark's accessible name and the colophon's imprint, both
@@ -201,11 +201,11 @@ describe("the rendered record", () => {
       (node.textContent ?? "").trim(),
     );
     expect(lines).toEqual([
-      "I build backend",
-      "systems for production.",
+      "I ship systems",
+      "that hold in production.",
     ]);
     expect(lines.join(" ")).toBe(
-      "I build backend systems for production.",
+      "I ship systems that hold in production.",
     );
 
     const header = renderToStaticMarkup(createElement(Header));

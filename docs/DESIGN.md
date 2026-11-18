@@ -168,8 +168,8 @@ it.
 | Data | JetBrains Mono | 400–500 (one slice) | `JetBrainsMono-Regular.woff2` | numbers, units, repo names, timestamps, ticks, keycaps |
 
 - The cover is set in Instrument Serif at `clamp(2.6rem, 9.5vw, 8.5rem)`, leading
-  `0.87`, tracking `-0.02em`, hand-broken into two lines: `I build backend /
-  systems for production.`
+  `0.87`, tracking `-0.02em`, hand-broken into two lines: `I ship systems /
+  that hold in production.`
 - Running copy is Archivo at 17px/1.6, never wider than the reading measure.
 - Mono is **true data only**. A mono row of uppercase words over a heading is an
   eyebrow, and there are none: no ALL-CAPS kicker, no `·`-joined meta string, no
