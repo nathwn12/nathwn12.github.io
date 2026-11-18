@@ -14,7 +14,7 @@
     "typecheck": "tsc -b",
     "test": "bun run build && vitest run",
     "check": "bun run typecheck && node scripts/contrast-audit.mjs && bun run test",
-    "check:refresh": "bun run typecheck && node scripts/contrast-audit.mjs && vitest run --exclude='**/freshness-alarm.test.ts'",
+    "check:refresh": "bun run typecheck && node scripts/contrast-audit.mjs && vitest run tests/npm-downloads.test.ts tests/open-source-stats.test.ts",
     "preview": "vite preview",
     "preview:live": "node scripts/preview.mjs",
     "probe:repos": "node scripts/probe-repos.mjs --check"
