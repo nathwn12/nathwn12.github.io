@@ -26,6 +26,7 @@
 import { execFileSync } from "node:child_process";
 import { readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
 const root = resolve(import.meta.dirname, "..");
 const OUT = resolve(root, "src", "content", "repos.probe.json");
@@ -49,13 +50,24 @@ function gh(args) {
   });
 }
 
+/**
+ * The one definition of "published": public and not archived. Works on a raw
+ * `gh repo list` row and on a stored record row alike, so the measurement and
+ * any guard reading the record cannot drift apart.
+ *
+ * @param {{ visibility: string, isArchived: boolean }} repo
+ */
+export function isPublishedRepo(repo) {
+  return repo.visibility === "PUBLIC" && repo.isArchived === false;
+}
+
 /** Every public, non-archived repository the account publishes, by name. */
 function measure() {
   const listed = JSON.parse(
     gh(["repo", "list", "nathwn12", "--limit", "200", "--json", FIELDS.join(",")]),
   );
   const live = listed
-    .filter((repo) => repo.visibility === "PUBLIC" && !repo.isArchived)
+    .filter(isPublishedRepo)
     .sort((a, b) => a.name.localeCompare(b.name));
 
   // `gh repo list` reports `isFork` but leaves `parent` null, so a fork's
@@ -68,6 +80,10 @@ function measure() {
     }
     return {
       name: repo.name,
+      // The flags the row was filtered by describe what the record already is;
+      // they let a reader prove it rather than trust the filename.
+      isArchived: repo.isArchived,
+      visibility: repo.visibility,
       isFork: repo.isFork,
       parent,
       primaryLanguage: repo.primaryLanguage?.name ?? null,
@@ -151,12 +167,20 @@ function check() {
   );
 }
 
-if (process.argv.includes("--check")) {
-  check();
-} else {
-  const record = measure();
-  writeFileSync(OUT, JSON.stringify(record, null, 2) + "\n", "utf8");
-  console.log(
-    `measured ${record.repos.length} public repositories on ${record.measuredAt} -> src/content/repos.probe.json`,
-  );
+// Importing this module for `isPublishedRepo` must not run a measurement or
+// overwrite the record; only the direct CLI invocation may do that.
+const isMain =
+  Boolean(process.argv[1]) &&
+  import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
+
+if (isMain) {
+  if (process.argv.includes("--check")) {
+    check();
+  } else {
+    const record = measure();
+    writeFileSync(OUT, JSON.stringify(record, null, 2) + "\n", "utf8");
+    console.log(
+      `measured ${record.repos.length} public repositories on ${record.measuredAt} -> src/content/repos.probe.json`,
+    );
+  }
 }

@@ -28,9 +28,12 @@ import {
   projectsSupport,
 } from "../src/content/projects";
 import probe from "../src/content/repos.probe.json";
+import { isPublishedRepo } from "../scripts/probe-repos.mjs";
 
 interface ProbeRepo {
   name: string;
+  isArchived: boolean;
+  visibility: string;
   isFork: boolean;
   parent: string | null;
   primaryLanguage: string | null;
@@ -213,19 +216,18 @@ describe("project inventory is the current public work", () => {
 
   test("lists only what the account publishes today", () => {
     // Archived, private and retired repositories must not appear at all — not
-    // in the live list and not in a separate band. The probe file is the
-    // source of truth for what the account publishes.
-    const probe = JSON.parse(
-      readFileSync(new URL("../src/content/repos.probe.json", import.meta.url), "utf8"),
-    ) as { repos: { name: string; archived: boolean; private: boolean }[] };
+    // in the live list and not in a separate band. The probe stores the flags it
+    // filtered by, and the same predicate filtered the live measurement, so
+    // this reads real fields and can actually go red.
+    for (const repo of REPOS) {
+      expect(isPublishedRepo(repo), `${repo.name} is not published`).toBe(true);
+    }
     const published = new Set(
-      probe.repos
-        .filter((repo) => !repo.archived && !repo.private)
-        .map((repo) => repo.name.toLowerCase()),
+      REPOS.filter(isPublishedRepo).map((repo) => repo.name.toLowerCase()),
     );
 
     for (const project of projects) {
-      expect(published.has(project.dir.toLowerCase())).toBe(true);
+      expect(published.has(project.dir.toLowerCase()), project.dir).toBe(true);
     }
 
     // Nothing that stopped being public may linger in the page's markup.
@@ -235,5 +237,11 @@ describe("project inventory is the current public work", () => {
     );
     expect(source).not.toMatch(/oc-todo/i);
     expect(source).not.toMatch(/oc-superpowers/i);
+  });
+
+  test("the published predicate rejects archived and private rows", () => {
+    expect(isPublishedRepo({ visibility: "PUBLIC", isArchived: false })).toBe(true);
+    expect(isPublishedRepo({ visibility: "PUBLIC", isArchived: true })).toBe(false);
+    expect(isPublishedRepo({ visibility: "PRIVATE", isArchived: false })).toBe(false);
   });
 });
