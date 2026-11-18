@@ -39,6 +39,15 @@
       "description": "Drive headless Chrome over CDP from any MCP client — Rust."
     },
     {
+      "name": "hand",
+      "isFork": false,
+      "parent": null,
+      "primaryLanguage": "Rust",
+      "createdAt": "2026-11-17",
+      "pushedAt": "2026-11-18",
+      "description": "One MCP server for the headless browser and the Windows desktop - the Gladius and Puppet engines in one Rust binary over MCP stdio."
+    },
+    {
       "name": "my-chromium-extensions",
       "isFork": false,
       "parent": null,
