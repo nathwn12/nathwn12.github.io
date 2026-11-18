@@ -108,7 +108,7 @@ describe("figures are derived from the delivered record", () => {
 
   test("counts equal the content they count", () => {
     expect(figures.projectCount).toBe(projects.length);
-    expect(figures.projectCount).toBe(12);
+    expect(figures.projectCount).toBe(13);
     expect(figures.groupCount).toBe(repos.length);
     expect(figures.packageCount).toBe(
       repos.reduce((total, group) => total + group.packages.length, 0),

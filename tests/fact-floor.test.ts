@@ -103,10 +103,10 @@ describe("the figures", () => {
   });
 
   test("thirteen projects and 88 packages", () => {
-    /* Twelve case studies: the public repo probe minus the profile README, this
+    /* Thirteen case studies: the public repo probe minus the profile README, this
        site, and repositories without evidenced solo work. */
-    expect(projects).toHaveLength(12);
-    expect(figures.projectCount).toBe(12);
+    expect(projects).toHaveLength(13);
+    expect(figures.projectCount).toBe(13);
     expect(repos).toHaveLength(6);
     expect(figures.packageCount).toBe(88);
   });
