@@ -21,11 +21,13 @@ import { transformWithOxc } from "vite";
  * phone-closing and dark band crops are empty families.
  *
  * Reduced evidence: commit 1e7d2c0 ("rebuild the home surface as one measured
- * record") deliberately removed the two-state .measure panel and renders the
- * cover's numbers in the DOM through LatencyInstrument instead. There is no
- * panel left to toggle, so this driver no longer emits the before/after
- * figures, panel state or keyboard-operability record it used to emit. It
- * measures and photographs only the artefact that ships.
+ * record") removed the two-state .measure panel and renders the cover's numbers
+ * in the DOM through LatencyInstrument instead. The removal is evidenced by
+ * 1e7d2c0; its explicit reason is Unverified because the message describes the
+ * redesign, not the removal. There is no panel left to toggle, so this driver
+ * no longer emits the before/after figures, panel state or keyboard-operability
+ * record it used to emit. It measures and photographs only the artefact that
+ * ships.
  */
 
 const DIST = fileURLToPath(new URL("../dist/", import.meta.url));
