@@ -231,6 +231,8 @@ export interface WorkRow {
  * The line is new prose, so it cannot duplicate the case notes.
  */
 const WORK_LINES: Readonly<Record<string, string>> = {
+  hand:
+    "Two engines in one Rust binary: a browser driven over CDP and a desktop driver that never moves the pointer or steals focus.",
   puppet:
     "An agent that needs the real Windows screen gets six tools and a target lock re-checked before every call.",
   gladius:
