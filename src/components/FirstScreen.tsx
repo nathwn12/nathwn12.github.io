@@ -23,8 +23,8 @@ import { LatencyInstrument } from "./LatencyInstrument";
 
 /** Lines in the order they are read, not in the order they fit. */
 const IDENTITY_LINES = [
-  "I build backend",
-  "systems for production.",
+  "I ship systems",
+  "that hold in production.",
 ];
 
 /**
