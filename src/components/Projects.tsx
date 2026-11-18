@@ -136,6 +136,20 @@ export default function Projects() {
                             <li key={tag}>{tag}</li>
                           ))}
                         </ul>
+                        {project.npm && (
+                          <a
+                            href={`https://www.npmjs.com/package/${encodeURIComponent(project.npm)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex min-h-[2.75rem] items-center text-[color:var(--rec-signal)] underline decoration-1 underline-offset-[0.25em] transition-colors duration-[140ms] hover:decoration-current"
+                          >
+                            npm {project.npm}
+                            <span className="sr-only">
+                              {" "}
+                              on npm, opens in a new tab
+                            </span>
+                          </a>
+                        )}
                         <a
                           href={project.url}
                           target="_blank"

@@ -12,7 +12,7 @@ import { ProjectSchema } from "../types/models";
  * `src/content/repos.probe.json`, measured on 2026-11-18 by
  * `node scripts/probe-repos.mjs`, which reads the live account:
  * `gh repo list nathwn12 --limit 200` filtered to public and non-archived.
- * Fifteen repositories are public; twelve are listed as case studies, the
+ * Sixteen repositories are public; thirteen are listed as case studies, the
  * profile README and this site are metadata entries, and one public fork is
  * deliberately omitted from the cards. That omission lives in
  * `OMITTED_FROM_CARDS` below together with its reason; the probe and the
@@ -89,6 +89,8 @@ export interface ProjectLore {
   dir: string;
   /** Canonical public repository */
   url: string;
+  /** Published npm package name, when the work also ships on npm */
+  npm?: string;
   /** Artifact kind: plugin, tool, app, harness, or site */
   kind: string;
   /** Authorship line: "Own brand", or "Fork of <owner>/<name>" */
@@ -107,6 +109,32 @@ export interface ProjectLore {
 // tools before the media work. The order is editorial; the membership is the
 // probe's. No star counts, because the signal is what each one does.
 export const projects: ProjectLore[] = [
+  {
+    id: "15",
+    name: "Hand",
+    dir: "hand",
+    url: "https://github.com/nathwn12/hand",
+    npm: "hand-mcp",
+    kind: "Tool",
+    role: "Own brand",
+    year: "2026",
+    description:
+      "One MCP server for the headless browser and the Windows desktop: 35 tools over one stdio connection, with the browser and desktop engines compiled into a single Rust binary.",
+    tech: ["Rust", "MCP stdio", "CDP", "Win32", "UIA"],
+    highlights: [
+      "35 MCP tools on one stdio connection: 28 browser_* (owned headless Chromium over CDP) and 7 desktop_* (background-safe Windows, no cursor movement, no focus steal, no clipboard write).",
+      "The browser and desktop engines are compiled in: one binary, one process, one version string, versus two servers and two connections.",
+      "Adds over the standalone engines: wheel and drag as trusted input, click button and clickCount, element and clip screenshots with png/jpeg/webp, isolated browser contexts, cross-origin frames by frame id.",
+      "Evidence: independent verifier, 19 of 20 paths byte-identical to the frozen record, pointer tests 6/6, discovery 7/7, desktop no-steal 12/12 under site isolation, full suite exit 0, live calls through the published package.",
+      "Caveats beside those claims: extension loading unproven; cross-origin frame acting proven on a loopback fixture only; 15 clippy warnings, two from the last slice.",
+    ],
+    accent: "accent-2",
+    stats: [
+      { label: "last shipped", value: "2026", accent: "accent-2" },
+      { label: "tools", value: "35 MCP tools", accent: "accent-2" },
+      { label: "connections", value: "one stdio", accent: "accent-2" },
+    ],
+  },
   {
     id: "01",
     name: "Puppet",
