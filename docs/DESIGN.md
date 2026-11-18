@@ -105,7 +105,7 @@ muted, so every role clears AA with room to spare.
 | `--rec-leading-body` | `1.6` | |
 | `--rec-text-lead` | `clamp(1.0625rem, 1rem + 0.4vw, 1.3125rem)` | standfirst, lede |
 | `--rec-leading-lead` | `1.45` | |
-| `--rec-prose-measure` | `62ch` | the reading measure (see §8) |
+| `--rec-prose-measure` | `56ch` | the reading measure (see §8) |
 | `--rec-text-data` | `0.75rem` (12px) | mono data |
 | `--rec-text-data-sm` | `0.6875rem` (11px) | mono labels, ticks |
 | `--rec-text-data-lg` | `0.8125rem` (13px) | mono readouts |
@@ -330,12 +330,13 @@ Measured at the time of writing (`bun run build`):
 | `index-*.css` | 46.5 kB | 9.85 kB |
 | `index-*.js` | 490.7 kB | 156.5 kB |
 
-**The reading measure.** `--rec-prose-measure` is 62ch, and
+**The reading measure.** `--rec-prose-measure` is 56ch, and
 `tests/prose-measure.test.ts` loads the built page at 1440 and fails any block of
 running copy whose rendered box is wider than that measure in its own font. Note
-the arithmetic: 62ch of Archivo resolves to ~84 characters per line at 17px and
-~79 at 15px — above the 45–80 range the previous type setting stayed inside, so
-the measure is the token, not a character count.
+the arithmetic: 56ch of Archivo resolves to ~70 average characters per line at
+17px, inside the 45–80 range the type setting targets. A wider measure landed
+near 84 characters and read as a magazine column, so the measure is the token,
+not a character count.
 
 **Not measured here:** LCP and INP are targets (< 2.5s, < 200ms) and are not
 instrumented in CI. A claim about either needs a real field or lab trace, not a

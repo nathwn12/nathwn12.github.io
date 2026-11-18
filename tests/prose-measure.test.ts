@@ -43,11 +43,11 @@ const MIME: Record<string, string> = {
 let browser: Awaited<ReturnType<typeof chromium.launch>>;
 
 /**
- * Playwright's Chromium download is not part of this repository, and CI never
- * installs it, so `chromium.launch()` would fail on setup there. The executable
- * is resolved at module load: present, the measurement runs and asserts;
- * absent, the suite reports as skipped instead of red. Locally, install it with
- * `pnpm exec playwright install chromium`.
+ * Playwright's Chromium download is not part of this repository, so the
+ * executable is resolved at module load: present, the measurement runs and
+ * asserts; absent, the suite reports as skipped. CI installs Chromium and sets
+ * REQUIRE_CHROMIUM, so a missing browser there fails the run instead of hiding
+ * a broken gate. Locally, install it with `bunx playwright install chromium`.
  */
 const CHROMIUM_AVAILABLE = (() => {
   try {
@@ -56,6 +56,12 @@ const CHROMIUM_AVAILABLE = (() => {
     return false;
   }
 })();
+
+if (process.env.REQUIRE_CHROMIUM === "1" && !CHROMIUM_AVAILABLE) {
+  throw new Error(
+    "Chromium is required but missing. Install it with `bunx playwright install chromium`.",
+  );
+}
 
 /** Serve the real build; a missing file is a real 404, not an empty page. */
 async function serve(page: Awaited<ReturnType<typeof browser.newPage>>) {
