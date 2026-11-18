@@ -81,27 +81,32 @@ What it drives:
 
 | Family | Files |
 |---|---|
-| full page | `<tag>-full.png`, one per route and viewport |
-| band crops | `<tag>-band-NN-<id>.png`, one per `main section.band` |
-| contact band | `<tag>-band-contact.png`, home only |
-| phone closings | `closing-390-NN-<id>.png`, last 140px of each band at 390 |
-| dark pass | `home-dark-<tag>-full.png`, plus a band crop where one exists |
+| full page | `<tag>-full.png`, one per route and viewport: 6 files |
+| band crops | `<tag>-band-NN-<id>.png`, one per `main section.band`: 8 files, experience and projects only |
+| contact band | `<tag>-band-contact.png`, home only: 2 files |
+| phone closings | `closing-390-NN-<id>.png`, from the home route's `main section.band` at 390; none written because home has no bands |
+| dark pass | `home-dark-<tag>-full.png`, one per viewport: 2 files |
 | the record | `metrics.json` |
 
-The current home markup has no `main section.band`, so its band crops,
-phone closings and dark band crop are empty families. Full-page and contact
-shots are still written for it.
+The six measured pages are `/`, `/experience` and `/projects` at 1440 and 390.
+Each carries the full measurement fields: `route`, `viewport` (width and
+height), `tag`, `title`, `height`, `overflowX`, `bands` (with each band's
+closing gap), `contrast` (only the failures, each with ratio and floor),
+`recordRows`, `prose` with `charsPerLine`, `h1` with its line count, and
+`consoleErrors`. The two dark home entries carry only `route`, `viewport`
+(the tag string) and `theme`. `metrics.json` also holds `out`, `origin` and
+`errors[]`. The removed panel's `measureState` and `control` fields are no
+longer present.
 
-The two-state measurement panel was deliberately removed in `1e7d2c0`, so its
-before/after shots and keyboard-operability record are no longer emitted. The
-driver measures the shipped DOM only; the reason is stated in the driver header.
+Phone-closing crops come from the home route alone: the driver counts
+`main section.band` on home at 390, so with none there the family is absent,
+even though experience and projects each report two bands. Dark band crops use
+the same home selector, so none is written either.
 
-`metrics.json` holds `out`, `origin`, `pages[]` and `errors[]`. Each page entry
-carries the route, the viewport, the rendered height, `overflowX`, `bands` (with
-each band's closing gap), `contrast` (only the failures, each with its ratio and
-its floor), `recordRows`, `prose` with `charsPerLine`, `h1` with
-its line count, and `consoleErrors`. The removed panel's `measureState` and
-`control` fields are no longer present.
+The two-state measurement panel was removed in `1e7d2c0`, so its before/after
+shots and keyboard-operability record are no longer emitted. The driver
+measures the shipped DOM only; the removal evidence and its Unverified reason
+are stated in the driver header.
 
 ### Measured, not passed
 
