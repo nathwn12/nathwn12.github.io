@@ -4,6 +4,8 @@
   "repos": [
     {
       "name": "aimp-discord-presence",
+      "isArchived": false,
+      "visibility": "PUBLIC",
       "isFork": true,
       "parent": "Exle/aimp-discord-presence",
       "primaryLanguage": "C++",
@@ -13,6 +15,8 @@
     },
     {
       "name": "arc-installer",
+      "isArchived": false,
+      "visibility": "PUBLIC",
       "isFork": false,
       "parent": null,
       "primaryLanguage": "PowerShell",
@@ -22,6 +26,8 @@
     },
     {
       "name": "bytefry",
+      "isArchived": false,
+      "visibility": "PUBLIC",
       "isFork": false,
       "parent": null,
       "primaryLanguage": "C#",
@@ -31,6 +37,8 @@
     },
     {
       "name": "gladius",
+      "isArchived": false,
+      "visibility": "PUBLIC",
       "isFork": false,
       "parent": null,
       "primaryLanguage": "Rust",
@@ -40,6 +48,8 @@
     },
     {
       "name": "hand",
+      "isArchived": false,
+      "visibility": "PUBLIC",
       "isFork": false,
       "parent": null,
       "primaryLanguage": "Rust",
@@ -49,6 +59,8 @@
     },
     {
       "name": "my-chromium-extensions",
+      "isArchived": false,
+      "visibility": "PUBLIC",
       "isFork": false,
       "parent": null,
       "primaryLanguage": "JavaScript",
@@ -58,6 +70,8 @@
     },
     {
       "name": "nathwn12",
+      "isArchived": false,
+      "visibility": "PUBLIC",
       "isFork": false,
       "parent": null,
       "primaryLanguage": "JavaScript",
@@ -67,6 +81,8 @@
     },
     {
       "name": "nathwn12.github.io",
+      "isArchived": false,
+      "visibility": "PUBLIC",
       "isFork": false,
       "parent": null,
       "primaryLanguage": "TypeScript",
@@ -76,6 +92,8 @@
     },
     {
       "name": "oc-collections",
+      "isArchived": false,
+      "visibility": "PUBLIC",
       "isFork": false,
       "parent": null,
       "primaryLanguage": "Rust",
@@ -85,6 +103,8 @@
     },
     {
       "name": "oc-templates",
+      "isArchived": false,
+      "visibility": "PUBLIC",
       "isFork": false,
       "parent": null,
       "primaryLanguage": "JavaScript",
@@ -94,6 +114,8 @@
     },
     {
       "name": "pear-slowed-reverb",
+      "isArchived": false,
+      "visibility": "PUBLIC",
       "isFork": true,
       "parent": "pear-devs/pear-desktop",
       "primaryLanguage": "TypeScript",
@@ -103,6 +125,8 @@
     },
     {
       "name": "potflix",
+      "isArchived": false,
+      "visibility": "PUBLIC",
       "isFork": false,
       "parent": null,
       "primaryLanguage": "Rust",
@@ -112,6 +136,8 @@
     },
     {
       "name": "puppet",
+      "isArchived": false,
+      "visibility": "PUBLIC",
       "isFork": false,
       "parent": null,
       "primaryLanguage": "Rust",
@@ -121,6 +147,8 @@
     },
     {
       "name": "slowburn",
+      "isArchived": false,
+      "visibility": "PUBLIC",
       "isFork": false,
       "parent": null,
       "primaryLanguage": "TypeScript",
@@ -130,6 +158,8 @@
     },
     {
       "name": "spotify-playlist-to-youtube",
+      "isArchived": false,
+      "visibility": "PUBLIC",
       "isFork": false,
       "parent": null,
       "primaryLanguage": "Python",
@@ -139,6 +169,8 @@
     },
     {
       "name": "vencord-bootstrap",
+      "isArchived": false,
+      "visibility": "PUBLIC",
       "isFork": true,
       "parent": "Vencord/Installer",
       "primaryLanguage": "PowerShell",
