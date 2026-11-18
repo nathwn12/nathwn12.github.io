@@ -1,14 +1,10 @@
 import { describe, expect, test } from "vitest";
 import stats from "../src/content/open-source-stats.json";
-import npmSnapshot from "../src/content/npm-downloads.json";
-import packageNames from "../src/content/npm-packages.json";
 import {
   activityCells,
   activitySummary,
   githubSnapshotAgeDays,
-  MAX_GITHUB_FRESH_DAYS,
 } from "../src/lib/open-source-stats";
-import { downloadSnapshotFreshness } from "../src/lib/npm-downloads";
 import { recentDays } from "../scripts/open-source-stats.mjs";
 
 const DAY_MS = 86_400_000;
@@ -63,18 +59,7 @@ describe("the open-source measurement contract", () => {
   });
 });
 
-describe("the committed freshness alarm", () => {
-  // DELIBERATELY TIME-DEPENDENT: unlike the injected-date tests above, this one
-  // reads the committed snapshots against the real clock. It is the alarm that
-  // goes red when the daily refresh dies; doctoring the committed date must
-  // make this test fail. Its comment is the reason it is allowed to age.
-  test("the committed snapshots are still inside the daily refresh contract", () => {
-    const now = new Date();
-    expect(downloadSnapshotFreshness(npmSnapshot, now, packageNames).status).toBe(
-      "fresh",
-    );
-    const age = githubSnapshotAgeDays(stats, now);
-    expect(age).not.toBeNull();
-    expect(age!).toBeLessThanOrEqual(MAX_GITHUB_FRESH_DAYS);
-  });
-});
+// The deliberately time-dependent alarm lives in tests/freshness-alarm.test.ts.
+// It is excluded only from the refresh job's pre-measure gate, never from the
+// full `bun run check` that PR CI runs.
+

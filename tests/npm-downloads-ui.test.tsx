@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, test } from "vitest";
 import { NpmDownloadsReadout } from "../src/components/NpmDownloadsReadout";
 import packageNames from "../src/content/npm-packages.json";
 import snapshot from "../src/content/npm-downloads.json";
+import { downloadSnapshotFreshness } from "../src/lib/npm-downloads";
 
 let host: HTMLDivElement;
 let root: Root;
@@ -26,7 +27,11 @@ afterEach(async () => {
 describe("npm downloads readout", () => {
   test("defines the all-time period, source, snapshot date, and complete package set", () => {
     const section = host.querySelector<HTMLElement>("[data-npm-downloads]");
-    expect(section?.dataset.freshness).toBe("fresh");
+    // The component must report the validator's verdict, not a fixed word:
+    // a stale snapshot renders "stale" here without failing this UI contract.
+    expect(section?.dataset.freshness).toBe(
+      downloadSnapshotFreshness(snapshot, new Date(), packageNames).status,
+    );
     expect(section?.textContent).toContain("All-time npm package downloads");
     expect(section?.textContent).toContain("Sum of downloads for 9 packages");
     expect(section?.textContent).toContain("npm registration date");
