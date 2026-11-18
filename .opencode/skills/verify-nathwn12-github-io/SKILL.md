@@ -78,6 +78,7 @@ What it drives:
 ## 4. Evidence
 
 `<tag>` is `<slug>-<viewport>`, for example `home-1440` or `experience-390`.
+Dark shots use `<viewport>` alone (`1440` or `390`), not `<tag>`.
 
 | Family | Files |
 |---|---|
@@ -85,18 +86,26 @@ What it drives:
 | band crops | `<tag>-band-NN-<id>.png`, one per `main section.band`: 8 files, experience and projects only |
 | contact band | `<tag>-band-contact.png`, home only: 2 files |
 | phone closings | `closing-390-NN-<id>.png`, from the home route's `main section.band` at 390; none written because home has no bands |
-| dark pass | `home-dark-<tag>-full.png`, one per viewport: 2 files |
+| dark pass | `home-dark-<viewport>-full.png`, one per viewport: 2 files, `1440` and `390` |
 | the record | `metrics.json` |
 
 The six measured pages are `/`, `/experience` and `/projects` at 1440 and 390.
-Each carries the full measurement fields: `route`, `viewport` (width and
-height), `tag`, `title`, `height`, `overflowX`, `bands` (with each band's
-closing gap), `contrast` (only the failures, each with ratio and floor),
-`recordRows`, `prose` with `charsPerLine`, `h1` with its line count, and
-`consoleErrors`. The two dark home entries carry only `route`, `viewport`
-(the tag string) and `theme`. `metrics.json` also holds `out`, `origin` and
-`errors[]`. The removed panel's `measureState` and `control` fields are no
-longer present.
+Their fields are `route`, `viewport` (which carries `width` and `height`),
+`tag`, `title`, `height`, `overflowX`, `bands`, `contrast`, `recordRows`,
+`prose`, `h1` and `consoleErrors`. The nested shapes are:
+
+- `bands[]` carries `index`, `id`, `heading`, `top`, `height`, `paddingTop`,
+  `paddingBottom`, `closing`.
+- `contrast[]` carries `selector`, `text`, `ratio`, `min`, `size`, and holds
+  only failures.
+- `recordRows[]` carries `claim`, `claimBaseline`, `figureBaseline`, `delta`,
+  `figureRight`, `rowRight`.
+- `prose[]` carries `tag`, `className`, `text`, `charsPerLine`, `width`.
+- `h1` carries `text`, `size`, `lines`.
+
+The two dark home entries carry only `route`, `viewport` (a string such as
+`1440`) and `theme`. `metrics.json` also holds `out`, `origin` and `errors[]`.
+The removed panel's `measureState` and `control` fields are no longer present.
 
 Phone-closing crops come from the home route alone: the driver counts
 `main section.band` on home at 390, so with none there the family is absent,
