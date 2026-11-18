@@ -1,6 +1,6 @@
 {
   "source": "npm download-count API and GitHub GraphQL, measured by scripts/open-source-stats.mjs",
-  "generatedAt": "2026-11-18T20:25:39.234Z",
+  "generatedAt": "2026-11-18T20:40:42.552Z",
   "snapshotDate": "2026-11-15",
   "npmMonth": 22106,
   "npmAllTime": 33951,
@@ -52,8 +52,8 @@
     }
   ],
   "github": {
-    "contributions": 6558,
-    "commits": 2519,
+    "contributions": 6562,
+    "commits": 2569,
     "pullRequests": 434,
     "calendarRange": [
       "2025-11-16",
@@ -179,7 +179,7 @@
     },
     {
       "date": "2026-11-18",
-      "value": 421
+      "value": 425
     }
   ]
 }
