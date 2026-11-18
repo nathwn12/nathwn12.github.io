@@ -1,4 +1,7 @@
-.opencode/
+.opencode/*
+!.opencode/skills
+.opencode/skills/*
+!.opencode/skills/verify-*/
 .logs/
 node_modules/
 dist/
