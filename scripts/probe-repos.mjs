@@ -11,8 +11,13 @@
  * `--check` fails when the live account has moved since the record (a repo
  * appeared, left public, or changed language or description), when a recorded
  * repository is missing from the content file, or when the content file still
- * lists a repository the account no longer publishes. Archived work is exempt:
- * `export const archived` is history and is allowed to name a private repo.
+ * lists a repository the account no longer publishes. A public repository may
+ * be omitted from the cards only by name, with its reason, in
+ * `OMITTED_FROM_CARDS` in `projects.ts`; that one list is read from the same
+ * file and counted as coverage when the account is compared to the cards. The
+ * inventory test imports the same constant, so the script and the test cannot
+ * drift apart. There is no archived band on this page and no exemption for
+ * history.
  *
  * Dependency-free on purpose - node: builtins only, so it runs in CI without an
  * install step.
@@ -81,10 +86,19 @@ function measure() {
   };
 }
 
-/** The `dir` values the content file lists as live work, before the archive. */
+/** The `dir` values the content file lists as cards and metadata entries. */
 function contentDirs(text) {
-  const live = text.split("export const archived")[0];
-  return [...live.matchAll(/^\s*dir:\s*"([^"]+)"/gm)].map((match) => match[1]);
+  return [...text.matchAll(/^\s*dir:\s*"([^"]+)"/gm)].map((match) => match[1]);
+}
+
+/** The deliberate omissions declared once in projects.ts, with their reason.
+    Read as text: this script stays dependency-free and never imports TS. */
+function omittedDirs(text) {
+  const match = text.match(
+    /export const OMITTED_FROM_CARDS\s*=\s*\[([\s\S]*?)\]/,
+  );
+  if (!match) return [];
+  return [...match[1].matchAll(/"([^"]+)"/g)].map((item) => item[1]);
 }
 
 function diff(nameA, nameB, listA, listB) {
@@ -116,7 +130,11 @@ function check() {
     }
   }
 
-  const dirs = contentDirs(readFileSync(CONTENT, "utf8"));
+  const content = readFileSync(CONTENT, "utf8");
+  const omitted = omittedDirs(content);
+  // A declared omission is coverage, not a card: the repo is published but the
+  // content file accounts for it deliberately, with its reason in projects.ts.
+  const dirs = contentDirs(content).concat(omitted);
   const published = live.repos.map((repo) => repo.name);
   const covered = diff("content", "account", dirs, published);
   for (const name of covered.onlyB) problems.push(`published but absent from projects.ts: ${name}`);
@@ -129,7 +147,7 @@ function check() {
     return;
   }
   console.log(
-    `probe check ok: ${record.repos.length} public repositories, measured ${record.measuredAt}, all covered by projects.ts`,
+    `probe check ok: ${record.repos.length} public repositories, measured ${record.measuredAt}, all covered by projects.ts (${omitted.length} declared omission${omitted.length === 1 ? "" : "s"})`,
   );
 }
 
