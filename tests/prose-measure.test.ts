@@ -47,7 +47,7 @@ let browser: Awaited<ReturnType<typeof chromium.launch>>;
  * installs it, so `chromium.launch()` would fail on setup there. The executable
  * is resolved at module load: present, the measurement runs and asserts;
  * absent, the suite reports as skipped instead of red. Locally, install it with
- * `pnpm exec playwright install chromium`.
+ * `bunx playwright install chromium`.
  */
 const CHROMIUM_AVAILABLE = (() => {
   try {
