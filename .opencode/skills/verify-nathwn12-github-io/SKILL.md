@@ -70,7 +70,7 @@ or `bun run preview:live`.
 
 What it drives:
 
-- routes `/`, `/experience`, `/projects`
+- routes read from `src/lib/routes.ts`, not a literal array: currently `/`, `/experience`, `/projects`
 - viewports 1440x900 and 390x844
 - a home-only dark pass, with the OS colour scheme set to dark
 - reduced motion on every context
@@ -83,18 +83,25 @@ What it drives:
 |---|---|
 | full page | `<tag>-full.png`, one per route and viewport |
 | band crops | `<tag>-band-NN-<id>.png`, one per `main section.band` |
-| measurement control | `<tag>-measure-after.png`, `<tag>-measure-before.png`, home only |
 | contact band | `<tag>-band-contact.png`, home only |
-| phone closings | `closing-390-NN-<id>.png`, the last 140px of each band at 390 |
-| dark pass | `home-dark-<tag>-full.png`, `home-dark-<tag>-band-01.png` |
+| phone closings | `closing-390-NN-<id>.png`, last 140px of each band at 390 |
+| dark pass | `home-dark-<tag>-full.png`, plus a band crop where one exists |
 | the record | `metrics.json` |
+
+The current home markup has no `main section.band`, so its band crops,
+phone closings and dark band crop are empty families. Full-page and contact
+shots are still written for it.
+
+The two-state measurement panel was deliberately removed in `1e7d2c0`, so its
+before/after shots and keyboard-operability record are no longer emitted. The
+driver measures the shipped DOM only; the reason is stated in the driver header.
 
 `metrics.json` holds `out`, `origin`, `pages[]` and `errors[]`. Each page entry
 carries the route, the viewport, the rendered height, `overflowX`, `bands` (with
 each band's closing gap), `contrast` (only the failures, each with its ratio and
-its floor), `recordRows`, `measureState`, `prose` with `charsPerLine`, `h1` with
-its line count, and `consoleErrors`. Each home page also carries `control`, the
-keyboard operability record.
+its floor), `recordRows`, `prose` with `charsPerLine`, `h1` with
+its line count, and `consoleErrors`. The removed panel's `measureState` and
+`control` fields are no longer present.
 
 ### Measured, not passed
 
@@ -135,7 +142,6 @@ a file the run left behind that it should not have.
 - no accessibility gate: contrast is recorded, focus order and semantics are not audited
 - no console-error gate: errors are collected in `errors[]` and the run still completes
 - no motion proof: reduced motion is the only mode driven, so no animation is ever seen
-- the route list is hardcoded in the driver, not read from `src/lib/routes.ts`, so a route added there stays invisible until the array is edited
 - a crash mid-run leaves shots and no `metrics.json`, because the file is written once at the end
 
 ## Interview a repo before writing its skill
