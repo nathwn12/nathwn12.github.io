@@ -9,26 +9,41 @@ import { ProjectSchema } from "../types/models";
  * the schema projection below — no route paints a per-project hue.
  *
  * The list is a measurement, not a memory. It was written from
- * `src/content/repos.probe.json`, measured on 2026-11-13 by
+ * `src/content/repos.probe.json`, measured on 2026-11-18 by
  * `node scripts/probe-repos.mjs`, which reads the live account:
  * `gh repo list nathwn12 --limit 200` filtered to public and non-archived.
  * Fifteen repositories are public; twelve are listed as case studies, the
- * profile README and this site are metadata entries, and the remaining public
- * fork is omitted because its current source does not support the advertised
- * feature work. The inventory test fails when this selection and the probe
- * disagree, so a repository that appears, leaves, or changes primary language
- * cannot go unnoticed.
+ * profile README and this site are metadata entries, and one public fork is
+ * deliberately omitted from the cards. That omission lives in
+ * `OMITTED_FROM_CARDS` below together with its reason; the probe and the
+ * inventory test both read it, so the check agrees with the policy without a
+ * card that would link to work the repository does not carry. The inventory
+ * test fails when this selection and the probe disagree, so a repository that
+ * appears, leaves, or changes primary language cannot go unnoticed.
  *
  * Language order is a fact: `tech[0]` is the repository's primary language as
  * GitHub reports it. Any further language named belongs to the source.
  * oc-collections leads Rust because GitHub's primary is Rust, and the two
  * imported MCP crates carry the larger share of the code; TypeScript stays
- * named because the packages are TypeScript.
+ * named because the packages are TypeScript. oc-templates leads JavaScript
+ * after GitHub re-measured its primary, with TypeScript still named because
+ * the scaffold is written in it.
  *
  * Forks state their upstream in `role` as `Fork of <owner>/<name>`, and the
  * route renders that upstream beside the kind. No star count is stored or
  * rendered: the signal is what each one does.
  */
+
+/**
+ * Public repositories deliberately omitted from the case-study cards, with the
+ * reason: the Pear fork's local source is patched for slowed + reverb but does
+ * not carry the advertised feature work, so a card would promise a capability
+ * the published repository does not ship. This is the only list of that
+ * omission. `scripts/probe-repos.mjs` reads it from this file when comparing
+ * the account against the cards, and `tests/project-inventory.test.ts` imports
+ * it. No archive band and no second list that can drift.
+ */
+export const OMITTED_FROM_CARDS = ["pear-slowed-reverb"] as const;
 
 export type Token = "accent" | "accent-2" | "accent-3" | "accent-4";
 
@@ -162,29 +177,6 @@ export const projects: ProjectLore[] = [
     ],
   },
   {
-    id: "04",
-    name: "OC Superpowers",
-    dir: "oc-superpowers",
-    url: "https://github.com/nathwn12/oc-superpowers",
-    kind: "Plugin",
-    role: "Fork of obra/superpowers",
-    year: "2026",
-    description:
-      "An OpenCode plugin that makes a session run itself — the skill for the job is loaded before the answer, and multi-step work gets its own agents.",
-    tech: ["JavaScript", "OpenCode plugin API", "Skills", "Agents"],
-    highlights: [
-      "Registers 22 skills and 5 agents, then injects the harness identity into every session.",
-      "Multi-step jobs go to a coordinating agent, which dispatches implementer and reviewer subagents and reconciles what they report.",
-      "Four hard stops are the only waits: an irreversible act, a security-sensitive act, an outward side effect, and a request where every path is a guess.",
-    ],
-    accent: "accent-4",
-    stats: [
-      { label: "last shipped", value: "2026", accent: "accent-4" },
-      { label: "surface", value: "OpenCode 2.0.4 or later", accent: "accent-4" },
-      { label: "registers", value: "22 skills and 5 agents", accent: "accent-4" },
-    ],
-  },
-  {
     id: "05",
     name: "OC Templates",
     dir: "oc-templates",
@@ -194,7 +186,14 @@ export const projects: ProjectLore[] = [
     year: "2026",
     description:
       "A scaffold for an OpenCode v2 plugin that is also a stdio MCP server — one package, no SDK in the dependency tree.",
-    tech: ["TypeScript", "MCP", "stdio", "OpenCode plugin API", "Node.js"],
+    tech: [
+      "JavaScript",
+      "TypeScript",
+      "MCP",
+      "stdio",
+      "OpenCode plugin API",
+      "Node.js",
+    ],
     highlights: [
       "Both halves in one package: a plugin registering a command and an `execute.before` hook, plus a stdio entry to wire into `mcp.servers`.",
       "Implements the MCP handshake through revision `2025-11-25` with no SDK dependency.",
@@ -372,6 +371,30 @@ export const projects: ProjectLore[] = [
       { label: "last shipped", value: "2026", accent: "accent-2" },
       { label: "surface", value: "Windows PowerShell", accent: "accent-2" },
       { label: "install", value: "one line", accent: "accent-2" },
+    ],
+  },
+  {
+    id: "14",
+    name: "Bytefry",
+    dir: "bytefry",
+    url: "https://github.com/nathwn12/bytefry",
+    kind: "App",
+    role: "Own brand",
+    year: "2026",
+    description:
+      "Deep-fry an image on Windows in a WinForms window around Edge WebView2 — repeat-JPEG crush, a WebGL bulge and five filters, all offline, then save.",
+    tech: ["C#", "WinForms", "WebView2", "WebGL"],
+    highlights: [
+      "A desktop build of Meme Deep Fryer: repeat-JPEG crush, a WebGL bulge and five filters running offline in a WinForms window around Microsoft Edge WebView2.",
+      "The page declares `connect-src 'none'`, and the host cancels every navigation, new window and permission request, so nothing leaves the machine.",
+      "Brightness, contrast, sharpen, saturation and noise re-render on release; the JPEG crush defaults to 28 passes at quality 0.175, before the filters, after them, or both.",
+      "Save and Copy refuse while a render runs or a point is dragged, so a half-finished canvas is never encoded; the working canvas is capped at 800 px wide.",
+    ],
+    accent: "accent-3",
+    stats: [
+      { label: "last shipped", value: "2026", accent: "accent-3" },
+      { label: "filters", value: "five", accent: "accent-3" },
+      { label: "network", value: "connect-src 'none'", accent: "accent-3" },
     ],
   },
 ];
