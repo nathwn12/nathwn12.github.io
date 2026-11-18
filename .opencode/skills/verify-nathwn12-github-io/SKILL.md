@@ -44,7 +44,9 @@ node -e "const fs=require('node:fs'),p=require('node:path');const ok=(x)=>fs.exi
 
 If any fact is false, stop and run the named repair. Never continue to Drive on a
 false fact, because the driver reports a page that never rendered as a page that
-rendered badly.
+rendered badly. The driver and the build run serially, never together: the driver
+serves `dist/`, and a concurrent `bun run build` replaces it mid-run, which fails
+as a page that did not render.
 
 | False fact | Repair |
 |---|---|
@@ -70,7 +72,7 @@ or `bun run preview:live`.
 
 What it drives:
 
-- routes `/`, `/experience`, `/projects`
+- routes read from `src/lib/routes.ts`, not a literal array: currently `/`, `/experience`, `/projects`
 - viewports 1440x900 and 390x844
 - a home-only dark pass, with the OS colour scheme set to dark
 - reduced motion on every context
@@ -78,23 +80,44 @@ What it drives:
 ## 4. Evidence
 
 `<tag>` is `<slug>-<viewport>`, for example `home-1440` or `experience-390`.
+Dark shots use `<viewport>` alone (`1440` or `390`), not `<tag>`.
 
 | Family | Files |
 |---|---|
-| full page | `<tag>-full.png`, one per route and viewport |
-| band crops | `<tag>-band-NN-<id>.png`, one per `main section.band` |
-| measurement control | `<tag>-measure-after.png`, `<tag>-measure-before.png`, home only |
-| contact band | `<tag>-band-contact.png`, home only |
-| phone closings | `closing-390-NN-<id>.png`, the last 140px of each band at 390 |
-| dark pass | `home-dark-<tag>-full.png`, `home-dark-<tag>-band-01.png` |
+| full page | `<tag>-full.png`, one per route and viewport: 6 files |
+| band crops | `<tag>-band-NN-<id>.png`, one per `main section.band`: 8 files, experience and projects only |
+| contact band | `<tag>-band-contact.png`, home only: 2 files |
+| phone closings | `closing-390-NN-<id>.png`, from the home route's `main section.band` at 390; none written because home has no bands |
+| dark pass | `home-dark-<viewport>-full.png`, one per viewport: 2 files, `1440` and `390` |
 | the record | `metrics.json` |
 
-`metrics.json` holds `out`, `origin`, `pages[]` and `errors[]`. Each page entry
-carries the route, the viewport, the rendered height, `overflowX`, `bands` (with
-each band's closing gap), `contrast` (only the failures, each with its ratio and
-its floor), `recordRows`, `measureState`, `prose` with `charsPerLine`, `h1` with
-its line count, and `consoleErrors`. Each home page also carries `control`, the
-keyboard operability record.
+The six measured pages are `/`, `/experience` and `/projects` at 1440 and 390.
+Their fields are `route`, `viewport` (which carries `width` and `height`),
+`tag`, `title`, `height`, `overflowX`, `bands`, `contrast`, `recordRows`,
+`prose`, `h1` and `consoleErrors`. The nested shapes are:
+
+- `bands[]` carries `index`, `id`, `heading`, `top`, `height`, `paddingTop`,
+  `paddingBottom`, `closing`.
+- `contrast[]` carries `selector`, `text`, `ratio`, `min`, `size`, and holds
+  only failures.
+- `recordRows[]` carries `claim`, `claimBaseline`, `figureBaseline`, `delta`,
+  `figureRight`, `rowRight`.
+- `prose[]` carries `tag`, `className`, `text`, `charsPerLine`, `width`.
+- `h1` carries `text`, `size`, `lines`.
+
+The two dark home entries carry only `route`, `viewport` (a string such as
+`1440`) and `theme`. `metrics.json` also holds `out`, `origin` and `errors[]`.
+The removed panel's `measureState` and `control` fields are no longer present.
+
+Phone-closing crops come from the home route alone: the driver counts
+`main section.band` on home at 390, so with none there the family is absent,
+even though experience and projects each report two bands. Dark band crops use
+the same home selector, so none is written either.
+
+The two-state measurement panel was removed in `1e7d2c0`, so its before/after
+shots and keyboard-operability record are no longer emitted. The driver
+measures the shipped DOM only; the removal evidence and its Unverified reason
+are stated in the driver header.
 
 ### Measured, not passed
 
@@ -135,7 +158,6 @@ a file the run left behind that it should not have.
 - no accessibility gate: contrast is recorded, focus order and semantics are not audited
 - no console-error gate: errors are collected in `errors[]` and the run still completes
 - no motion proof: reduced motion is the only mode driven, so no animation is ever seen
-- the route list is hardcoded in the driver, not read from `src/lib/routes.ts`, so a route added there stays invisible until the array is edited
 - a crash mid-run leaves shots and no `metrics.json`, because the file is written once at the end
 
 ## Interview a repo before writing its skill

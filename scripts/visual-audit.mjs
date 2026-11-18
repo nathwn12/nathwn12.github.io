@@ -13,10 +13,21 @@ import { transformWithOxc } from "vite";
  *
  *   node scripts/visual-audit.mjs [outDir]
  *
- * Writes: one full-page shot per route and viewport, one shot per band, a
- * before/after pair for the measurement control, and `metrics.json` with the
- * page height, overflow, characters per line, band closings and the computed
- * contrast of every text element against its real background.
+ * Writes: one full-page shot per route and viewport, a crop for each
+ * `main section.band` that exists, a home-only contact crop, dark-mode full
+ * shots and `metrics.json` with the page height, overflow, characters per line,
+ * band closings and the computed contrast of every text element against its
+ * real background. The current home markup has no `.band`, so its band,
+ * phone-closing and dark band crops are empty families.
+ *
+ * Reduced evidence: commit 1e7d2c0 ("rebuild the home surface as one measured
+ * record") removed the two-state .measure panel and renders the cover's numbers
+ * in the DOM through LatencyInstrument instead. The removal is evidenced by
+ * 1e7d2c0; its explicit reason is Unverified because the message describes the
+ * redesign, not the removal. There is no panel left to toggle, so this driver
+ * no longer emits the before/after figures, panel state or keyboard-operability
+ * record it used to emit. It measures and photographs only the artefact that
+ * ships.
  */
 
 const DIST = fileURLToPath(new URL("../dist/", import.meta.url));
@@ -245,37 +256,8 @@ async function measure() {
     };
   });
 
-  /* The measurement control, as rendered in its "after" state. */
-  const measurePanel = document.querySelector(".measure");
-  const measureState = measurePanel
-    ? {
-        figure: measurePanel.querySelector(".figure")?.textContent?.trim(),
-        figureSize: measurePanel.querySelector(".figure")
-          ? parseFloat(getComputedStyle(measurePanel.querySelector(".figure")).fontSize)
-          : null,
-        trackWidth: Math.round(
-          measurePanel.querySelector(".measure__track")?.getBoundingClientRect().width ?? 0,
-        ),
-        barScale: (() => {
-          const bar = measurePanel.querySelector(".measure__bar--accent");
-          const track = measurePanel.querySelector(".measure__track");
-          if (!bar || !track) return null;
-          return Number(
-            (bar.getBoundingClientRect().width / track.getBoundingClientRect().width).toFixed(4),
-          );
-        })(),
-        pressed: [...measurePanel.querySelectorAll("button")].map((b) => ({
-          label: b.textContent,
-          pressed: b.getAttribute("aria-pressed"),
-        })),
-        beforeButton: (() => {
-          const b = measurePanel.querySelector(".measure__switch button");
-          if (!b) return null;
-          const r = b.getBoundingClientRect();
-          return { width: Math.round(r.width), height: Math.round(r.height) };
-        })(),
-      }
-    : null;
+  /* Reduced evidence: the .measure panel was deliberately removed in 1e7d2c0,
+     so no control state is read from the page here. See the header comment. */
 
   const prose = [...document.querySelectorAll(".prose, .lede")]
     .map((element) => ({
@@ -296,7 +278,6 @@ async function measure() {
     bands,
     contrast,
     recordRows,
-    measureState,
     prose,
     h1: {
       text: document.querySelector("h1")?.textContent?.trim(),
@@ -402,41 +383,10 @@ for (const viewport of VIEWPORTS) {
     const metrics = await page.evaluate(measure);
     report.pages.push({ route, viewport: viewport.tag, tag, ...metrics, consoleErrors });
 
-    /* The measurement control, in both states, plus a keyboard operability
-       check with no mouse involved. */
+    /* The contact section is not a .band, so the band loop above never crops
+       it. Keep its home-only shot; the removed panel's before/after figures,
+       state and keyboard checks are deliberately not emitted. */
     if (route === "/") {
-      const before = page.locator(".measure__switch button").first();
-      const after = page.locator(".measure__switch button").nth(1);
-      const panel = page.locator(".measure");
-
-      await shotClip(page, ".measure", path.join(OUT, `${tag}-measure-after.png`));
-      const afterFigure = await page.locator(".measure .figure").innerText();
-
-      await before.focus();
-      await page.keyboard.press("Enter");
-      await page.waitForTimeout(120);
-      const beforeFigure = await page.locator(".measure .figure").innerText();
-      const beforePressed = await before.getAttribute("aria-pressed");
-      await page.waitForTimeout(400);
-      await shotClip(page, ".measure", path.join(OUT, `${tag}-measure-before.png`));
-
-      await page.keyboard.press("Tab");
-      const focusedAfterTab = await page.evaluate(
-        () => document.activeElement?.textContent?.trim() ?? null,
-      );
-      await page.keyboard.press("Enter");
-      await page.waitForTimeout(400);
-
-      report.pages.at(-1).control = {
-        afterFigure,
-        beforeFigure,
-        beforePressed,
-        focusedAfterTab,
-        restoredPressed: await after.getAttribute("aria-pressed"),
-        keyboardOnly:
-          beforePressed === "true" &&
-          (focusedAfterTab ?? "").startsWith("After"),
-      };
       await shotClip(page, "#contact", path.join(OUT, `${tag}-band-contact.png`));
     }
 
