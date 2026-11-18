@@ -31,7 +31,11 @@ describe("npm downloads readout", () => {
     expect(section?.textContent).toContain("Sum of downloads for 9 packages");
     expect(section?.textContent).toContain("npm registration date");
     expect(section?.textContent).toContain("Source: npm download-count API.");
-    expect(section?.textContent).toContain("Nov 12, 2026");
+    const through = new Date(`${snapshot.snapshotDate}T00:00:00Z`).toLocaleDateString(
+      "en-US",
+      { year: "numeric", month: "short", day: "numeric", timeZone: "UTC" },
+    );
+    expect(section?.textContent).toContain(through);
     expect(section?.textContent).toContain(
       "not a count of unique people or installs",
     );

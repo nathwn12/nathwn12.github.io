@@ -27,8 +27,8 @@ jobs:
         with:
           node-version: 22
       - run: bun install --frozen-lockfile
-      - name: Refresh npm download snapshot
-        run: node scripts/npm-downloads.mjs
+      # The committed snapshots are the only source. A scheduled job measures
+      # and commits them; a deploy must never overwrite them in memory.
       - run: bun run build
       - uses: actions/upload-pages-artifact@v5
         with:
