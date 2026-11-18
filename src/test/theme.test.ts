@@ -211,7 +211,7 @@ describe("legacy aliases — the sections nobody has rewritten yet", () => {
 });
 
 describe("the barrel imports in cascade order", () => {
-  it("is tailwind, then fonts, tokens, base, chrome, legacy", () => {
+  it("is tailwind, then fonts, tokens, base, chrome, legacy, open-source stats", () => {
     const imports = [...BARREL.matchAll(/@import\s+"([^"]+)"/g)].map(
       (match) => match[1],
     );
@@ -222,6 +222,7 @@ describe("the barrel imports in cascade order", () => {
       "./styles/base.css",
       "./styles/chrome.css",
       "./styles/legacy.css",
+      "./styles/open-source-stats.css",
     ]);
   });
 

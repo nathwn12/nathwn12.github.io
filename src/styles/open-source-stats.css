@@ -1,0 +1,82 @@
+/* The /projects open-source measurement band. Static, token-only, no motion:
+   the ProofBand scrub remains the page's one kinetic moment. */
+
+.oss-band {
+  margin-top: var(--rec-space-7);
+  border-top: var(--rec-rule-w) solid var(--rec-rule);
+  padding-top: var(--rec-space-4);
+}
+
+.oss-head {
+  font-family: var(--font-sans);
+  font-size: var(--rec-text-body);
+  line-height: var(--rec-leading-body);
+  font-weight: 600;
+  color: var(--rec-ink);
+}
+
+.oss-grid {
+  margin-top: var(--rec-space-3);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(var(--rec-space-8), 1fr));
+  gap: var(--rec-space-4);
+}
+
+.oss-item {
+  display: grid;
+  gap: var(--rec-space-1);
+}
+
+.oss-label {
+  font-family: var(--font-mono);
+  font-size: var(--rec-text-data-sm);
+  line-height: var(--rec-leading-data);
+  letter-spacing: var(--rec-tracking-data);
+  color: var(--rec-ink-muted);
+}
+
+.oss-value {
+  font-family: var(--font-mono);
+  font-size: var(--rec-text-data-lg);
+  line-height: var(--rec-leading-data);
+  font-variant-numeric: tabular-nums;
+  color: var(--rec-measure);
+}
+
+.oss-strip-wrap {
+  margin-top: var(--rec-space-4);
+}
+
+.oss-strip {
+  margin-top: var(--rec-space-2);
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--rec-space-1);
+}
+
+.oss-cell {
+  flex: 1 1 0;
+  height: var(--rec-space-4);
+  background: var(--rec-panel);
+}
+
+.oss-cell[data-level="1"] {
+  background: var(--rec-rule-strong);
+}
+
+.oss-cell[data-level="2"] {
+  background: var(--rec-ink-muted);
+}
+
+.oss-cell[data-level="3"] {
+  background: var(--rec-measure);
+}
+
+.oss-note {
+  margin-top: var(--rec-space-2);
+  max-width: var(--rec-prose-measure);
+  font-family: var(--font-sans);
+  font-size: var(--rec-text-data);
+  line-height: var(--rec-leading-data);
+  color: var(--rec-ink-muted);
+}

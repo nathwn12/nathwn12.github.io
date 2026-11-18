@@ -7,11 +7,12 @@ import { CONTACT_CTA } from "../content/ledger";
 import { RouteLink, SectionLink } from "../lib/router";
 import { ProjectReadout } from "./ProjectReadout";
 import { NpmDownloadsReadout } from "./NpmDownloadsReadout";
+import { OpenSourceStatsBand } from "./OpenSourceStatsBand";
 
 /**
  * Projects — the open-source ledger, featured work first.
  *
- * Thirteen rows, one hairline between each: index, name, what it does, the stack
+ * One row per published project, one hairline between each: index, name, what it does, the stack
  * it is actually written in, the year it last shipped, and the repository. The
  * index is honest on this route because the order is a real one — featured work
  * first, supporting tools after — so a reader can see where they are in it.
@@ -61,6 +62,8 @@ export default function Projects() {
               <NpmDownloadsReadout />
             </div>
           </div>
+
+          <OpenSourceStatsBand />
 
           {/* The table's own top rule closes this band — no drawn seam above
               it, because a second rule 48px further up reads as an empty strip. */}

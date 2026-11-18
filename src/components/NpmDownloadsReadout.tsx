@@ -60,7 +60,7 @@ export function NpmDownloadsReadout() {
         <>
           <p className="mt-2 max-w-[46ch] text-[0.8125rem] leading-[1.5] text-[color:var(--rec-ink-muted)]">
             Package download events are summed; this is not a count of unique
-            people or installs. Refreshed weekly when npm data is available.
+            people or installs. Refreshed daily by a committed measurement when npm data is available.
           </p>
           <p className="data mt-4 text-[color:var(--rec-ink-muted)]">
             Included packages

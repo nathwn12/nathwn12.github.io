@@ -1,0 +1,53 @@
+name: open-source-stats
+
+# Committed-snapshot cron, mirroring the profile repo's stats.yml. Test first,
+# measure, commit only when a measured number changed. The default GITHUB_TOKEN
+# is enough: this writes snapshots in this public solo-owned repo.
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: open-source-stats
+  cancel-in-progress: true
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '26'
+
+      - run: bun install --frozen-lockfile
+
+      - name: Test before measuring
+        run: bun run check
+
+      - name: Measure and write the committed snapshots
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/open-source-stats.mjs
+
+      - name: Commit the snapshots when they changed
+        run: |
+          if git diff --quiet -- src/content/npm-downloads.json src/content/open-source-stats.json; then
+            echo "open-source snapshots unchanged, nothing to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/content/npm-downloads.json src/content/open-source-stats.json
+          git commit -m "chore: refresh the open-source stats snapshots"
+          git push
