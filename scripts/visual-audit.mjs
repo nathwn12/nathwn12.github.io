@@ -1,7 +1,8 @@
 import { chromium } from "playwright";
 import { readFile, mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { transformWithOxc } from "vite";
 
 /**
  * Visual audit for the built site.
@@ -24,7 +25,27 @@ const OUT = path.resolve(
     path.join(process.env.TEMP ?? ".", "opencode", "polish-b"),
 );
 const ORIGIN = "http://portfolio.local";
-const ROUTES = ["/", "/experience", "/projects"];
+/**
+ * The audit's route list has one source: src/lib/routes.ts, the same table
+ * scripts/prerender-routes.mjs reads to emit dist/<path>/index.html. Load it
+ * through Vite's Oxc transform and a data URL exactly as the build does, so a
+ * route added to the table is audited without editing a second literal here.
+ * routes.ts is dependency-free data, so the transpiled module has no imports
+ * to resolve.
+ */
+export async function loadAuditRoutes() {
+  const source = await readFile(
+    new URL("../src/lib/routes.ts", import.meta.url),
+    "utf8",
+  );
+  const { code } = await transformWithOxc(source, "routes.ts");
+  const { ROUTES: table } = await import(
+    `data:text/javascript;base64,${Buffer.from(code).toString("base64")}`
+  );
+  return table.map((route) => route.path);
+}
+
+export const ROUTES = await loadAuditRoutes();
 const VIEWPORTS = [
   { width: 1440, height: 900, tag: "1440" },
   { width: 390, height: 844, tag: "390" },
@@ -314,6 +335,7 @@ async function shotClip(page, selector, file) {
   return true;
 }
 
+async function run() {
 await mkdir(OUT, { recursive: true });
 const browser = await chromium.launch();
 const report = { out: OUT, origin: ORIGIN, pages: [], errors: [] };
@@ -494,4 +516,14 @@ console.log(`wrote ${report.pages.length} page reports → ${OUT}`);
 if (report.errors.length) {
   console.log(`console errors: ${report.errors.length}`);
   for (const entry of report.errors.slice(0, 10)) console.log(" ", JSON.stringify(entry));
+}
+}
+
+/* Only run when executed directly. Importing exposes ROUTES for the witness
+   test without launching a browser or writing screenshots. */
+if (
+  process.argv[1] &&
+  pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url
+) {
+  await run();
 }
