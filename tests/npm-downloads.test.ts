@@ -8,6 +8,10 @@ import {
 import expectedPackages from "../src/content/npm-packages.json";
 import snapshot from "../src/content/npm-downloads.json";
 import { downloadSnapshotFreshness } from "../src/lib/npm-downloads";
+import { fetchPackageMonth } from "../scripts/open-source-stats.mjs";
+import { snapshotDate as measuredThrough } from "../scripts/npm-downloads.mjs";
+import { monthFigure } from "../src/lib/open-source-stats";
+import statsSnapshot from "../src/content/open-source-stats.json";
 
 describe("npm all-time download aggregation", () => {
   test("date windows are contiguous, inclusive, and never overlap", () => {
@@ -148,5 +152,45 @@ describe("npm all-time download aggregation", () => {
         "c",
       ]),
     ).toEqual({ status: "unavailable", ageDays: null });
+  });
+});
+
+describe("the committed month figure and the refreshed all-time snapshot", () => {
+  test("the month fetch keeps the maintainer guard", async () => {
+    const fetcher = async () =>
+      Response.json({
+        name: "puppet-mcp",
+        maintainers: [{ name: "someone-else" }],
+        time: { created: "2024-01-01T00:00:00Z" },
+      }) as unknown as typeof fetch;
+    await expect(fetchPackageMonth("puppet-mcp", fetcher)).rejects.toThrow(
+      /incomplete/i,
+    );
+  });
+
+  test("the month figure is accepted only from whole, matching measurements", () => {
+    expect(monthFigure(statsSnapshot, expectedPackages, snapshot)).toBe(
+      statsSnapshot.npmMonth,
+    );
+    expect(
+      monthFigure({ ...statsSnapshot, npmMonth: 1 }, expectedPackages, snapshot),
+    ).toBeNull();
+    expect(
+      monthFigure(
+        { ...statsSnapshot, packages: statsSnapshot.packages.slice(0, 8) },
+        expectedPackages,
+        snapshot,
+      ),
+    ).toBeNull();
+  });
+
+  test("the regenerated all-time snapshot keeps order, sum and the settlement buffer", () => {
+    expect(snapshot.packages.map((item) => item.name)).toEqual(expectedPackages);
+    expect(snapshot.packages.reduce((sum, item) => sum + item.downloads, 0)).toBe(
+      snapshot.total,
+    );
+    expect(measuredThrough(new Date("2026-11-19T12:00:00Z"))).toBe("2026-11-16");
+    expect(statsSnapshot.snapshotDate).toBe(snapshot.snapshotDate);
+    expect(statsSnapshot.npmAllTime).toBe(snapshot.total);
   });
 });
