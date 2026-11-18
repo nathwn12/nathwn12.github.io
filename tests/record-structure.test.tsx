@@ -14,7 +14,7 @@
  *      (a compact band, not a dropped section).
  *   5. Exactly one contact CTA phrase site-wide.
  *
- *   pnpm vitest run tests/record-structure.test.tsx
+ *   bun run vitest run tests/record-structure.test.tsx
  */
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
