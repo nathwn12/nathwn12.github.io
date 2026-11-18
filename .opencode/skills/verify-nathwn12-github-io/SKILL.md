@@ -44,7 +44,9 @@ node -e "const fs=require('node:fs'),p=require('node:path');const ok=(x)=>fs.exi
 
 If any fact is false, stop and run the named repair. Never continue to Drive on a
 false fact, because the driver reports a page that never rendered as a page that
-rendered badly.
+rendered badly. The driver and the build run serially, never together: the driver
+serves `dist/`, and a concurrent `bun run build` replaces it mid-run, which fails
+as a page that did not render.
 
 | False fact | Repair |
 |---|---|
