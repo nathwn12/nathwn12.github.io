@@ -22,6 +22,7 @@ import { readFileSync } from "node:fs";
 import {
   allProjectsLabel,
   countWords,
+  OMITTED_FROM_CARDS,
   projects,
   projectsLede,
   projectsSupport,
@@ -37,8 +38,9 @@ interface ProbeRepo {
 
 const REPOS = (probe as { repos: ProbeRepo[] }).repos;
 
-/** Not case studies: the profile, this site, and projects without evidenced solo work. */
-const EXCLUDED = ["nathwn12", "nathwn12.github.io", "pear-slowed-reverb"];
+/** Not case studies: the profile, this site, and the omissions declared beside
+    the cards in `projects.ts` (the source the probe reads too). */
+const EXCLUDED = ["nathwn12", "nathwn12.github.io", ...OMITTED_FROM_CARDS];
 
 /** dir → the repository's PRIMARY language, from GitHub's own field. */
 const PRIMARY_LANGUAGE: Record<string, string> = Object.fromEntries(
@@ -168,6 +170,7 @@ describe("project inventory is the current public work", () => {
   });
 
   test("the Pear fork is omitted from project marketing", () => {
+    expect(OMITTED_FROM_CARDS).toContain("pear-slowed-reverb");
     expect(projects.some((project) => project.dir === "pear-slowed-reverb")).toBe(
       false,
     );
@@ -231,5 +234,6 @@ describe("project inventory is the current public work", () => {
       "utf8",
     );
     expect(source).not.toMatch(/oc-todo/i);
+    expect(source).not.toMatch(/oc-superpowers/i);
   });
 });
