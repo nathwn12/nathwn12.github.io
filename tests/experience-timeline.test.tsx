@@ -9,7 +9,7 @@
  *
  * Every assertion below can go red:
  *
- *   pnpm vitest run tests/experience-timeline.test.tsx
+ *   bun run vitest run tests/experience-timeline.test.tsx
  */
 import { act, createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";

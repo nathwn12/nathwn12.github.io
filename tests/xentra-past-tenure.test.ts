@@ -6,7 +6,7 @@
  * delivered record stays intact: exact company name, role, and date range are
  * unchanged. Each assertion below can go red.
  *
- *   pnpm vitest run tests/xentra-past-tenure.test.ts
+ *   bun run vitest run tests/xentra-past-tenure.test.ts
  */
 import { act, createElement } from "react";
 import { createRoot } from "react-dom/client";

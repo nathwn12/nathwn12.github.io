@@ -12,7 +12,7 @@
  *     `noindex` — not a 200 page that nothing links to, and not a second copy of
  *     the record with the home page's canonical on it.
  *
- *   pnpm vitest run tests/legacy-paths.test.ts
+ *   bun run vitest run tests/legacy-paths.test.ts
  */
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
