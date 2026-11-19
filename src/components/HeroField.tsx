@@ -296,7 +296,6 @@ export function HeroField() {
       start();
     };
 
-    /* --- the loop's two gates ------------------------------------------- */
     const observer =
       typeof IntersectionObserver === "function"
         ? new IntersectionObserver((entries) => {
@@ -313,7 +312,6 @@ export function HeroField() {
     };
     document.addEventListener("visibilitychange", onVisibility);
 
-    /* --- the two reactions ---------------------------------------------- */
     const onPointerMove = (event: PointerEvent) => {
       const box = canvas.getBoundingClientRect();
       pointer = { x: event.clientX - box.left, y: event.clientY - box.top };

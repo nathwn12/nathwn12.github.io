@@ -1,8 +1,6 @@
 import { z } from "zod";
 
-// ============================================
 // PHASE 1: Foundation - Shared Data Models with Zod
-// ============================================
 
 /** Experience entry schema */
 export const ExperienceSchema = z.object({
@@ -77,9 +75,7 @@ export const CertificationSchema = z.object({
 });
 export type Certification = z.infer<typeof CertificationSchema>;
 
-// ============================================
 // PHASE 1.5: Branded Types for Domain Primitives
-// ============================================
 
 /** Experience ID - prevents passing ExperienceId where UserId expected */
 export type ExperienceId = string & { readonly __brand: "Experience" };
@@ -87,9 +83,7 @@ export type ExperienceId = string & { readonly __brand: "Experience" };
 /** Skill Level with range validation at compile time */
 export type SkillLevel = number & { readonly __brand: "SkillLevel" };
 
-// ============================================
 // PHASE 2: Type Guards & Exhaustive Switches
-// ============================================
 
 export function isExperience(data: unknown): data is Experience {
   return ExperienceSchema.safeParse(data).success;
@@ -103,9 +97,7 @@ export function isSkillCategory(data: unknown): data is SkillCategory {
   return SkillCategorySchema.safeParse(data).success;
 }
 
-// ============================================
 // PHASE 2.5: Runtime Validation with Zod (API Boundaries)
-// ============================================
 
 /** Safe parse user input for skill level */
 export function parseSkillLevel(input: string): Skill | null {
@@ -116,9 +108,7 @@ export function parseSkillLevel(input: string): Skill | null {
   return result.success ? result.data : null;
 }
 
-// ============================================
 // PHASE 3: Utility Types & Zod Extensions
-// ============================================
 
 /** Optional field with custom validation */
 export function optionalWith<T>(schema: z.ZodType<T>) {

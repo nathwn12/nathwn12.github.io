@@ -39,7 +39,6 @@
 :root {
   color-scheme: dark;
 
-  /* --- COLOUR — DARK, "Recorder" --------------------------------------- */
   --rec-ground: #07090b;
   --rec-panel: #0e1114;
   --rec-panel-2: #151a1e;
@@ -59,7 +58,6 @@
      rather than a second accent. */
   --rec-selection: color-mix(in srgb, var(--rec-signal) 22%, transparent);
 
-  /* --- TYPE — display, text and data, three strict roles ---------------- */
   /* Display: Instrument Serif. Hero and section claims only. */
   --rec-text-display: clamp(3.5rem, 13vw, 15rem);
   --rec-leading-display: 0.86;
@@ -91,7 +89,6 @@
   --rec-leading-data: 1.45;
   --rec-tracking-data: 0.06em;
 
-  /* --- SPACE — one 4px base, then the structural steps ------------------ */
   --rec-space-1: 0.25rem;
   --rec-space-2: 0.5rem;
   --rec-space-3: 0.75rem;
@@ -120,7 +117,6 @@
   --rec-rhythm: var(--rec-space-5);
   --rec-rhythm-lg: var(--rec-space-5);
 
-  /* --- STRUCTURE -------------------------------------------------------- */
   --rec-rule-w: 1px;
   /* The sticky bar's own height: the scroll offset in base.css is derived from
      it, so growing the bar cannot push a jumped-to heading under it. */
@@ -128,7 +124,6 @@
   /* Radius is 0 everywhere. Named so a component cannot invent a value. */
   --rec-radius: 0;
 
-  /* --- MOTION ----------------------------------------------------------- */
   --rec-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --rec-dur-quick: 140ms;
   --rec-dur-base: 280ms;
@@ -178,7 +173,6 @@
    touching a hex.
    ========================================================================= */
 @theme static {
-  /* --- FAMILIES — three roles, three faces ----------------------------- */
   --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
   --font-sans: "Archivo", "Inter", "Inter Fallback", Arial, system-ui,
     sans-serif;

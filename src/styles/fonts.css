@@ -26,7 +26,6 @@
    letterforms only — never a line break (see the fallback face at the bottom).
    ========================================================================= */
 
-/* --- Display: Instrument Serif ------------------------------------------ */
 @font-face {
   font-family: "Instrument Serif";
   src: url("/fonts/InstrumentSerif-Regular.woff2") format("woff2");
@@ -48,7 +47,6 @@
     U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* --- Text: Archivo, variable across the whole usable weight range -------- */
 @font-face {
   font-family: "Archivo";
   src: url("/fonts/Archivo-Variable.woff2") format("woff2");
@@ -60,7 +58,6 @@
     U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
-/* --- Data: JetBrains Mono, one slice for both weights -------------------- */
 @font-face {
   font-family: "JetBrains Mono";
   src: url("/fonts/JetBrainsMono-Regular.woff2") format("woff2");

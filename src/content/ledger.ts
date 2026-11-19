@@ -122,7 +122,6 @@ export const figures = {
   packageCount: repos.reduce((total, group) => total + group.packages.length, 0),
 } as const;
 
-/* ---------------------------------------------------------------- first screen */
 
 export const name = "Nathaniel Nikolai Ladero";
 
@@ -155,7 +154,6 @@ export const measurementSwitch = {
   after: "After",
 } as const;
 
-/* ------------------------------------------------------------------- proof rows */
 
 export interface RecordRow {
   claim: string;
@@ -218,7 +216,6 @@ export const proofRows: RecordRow[] = [
     : null,
 ].filter((row): row is RecordRow => row !== null);
 
-/* ------------------------------------------------------------------ selected work */
 
 export interface WorkRow {
   name: string;
@@ -262,16 +259,13 @@ export const workRows: WorkRow[] = projects.slice(0, 3).map((project) => ({
 
 export const workLede = `${countWord(projects.length)} tools under one account; three are worth opening first. The rest sit on the projects page with their case notes.`;
 
-/* ------------------------------------------------------------------- system atlas */
 
 export const atlasLede = `${repos.length} groups, ${figures.packageCount} named packages — the whole list, not a selection.`;
 
-/* ------------------------------------------------------------------------ forward */
 
 export const forwardLede =
   "The tools are the other half of the record. Every one below is public.";
 
-/* ------------------------------------------------------------------- ai practice */
 
 /**
  * The capability band: what he does with AI, in his own voice, as prose.
@@ -290,7 +284,6 @@ export const aiPractice = {
   facts: ["MCP servers", "local models", "spec-driven builds"],
 } as const;
 
-/* ------------------------------------------------------------------------ contact */
 
 export const contactBlock = {
   heading: "Contact",

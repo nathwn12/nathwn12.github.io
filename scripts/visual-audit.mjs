@@ -76,7 +76,6 @@ const MIME = {
 
 const slug = (route) => (route === "/" ? "home" : route.slice(1));
 
-/* --------------------------------------------------------------- measurements */
 
 /** Served from the real build; a missing file is a real 404, not an empty page. */
 async function serveDist(page) {
@@ -296,7 +295,6 @@ async function measure() {
   };
 }
 
-/* ------------------------------------------------------------------- the run */
 
 /** A clipped shot from one full-page capture: no sticky-header overlay. */
 async function shotClip(page, selector, file) {

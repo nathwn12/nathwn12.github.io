@@ -111,7 +111,6 @@ export function LatencyInstrument() {
   /** The canvas owns the playhead; the scrub only says where it is. */
   const playheadRef = useRef<((at: number | null) => void) | null>(null);
 
-  /* --- the decoration: grid and the scrub's playhead ---------------------- */
   useEffect(() => {
     const canvas = canvasRef.current;
     const plot = plotRef.current;
@@ -193,7 +192,6 @@ export function LatencyInstrument() {
     };
   }, []);
 
-  /* --- the measurement: one scroll-scrubbed readout ---------------------- */
   useGSAP(
     () => {
       /* No motion, no trigger, no zero: the markup is already the final frame. */
