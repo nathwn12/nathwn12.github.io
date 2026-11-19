@@ -55,8 +55,6 @@ export function ProjectReadout({ projects }: { projects: ProjectLore[] }) {
       setActive((previous) => (previous === next ? previous : next));
     };
 
-    /* One rAF per frame at most: a scroll event can fire many times per frame
-       and the readout only needs the frame's final layout. */
     const schedule = () => {
       if (frame === 0) frame = window.requestAnimationFrame(update);
     };

@@ -111,11 +111,6 @@ describe("visible focus", () => {
 });
 
 describe("motion — one state, one resting truth", () => {
-  /* Motion runs unless the OS asks for less; both paths converge on the same
-     resting state, which is the finished page. The assertions below go red if an
-     animated start state is ever written into CSS (a hidden block a JS-less
-     visitor never gets back), or if a module other than src/lib/motion.ts starts
-     reading the preference. */
   test("the stylesheet collapses motion for the OS preference and the state", () => {
     expect(code(css)).toMatch(/@media \(prefers-reduced-motion: reduce\)/);
     expect(code(css)).toMatch(/html\[data-motion="off"\]/);
@@ -149,10 +144,6 @@ describe("motion — one state, one resting truth", () => {
 
     await mount(createElement(Record));
 
-    /* The measured results are in the DOM at their final values on the first
-       paint: no script writes a zero over them, and no scroll trigger is
-       created when motion is off, so the record band's four figures are the
-       delivered ones before anything runs. */
     const figures = [
       ...host.querySelectorAll<HTMLElement>("#proof [data-figure]"),
     ].map((figure) => figure.textContent?.trim());
@@ -165,14 +156,7 @@ describe("motion — one state, one resting truth", () => {
 
 describe("in-page scroll clearance", () => {
   test("the scrolling root offsets every target past the sticky bar", () => {
-    /* `scroll-padding-top` on the scrolling root covers every scroll-into-view
-       target - a band, a heading's id, focus moving into main - and it cannot
-       stack with a per-section scroll-margin into a double gap. This is the
-       regression gate for the mobile defect: with only `section[id]`
-       scroll-margin, a heading target landed under the bar. */
     const htmlRule = css.match(/(?:^|\n)html\s*\{([^}]*)\}/)?.[1] ?? "";
-    /* The offset is derived from the bar's own height token plus one step, so
-       growing the bar cannot push a jumped-to heading under it. */
     expect(htmlRule).toMatch(
       /scroll-padding-top:\s*calc\(var\(--rec-header-h[^)]*\)\s*\+\s*var\(--rec-space-3\)\)/,
     );
@@ -197,7 +181,6 @@ describe("in-page scroll clearance", () => {
   });
 
   test("the offset is not duplicated on section targets", () => {
-    // Padding and margin add. Keeping both would scroll a band 144px down.
     expect(css).not.toMatch(/section\[id\]\s*\{[^}]*scroll-margin-top/s);
   });
 
@@ -225,8 +208,6 @@ describe("target size", () => {
   });
 
   test("the author mark keeps the floor on both axes", () => {
-    /* The mark is a 36px signature, narrower than 44px, so the link's box has
-       to carry the width itself. */
     const rule = css.match(/\.masthead__mark\s*\{([^}]*)\}/s)?.[1] ?? "";
     expect(rule).toContain("min-width: 2.75rem");
   });
@@ -237,8 +218,6 @@ describe("target size", () => {
   });
 
   test("the footer's smallest links keep both axes", () => {
-    // The label alone is narrower than 44px at 13px, so the anchor owns the
-    // floor on both axes (tests/footer-target-size.test.ts pins the same rule).
     const footer = read("src/components/Footer.tsx");
     expect(footer).toContain("min-h-11 min-w-11");
   });
@@ -265,9 +244,6 @@ describe("the rendered record", () => {
   });
 
   test("the before/after comparison is two labelled facts, not a control", async () => {
-    /* The record shows both states at once: there is nothing to toggle, so
-       there is no pressed state to keep in sync — and the fact is on the page
-       for every reader, scripted or not. */
     await mount(createElement(Record));
     const instrument = host.querySelector<HTMLElement>("[data-instrument]");
     expect(instrument, "the latency instrument is not rendered").not.toBeNull();

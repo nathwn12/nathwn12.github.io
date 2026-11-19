@@ -1,14 +1,4 @@
-/* =========================================================================
-   SHARED RULES — the four primitives the components still share by name.
 
-   Every band is rewritten and styles itself against `--rec-*` through
-   utilities; what is left here is the small set of rules that more than one
-   component asks for by class name (`.band`, `.prose`, `.button`), plus the
-   skip link and the two heading defaults the detail routes read. Nothing new
-   belongs in this file: a new surface gets its styles from tokens.css.
-   ========================================================================= */
-
-/* Skip link — visible on focus, first tab stop. */
 .skip-link {
   position: fixed;
   top: 0.5rem;
@@ -26,9 +16,6 @@
   transform: translateY(0);
 }
 
-/* =========================================================================
-   FRAME — one container, one pair of margins, at every width.
-   ========================================================================= */
 
 .band {
   padding-block: var(--spacing-band);
@@ -39,9 +26,6 @@
   }
 }
 
-/* The first screen sits on the same rhythm as the rest at a phone width; on a
-   desktop its top is pulled in so the page title starts just under the sticky
-   bar instead of a full band's distance below it. */
 @media (min-width: 900px) {
   .band--first {
     padding-top: 2rem;
@@ -49,15 +33,10 @@
   }
 }
 
-/* A section that continues the one above it (a detail page's list under its
-   title) sits flush, so the page reads as one document, not two bands. */
 .band--flush {
   padding-top: 0;
 }
 
-/* =========================================================================
-   TYPE ROLES
-   ========================================================================= */
 h1,
 h2,
 h3 {
@@ -84,20 +63,13 @@ h3 {
   font-size: var(--text-body);
   line-height: 1.55;
   text-wrap: pretty;
-  /* 52ch of Archivo is ~65 characters of running text at 17px — inside the
-     62–72 band. At 54ch the measured line ran to 77 characters, which is a
-     magazine measure, not a reading measure. */
   max-width: 52ch;
 }
 
-/* All figures align: tabular everywhere a number can stack. */
 .tnum {
   font-variant-numeric: tabular-nums;
 }
 
-/* =========================================================================
-   BUTTONS — one primary fill, one square radius (0), one underline.
-   ========================================================================= */
 .button {
   display: inline-flex;
   align-items: center;
@@ -129,7 +101,6 @@ h3 {
   opacity: 0.6;
 }
 
-/* A control that is a text action, never a boxed outline. */
 .text-action {
   display: inline-flex;
   align-items: center;
@@ -147,9 +118,6 @@ h3 {
   text-decoration-color: currentColor;
 }
 
-/* =========================================================================
-   PRINT — the record on paper.
-   ========================================================================= */
 @media print {
   .skip-link {
     display: none;

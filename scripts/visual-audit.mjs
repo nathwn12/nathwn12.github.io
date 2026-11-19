@@ -135,8 +135,6 @@ async function measure() {
     return stack.length ? body?.rgb ?? [255, 255, 255] : body?.rgb ?? [255, 255, 255];
   };
 
-  /* Characters per line: the real advance of the element's own text in its own
-     font, measured on a canvas, divided into the content width. */
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
 
@@ -191,7 +189,6 @@ async function measure() {
     },
   );
 
-  /* Contrast of every element that paints text, against its real background. */
   const contrast = [];
   const textElements = [...document.querySelectorAll("body *")].filter((el) => {
     if (!el.getClientRects().length) return false;
@@ -229,7 +226,6 @@ async function measure() {
   }
   contrast.sort((a, b) => a.ratio - b.ratio);
 
-  /* The claim-plus-figure rows: is the figure's baseline on the claim's? */
   const recordRows = [...document.querySelectorAll(".record-row")].map((row) => {
     const claim = row.querySelector(".record-row__claim");
     const figure = row.querySelector(".record-row__figure");
@@ -255,8 +251,6 @@ async function measure() {
     };
   });
 
-  /* Reduced evidence: the .measure panel was deliberately removed in 1e7d2c0,
-     so no control state is read from the page here. See the header comment. */
 
   const prose = [...document.querySelectorAll(".prose, .lede")]
     .map((element) => ({
@@ -360,8 +354,6 @@ for (const viewport of VIEWPORTS) {
         height: Math.round(section.getBoundingClientRect().height),
       })),
     );
-    /* Clipped from one full-page capture, never an element screenshot: a sticky
-       header paints itself into an element shot and hides the band's heading. */
     for (const band of bandRects) {
       await page.screenshot({
         path: path.join(
@@ -381,9 +373,6 @@ for (const viewport of VIEWPORTS) {
     const metrics = await page.evaluate(measure);
     report.pages.push({ route, viewport: viewport.tag, tag, ...metrics, consoleErrors });
 
-    /* The contact section is not a .band, so the band loop above never crops
-       it. Keep its home-only shot; the removed panel's before/after figures,
-       state and keyboard checks are deliberately not emitted. */
     if (route === "/") {
       await shotClip(page, "#contact", path.join(OUT, `${tag}-band-contact.png`));
     }
@@ -395,7 +384,6 @@ for (const viewport of VIEWPORTS) {
   }
 }
 
-/* The 48px a phone sees at the close of each band, cropped for inspection. */
 {
   const context = await browser.newContext({
     viewport: { width: 390, height: 844 },
@@ -423,8 +411,6 @@ for (const viewport of VIEWPORTS) {
   await context.close();
 }
 
-/* The same record with the OS in dark mode: the pre-paint script resolves it,
-   so this is the page a dark-OS visitor actually gets. */
 for (const viewport of VIEWPORTS) {
   const context = await browser.newContext({
     viewport: { width: viewport.width, height: viewport.height },
@@ -467,8 +453,6 @@ if (report.errors.length) {
 }
 }
 
-/* Only run when executed directly. Importing exposes ROUTES for the witness
-   test without launching a browser or writing screenshots. */
 if (
   process.argv[1] &&
   pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url

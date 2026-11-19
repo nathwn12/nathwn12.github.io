@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// PHASE 1: Foundation - Shared Data Models with Zod
 
 /** Experience entry schema */
 export const ExperienceSchema = z.object({
@@ -36,11 +35,7 @@ export const ProjectSchema = z.object({
   description: z.string(),
   tech: z.array(z.string()),
   status: z.enum(["PRODUCTION", "SHIPPED"]),
-  /* No route paints a per-project hue, so the schema does not demand one: a
-     colour here was a second palette outside tokens.css, kept alive by nothing. */
   color: z.string().regex(/^#[0-9a-fA-F]{3,8}$/).optional(),
-  /* Canonical public repository for the case study; optional so the schema
-     still accepts an internal project entry with no public link. */
   url: z.string().url().optional(),
   stats: z.array(
     z.object({
@@ -68,14 +63,11 @@ export const CertificationSchema = z.object({
   title: z.string(),
   issuer: z.string(),
   date: z.string().optional(),
-  /* Relaxed from z.string().uuid(): real credential ids are platform share
-     codes, not UUIDs (e.g. "RFS2G5ZT9GPK", "FA69CEB39205E003"). */
   id: z.string().min(1),
   url: z.string().url(),
 });
 export type Certification = z.infer<typeof CertificationSchema>;
 
-// PHASE 1.5: Branded Types for Domain Primitives
 
 /** Experience ID - prevents passing ExperienceId where UserId expected */
 export type ExperienceId = string & { readonly __brand: "Experience" };
@@ -83,7 +75,6 @@ export type ExperienceId = string & { readonly __brand: "Experience" };
 /** Skill Level with range validation at compile time */
 export type SkillLevel = number & { readonly __brand: "SkillLevel" };
 
-// PHASE 2: Type Guards & Exhaustive Switches
 
 export function isExperience(data: unknown): data is Experience {
   return ExperienceSchema.safeParse(data).success;
@@ -97,7 +88,6 @@ export function isSkillCategory(data: unknown): data is SkillCategory {
   return SkillCategorySchema.safeParse(data).success;
 }
 
-// PHASE 2.5: Runtime Validation with Zod (API Boundaries)
 
 /** Safe parse user input for skill level */
 export function parseSkillLevel(input: string): Skill | null {
@@ -108,7 +98,6 @@ export function parseSkillLevel(input: string): Skill | null {
   return result.success ? result.data : null;
 }
 
-// PHASE 3: Utility Types & Zod Extensions
 
 /** Optional field with custom validation */
 export function optionalWith<T>(schema: z.ZodType<T>) {

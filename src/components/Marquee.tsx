@@ -71,21 +71,6 @@ export function Marquee({ items }: { items: MarqueeItem[] }) {
   }, []);
 
   return (
-    /* Inside the frame, so the strip's own rule ends on the same two edges as
-       every seam and every table on the page. The strip is held by a rule on its
-       top edge only: the seam that closes the band is its bottom edge, and a
-       second border there painted a 2px line where every other rule on the page
-       is 1px. One copy of the track is wider
-       than the frame at every width the frame allows, which is what makes the
-       loop's join invisible: the window never reaches the end of a copy.
-
-       The last 48px at each end are an alpha mask, not painted decoration —
-       nothing is drawn there. Without it the window guillotines a word at the
-       frame's rule on every frame, which is the "cut mid-word" defect: a ticker
-       has to end somewhere, and a mask ends it without leaving half a letter.
-       The track carries a 48px left margin so that at rest the first item sits
-       inside the solid part of the mask, and `xPercent: -50` is measured on the
-       track's own box, so the margin cannot drift the loop. */
     <div className="frame">
       <div className="overflow-hidden border-t border-[color:var(--rec-rule)]">
         <div

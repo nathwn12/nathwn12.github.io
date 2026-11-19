@@ -1,22 +1,3 @@
-// Social-card rasterizer: inline SVG (1200x630) → sharp → committed PNGs in
-// public/.
-//
-// Two cards, one per palette:
-//
-//   og-image-2026-10.png     the light card, kept as the October card.
-//   og-image-2026-11-13.png  the current dark card. The date in the filename is
-//                            the cache-buster: a crawler that already fetched
-//                            an older card is pointed at a new URL, not at the
-//                            same URL with new pixels.
-//
-// The dark card reads its colours from `src/styles/tokens.css` `:root`, so it
-// cannot drift from the site: change a token and re-run this script. It uses
-// the same role split the page does — ground, ink, muted ink, the raised
-// surface the scale track sits on, the measure colour for the figure and the
-// signal colour for the exit.
-//
-// The PNGs are committed, so CI/build never needs sharp: keep sharp OUT of the
-// build pipeline.
 import sharp from "sharp";
 import { mkdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -51,8 +32,6 @@ for (const token of [
   if (!dark[token]) throw new Error(`the dark theme does not define ${token}`);
 }
 
-/* The light October card. Its geometry and colours are frozen: the card is
-   already published, and this script must reproduce the committed file. */
 const LIGHT_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif">
   <rect width="1200" height="630" fill="#f2f1ec"/>
   <rect x="80" y="64" width="1040" height="4" fill="#16181a"/>
@@ -74,11 +53,6 @@ const LIGHT_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="
   <text x="1120" y="592" font-size="18" font-weight="600" text-anchor="end" fill="#0a5c60">Email me</text>
 </svg>`;
 
-/* The dark card: the identity line, the stack, and the one figure that carries
-   the record — the worst-case payment query after the provider change. The bar
-   encodes the same 60:1 comparison the cover's panel does: the accent sliver
-   against a 60-second track. Colours come from tokens.css, so a palette edit
-   flows into the card on the next run. */
 const DARK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Inter, 'Helvetica Neue', Helvetica, Arial, sans-serif">
   <rect width="1200" height="630" fill="${dark["--rec-ground"]}"/>
   <rect x="80" y="64" width="1040" height="4" fill="${dark["--rec-ink"]}"/>

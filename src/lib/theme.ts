@@ -44,7 +44,6 @@ export function storedTheme(): Theme | null {
     const stored = window.localStorage.getItem(THEME_KEY);
     if (stored === "light" || stored === "dark") return stored;
   } catch {
-    /* storage blocked — the pre-paint script's reading still stands */
   }
   return null;
 }
@@ -90,7 +89,6 @@ export function setTheme(theme: Theme): void {
   try {
     window.localStorage.setItem(THEME_KEY, theme);
   } catch {
-    /* Storage blocked — the DOM theme still applies for this document. */
   }
   applyTheme(theme);
   window.dispatchEvent(
@@ -137,7 +135,6 @@ export function useTheme(): [Theme, () => void] {
       media.addEventListener("change", onSystemChange);
       detach = () => media.removeEventListener("change", onSystemChange);
     } catch {
-      /* No media query support — the attribute already carries a theme. */
     }
 
     return () => {

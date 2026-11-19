@@ -83,20 +83,9 @@ export function HeroField() {
     const context = canvas.getContext("2d");
     if (!context) return;
 
-    /* A phone starts two tiers down: it has fewer pixels, a smaller battery and
-       no pointer to react to. The tier machine can still promote it. */
     const compact = window.matchMedia?.("(max-width: 767px)").matches ?? false;
     let tier = compact ? 2 : 0;
 
-    /* The palette is read off the element, not typed here: the canvas is the
-       one place on the site that paints a colour, and it still reads a token.
-       It is re-read whenever `<html data-theme>` changes, because the field is
-       the only thing on the page whose ink is not a CSS rule.
-
-       There is deliberately no hex fallback. A fallback colour in this file
-       would be a second palette that the theme switch cannot see; `transparent`
-       is the honest empty value, so a missing token draws nothing rather than
-       the wrong colour. */
     let ink: Ink = {
       ground: "transparent",
       accents: ["transparent", "transparent"],
@@ -173,8 +162,6 @@ export function HeroField() {
     };
 
     const paint = () => {
-      /* The wash is the trail: the ground at 7.5% a frame, so a streak survives
-         about a second and the field reads as a current with direction. */
       context.globalCompositeOperation = "source-over";
       context.globalAlpha = FADE;
       context.fillStyle = ink.ground;
@@ -217,8 +204,6 @@ export function HeroField() {
       if (!startedAt) startedAt = now;
       const delta = last ? now - last : 16.7;
       last = now;
-      /* A tab that was parked must not teleport the field: one frame's worth of
-         motion, whatever the gap says. */
       const dt = Math.min(1 / 30, Math.max(1 / 240, delta / 1000));
 
       stepField(field, { dt, pointer, scroll });
@@ -247,8 +232,6 @@ export function HeroField() {
         lastSwitch = now;
         frames.length = 0;
         paints.length = 0;
-        /* A new tier is a new buffer and a new count; the field is rebuilt from
-           the same seed, so the change is a change of cost, not of character. */
         size();
         return;
       }
@@ -333,9 +316,6 @@ export function HeroField() {
     };
     window.addEventListener(MOTION_CHANGE_EVENT, onMotionChange);
 
-    /* The field's ink is the one thing on the page that is not a CSS rule, so a
-       theme switch has to be handed to it: re-read the tokens, wipe the old
-       ground's trails and repaint. */
     const themeObserver =
       typeof MutationObserver === "function"
         ? new MutationObserver(() => {
@@ -381,10 +361,6 @@ export function HeroField() {
       data-hero-field
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 -z-10 h-full w-full"
-      /* The field is bounded by the cover's own box, so without a mask its
-         current stops on a hard horizontal line across the page where the next
-         band begins. The mask dissolves the last third into the ground instead:
-         an edge nobody can see, rather than a cut nobody asked for. */
       style={{
         maskImage: "linear-gradient(to bottom, black 62%, transparent 100%)",
         WebkitMaskImage:

@@ -51,7 +51,6 @@ export function normalizePath(pathname: string): string {
   try {
     p = decodeURIComponent(p);
   } catch {
-    /* malformed URI — fall through */
   }
   if (p.length > 1 && p.endsWith("/")) p = p.slice(0, -1);
   return p === "" ? "/" : p;
@@ -110,14 +109,6 @@ export function resolveRoute(path: string): RouteDef {
   );
 }
 
-/* -------------------------------------------------------------------------
-   A pending in-page scroll, handed across a route change.
-
-   A link to `/#contact` from `/projects` must land on the contact band, which
-   mounts only after the home page renders. The request is stored here for one
-   mount to consume, exactly once — the same shape the old keyboard handoff
-   used, without a global listener.
-   ------------------------------------------------------------------------- */
 let pendingSection: string | null = null;
 
 export function requestSectionScroll(id: string): void {
@@ -142,9 +133,6 @@ export function scrollToSection(id: string): void {
   });
 }
 
-/* -------------------------------------------------------------------------
-   History state
-   ------------------------------------------------------------------------- */
 
 /** Navigation history stack — used to infer back vs forward on popstate. */
 const initialPath = normalizePath(window.location.pathname);

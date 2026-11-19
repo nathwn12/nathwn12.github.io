@@ -21,9 +21,6 @@ export function routeFileFor(distDir, routePath) {
     );
   }
 
-  /* Independent rejections, checked before resolving: percent-encoding hides
-     dot segments from a string scan, a backslash is a separator on Windows,
-     and a `..` segment climbs out of any destination. */
   if (
     routePath.includes("%") ||
     routePath.includes("\\") ||

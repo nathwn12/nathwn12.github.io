@@ -43,9 +43,6 @@ export function playRouteCurtain(swap: () => void): void {
     return;
   }
 
-  /* A navigation that arrives mid-wipe must not be dropped, and must not leave
-     the router showing a path the address bar never took. Cancel commits the
-     pending swap first. */
   running?.cancel();
 
   let swapped = false;
@@ -74,9 +71,6 @@ export function playRouteCurtain(swap: () => void): void {
   running = handle;
 
   timeline
-    /* The parked state lives in CSS as visibility/opacity, so this is the first
-       transform GSAP writes: one viewport below, then up to cover, then through
-       and away. */
     .set(el, { autoAlpha: 1, yPercent: 100 })
     .to(el, { yPercent: 0, duration: EXIT_S, ease: "power2.in" })
     .add(swapOnce)

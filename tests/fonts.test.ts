@@ -61,8 +61,6 @@ describe("the font is local, licensed, and correctly declared", () => {
     expect(face).toContain("font-display: swap");
     expect(face).toContain("unicode-range: U+0000-00FF");
     expect(face).toContain("U+FFFD");
-    // The stack decides the role: Archivo first, Inter second, and the mono
-    // slot never falls back to a proportional face.
     expect(TOKENS).toContain('--font-sans: "Archivo", "Inter"');
     expect(TOKENS).toContain('--font-mono: "JetBrains Mono"');
   });
@@ -77,9 +75,6 @@ describe("the font is local, licensed, and correctly declared", () => {
   });
 
   test("the two byte-identical mono cuts ship as one file", () => {
-    /* Google serves one variable slice for JetBrains Mono; committing it twice
-       under two names cost a second request on the critical path. One file,
-       declared 400 500. */
     expect(
       existsSync(resolve(root, "public/fonts/JetBrainsMono-Medium.woff2")),
     ).toBe(false);

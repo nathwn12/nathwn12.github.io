@@ -123,8 +123,6 @@ export const experienceLede =
     reading order or the tenure already stated above. */
 export const experienceMarginalia = "Every figure traced to the delivered record";
 
-/* Dormant zod models wired in: validate a domain projection (employer merged
-   into every entry) at module load. Throws a descriptive error on mismatch. */
 const experienceProjection = experience.map((entry) => ({
   id: entry.id,
   role: employer.role,

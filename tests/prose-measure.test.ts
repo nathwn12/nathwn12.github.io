@@ -120,9 +120,6 @@ async function measure(
       if (text.length < 40) continue;
 
       const style = getComputedStyle(element);
-      /* Data rows are not prose. A single line of mono facts — the cover's
-         former-employment line is one row of three — is read as a row, and its
-         character count is the count of what it states, not a measure. */
       if (/mono/.test(style.fontFamily.toLowerCase())) continue;
 
       context.font = `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
@@ -135,8 +132,6 @@ async function measure(
         element.getBoundingClientRect().width -
         parseFloat(style.paddingLeft) -
         parseFloat(style.paddingRight);
-      /* One `ch` is the advance of "0" in the block's own face, which is the
-         unit the stylesheet's max-width is written in. */
       const chWidth = context.measureText("0").width * measureCh;
       measured.push({
         charsPerLine: Math.round(contentWidth / advance),

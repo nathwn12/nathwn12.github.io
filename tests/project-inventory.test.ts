@@ -60,11 +60,8 @@ const PRIMARY_LANGUAGE: Record<string, string> = Object.fromEntries(
 const SOURCE_LANGUAGES: Record<string, readonly string[]> = {
   puppet: ["Rust"],
   gladius: ["Rust"],
-  // Rust about 42k lines / 59 files in crates/{gladius,puppet}; TypeScript
-  // about 30k lines / 81 files across the seven packages. Rust leads.
   "oc-collections": ["Rust", "TypeScript"],
   potflix: ["Rust"],
-  // The Tauri shell: TypeScript UI on a Rust backend.
   slowburn: ["TypeScript", "Rust"],
   "arc-installer": ["PowerShell", "C#"],
   "vencord-bootstrap": ["PowerShell"],
@@ -133,9 +130,6 @@ describe("project inventory is the current public work", () => {
       }
     }
 
-    // oc-collections is the one repo the inventory blocked on: GitHub's primary
-    // is Rust, and TypeScript survives as the packages' language rather than as
-    // the card's lead.
     const collections = projects.find((p) => p.dir === "oc-collections")!;
     expect(
       collections.tech.filter((chip) => LANGUAGE_NAMES.has(chip)),
@@ -199,11 +193,6 @@ describe("project inventory is the current public work", () => {
   });
 
   test("Potflix states the cache expiry, never permanence", () => {
-    // Owner-authorized source: Q:\PROJECTS\PERSONAL\Potflix\rust\crates\metadata\
-    // src\cache.rs:79-83 sets POSITIVE_TTL to 30 * 24 * 60 * 60 seconds (the
-    // same 30 days as NEGATIVE_TTL), and its doc comment says an expired
-    // positive is re-fetched, so the store is "never indefinite storage". The
-    // card must state that 30-day expiry and must not claim permanence.
     const potflix = projects.find((project) => project.dir === "potflix");
     expect(potflix).toBeDefined();
     const prose = [potflix!.description, ...potflix!.highlights].join(" ");
@@ -215,10 +204,6 @@ describe("project inventory is the current public work", () => {
   });
 
   test("lists only what the account publishes today", () => {
-    // Archived, private and retired repositories must not appear at all — not
-    // in the live list and not in a separate band. The probe stores the flags it
-    // filtered by, and the same predicate filtered the live measurement, so
-    // this reads real fields and can actually go red.
     for (const repo of REPOS) {
       expect(isPublishedRepo(repo), `${repo.name} is not published`).toBe(true);
     }
@@ -230,7 +215,6 @@ describe("project inventory is the current public work", () => {
       expect(published.has(project.dir.toLowerCase()), project.dir).toBe(true);
     }
 
-    // Nothing that stopped being public may linger in the page's markup.
     const source = readFileSync(
       new URL("../src/components/Projects.tsx", import.meta.url),
       "utf8",

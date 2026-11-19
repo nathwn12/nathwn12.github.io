@@ -103,8 +103,6 @@ describe("the figures", () => {
   });
 
   test("thirteen projects and 88 packages", () => {
-    /* Thirteen case studies: the public repo probe minus the profile README, this
-       site, and repositories without evidenced solo work. */
     expect(projects).toHaveLength(13);
     expect(figures.projectCount).toBe(13);
     expect(repos).toHaveLength(6);
@@ -112,9 +110,6 @@ describe("the figures", () => {
   });
 
   test("the four proof rows state only derived figures", () => {
-    /* The record band's four outcomes, in reading order: the payment reduction
-       first because the opener sentence is backed by it. Every figure is parsed
-       from the record — none is typed into the band. */
     expect(proofRows).toHaveLength(4);
     expect(proofRows.map((row) => row.figure)).toEqual([
       "−98%",
@@ -122,8 +117,6 @@ describe("the figures", () => {
       "0",
       "1,182",
     ]);
-    /* The band states outcomes, not biography: the closure and the recovery
-       that produced the commit count are the experience route's to state. */
     const bandCopy = proofRows
       .flatMap((row) => [row.claim, row.detail])
       .join(" ");
@@ -190,8 +183,6 @@ describe("the contact relay stays retired", () => {
     expect(contact).not.toContain("<form");
     expect(contact).not.toContain("<input");
     expect(contact).not.toContain("<textarea");
-    // The pair lives on the cover (`/`) and in the footer on the detail routes;
-    // the closing viewport used to carry a third copy.
     expect(contact).not.toContain("RESUME_PATH");
     expect(contact).not.toContain("CV_PATH");
     expect(contact).not.toContain("documentBlock");

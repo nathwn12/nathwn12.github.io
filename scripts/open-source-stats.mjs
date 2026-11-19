@@ -62,7 +62,6 @@ export async function fetchResponse(url, init) {
   }
 }
 
-// The npm point API 429s on bursts: one request in flight, spaced apart.
 let npmQueue = Promise.resolve();
 function npmFetch(url, init) {
   const request = npmQueue.then(async () => {

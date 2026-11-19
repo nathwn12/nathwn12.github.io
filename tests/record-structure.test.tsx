@@ -139,8 +139,6 @@ describe("the home page rewrites; the detail routes quote", () => {
 
   test("the old duplicated sentences are gone from the home page", () => {
     const home = homeSentences.join(" ");
-    // The six sentences that used to appear on both `/` and `/experience`, and
-    // the Puppet blurb that appeared on both `/` and `/projects`.
     for (const old of [
       "Migrated payment services from MySql.Data to MySqlConnector on AWS: worst-case query times fell from about 60 seconds to under one second.",
       "Cut payment API latency by 98% by moving from MySql.Data to MySqlConnector on AWS.",
@@ -189,14 +187,8 @@ describe("the rendered record", () => {
   });
 
   test("exactly one h1, and the identity is carried by the display block and the imprint", () => {
-    /* The display block is the identity, not a claim: two hand-set lines that
-       say who this is, on what platform, and since when. The record's figures
-       are the next band's job. The name still has to be present and findable —
-       it is the header mark's accessible name and the colophon's imprint, both
-       on every route. */
     const h1s = host.querySelectorAll("h1");
     expect(h1s).toHaveLength(1);
-    /* The lines are asserted as lines and then as the one statement. */
     const lines = [...h1s[0].querySelectorAll("[data-cover-line]")].map((node) =>
       (node.textContent ?? "").trim(),
     );
@@ -218,8 +210,6 @@ describe("the rendered record", () => {
   });
 
   test("the display clamp stops growing after the wide desktop frame", () => {
-    /* The title is set in hand-broken lines, so the fluid type must stop
-       scaling once the frame stops growing. */
     const h1 = host.querySelector("h1")!;
     const clamp = /clamp\(([^)]*)\)/.exec(h1.className);
     expect(clamp, "the h1 carries no display clamp").not.toBeNull();
@@ -238,8 +228,6 @@ describe("the rendered record", () => {
       expect(labelledBy, "a section has no accessible name").toBeTruthy();
       expect(host.querySelector(`#${labelledBy}`), labelledBy).not.toBeNull();
     }
-    // The eight bands of the record, in reading order: identity, the record, AI
-    // practice, public work, then the reference material and the way out.
     expect(sections.map((section) => section.id)).toEqual([
       "",
       "proof",
@@ -261,15 +249,10 @@ describe("the rendered record", () => {
       }
     }
     expect(host.querySelectorAll(".atlas__group")).toHaveLength(repos.length);
-    // No table, no per-package row: the band is a run per group.
     expect(host.querySelectorAll("table")).toHaveLength(0);
   });
 
   test("exactly 88 packages are rendered, one node each", () => {
-    /* The atlas is a compact band rather than an 88-row table, so "did the
-       compression drop anything" is the failure this guards: every package in
-       content/skills.ts is one rendered node carrying its own slug. A package
-       that disappears fails on the count AND on its missing slug. */
     const rendered = [...host.querySelectorAll("[data-package]")];
     expect(rendered).toHaveLength(88);
     expect(rendered).toHaveLength(
@@ -296,9 +279,6 @@ describe("the rendered record", () => {
   });
 
   test("each outcome is stated once per surface, and never invented", () => {
-    /* The record band states four outcomes, one figure each, in reading order.
-       The delivery figure appears there and nowhere else on the record now that
-       the marquee carries repository names instead of repeating the numbers. */
     const proof = host.querySelector("#proof")!;
     expect(
       [...proof.querySelectorAll("[data-figure]")].map((figure) =>
@@ -311,8 +291,6 @@ describe("the rendered record", () => {
 
     const outside = (host.textContent ?? "").replace(proofText, "");
     expect(outside.match(/1,182/g) ?? []).toHaveLength(0);
-    /* The ambient strip carries the names, so a reader meets the public work
-       twice — as rows and as evidence of how many rows there are. */
     expect(host.textContent).toContain("nathwn12/puppet");
   });
 
@@ -326,8 +304,6 @@ describe("the rendered record", () => {
     const phrases = new Set(
       actions.map((action) => (action.textContent ?? "").trim()),
     );
-    // The direct address is a mailto link too, but it is an address, not a
-    // phrase; every phrase-shaped action says the same thing.
     const phraseActions = [...phrases].filter(
       (phrase) => phrase && !phrase.includes("@"),
     );

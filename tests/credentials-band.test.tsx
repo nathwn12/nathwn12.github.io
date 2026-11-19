@@ -77,8 +77,6 @@ describe("the verification links are one column", () => {
     await mount();
     expect(links()).toHaveLength(credentials.length);
     for (const link of links()) {
-      /* One word, so no row's label can wrap and no row can grow taller than
-         its siblings. */
       expect(link.textContent?.trim()).toBe("Verify");
     }
   });
@@ -91,9 +89,7 @@ describe("the verification links are one column", () => {
       expect(name, `link ${index} has no accessible name`).toBe(
         `Verify ${cert.title} at ${cert.issuer}`,
       );
-      /* WCAG 2.5.3: the visible label is contained in the accessible name. */
       expect(name!.startsWith(link.textContent!.trim())).toBe(true);
-      /* And it still opens the issuer's page in a new tab, without a handle. */
       expect(link.getAttribute("href")).toBe(cert.url);
       expect(link.getAttribute("target")).toBe("_blank");
       expect(link.getAttribute("rel")).toBe("noopener noreferrer");
@@ -103,17 +99,12 @@ describe("the verification links are one column", () => {
   test("no link is pushed off the column's left edge", async () => {
     await mount();
     for (const row of rows()) {
-      /* The column is one content-sized track and the link starts in it. A
-         right-aligned link is the defect: its left edge is then whatever its
-         label's width leaves, which is two left edges in four rows. */
       expect(row.className).toContain("md:grid-cols-[minmax(0,1fr)_max-content]");
       expect(row.className).not.toContain("11rem");
     }
     for (const link of links()) {
       expect(link.className).toContain("md:justify-self-start");
       expect(link.className).not.toContain("justify-self-end");
-      /* Belt to that brace: a nowrap label cannot wrap even if a track is
-         narrower than its text. */
       expect(link.className).toContain("whitespace-nowrap");
     }
   });

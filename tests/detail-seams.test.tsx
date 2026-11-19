@@ -64,7 +64,6 @@ describe("detail-route seams", () => {
 
     const strip = seam!.nextElementSibling;
     expect(strip, "nothing follows the seam").not.toBeNull();
-    // One rule: the drawn seam above, the strip's own closing rule below.
     expect(classes(strip)).not.toContain("border-y");
     expect(classes(strip)).toContain("border-b");
   });
@@ -72,7 +71,6 @@ describe("detail-route seams", () => {
   test("/projects: the table's own top rule is the seam", async () => {
     await render(createElement(Projects));
 
-    // No drawn seam on this route: the first row's border-t closes the band.
     expect(host.querySelector(".rule")).toBeNull();
 
     const list = host.querySelector("ol");

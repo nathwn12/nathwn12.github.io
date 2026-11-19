@@ -67,7 +67,6 @@ describe("every live route is a real page with its own head", () => {
     (routePath, route) => {
       const html = distHtml(routePath);
 
-      // A real SPA entry, not an empty placeholder.
       expect(html).toContain('id="root"');
       expect(html).toMatch(/<script type="module"/);
 
@@ -116,7 +115,6 @@ describe("retired paths are redirect stubs", () => {
       expect(existsSync(file), `${routePath} has no emitted file`).toBe(true);
 
       const html = readFileSync(file, "utf8");
-      // A redirect, not a second copy of the record.
       expect(html).toMatch(
         new RegExp(
           `<meta http-equiv="refresh" content="0; url=${route.target.replace(
@@ -129,7 +127,6 @@ describe("retired paths are redirect stubs", () => {
       expect(metaName(html, "robots")).toBe("noindex, follow");
       expect(html).not.toContain('id="root"');
       expect(html).not.toMatch(/<script type="module"/);
-      // A visible way out for anything that ignores the refresh.
       expect(html).toContain(`href="${route.target}"`);
     },
   );
@@ -162,12 +159,9 @@ describe("llms.txt", () => {
   const llms = read("public/llms.txt");
 
   test("states the confirmed availability string byte-identically", () => {
-    // Case-insensitive, so the shipped capitalised line is actually matched.
     expect(llms).toMatch(/Open to software engineering roles \u2014 remote\./i);
     expect(llms).toMatch(/\bremote\b/i);
-    // The plain-hyphen form is retired; this guard can fire on it.
     expect(llms).not.toMatch(/Open to software engineering roles\s*-\s*remote/i);
-    // The old unresolved phrasing is retired.
     expect(llms).not.toMatch(/open to work/i);
   });
 
@@ -294,8 +288,6 @@ describe("the build ships the documents and the fallback", () => {
 
 describe("prerender route containment", () => {
   test("refuses the percent-encoded parent segment URL resolution would decode", () => {
-    /* `new URL("/%2e%2e/outside/", dist)` percent-DECODES to ../outside and
-       escapes dist/. The guard must refuse the encoded form before resolving. */
     expect(() => routeFileFor(distDir, "/%2e%2e/outside")).toThrow(
       /unsafe segment: \/%2e%2e\/outside/,
     );

@@ -57,8 +57,6 @@ describe("one fill, one marker", () => {
   });
 
   test("no entry draws its own connector any more", () => {
-    /* The nine connectors were the festival: each entry animated itself in.
-       One fill replaces all of them. */
     expect(host.querySelectorAll("[data-timeline-connector]")).toHaveLength(0);
   });
 
@@ -67,9 +65,6 @@ describe("one fill, one marker", () => {
     expect(markers).toHaveLength(1);
     expect(markers[0].className).toContain("sticky");
     expect(markers[0].textContent?.trim()).toMatch(/^\d{4}$/);
-    /* It names one of the dated records' years — never an invented one. The
-       entry it names is derived from live layout, which jsdom does not lay out;
-       the derivation itself is pinned in tests/project-readout.test.tsx. */
     const years = experience.map((entry) => entry.date.match(/\d{4}/)![0]);
     expect(years).toContain(markers[0].textContent?.trim());
   });
@@ -83,15 +78,11 @@ describe("no per-entry entrance", () => {
     for (const entry of entries) {
       const heading = entry.querySelector<HTMLElement>("[data-timeline-heading]");
       expect(heading, "an entry lost its outcome heading").not.toBeNull();
-      /* A split heading is a line-masked reveal; a transform is a start state.
-         Neither belongs on a row in this band. */
       expect(heading!.getAttribute("style") ?? "").not.toContain("transform");
       expect(heading!.querySelectorAll(".rec-line")).toHaveLength(0);
 
       const figure = entry.querySelector<HTMLElement>("[data-timeline-figure]");
       if (figure) {
-        /* The delivered value is in the DOM at first paint — nothing is counted
-           up from zero and no start state is left on it. */
         expect(figure.textContent?.trim()).not.toBe("");
         expect(figure.getAttribute("style") ?? "").not.toContain("opacity");
       }

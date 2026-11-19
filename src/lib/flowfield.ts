@@ -133,8 +133,6 @@ export function stepField(field: Field, input: FieldInput): void {
       const dy = particle.y - pointer.y;
       const distanceSq = dx * dx + dy * dy;
       if (distanceSq < REACH_SQ) {
-        /* Tangential, falling off to nothing at the rim: the current curls
-           around the hand instead of piling onto it. */
         const falloff = 1 - distanceSq / REACH_SQ;
         const distance = Math.sqrt(distanceSq) || 1;
         vx += (-dy / distance) * falloff * 3.4;

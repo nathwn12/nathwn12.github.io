@@ -105,9 +105,6 @@ export interface ProjectLore {
   stats: { label: string; value: string; accent: Token }[];
 }
 
-// Own work first, forks last, and within each group the harness and desktop
-// tools before the media work. The order is editorial; the membership is the
-// probe's. No star counts, because the signal is what each one does.
 export const projects: ProjectLore[] = [
   {
     id: "15",
@@ -456,11 +453,6 @@ export const metaRepos: MetaRepo[] = [
   },
 ];
 
-/* Archived, private and retired repositories are NOT listed here. The list is
- * exactly what the live account publishes: public, non-archived. A repository
- * that goes private or gets archived disappears from this page on the next
- * probe, because `scripts/probe-repos.mjs --check` fails on the difference.
- * History is not current work, and a dead link on a portfolio is a lie. */
 
 /** Route lede: selection criteria (public repos under the owner) and reading
     order (featured first). Never restates the title, and counts the projects
@@ -482,9 +474,6 @@ export const projectsMarginalia = "Built and maintained solo";
 /** Landing link to the route page: the count in words. */
 export const allProjectsLabel = `All ${countWords(projects.length)} projects`;
 
-/* Dormant zod models wired in: the real data is validated against
-   ProjectSchema at module load. No colour is projected — the schema no longer
-   demands one and no route paints a per-project hue. */
 const projectsProjection = projects.map((project) => ({
   id: project.id,
   name: project.name,

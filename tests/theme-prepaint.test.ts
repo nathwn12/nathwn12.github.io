@@ -3,11 +3,6 @@ import { resolve } from "node:path";
 import { JSDOM } from "jsdom";
 import { describe, expect, test } from "vitest";
 
-// The FIRST inline `<script>` in index.html runs before first paint and seeds
-// `data-theme` and `data-motion` on <html>. Its failure modes are a flash of the
-// wrong ground and a flash of motion, so it is pinned here by executing the real
-// script body against a controlled jsdom global rather than by asserting on its
-// text.
 const root = resolve(import.meta.dirname, "..");
 const HTML = readFileSync(resolve(root, "index.html"), "utf8");
 
@@ -54,8 +49,6 @@ function runPrepaint(
     },
   });
 
-  /* No matchMedia at all is the harshest environment: the script must still
-     land on its defaults without asking the OS anything. */
   Object.defineProperty(window, "matchMedia", {
     configurable: true,
     value:
@@ -127,9 +120,6 @@ describe("pre-paint theme script", () => {
   });
 
   test("a storage exception still writes the attribute (its own try/catch)", () => {
-    /* Load-bearing: localStorage.getItem throwing must not leave the page
-       without `data-theme`, because the first frame would then paint the dark
-       ground for a visitor who pinned Paper. */
     expect(runPrepaint(script, "throw", false).theme).toBe("dark");
     expect(runPrepaint(script, "throw", true).theme).toBe("light");
   });

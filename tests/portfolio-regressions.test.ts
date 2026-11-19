@@ -14,7 +14,6 @@ describe("portfolio regressions", () => {
   });
 
   test("programmatically focused main landmark does not paint a chrome outline", () => {
-    // The rule lives in src/styles/base.css; the barrel only imports the layer.
     expect(SHIPPED_CSS).toMatch(/#main:focus\s*\{[\s\S]*?outline:\s*none/);
   });
 });

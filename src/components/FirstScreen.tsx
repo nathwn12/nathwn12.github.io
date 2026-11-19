@@ -64,8 +64,6 @@ export function FirstScreen() {
         0,
       );
 
-      /* 60 ms apart, after the second line has started to land: the copy reads
-         as following the identity rather than racing it. */
       sequence.from(
         fades,
         {
@@ -96,8 +94,6 @@ export function FirstScreen() {
           {IDENTITY_LINES.map((line) => (
             <span
               key={line}
-              /* The hand-broken lines share the frame's left edge; their width
-                 follows the copy, not a decorative offset. */
               className="block overflow-hidden pb-[0.04em]"
             >
               <span data-cover-line className="block">

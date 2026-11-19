@@ -180,13 +180,8 @@ try {
 
   const template = await readFile(indexHtml, "utf8");
 
-  /* Every live route gets a page whose head is its own. `/` is dist/index.html
-     itself; the rest are written from the same template. */
   for (const route of ROUTES) {
     const canonical = canonicalFor(route.path);
-    /* Social titles mirror the document title exactly: same casing, same
-       separator. A label-prefixed social title drifts from the page a share
-       actually lands on. */
     const ogTitle = route.title;
     const html = withRouteHead(template, route, { ogTitle, canonical });
 
@@ -196,7 +191,6 @@ try {
     console.log(`OK: wrote dist${route.path === "/" ? "" : route.path}/index.html`);
   }
 
-  /* Retired URLs: 200 with a meta refresh, a canonical and noindex. */
   for (const route of RETIRED_ROUTES) {
     const file = routeFileFor(distDir, route.path);
     await mkdir(path.dirname(file), { recursive: true });
@@ -204,8 +198,6 @@ try {
     console.log(`OK: wrote redirect stub dist${route.path}/index.html`);
   }
 
-  /* The 404 body: the app shell (so the SPA still renders the not-found page)
-     with noindex, and no canonical claiming it is the home page. */
   const notFound = setMetaProperty(
     setMetaProperty(
       setMetaName(

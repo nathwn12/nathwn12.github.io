@@ -61,9 +61,6 @@ describe("a retired path canonicalizes into the record", () => {
   );
 
   test("every retired anchor names a band the record actually renders", () => {
-    /* The stub sends the visitor to `/#atlas`, `/#contact` or `/#credentials`;
-       a band that no longer exists would scroll nowhere. The record's own
-       component list is the authority on which bands exist. */
     const record = readFileSync(
       resolve(root, "src", "components", "Record.tsx"),
       "utf8",

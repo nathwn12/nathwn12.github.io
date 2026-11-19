@@ -59,8 +59,6 @@ afterEach(async () => {
 });
 
 describe("activeIndexAt reads the row at the reading line", () => {
-  /* Twelve rows, each 200px tall, starting at the reading line's own height:
-     the fixture is a list that has been scrolled into view. */
   const tops = Array.from({ length: 12 }, (_, index) => index * 200 - 400);
 
   test("a row is active from its own top until the next row's", () => {
@@ -103,8 +101,6 @@ describe("the readout names the active project", () => {
     );
     expect(fork, "no fork in the inventory").toBeDefined();
 
-    /* The readout is one panel showing whichever project is active; the fork
-       row's own wording is what it has to be able to state. */
     await mount(createElement(ProjectReadout, { projects: [fork!] }));
     const text = host.querySelector("[data-project-readout]")!.textContent ?? "";
     expect(text).toContain("fork of");
@@ -119,9 +115,6 @@ describe("the projects band carries no per-row entrance", () => {
     expect(rows).toHaveLength(projects.length);
 
     for (const row of rows) {
-      /* An entrance animation is a start state: opacity below 1, or a translate
-         that only a scroll trigger lifts. Neither may exist on a row — the band
-         is one scrubbed readout, not thirteen little reveals. */
       expect(row.className).not.toMatch(/\bopacity-0\b/);
       expect(row.className).not.toMatch(/\btranslate-y-/);
       expect(row.getAttribute("style") ?? "").not.toContain("opacity");

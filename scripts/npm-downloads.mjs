@@ -110,8 +110,6 @@ export async function fetchPackageDownloads(name, through, fetcher = fetch) {
 }
 
 export function snapshotDate(now = new Date()) {
-  // npm publishes daily aggregates after UTC midnight; keep a three-day
-  // settlement buffer so the public total does not count a still-moving day.
   return addDays(isoDate(now), -3);
 }
 

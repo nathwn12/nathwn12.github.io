@@ -74,16 +74,10 @@ export default function App() {
   const { route } = useRoute();
   const firstRender = useRef(true);
 
-  /* Per-route document.title + meta. */
   useEffect(() => {
     applyRouteMeta(route);
   }, [route]);
 
-  /* A route change starts at the top, and focus moves to the new page so a
-     keyboard or screen-reader visitor is not left on the old page's link.
-     Skipped on the FIRST render: focusing main on load would place the tab
-     order after the skip link and the header nav, so a keyboard visitor could
-     never reach them with Tab. */
   useEffect(() => {
     if (firstRender.current) {
       firstRender.current = false;

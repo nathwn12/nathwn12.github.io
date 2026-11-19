@@ -77,17 +77,12 @@ describe("router", () => {
   });
 
   it("resolves a single trailing slash to its route, not the 404", () => {
-    /* GitHub Pages serves dist/experience/index.html for /experience/ and may
-       redirect /experience to it, so the browser can report a trailing slash
-       the route table never stores. Matching must normalise it. */
     expect(normalizePath("/experience/")).toBe("/experience");
     expect(routeByPath("/experience/")?.id).toBe("experience");
     expect(resolveRoute("/experience/").id).toBe("experience");
     expect(resolveRoute("/experience/").path).toBe("/experience");
 
-    // Root keeps its single slash; query strings still come off first.
     expect(normalizePath("/")).toBe("/");
-    // A retired path normalizes to the home record, not to a 404.
     expect(normalizePath("/skills/?tab=all")).toBe("/skills");
     expect(routeByPath("/skills/")?.path).toBe("/");
   });
@@ -114,7 +109,6 @@ describe("router", () => {
   });
 
   it("a 404 keeps the static noindex, drops the canonical, and is reversible", () => {
-    // Seed the head the way the static document has it.
     applyRouteMeta(routeByPath("/")!);
     applyRouteMeta(resolveRoute("/definitely-not-a-route"));
 

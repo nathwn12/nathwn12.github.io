@@ -23,7 +23,6 @@ export function Header() {
   const toggleRef = useRef<HTMLButtonElement>(null);
   const navRef = useRef<HTMLElement>(null);
 
-  /* A route change closes the panel; the new page is what the visitor asked for. */
   useEffect(() => {
     setOpen(false);
   }, [route.path]);
@@ -36,9 +35,6 @@ export function Header() {
     const links = () =>
       Array.from(nav?.querySelectorAll<HTMLElement>("a[href]") ?? []);
 
-    /* Scroll lock: the page behind the panel stays where it is. Lenis is only
-       stopped when it exists and motion is on — otherwise the native scroll is
-       the scroller and `overflow: hidden` is the whole lock. */
     const lenis = motionAllowed() ? getLenis() : null;
     lenis?.stop();
     const previousOverflow = document.body.style.overflow;

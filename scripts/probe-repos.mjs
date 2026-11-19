@@ -70,8 +70,6 @@ function measure() {
     .filter(isPublishedRepo)
     .sort((a, b) => a.name.localeCompare(b.name));
 
-  // `gh repo list` reports `isFork` but leaves `parent` null, so a fork's
-  // upstream is one extra read per fork rather than a guess kept in a table.
   const repos = live.map((repo) => {
     let parent = null;
     if (repo.isFork) {
@@ -80,8 +78,6 @@ function measure() {
     }
     return {
       name: repo.name,
-      // The flags the row was filtered by describe what the record already is;
-      // they let a reader prove it rather than trust the filename.
       isArchived: repo.isArchived,
       visibility: repo.visibility,
       isFork: repo.isFork,
@@ -148,8 +144,6 @@ function check() {
 
   const content = readFileSync(CONTENT, "utf8");
   const omitted = omittedDirs(content);
-  // A declared omission is coverage, not a card: the repo is published but the
-  // content file accounts for it deliberately, with its reason in projects.ts.
   const dirs = contentDirs(content).concat(omitted);
   const published = live.repos.map((repo) => repo.name);
   const covered = diff("content", "account", dirs, published);
@@ -167,8 +161,6 @@ function check() {
   );
 }
 
-// Importing this module for `isPublishedRepo` must not run a measurement or
-// overwrite the record; only the direct CLI invocation may do that.
 const isMain =
   Boolean(process.argv[1]) &&
   import.meta.url === pathToFileURL(resolve(process.argv[1])).href;

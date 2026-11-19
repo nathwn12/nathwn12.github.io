@@ -1,17 +1,3 @@
-/* =========================================================================
-   THE STYLESHEET — one barrel, seven layers, order fixed.
-
-   1. tailwindcss   the utility engine and its reset
-   2. fonts.css     the three families, self-hosted latin slices
-   3. tokens.css    the only source of colour, type, space and motion values
-   4. base.css      ground, ink, focus, rules, the data utility, the kill switch
-   5. chrome.css    the instruments: grain, reticle, curtain, rail, close
-   6. legacy.css    the not-yet-rewritten sections, on the new palette
-   7. open-source-stats.css   the static measurement band, on the same tokens
-
-   Nothing is defined here. A layer that needs a value reads a token; a layer
-   that needs a new value adds one to tokens.css.
-   ========================================================================= */
 
 @import "tailwindcss";
 @import "./styles/fonts.css";

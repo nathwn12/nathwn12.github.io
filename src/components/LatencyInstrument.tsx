@@ -128,14 +128,8 @@ export function LatencyInstrument() {
       context.clearRect(0, 0, width, height);
       context.lineWidth = 1;
       context.strokeStyle = grid;
-      /* The gridlines cross the label rows as well as the bars — that is what
-         makes two lengths readable against one scale — so they are drawn at 45%
-         of the strong rule. At full strength the line lands across a repo name
-         and reads as a strikethrough. */
       context.globalAlpha = 0.45;
       for (const tick of TICKS) {
-        /* Half-pixel offset so a 1px line lands on a device pixel, not across
-           two of them. */
         const x = Math.round(axisPosition(tick) * width) + 0.5;
         context.beginPath();
         context.moveTo(x, 0);
@@ -194,7 +188,6 @@ export function LatencyInstrument() {
 
   useGSAP(
     () => {
-      /* No motion, no trigger, no zero: the markup is already the final frame. */
       if (!motionAllowed()) return;
 
       const beforeBar = beforeBarRef.current;
@@ -202,8 +195,6 @@ export function LatencyInstrument() {
       const reductionValue = reductionValueRef.current;
       if (!beforeBar || !afterBar) return;
 
-      /* The trigger is the cover, not the instrument: the measurement is driven
-         by how far the hero has travelled through the viewport. */
       const hero =
         beforeBar.closest<HTMLElement>("[data-band=cover]") ?? beforeBar;
 
@@ -214,13 +205,9 @@ export function LatencyInstrument() {
 
         beforeBar.style.width = `${axisPosition(before) * 100}%`;
         afterBar.style.width = `${axisPosition(after) * 100}%`;
-        /* The printed values are the facts and never move; only the derived
-           reduction scrubs, and at rest it is a dash rather than a zero. */
         if (reductionValue) {
           reductionValue.textContent = t > 0 ? `−${reduction}%` : "—";
         }
-        /* The playhead marks where the plot has reached; at rest and at the end
-           of the range the drawing is the bars alone. */
         playheadRef.current?.(
           t > 0 && t < 1 ? axisPosition(before) : null,
         );
@@ -228,17 +215,10 @@ export function LatencyInstrument() {
 
       const proxy = { t: 0 };
 
-      /* The panel is the sticky column the instrument lives in (FirstScreen):
-         it holds under the bar for the length of the scrub, so the bars travel
-         while the instrument is fully on screen instead of while it leaves. */
       const panel = rootRef.current?.closest<HTMLElement>(
         "[data-instrument-panel]",
       );
 
-      /* No sticky hold, no scrub. Below the two-column cover the panel is the
-         last thing in a one-column stack, so a scroll-driven range would spend
-         its travel below the fold — the very defect this replaced. The markup
-         already carries the final frame, so the measurement is simply stated. */
       if (!panel || getComputedStyle(panel).position !== "sticky") return;
 
       /** How far the scrub runs, in px: 85% of the panel's sticky travel, so
@@ -264,12 +244,9 @@ export function LatencyInstrument() {
           end: () => `+=${scrubDistance()}`,
           scrub: true,
           invalidateOnRefresh: true,
-          /* No pin and no pinSpacing: the panel is held by CSS sticky, so the
-             cover keeps its own height and the LCP element is never trapped. */
         },
       });
 
-      /* Land on the frame the scroll position actually implies before paint. */
       apply(tween.scrollTrigger?.progress ?? 0);
 
       const onMotionChange = () => {
@@ -295,10 +272,6 @@ export function LatencyInstrument() {
   );
 
   return (
-    /* No border and no fill: the instrument is a region of the record, held by
-       two hairlines that end on the frame's right edge, not a card laid on top
-       of it. The top rule is the stronger of the two because it is the edge the
-       column starts at. */
     <div
       ref={rootRef}
       data-instrument

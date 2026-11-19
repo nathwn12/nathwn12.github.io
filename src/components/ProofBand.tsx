@@ -77,10 +77,6 @@ export function ProofBand() {
     };
 
     const proxy = { t: 0 };
-    /* Count once, on entry, and never rewind. A figure that changes because the
-       reader scrolled is a figure that can read wrong: the owner saw "87
-       commits" mid-scrub and it is not a measurement any more. It runs to its
-       delivered value, then holds it for the rest of the visit. */
     const tween = gsap.to(proxy, {
       t: 1,
       duration: 1.1,

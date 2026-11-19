@@ -100,9 +100,6 @@ describe("one timeline, four values", () => {
   });
 
   test("with motion off every figure is already the delivered value", async () => {
-    /* jsdom has no matchMedia, which is the module's own definition of "cannot
-       tell" — it answers "reduce". So this is the still page: no tween, no
-       zero, the delivered figures from first paint. */
     await mount();
     const figures = [...host.querySelectorAll("[data-figure]")].map((node) =>
       node.textContent?.trim(),

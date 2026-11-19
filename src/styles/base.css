@@ -1,31 +1,15 @@
-/* =========================================================================
-   BASE — the reset-adjacent floor: ground, ink, selection, focus, rules.
-
-   Nothing here decides a layout. It decides what the page is made of: a
-   near-black ground, bone ink, one hairline at one weight, one focus ring, and
-   one place where a scrollbar is drawn. Radius is 0 everywhere — this is an
-   instrument, not a card.
-   ========================================================================= */
 
 *,
 *::before,
 *::after {
-  /* One radius, and it is zero. Named through the token so a component cannot
-     quietly soften an edge and start a second visual language. */
   border-radius: var(--rec-radius);
 }
 
 html {
   height: 100%;
-  /* The gutter is always reserved, so a route that grows past the viewport and
-     one that does not cannot shift the frame sideways when they swap. */
   scrollbar-gutter: stable;
   -webkit-tap-highlight-color: transparent;
   scroll-behavior: smooth;
-  /* Every scroll-into-view — a band link, a heading hash, focus moving into
-     main — lands clear of the sticky header and its 1px rule. It lives on the
-     scrolling root so a heading target gets the same clearance as a band, and
-     so padding and margin can never stack into a double offset. */
   scroll-padding-top: calc(var(--rec-header-h, 4.5rem) + var(--rec-space-3));
 }
 
@@ -46,24 +30,16 @@ body {
   color: var(--rec-ink);
 }
 
-/* The one focus ring, site-wide: 2px signal at a 3px offset, never removed. On
-   a field the ring switches to the field's own ink so it stays visible. */
 :focus-visible {
   outline: 2px solid var(--rec-signal);
   outline-offset: 3px;
   border-radius: 0;
 }
 
-/* The main landmark receives focus programmatically on every route change
-   (App.tsx) so keyboard and screen-reader visitors start at the new page. That
-   focus is a destination, not an affordance: it must not paint a ring, which
-   would read as "a giant control is focused". Every real control keeps the
-   global :focus-visible ring. */
 #main:focus {
   outline: none;
 }
 
-/* --- SCROLLBAR — drawn as a hairline on the ground, never as a chrome pill - */
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--rec-rule-strong) var(--rec-ground);
@@ -84,9 +60,6 @@ body {
   background: var(--rec-ground);
 }
 
-/* =========================================================================
-   FRAME — one container, one pair of gutters, at every width.
-   ========================================================================= */
 .frame {
   width: 100%;
   max-width: var(--rec-frame);
@@ -99,10 +72,6 @@ body {
   }
 }
 
-/* =========================================================================
-   RULES — hairline structure only where structure is real: a panel edge, a
-   table row, a section seam. Never under a heading as decoration.
-   ========================================================================= */
 .rule {
   display: block;
   flex: none;
@@ -125,17 +94,10 @@ body {
   background: var(--rec-signal);
 }
 
-/* The draw-in primitive: `revealRule()` in src/lib/motion.ts animates scaleX
-   from 0 to 1 against this origin. The hidden state is set by the script, not
-   by this rule, so a page whose JS never arrives still paints every rule. */
 .rule--draw {
   transform-origin: left center;
 }
 
-/* =========================================================================
-   DATA — the mono utility. True data only: numerals, units, repo names,
-   timestamps, keycaps. An eyebrow over a heading is not data.
-   ========================================================================= */
 .data {
   font-family: var(--font-mono);
   font-size: var(--rec-text-data);
@@ -151,16 +113,6 @@ body {
   font-size: var(--rec-text-data-lg);
 }
 
-/* =========================================================================
-   MOTION — the global kill switch.
-
-   Two ways in, one result: the OS preference, and the footer's Motion switch
-   (`data-motion="off"` on <html>). Both collapse every transition and animation
-   to effectively zero, so a script that animates still lands on its final state
-   in one frame. Components are expected to read the same preference through
-   `prefersReducedMotion()` / `readMotionEnabled()` and skip the tween; this is
-   the belt to that pair of braces.
-   ========================================================================= */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

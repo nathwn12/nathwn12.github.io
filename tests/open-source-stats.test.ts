@@ -58,8 +58,3 @@ describe("the open-source measurement contract", () => {
     expect(githubSnapshotAgeDays(stats, new Date("2026-01-01T00:00:00Z"))).toBeNull();
   });
 });
-
-// The deliberately time-dependent alarm lives in tests/freshness-alarm.test.ts.
-// It is excluded only from the refresh job's pre-measure gate, never from the
-// full `bun run check` that PR CI runs.
-

@@ -1,40 +1,3 @@
-/* =========================================================================
-   TOKENS — the single source of truth for colour, type, space and motion.
-
-   Two themes, one mechanism: `<html data-theme="light|dark">`, written before
-   first paint from the OS preference and persisted under `nnl-theme`. There is
-   no `prefers-color-scheme` block in CSS — the attribute is the only switch, so
-   a stored choice and a system choice can never disagree on the page.
-
-   Dark is "Recorder": a high-gain instrument in a dark room. Structure is the
-   brand cyan; every measured value is Forge Amber, so the numbers are the
-   loudest thing on the page and the one warm object in a cold room.
-
-   Light is "Paper": the same instrument printed — a neutral drafting paper,
-   not cream, and not the dark ramp reversed. Its structure is electric blue,
-   its measured values ochre, and its alarm a deep red. The two accents are a
-   hundred degrees of hue apart in both themes, so a warning never reads as a
-   measurement; chroma is spent on small areas (a figure, a rule, a link) and
-   the ground stays quiet.
-
-   ROLES (never use a hex outside this file)
-     ground    the panel's base plate
-     panel     a raised surface: a pinned stage, an inset readout
-     panel-2   the step above panel: hover, one inset row
-     rule      hairline structure: table rows, panel edges, section seams
-     rule-strong  an active edge: the current tab's rule, a focus ground
-     ink       primary text
-     ink-muted secondary text only — never body
-     signal    structural accent: links, focus, active rules, marks
-     measure   measured values ONLY: numerals, the live readout
-     alarm     exactly one use: the "before" bar and the retired project
-     on-signal the label on a filled signal surface
-
-   Contrast is measured, not assumed — `scripts/contrast-audit.mjs` (wired into
-   `bun run check`) and tests/contrast.test.ts compute every required pair from
-   these values, in both themes. The light block is the dark one overridden role
-   by role, never a partial patch.
-   ========================================================================= */
 
 :root {
   color-scheme: dark;
@@ -46,43 +9,28 @@
   --rec-rule-strong: #39424a;
   --rec-ink: #f2f6f8;
   --rec-ink-muted: #8e9ba3;
-  /* Structure stays cyan and stays cool; the measurement is the one warm
-     object, so `measure` is the loudest thing on the page by hue, not by
-     brightness. */
   --rec-signal: #4dd4e8;
   --rec-measure: #f5a524;
   --rec-alarm: #ff5d5d;
   --rec-on-signal: #04070a;
 
-  /* Selection is the signal at a wash, so it reads as a mark on the page
-     rather than a second accent. */
   --rec-selection: color-mix(in srgb, var(--rec-signal) 22%, transparent);
 
-  /* Display: Instrument Serif. Hero and section claims only. */
   --rec-text-display: clamp(3.5rem, 13vw, 15rem);
   --rec-leading-display: 0.86;
   --rec-tracking-display: -0.02em;
-  /* A section claim: the same face, sized to a column rather than a viewport. */
   --rec-text-claim: clamp(1.75rem, 1rem + 3.2vw, 4rem);
   --rec-leading-claim: 0.94;
   --rec-tracking-claim: -0.018em;
-  /* A title inside a band or a detail page. */
   --rec-text-title: clamp(1.375rem, 1.1rem + 0.9vw, 1.875rem);
   --rec-leading-title: 1.12;
 
-  /* Text: Archivo. Running copy at 17px, one measure. */
   --rec-text-body: 1.0625rem;
   --rec-leading-body: 1.6;
   --rec-text-lead: clamp(1.0625rem, 1rem + 0.4vw, 1.3125rem);
   --rec-leading-lead: 1.45;
-  /* 56ch of Archivo is ~70 average characters per line: `ch` is the advance of
-     "0", which is wider than the lowercase the measure actually carries, so the
-     old 62ch landed at ~84 characters and read as a magazine column. Every
-     prose block asks for this token, never a literal. */
   --rec-prose-measure: 56ch;
 
-  /* Data: JetBrains Mono, 11–13px, tracked open. Numbers, units, repo names,
-     timestamps, keycaps — true data only, never an eyebrow over a heading. */
   --rec-text-data: 0.75rem;
   --rec-text-data-sm: 0.6875rem;
   --rec-text-data-lg: 0.8125rem;
@@ -100,35 +48,23 @@
   --rec-space-9: 6rem;
   --rec-space-10: 8rem;
 
-  /* The frame: one container, 20px gutters on a phone and 48px on a desktop. */
   --rec-frame: 82rem;
   --rec-gutter: 1.25rem;
   --rec-gutter-lg: 3rem;
   --rec-band: 4rem;
   --rec-band-lg: 7rem;
 
-  /* The seamed bands' rhythm: the most air a band may leave between its own
-     content and the seam that closes it. One step, and the same step at every
-     seam, so the record reads as one measured column instead of a stack of
-     slides with gaps between them. (--rec-band is the section-banded pages'
-     air and is deliberately larger; the home record does not use it.) The
-     record is a few scrolls, not a festival: 24px between bands, 20px at a
-     phone width, and every band inherits it from here. */
   --rec-rhythm: var(--rec-space-5);
   --rec-rhythm-lg: var(--rec-space-5);
 
   --rec-rule-w: 1px;
-  /* The sticky bar's own height: the scroll offset in base.css is derived from
-     it, so growing the bar cannot push a jumped-to heading under it. */
   --rec-header-h: 4.5rem;
-  /* Radius is 0 everywhere. Named so a component cannot invent a value. */
   --rec-radius: 0;
 
   --rec-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --rec-dur-quick: 140ms;
   --rec-dur-base: 280ms;
 
-  /* --- LAYERS — content, then chrome, then the instruments --------------- */
   --rec-z-header: 50;
   --rec-z-grain: 60;
   --rec-z-reticle: 70;
@@ -136,13 +72,6 @@
   --rec-z-skip: 100;
 }
 
-/* =========================================================================
-   COLOUR — LIGHT, "Paper"
-
-   A cool drafting paper: neutral, faintly green-grey, so the same instrument
-   reads as a printed plot. Every colour role is overridden here; the type,
-   space, structure and motion tokens above are shared and stay untouched.
-   ========================================================================= */
 [data-theme="light"] {
   color-scheme: light;
 
@@ -153,25 +82,12 @@
   --rec-rule-strong: #9aa09a;
   --rec-ink: #0d1013;
   --rec-ink-muted: #4a5257;
-  /* Electric blue for structure, ochre for measurement: the dark theme's cyan
-     is a highlight on a black ground and a smudge on paper, so paper gets its
-     own pair at the same hue separation rather than a dimmed copy. */
   --rec-signal: #1b2ed1;
   --rec-measure: #9a4708;
   --rec-alarm: #c81e1e;
   --rec-on-signal: #f7f8f4;
 }
 
-/* =========================================================================
-   TAILWIND THEME — the same values, exposed to the utility layer.
-
-   `static` is deliberate: plain CSS in `legacy.css` reads `var(--color-bg)`
-   and friends directly, so every one of these has to be emitted whether or not
-   a utility class happens to use it. Each legacy name aliases a `--rec-*`
-   token, so the sections that have not been rewritten yet adopt the new palette
-   immediately and stay legible, and a later rewrite can drop the alias without
-   touching a hex.
-   ========================================================================= */
 @theme static {
   --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
   --font-sans: "Archivo", "Inter", "Inter Fallback", Arial, system-ui,
@@ -179,7 +95,6 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
     monospace;
 
-  /* --- LEGACY COLOUR NAMES -------------------------------------------- */
   --color-bg: var(--rec-ground);
   --color-text: var(--rec-ink);
   --color-text-muted: var(--rec-ink-muted);
@@ -189,9 +104,6 @@
   --color-surface-2: var(--rec-panel-2);
   --color-selection: var(--rec-selection);
 
-  /* Whole-section fields. There is one palette now, so a field is a step in
-     the panel rather than a second colour system: panel-2 for the inset band,
-     panel for the recessed one, with ink and muted ink on both. */
   --color-field-accent: var(--rec-panel-2);
   --color-field-accent-text: var(--rec-ink);
   --color-field-accent-muted: var(--rec-ink-muted);
@@ -199,9 +111,6 @@
   --color-field-strong-text: var(--rec-ink);
   --color-field-strong-muted: var(--rec-ink-muted);
 
-  /* --- LEGACY TYPE STEPS ---------------------------------------------- */
-  /* The five working steps the unrewritten sections ask for by name, mapped
-     onto the recorder scale so nothing renders at an off-scale size. */
   --text-legal: var(--rec-text-data-sm);
   --text-legal--line-height: var(--rec-leading-data);
   --text-meta: var(--rec-text-data-lg);
@@ -219,7 +128,6 @@
   --text-figure: clamp(2.25rem, 1.2rem + 3.4vw, 4.25rem);
   --text-figure--line-height: 0.85;
 
-  /* --- LEGACY SPACE + MOTION ------------------------------------------ */
   --spacing-gutter: var(--rec-gutter);
   --spacing-gutter-lg: var(--rec-gutter-lg);
   --spacing-band: var(--rec-band);

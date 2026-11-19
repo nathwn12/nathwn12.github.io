@@ -162,7 +162,6 @@ describe.each([
     expectPair(downloadsIn(host), route);
     expect(downloadsIn(host), `${route} repeats a document`).toHaveLength(2);
 
-    // The contact band exists only on the record, and carries no downloads.
     const contact = host.querySelector("#contact");
     if (route === "/") {
       expect(contact, "the record has no contact band").not.toBeNull();

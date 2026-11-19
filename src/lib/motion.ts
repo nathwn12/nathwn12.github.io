@@ -80,7 +80,6 @@ export function watchMotionPreference(): () => void {
     media.addEventListener("change", onChange);
     return () => media.removeEventListener("change", onChange);
   } catch {
-    /* No media query support — the state cannot change. */
     return () => {};
   }
 }
@@ -117,8 +116,6 @@ export function revealLines(
 ): MotionHandle {
   if (!el) return NOOP_HANDLE;
   if (!motionAllowed()) {
-    /* Final state, instantly: the element is already plain text, so there is
-       nothing to undo — only nothing to animate. */
     return NOOP_HANDLE;
   }
 
@@ -142,7 +139,6 @@ export function revealLines(
       },
     });
   } catch {
-    /* A browser that cannot split still gets its text: leave the element be. */
     return NOOP_HANDLE;
   }
 

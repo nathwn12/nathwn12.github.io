@@ -57,9 +57,6 @@ describe("JSON-LD Person", () => {
   });
 
   test("states the confirmed availability as a Demand, without commercial stock vocabulary", () => {
-    /* `InStock` is stock availability for goods, not a person's availability
-       for work. It must never appear on this node again, and the description is
-       the confirmed remote sentence verbatim (em dash included). */
     expect(person?.seeks).toMatchObject({ "@type": "Demand" });
     expect(person?.seeks).not.toHaveProperty("availability");
     const seeks = person?.seeks as { description?: string };
@@ -67,9 +64,6 @@ describe("JSON-LD Person", () => {
   });
 
   test("does not claim current employment at the closed company", () => {
-    /* schema.org `worksFor` means the organization the person works for NOW.
-       Xentra closed in May 2026, so any worksFor node would assert present
-       employment at a defunct company. The true history lives in prose. */
     expect(person).not.toHaveProperty("worksFor");
 
     const description = String(person?.description);
@@ -78,7 +72,6 @@ describe("JSON-LD Person", () => {
     );
     expect(description).toContain("closed in May 2026");
 
-    // Occupation only — no employer is attached to it.
     expect(person?.hasOccupation).toEqual({
       "@type": "Occupation",
       name: "Backend Developer",
@@ -146,8 +139,6 @@ describe("canonical and Open Graph URLs", () => {
   });
 
   test("the structured-data image and the Open Graph image are one card", () => {
-    /* A link preview and a rich result must not advertise two different
-       pictures; the dated file is the only social card emitted now. */
     const ogImage = html.match(
       /<meta property="og:image" content="([^"]+)"/,
     )?.[1];

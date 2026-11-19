@@ -80,17 +80,14 @@ interface Pair {
 }
 
 const PAIRS: Pair[] = [
-  // The ground: running copy, secondary notes, links, measured numerals.
   { role: "body text on the ground", fg: "ink", bg: "ground", min: 7 },
   { role: "muted notes on the ground", fg: "ink-muted", bg: "ground", min: 4.5 },
   { role: "signal link on the ground", fg: "signal", bg: "ground", min: 4.5 },
   { role: "measured numerals on the ground", fg: "measure", bg: "ground", min: 4.5 },
   { role: "the alarm date on the ground", fg: "alarm", bg: "ground", min: 4.5 },
 
-  // The cover's filled action: the label on the signal fill.
   { role: "the action label on the signal fill", fg: "on-signal", bg: "signal", min: 4.5 },
 
-  // Inset surfaces: the instrument panel and a hovered row.
   { role: "body text on the instrument panel", fg: "ink", bg: "panel", min: 7 },
   { role: "muted notes on the instrument panel", fg: "ink-muted", bg: "panel", min: 4.5 },
   { role: "the reduction readout on the panel", fg: "measure", bg: "panel", min: 4.5 },
@@ -109,8 +106,6 @@ describe("both palettes are present and complete", () => {
   });
 
   test("the light palette overrides every colour role, not a subset", () => {
-    // A light block that leaves a role behind paints a dark ground's token on
-    // paper: the roles below are the whole colour surface of the site.
     for (const role of [
       "ground",
       "panel",
@@ -132,8 +127,6 @@ describe("both palettes are present and complete", () => {
   });
 
   test("the two themes are not one ramp reversed", () => {
-    // The brief's line: the light accent is deeper and less chromatic than the
-    // dark one, and its muted ink is not a mirror of the dark muted ink.
     expect(LIGHT_OVERRIDE["--rec-signal"]).not.toBe(DARK["--rec-signal"]);
     expect(LIGHT_OVERRIDE["--rec-ground"]).not.toBe(DARK["--rec-ground"]);
   });
@@ -175,8 +168,6 @@ describe.each(THEMES)("%s: every painted pair clears its floor", (_theme, tokens
   });
 
   test("reports the rules against the ground without a threshold", () => {
-    // Reported, not judged: a rule under 1.3 is invisible, over 4 is a wall.
-    // Pinned as a range so a rule that vanishes from the stylesheet still fails.
     for (const rule of ["rule", "rule-strong"]) {
       const ratio = contrast(tok(rule), tok("ground"));
       expect(ratio, `${rule} on ground = ${ratio.toFixed(2)}:1`).toBeGreaterThan(1.05);
@@ -197,10 +188,6 @@ describe("the tokens are the ones the stylesheet defines", () => {
   });
 
   test("no component hard-codes a colour literal", () => {
-    // The token block owns every colour; a hex in a component is a second
-    // palette that this test cannot see — and it would not follow the theme.
-    // The list is every component that paints, not a sample: a new file that
-    // types its own colour has to fail here rather than be forgotten.
     const components = [
       "src/components/AiPractice.tsx",
       "src/components/AtlasBand.tsx",
@@ -235,9 +222,6 @@ describe("the tokens are the ones the stylesheet defines", () => {
   });
 
   test("the stylesheet layers carry no colour literal outside the token block", () => {
-    // tokens.css is the one file allowed to name a colour. A hex in base,
-    // chrome or legacy is the same second palette as a hex in a component, and
-    // it is the harder one to find because nothing imports it by name.
     for (const file of [
       "src/styles/base.css",
       "src/styles/chrome.css",

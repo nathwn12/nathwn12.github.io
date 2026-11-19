@@ -99,7 +99,6 @@ describe("mailto is the primary action", () => {
     expect(href.startsWith(`mailto:${CONTACT_EMAIL}?`)).toBe(true);
     expect(href).toContain("subject=Portfolio%20enquiry");
     expect(href).toContain("body=");
-    // The draft starts the message the visitor would otherwise have to write.
     expect(decodeURIComponent(href)).toContain("Hi Nathaniel,");
   });
 
@@ -116,8 +115,6 @@ describe("mailto is the primary action", () => {
   });
 
   test("does not repeat the footer's ways out", async () => {
-    /* GitHub, LinkedIn and the two documents are the footer's. Repeating them
-       here put the same three exits in one viewport twice. */
     await mount();
     expect(host.textContent).not.toMatch(/GitHub|LinkedIn/);
     expect(host.querySelectorAll("a[download]")).toHaveLength(0);
@@ -146,10 +143,6 @@ describe("the band does not repeat the documents", () => {
   });
 
   test("the availability line is not repeated in the closing band", async () => {
-    /* It is stated once, where a reader meets it, at the top of the record.
-       A second copy here made the closing viewport say the same sentence
-       twice, so the band must not carry it at all - not as its last paragraph,
-       not as a suffix, not in the markup. */
     await mount();
     expect(host.textContent).not.toContain(AVAILABILITY);
     expect(host.textContent).not.toMatch(/Open to software engineering roles/i);

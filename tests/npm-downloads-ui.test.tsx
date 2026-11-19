@@ -27,8 +27,6 @@ afterEach(async () => {
 describe("npm downloads readout", () => {
   test("defines the all-time period, source, snapshot date, and complete package set", () => {
     const section = host.querySelector<HTMLElement>("[data-npm-downloads]");
-    // The component must report the validator's verdict, not a fixed word:
-    // a stale snapshot renders "stale" here without failing this UI contract.
     expect(section?.dataset.freshness).toBe(
       downloadSnapshotFreshness(snapshot, new Date(), packageNames).status,
     );

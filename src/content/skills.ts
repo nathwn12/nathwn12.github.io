@@ -210,8 +210,6 @@ export function groupSizeNote(count: number): string {
   return `${countWords(count)} packages`;
 }
 
-/* Dormant zod models wired in: validate a domain projection (tier → level,
-   mirroring the historical 90/80/70 skill-bar legend) at module load. */
 const TIER_LEVEL: Record<Tier, number> = {
   DAILY: 95,
   PROD: 85,

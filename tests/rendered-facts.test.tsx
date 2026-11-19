@@ -84,8 +84,6 @@ describe("the availability sentence reaches the screen", () => {
       "the availability line is not rendered on the first screen",
     ).toBeDefined();
 
-    /* The closing band used to repeat the sentence; the record now states it
-       once, where a reader meets it, and a second copy fails here. */
     const contact = record.querySelector("#contact");
     expect(contact, "the contact band is not rendered").not.toBeNull();
     expect(contact!.textContent).not.toContain(AVAILABILITY);
@@ -115,8 +113,6 @@ describe("the proof figures reach the screen", () => {
     expect(proof, "the proof band is not rendered").not.toBeNull();
 
     const text = proof!.textContent ?? "";
-    /* The band's job is the measurements. The closure and the scan that
-       produced the ledger are the experience route's to state, once. */
     expect(text).not.toContain("scanned");
     expect(text).not.toContain("May 2026");
     expect(text.match(/1,182/g) ?? []).toHaveLength(1);
@@ -132,8 +128,6 @@ describe("the proof figures reach the screen", () => {
     const outside = (record.textContent ?? "").replace(proofText, "");
     expect(outside.match(/1,182/g) ?? []).toHaveLength(0);
 
-    /* The ambient strip is the repository names now, not a second copy of the
-       figures the band above already counted. */
     expect(record.textContent).toContain("nathwn12/puppet");
   });
 
@@ -150,8 +144,6 @@ describe("the proof figures reach the screen", () => {
     expect(text).toContain(
       "Reduced worst-case payment-query time from about 60 seconds to under one second.",
     );
-    /* The number belongs to the ledger readout and to the provenance sentence
-       that says where it came from — not to a third restatement in the entry. */
     expect(text.match(/1,182/g) ?? []).toHaveLength(2);
   });
 });

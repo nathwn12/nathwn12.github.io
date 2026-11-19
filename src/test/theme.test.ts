@@ -141,9 +141,6 @@ describe("two themes, one switch", () => {
   });
 
   it("paints the browser chrome from the resolved ground, not a second palette", () => {
-    /* `theme-color` cannot read a custom property, so the meta is written from
-       the ground the page resolved. Pinned through the cascade: the token is
-       the only place the colour is named, and the meta follows it. */
     const meta = document.createElement("meta");
     meta.setAttribute("name", "theme-color");
     meta.setAttribute("content", "#000000");
@@ -166,9 +163,6 @@ describe("two themes, one switch", () => {
   });
 
   it("keeps the type scale the plan fixes", () => {
-    /* Display, text and data roles, each a distinct token so a section cannot
-       invent its own size. The hero clamp, leading and tracking are the plan's
-       numbers and are asserted as such. */
     expect(TOKENS).toMatch(
       /--rec-text-display:\s*clamp\(3\.5rem,\s*13vw,\s*15rem\)/,
     );
@@ -204,8 +198,6 @@ describe("legacy aliases — the sections nobody has rewritten yet", () => {
   });
 
   it("states no raw hex in the legacy layer", () => {
-    /* A literal here would be a second palette: every legacy name must resolve
-       through a `--rec-*` value so one edit moves the whole page. */
     expect(hexTokens(legacy, "--color-")).toEqual({});
   });
 });
@@ -299,8 +291,6 @@ describe("motion state — reduce only, no switch", () => {
   });
 
   it("has no motion switch left to persist", () => {
-    // The footer control is gone: motion is a consequence of the OS preference,
-    // so there is no key and no second state to disagree with it.
     expect(read("src/styles/chrome.css")).not.toContain("motion-toggle");
     expect(read("src/components/Footer.tsx")).not.toContain("MotionToggle");
     expect(existsSync(resolve(root, "src/components/MotionToggle.tsx"))).toBe(
@@ -320,7 +310,6 @@ describe("motion state — reduce only, no switch", () => {
   });
 
   it("writes data-motion from the OS preference, never from storage", () => {
-    // jsdom has no matchMedia: the honest state is "off".
     applyStoredMotion();
     expect(document.documentElement.dataset.motion).toBe("off");
 

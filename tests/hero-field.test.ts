@@ -40,8 +40,6 @@ describe("createField", () => {
       expect(particle.y).toBeLessThanOrEqual(900);
       expect([0, 1]).toContain(particle.band);
     }
-    // Both accents are present, so the field is the palette's two signals and
-    // not one hue with a stray.
     const bands = new Set(field.particles.map((particle) => particle.band));
     expect(bands.size).toBe(2);
   });
@@ -88,9 +86,6 @@ describe("stepField", () => {
       );
     };
     expect(drift(bent)).not.toBe(drift(still));
-    // The particles on the far side are untouched by the pointer. Compared by
-    // index, and away from the wrap edge, so a particle that left the box is
-    // not mistaken for a difference.
     const far = still.particles
       .map((particle, index) => ({ index, x: particle.x }))
       .filter((entry) => entry.x > 700 && entry.x < 860)
@@ -126,10 +121,8 @@ describe("the frame budget", () => {
       const current = TIERS[index];
       expect(current.count).toBeLessThanOrEqual(previous.count);
       expect(current.dpr).toBeLessThanOrEqual(previous.dpr);
-      // A tier must save something: no rung is a relabelled copy of its parent.
       expect(current).not.toEqual(previous);
     }
-    // Particles are shed before the buffer is: the first drop keeps DPR 2.
     expect(TIERS[1].dpr).toBe(2);
     expect(TIERS[1].count).toBeLessThan(TIERS[0].count);
   });
@@ -158,8 +151,6 @@ describe("the frame budget", () => {
     let index = 2;
     let sinceSwitch = 0;
     for (let window = 0; window < 200; window += 1) {
-      /* Alternating 10 ms and 30 ms windows — exactly the pattern that makes a
-         naive controller switch every time. */
       const frameMs = window % 2 === 0 ? 10 : 30;
       const next = nextTier(index, frameMs, sinceSwitch);
       if (next !== index) {
@@ -168,8 +159,6 @@ describe("the frame budget", () => {
       }
       sinceSwitch += 500;
     }
-    // It settles at the cheapest tier and never climbs back out of it, because
-    // every promotion is immediately followed by a 30 ms window.
     expect(index).toBe(TIERS.length - 1);
   });
 });

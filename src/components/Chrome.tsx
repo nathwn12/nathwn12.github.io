@@ -17,10 +17,6 @@ export function Chrome() {
   useSmoothScroll();
 
   useEffect(() => {
-    /* index.html's pre-paint script already wrote `data-motion` before first
-       paint; this reconciles the attribute with the OS preference for a
-       restored page, and keeps it truthful if that preference changes while
-       the document is open. It never writes a preference. */
     applyStoredMotion();
     return watchMotionPreference();
   }, []);

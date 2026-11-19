@@ -111,11 +111,9 @@ describe("the record's route merge", () => {
       expect(browser.replaceCalls).toEqual(["/"]);
       expect(browser.location.pathname).toBe("/");
       expect(router.routeByPath(pathname)?.path).toBe("/");
-      // The band the retired page's content moved into.
       expect(router.legacyAnchorFor(pathname)).toBe(
         pathname.startsWith("/skills") ? "atlas" : "contact",
       );
-      // The handoff is consumed exactly once, by the home page's mount.
       expect(router.consumeSectionScroll()).toBe(
         pathname.startsWith("/skills") ? "atlas" : "contact",
       );
@@ -132,7 +130,6 @@ describe("the record's route merge", () => {
       "/projects",
     ]);
     expect(router.ROUTES).toHaveLength(3);
-    // The retired destinations are not routes any more.
     for (const retired of ["/skills", "/contact", "/about"]) {
       expect(router.ROUTES.map((route) => route.path)).not.toContain(retired);
     }
@@ -149,8 +146,6 @@ describe("the record's route merge", () => {
   });
 
   test("boots a trailing-slash deep link onto its route, not the 404", async () => {
-    // GitHub Pages answers /experience/ from dist/experience/index.html and
-    // may redirect /experience to it, so this is the URL a visitor can land on.
     const { browser, router } = await loadRouter("/experience/");
 
     expect(browser.location.pathname).toBe("/experience/");
@@ -175,7 +170,6 @@ describe("the record's route merge", () => {
   test("resolves unknown paths to the 404 route while keeping the requested path", async () => {
     const { router } = await loadRouter("/definitely-not-a-page");
 
-    // routeByPath stays strict — navigate() keeps no-opping on unknown paths.
     expect(router.routeByPath("/definitely-not-a-page")).toBeUndefined();
 
     const resolved = router.resolveRoute("/definitely-not-a-page");
@@ -183,7 +177,6 @@ describe("the record's route merge", () => {
     expect(resolved.path).toBe("/definitely-not-a-page");
     expect(resolved.title).toContain("Not found");
 
-    // Known paths still resolve to themselves via the same helper.
     expect(router.resolveRoute("/projects").id).toBe("projects");
     expect(readRouteState(router)).toMatchObject({
       path: "/definitely-not-a-page",
@@ -202,8 +195,6 @@ describe("the record's route merge", () => {
     expect(browser.replaceCalls).toEqual(["/"]);
     expect(browser.pushCalls).toEqual(["/"]);
     expect(browser.location.pathname).toBe("/");
-    // navigate() always adds a forward history entry: the browser's own
-    // back/forward buttons are what move the other way.
     expect(readRouteState(router)).toMatchObject({
       path: "/",
       direction: "forward",

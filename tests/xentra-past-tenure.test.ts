@@ -49,7 +49,6 @@ describe("Xentra is stated as past employment", () => {
     expect(formerRoleLine).toBe(
       "Formerly a Backend Developer at Xentra Infotech Solutions Inc.",
     );
-    // The home page's contract line IS that constant — one source, no copy.
     expect(contractLine).toBe(formerRoleLine);
   });
 
@@ -60,7 +59,6 @@ describe("Xentra is stated as past employment", () => {
         source.includes("formerRoleLine") || source.includes("contractLine"),
         rel,
       ).toBe(true);
-      // No surface may compose a bare present-tense "role at company" line.
       expect(source, rel).not.toMatch(/employer\.role\}\s*(?:at\b|,)/);
     }
   });
@@ -94,7 +92,6 @@ describe("the record renders the role in the past", () => {
     (
       globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
     ).IS_REACT_ACT_ENVIRONMENT = true;
-    // jsdom has no IntersectionObserver; the reveal wrapper degrades to visible.
     vi.stubGlobal(
       "IntersectionObserver",
       class {
@@ -128,25 +125,19 @@ describe("the record renders the role in the past", () => {
   test("the first screen states the former employment", async () => {
     await mount(FirstScreen);
     const text = host.textContent ?? "";
-    /* The cover names the company once, inside the standfirst, and states the
-       employment as a closed span that ends in May 2026 — the past framing is
-       carried by the date and the count of names, not by a role line. */
     expect(text.match(/Xentra Infotech Solutions/g) ?? []).toHaveLength(1);
     expect(text).toContain(tenureSpan);
     expect(tenureSpan).toContain("May 2026");
-    // The old present-tense composition never reaches the page.
     expect(text).not.toContain("Backend Developer, Xentra");
   });
 
   test("the experience route states the end month without inventing a milestone", async () => {
     await mount(Experience);
     const text = host.textContent ?? "";
-    // The continuous tenure and the dated record are stated as two facts.
     expect(text).toContain("March 2023 – May 2026");
     expect(text).toContain(
       "The latest is June 2024 – May 2026; the tenure ran to May 2026.",
     );
-    // The prior role period remains independently visible.
     expect(text).toContain("June 2023 – May 2024");
   });
 });

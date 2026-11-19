@@ -154,8 +154,6 @@ describe("the card file", () => {
 
   test("is drawn from the actual dark, measure and signal tokens", async () => {
     const file = resolve(root, "public", CARD_FILE);
-    /* Solid fills, sampled away from type: the ground, the structural rule,
-       the 60-second track, and the 1/60 measured sliver. */
     expect(await pixel(file, 10, 10)).toEqual(DARK.bg);
     expect(await pixel(file, 100, 65)).toEqual(DARK.text);
     expect(await pixel(file, 600, 455)).toEqual(DARK.surface2);
