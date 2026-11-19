@@ -1,70 +1,66 @@
 {
   "source": "npm download-count API and GitHub GraphQL, measured by scripts/open-source-stats.mjs",
-  "generatedAt": "2026-11-18T20:40:42.552Z",
-  "snapshotDate": "2026-11-15",
-  "npmMonth": 22106,
-  "npmAllTime": 33951,
+  "generatedAt": "2026-11-19T15:30:23.828Z",
+  "snapshotDate": "2026-11-16",
+  "npmMonth": 22219,
+  "npmAllTime": 34168,
   "packages": [
     {
       "name": "puppet-mcp",
-      "month": 3697,
-      "allTime": 4261
+      "month": 3701,
+      "allTime": 4293
     },
     {
       "name": "gladius-mcp",
-      "month": 2569,
-      "allTime": 3196
+      "month": 2574,
+      "allTime": 3206
     },
     {
       "name": "@nathwn12/janua",
-      "month": 2657,
-      "allTime": 2632
+      "month": 2663,
+      "allTime": 2652
     },
     {
       "name": "@nathwn12/oc-bifrost",
-      "month": 1781,
-      "allTime": 5949
+      "month": 1802,
+      "allTime": 5954
     },
     {
       "name": "oc-flight-deck",
-      "month": 3525,
-      "allTime": 8722
+      "month": 3561,
+      "allTime": 8810
     },
     {
       "name": "oc-harness-setup",
-      "month": 1666,
-      "allTime": 2927
+      "month": 1668,
+      "allTime": 2930
     },
     {
       "name": "oc-plugin-view",
-      "month": 734,
-      "allTime": 721
+      "month": 738,
+      "allTime": 726
     },
     {
       "name": "oc-talk",
-      "month": 3690,
-      "allTime": 3469
+      "month": 3716,
+      "allTime": 3515
     },
     {
       "name": "rea-shim",
-      "month": 1787,
-      "allTime": 2074
+      "month": 1796,
+      "allTime": 2082
     }
   ],
   "github": {
-    "contributions": 6562,
-    "commits": 2569,
-    "pullRequests": 434,
+    "contributions": 6981,
+    "commits": 2864,
+    "pullRequests": 457,
     "calendarRange": [
       "2025-11-16",
-      "2026-11-18"
+      "2026-11-19"
     ]
   },
   "activity": [
-    {
-      "date": "2026-10-20",
-      "value": 263
-    },
     {
       "date": "2026-10-21",
       "value": 158
@@ -79,7 +75,7 @@
     },
     {
       "date": "2026-10-24",
-      "value": 14
+      "value": 16
     },
     {
       "date": "2026-10-25",
@@ -95,7 +91,7 @@
     },
     {
       "date": "2026-10-28",
-      "value": 45
+      "value": 52
     },
     {
       "date": "2026-10-29",
@@ -115,11 +111,11 @@
     },
     {
       "date": "2026-11-02",
-      "value": 217
+      "value": 223
     },
     {
       "date": "2026-11-03",
-      "value": 175
+      "value": 176
     },
     {
       "date": "2026-11-04",
@@ -155,11 +151,11 @@
     },
     {
       "date": "2026-11-12",
-      "value": 78
+      "value": 82
     },
     {
       "date": "2026-11-13",
-      "value": 360
+      "value": 394
     },
     {
       "date": "2026-11-14",
@@ -167,19 +163,23 @@
     },
     {
       "date": "2026-11-15",
-      "value": 4
+      "value": 3
     },
     {
       "date": "2026-11-16",
-      "value": 52
+      "value": 49
     },
     {
       "date": "2026-11-17",
-      "value": 280
+      "value": 279
     },
     {
       "date": "2026-11-18",
-      "value": 425
+      "value": 460
+    },
+    {
+      "date": "2026-11-19",
+      "value": 232
     }
   ]
 }
