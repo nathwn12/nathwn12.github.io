@@ -27,6 +27,7 @@ import { projects, projectsLede } from "../../content/projects";
 import { credentials } from "../../content/credentials";
 import { CONTACT_EMAIL } from "../../lib/contact";
 import { motionAllowed } from "../../lib/motion";
+import { scrollTo as scrollToTarget } from "../../lib/smooth";
 
 /** Retired detail paths land on the chapter that absorbed their content. */
 const ANCHOR_BY_PATH: Readonly<Record<string, string>> = {
@@ -104,6 +105,30 @@ export function ChapterStage() {
     return () => {
       activeObserver.disconnect();
       seenObserver.disconnect();
+    };
+  }, []);
+
+  // The browser fires its native hash jump before React has put the panels in
+  // the document, so a shared /#work link would open on the first chapter.
+  // Jump once after mount; this is an initial position, never an animation.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash.slice(1);
+    if (!(IDS as readonly string[]).includes(hash)) return;
+    const panel = document.getElementById(hash);
+    if (!panel) return;
+    let cancelled = false;
+    const jump = () => {
+      if (!cancelled) scrollToTarget(panel, { immediate: true });
+    };
+    const frame = window.requestAnimationFrame(jump);
+    // The serif and the mono face change the measure after they load. Settle
+    // the position once more so the linked chapter, not its old offset, is on
+    // screen.
+    void document.fonts?.ready.then(jump).catch(() => undefined);
+    return () => {
+      cancelled = true;
+      window.cancelAnimationFrame(frame);
     };
   }, []);
 

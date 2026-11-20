@@ -89,13 +89,25 @@
   letter-spacing: 0;
 }
 
-@media (max-width: 360px) {
+/* Five numbered labels must stay on one line at 390. The square, the gaps and
+   the type all step down together so the index never overprints itself. */
+@media (max-width: 520px) {
+  .stage-rail__inner {
+    padding-inline: var(--rec-space-3);
+  }
+  .stage-rail__list {
+    gap: 0;
+  }
   .stage-rail__link {
     gap: 0.25rem;
     font-size: var(--rec-text-data-sm);
   }
+  .stage-rail__link::before {
+    width: 0.25rem;
+    height: 0.25rem;
+  }
   .stage-rail__label {
-    font-size: var(--rec-text-data-sm);
+    font-size: 0.625rem;
   }
 }
 
@@ -188,7 +200,7 @@
   max-width: var(--rec-prose-measure);
 }
 .stage-panel {
-  padding-block: var(--rec-space-9) var(--rec-space-9);
+  padding-block: var(--rec-space-8) var(--rec-space-8);
   border-top: var(--rec-rule-w) solid var(--rec-rule);
   scroll-margin-top: calc(var(--rec-header-h) + var(--rec-space-4));
 }
@@ -200,7 +212,7 @@
 }
 @media (min-width: 1200px) {
   .stage-panel {
-    padding-block: var(--rec-space-9) calc(var(--rec-space-9) * 1.5);
+    padding-block: var(--rec-space-8) var(--rec-space-9);
   }
 }
 
@@ -220,7 +232,8 @@
 }
 .stage-kicker::after {
   content: "";
-  flex: 1;
+  flex: 0 1 8rem;
+  min-width: 2rem;
   height: var(--rec-rule-w);
   background: var(--rec-rule);
 }
@@ -269,7 +282,7 @@
   font-family: var(--font-voice);
   font-style: italic;
   font-weight: 400;
-  font-size: clamp(1.25rem, 1rem + 1.1vw, 1.75rem);
+  font-size: clamp(1.125rem, 1rem + 0.7vw, 1.5rem);
   line-height: 1.4;
   color: var(--rec-ink);
   max-width: 46ch;
