@@ -191,7 +191,7 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
       depth: false,
       stencil: false,
       powerPreference: "high-performance",
-      preserveDrawingBuffer: true,
+      preserveDrawingBuffer: false,
     }) as WebGLRenderingContext | null;
   } catch {
     gl = null;
@@ -241,11 +241,42 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
   let flash = 0;
   let lastNow = 0;
 
+  // Canvas size is measured on mount and on resize only. The draw loop never
+  // reads clientWidth or clientHeight, so scrolling cannot force layout.
+  let cssWidth = 1;
+  let cssHeight = 1;
+  const measureCanvas = () => {
+    cssWidth = Math.max(1, canvas.clientWidth);
+    cssHeight = Math.max(1, canvas.clientHeight);
+  };
+  measureCanvas();
+  let resizeObserver: ResizeObserver | null = null;
+  if (typeof ResizeObserver !== "undefined") {
+    resizeObserver = new ResizeObserver(() => {
+      measureCanvas();
+      resize();
+    });
+    resizeObserver.observe(canvas);
+  }
+
+  // Adaptive quality changes only the field's resolution, never its shape.
+  // It starts at the device pixel ratio and steps down when the measured frame
+  // time cannot hold, then steps back up with hysteresis.
+  let quality = 1;
+  let ema = 16;
+  let slowFrames = 0;
+  let fastFrames = 0;
+  const qualityState = { scale: 1, ema: 16 };
+  const publishQuality = () => {
+    const target = window as Window & { __stageQuality?: typeof qualityState };
+    target.__stageQuality = qualityState;
+  };
+  publishQuality();
+
   const resize = () => {
-    // The backing store uses the device pixel ratio as the device reports it.
-    const scale = Math.max(1, window.devicePixelRatio || 1);
-    const width = Math.max(1, Math.round(canvas.clientWidth * scale));
-    const height = Math.max(1, Math.round(canvas.clientHeight * scale));
+    const dpr = Math.max(1, window.devicePixelRatio || 1);
+    const width = Math.max(1, Math.round(cssWidth * dpr * quality));
+    const height = Math.max(1, Math.round(cssHeight * dpr * quality));
     if (canvas.width !== width || canvas.height !== height) {
       canvas.width = width;
       canvas.height = height;
@@ -257,6 +288,24 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
     if (disposed || !visible || !onScreen) return;
     const elapsed = lastNow ? Math.min(64, now - lastNow) : 16;
     lastNow = now;
+    ema = ema * 0.9 + elapsed * 0.1;
+    if (ema > 22) {
+      fastFrames = 0;
+      slowFrames += 1;
+      if (slowFrames > 45 && quality > 0.5) {
+        quality = Math.max(0.5, quality - 0.15);
+        slowFrames = 0;
+      }
+    } else if (ema < 15) {
+      slowFrames = 0;
+      fastFrames += 1;
+      if (fastFrames > 180 && quality < 1) {
+        quality = Math.min(1, quality + 0.1);
+        fastFrames = 0;
+      }
+    }
+    qualityState.scale = Number(quality.toFixed(2));
+    qualityState.ema = Number(ema.toFixed(1));
     const nextTheme = document.documentElement.dataset.theme ?? "dark";
     if (nextTheme !== theme) {
       theme = nextTheme;
@@ -319,6 +368,7 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
       pause();
       document.removeEventListener("visibilitychange", onVisibility);
       observer?.disconnect();
+      resizeObserver?.disconnect();
       context.deleteBuffer(buffer);
       context.deleteProgram(program);
       context.deleteShader(vert);
