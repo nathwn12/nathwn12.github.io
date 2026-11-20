@@ -142,6 +142,11 @@ float plane(vec2 uv, float scale, float density, float drift, float soft) {
   return core * twinkle * (0.35 + 0.65 * hash21(id + 4.3));
 }
 
+// Hard inner edge, short bright core, controlled outer falloff.
+float ringLine(float x) {
+  return smoothstep(0.0, 0.0018, x) * (1.0 - smoothstep(0.0018, 0.0065, x));
+}
+
 vec3 aces(vec3 x) {
   return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0);
 }
@@ -168,13 +173,22 @@ void main() {
   float s0 = plane(uCenter + src, 16.0, 0.72, prog * 0.055, 0.000) * 0.55;
   float s1 = plane(uCenter + src, 31.0, 0.82, prog * 0.130 + 4.0, 0.008) * 0.42;
   float s2 = plane(uCenter + src * 0.72 + dir * 0.03, 53.0, 0.88, prog * 0.210 + 9.0, 0.018) * 0.30;
-  float star = s0 + s1 + s2;
+  // Smear the far field along the tangential direction at the lensing radius.
+  vec2 tang = vec2(-dir.y, dir.x);
+  float arcZone = exp(-abs(r - R * 1.22) * (6.0 / R));
+  vec2 smear = tang * R * 0.020 * arcZone;
+  float s3 = plane(uCenter + src + smear, 22.0, 0.76, prog * 0.090 + 2.0, 0.009) * 0.34;
+  float star = s0 + s1 + s2 + s3;
   vec3 starTint = mix(vec3(0.92, 0.96, 0.94), vec3(0.18, 0.24, 0.21), uTheme);
   vec3 light = star * starTint * mix(1.65, 1.10, uTheme);
 
   // Lensed background light forms its own faint ring. It is never accent-tinted.
   float einstein = exp(-abs(r - R * 1.13) * (95.0 / R) * 0.12) * (0.16 + 0.26 * near);
   light += starTint * einstein;
+  float ang = atan(dir.y, dir.x);
+  float arcNoise = vnoise(vec2(ang * 2.5 + t * 0.02, 3.7));
+  float arcs = smoothstep(0.52, 0.82, arcNoise) * exp(-abs(r - R * 1.20) * (12.0 / R)) * near;
+  light += starTint * arcs * 0.42;
 
   // Thin inclined disc in the deflected source plane. The inclination makes the
   // band thin; the deflection makes its far side arc above and below the hole.
@@ -185,16 +199,21 @@ void main() {
   float rd = length(dp);
   float inner = R * 1.25;
   float outer = R * (2.60 + 0.06 * sin(prog * 0.8));
-  float band = smoothstep(inner, inner + R * 0.05, rd) *
-               (1.0 - smoothstep(outer - R * 0.18, outer, rd));
+  float outerFade = 1.0 - smoothstep(outer - R * 0.45, outer, rd);
+  float band = smoothstep(inner, inner + R * 0.05, rd) * outerFade;
 
-  // Polar filaments: shear the sample frame with Keplerian orbital time, so
-  // the inner gas winds faster than the outer gas. No single sine ring.
+  // Turbulent filaments. A domain warp bends the Keplerian shear into patches,
+  // so the gas never resolves into concentric contour hairlines.
   float orbit = t * 0.42 / pow(max(rd / R, 0.5), 1.5);
   float co = cos(orbit), so = sin(orbit);
   vec2 spun = mat2(co, so, -so, co) * dp;
-  float fil = fbm(spun * (9.0 / R) + vec2(2.3, 7.1));
-  float texture = 0.28 + 0.85 * fil * fil;
+  vec2 warp = vec2(
+    vnoise(spun * (2.2 / R) + vec2(5.2, 1.3)),
+    vnoise(spun * (2.2 / R) + vec2(9.7, 4.1))
+  ) - 0.5;
+  vec2 flow = spun + warp * R * 0.55;
+  float fil = fbm(flow * (9.0 / R) + vec2(2.3, 7.1));
+  float texture = (0.26 + 0.85 * fil * fil) * (0.35 + 0.65 * outerFade);
 
   // Relativistic beaming: a power curve on the line-of-sight velocity. The
   // approaching side is bright and cool; the receding side is dim and warm.
@@ -214,15 +233,13 @@ void main() {
   float tight = exp(-abs(rd - (inner + outer) * 0.5) * (9.0 / R)) * 0.09 * band;
   light += discColor * (disc + tight) * mix(1.0, 0.48, uTheme);
 
-  // Photon ring: one thin near-white circle with a slight channel split.
+  // Photon ring: a hard inner edge and a thin near-white core.
   float ringR = R * 1.05;
-  float pr = smoothstep(0.007, 0.0, abs(r - ringR - 0.0026));
-  float pg = smoothstep(0.007, 0.0, abs(r - ringR));
-  float pb = smoothstep(0.007, 0.0, abs(r - ringR + 0.0026));
-  vec3 split = vec3(pr, pg, pb);
-  vec3 ringLight = mix(vec3(dot(split, vec3(0.3333))), split, 0.30) * 1.85;
+  float dr = r - ringR;
+  vec3 split = vec3(ringLine(dr - 0.0020), ringLine(dr), ringLine(dr + 0.0020));
+  vec3 ringLight = mix(vec3(dot(split, vec3(0.3333))), split, 0.24) * 1.50;
   light += ringLight;
-  light += vec3(0.85, 0.92, 1.0) * exp(-abs(r - ringR) * (55.0 / R)) * 0.15;
+  light += vec3(0.90, 0.95, 1.0) * exp(-abs(dr) * (80.0 / R)) * 0.07;
 
   // Every bright edge feathers before the viewport boundary.
   vec2 edge = min(gl_FragCoord.xy, uRes - gl_FragCoord.xy) / min(uRes.x, uRes.y);
@@ -245,6 +262,14 @@ void main() {
   // The event horizon stays black in both skies.
   float horizon = 1.0 - smoothstep(R - 0.002, R + 0.001, r);
   col = mix(col, vec3(0.0), horizon);
+  // The near side passes in front of the lower face. It is drawn after the
+  // shadow so the lens has depth, not a flat hole cut out of a ribbon.
+  float nearLane = exp(-abs(d.y + R * 0.32) * (26.0 / R));
+  float nearSpan = (1.0 - smoothstep(R * 1.1, R * 2.7, abs(d.x)))
+                 * (1.0 - smoothstep(-R * 0.04, R * 0.14, d.y));
+  float nearTex = vnoise(vec2(d.x * (16.0 / R), d.y * (34.0 / R)) + vec2(t * 0.15, 0.0));
+  float nearCross = nearLane * nearSpan * (0.35 + 0.65 * nearTex) * feather;
+  col += discColor * nearCross * mix(0.30, 0.14, uTheme);
   col += uAccent * uFlash * 0.55 + vec3(uFlash * 0.22);
   col *= 1.0 - 0.28 * smoothstep(0.22, 0.80, length(uv));
   float grain = hash21(gl_FragCoord.xy + fract(t) * vec2(37.0, 17.0));

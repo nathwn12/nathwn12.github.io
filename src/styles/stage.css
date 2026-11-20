@@ -791,8 +791,12 @@ html {
   .stage-panel__content:not(.stage-panel__content--arrival):not(.stage-panel__content--contact) .stage-lead {
     height: auto;
   }
+  .stage-panel__content--arrival .singularity-slot { display: none; }
   .stage-panel__content--arrival .stage-facts {
-    grid-row: 3;
+    grid-row: 2;
+    align-self: center;
+    justify-self: start;
+    width: min(38rem, 50%);
   }
   .stage-data {
     padding-right: clamp(2rem, 3vw, 3.5rem);
