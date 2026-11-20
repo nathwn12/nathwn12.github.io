@@ -3,6 +3,8 @@
   color-scheme: dark;
 
   --rec-ground: #0a0d0b;
+  /* The event horizon's own ground: the void behind the field and its plate. */
+  --rec-void: #000000;
   --rec-panel: #111513;
   --rec-panel-2: #181d1a;
   --rec-rule: #242b28;
@@ -17,6 +19,9 @@
      one constant light ink rather than a theme-dependent one. */
   --rec-on-void: #f0f6f1;
   --rec-on-void-muted: #b9c8c0;
+  /* The hero's HUD sits on the dark field in dark mode and on paper in light. */
+  --rec-hero-ink: var(--rec-on-void);
+  --rec-hero-ink-muted: var(--rec-on-void-muted);
 
   --rec-selection: color-mix(in srgb, var(--rec-signal) 22%, transparent);
 
@@ -94,16 +99,18 @@
   --rec-on-signal: #f6f9f3;
   --rec-on-void: #f0f6f1;
   --rec-on-void-muted: #b9c8c0;
+  --rec-hero-ink: var(--rec-ink);
+  --rec-hero-ink-muted: var(--rec-ink-muted);
 }
 
 @theme static {
-  /* The field is an instrument, not a journal. One grotesk carries every
-     voice; weight and tracking do the work the old serif contrast did. */
-  --font-display: "Archivo", "Inter", Arial, system-ui, sans-serif;
-  --font-voice: "Archivo", "Inter", Arial, system-ui, sans-serif;
-  --font-sans: "Archivo", "Inter", "Inter Fallback", Arial, system-ui,
+  /* Cinematic editorial display, a reading serif, and an instrument mono.
+     Chosen from the ui-ux-pro-max typography search; no grotesk by habit. */
+  --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-voice: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --font-sans: "Source Serif 4", "Inter", "Inter Fallback", Arial, system-ui,
     sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
+  --font-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
     monospace;
 
   --color-bg: var(--rec-ground);
@@ -138,6 +145,9 @@
   --text-h1--line-height: 0.94;
   --text-figure: clamp(2.25rem, 1.2rem + 3.4vw, 4.25rem);
   --text-figure--line-height: 0.85;
+  --text-ledger-figure: clamp(2.75rem, 5vw, 5.5rem);
+  --text-ledger-statement: clamp(1.85rem, 3.4vw, 3.6rem);
+  --text-ledger-mail: clamp(1.25rem, 3.1vw, 3rem);
 
   --spacing-gutter: var(--rec-gutter);
   --spacing-gutter-lg: var(--rec-gutter-lg);
