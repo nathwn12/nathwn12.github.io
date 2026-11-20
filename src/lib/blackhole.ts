@@ -38,6 +38,7 @@ uniform float uTime;
 uniform float uProgress;
 uniform float uTheme;
 uniform vec3 uAccent;
+uniform vec3 uGround;
 uniform float uFlash;
 
 float hash21(vec2 p) {
@@ -71,16 +72,14 @@ void main() {
   float t = uTime;
   float prog = uProgress;
 
-  // Desktop puts the hole in the clear right third; portrait recentres it for
-  // its own composition instead of cropping the desktop frame.
-  float narrow = step(uRes.x, 500.0);
-  vec2 center = vec2(
-    mix(0.46, 0.0, narrow) + 0.02 * sin(prog * 0.85),
-    mix(0.02, -0.04, narrow) + 0.012 * cos(prog * 0.62)
-  );
+  // Fixed centre: the DOM figure must stay inside the horizon at every width,
+  // so the mass does not wander. Desktop uses the clear right third; portrait
+  // recentres for its own composition.
+  float narrow = step(uRes.x, 900.0);
+  vec2 center = vec2(mix(0.46, 0.0, narrow), mix(0.02, -0.04, narrow));
   vec2 d = uv - center;
   float r = length(d);
-  float R = mix(0.122, 0.17, narrow) + 0.010 * sin(prog * 1.05);
+  float R = mix(0.165, 0.21, narrow);
   vec2 dir = d / max(r, 0.0001);
 
   // Lensing: the primary ray bends outward, the secondary ray folds back and
@@ -95,18 +94,15 @@ void main() {
   float s3 = plane(echo,  19.0, 0.90, -prog * 0.070 + 13.0, 0.014) * 0.24;
   float star = s0 + s1 + s2 + s3;
 
-  // Two authored skies. Light is a bright field, not an inverted dark one.
-  vec3 sky = mix(vec3(0.012, 0.018, 0.018), vec3(0.885, 0.915, 0.880), uTheme);
   vec3 starTint = mix(vec3(0.90, 0.95, 0.93), vec3(0.16, 0.22, 0.19), uTheme);
-  vec3 col = sky + star * starTint * mix(1.55, 1.05, uTheme);
+  vec3 light = star * starTint * mix(1.55, 1.05, uTheme);
 
   // A slow, desaturated deep-field wash. It never competes with the disc.
   float neb = sin(uv.x * 3.2 + t * 0.03) * sin(uv.y * 2.6 - t * 0.02);
-  col += uAccent * (neb * 0.5 + 0.5) * 0.022 * (1.0 - uTheme);
+  light += uAccent * (neb * 0.5 + 0.5) * 0.022 * (1.0 - uTheme);
 
   // Gravitational shadow holds the readout legible in both skies.
   float shadow = 1.0 - smoothstep(R * 0.98, R * 2.45, r);
-  col = mix(col, vec3(0.0), shadow * mix(0.92, 0.97, uTheme));
 
   // Accretion disc: tilted ellipse, doppler beaming on the approaching side,
   // a soft volumetric bloom and a hotter inner rim that tends toward white.
@@ -123,27 +119,29 @@ void main() {
   float doppler = 0.45 + 0.95 * smoothstep(-1.0, 1.0, d.x / max(r, 0.0001));
   float disc = ring * (0.30 + 0.70 * swirl) * doppler;
   float bloom = exp(-abs(rd - (inner + outer) * 0.5) * 7.0) * 0.17;
-  float front = step(0.0, e.y);
-  col += uAccent * (disc * mix(0.75, 1.75, front) + bloom);
-  col += vec3(0.72, 0.86, 0.80) * ring *
-         (1.0 - smoothstep(inner, inner + R * 0.5, rd)) * 0.26 * front;
+  float front = smoothstep(-0.025, 0.025, e.y);
 
   // Photon ring, split per channel for chromatic aberration at the rim.
   float pr = smoothstep(0.013, 0.0, abs(r - R * 1.045 - 0.004));
   float pg = smoothstep(0.013, 0.0, abs(r - R * 1.045));
   float pb = smoothstep(0.013, 0.0, abs(r - R * 1.045 + 0.004));
-  col += vec3(pr, pg, pb) * uAccent * 1.40;
 
-  // The event horizon is black in both themes. Non-negotiable.
+  // Every bright edge feathers before the viewport boundary, so the disc never
+  // ends on a cut line at any aspect ratio.
+  vec2 edge = min(gl_FragCoord.xy, uRes - gl_FragCoord.xy) / min(uRes.x, uRes.y);
+  float feather = smoothstep(0.0, 0.07, edge.x) * smoothstep(0.0, 0.07, edge.y);
+  light += uAccent * (disc * mix(0.75, 1.75, front) + bloom) * feather;
+  light += vec3(0.72, 0.86, 0.80) * ring *
+           (1.0 - smoothstep(inner, inner + R * 0.5, rd)) * 0.26 * front * feather;
+  light += vec3(pr, pg, pb) * uAccent * 1.40 * feather;
+
+  // Tone-map the light, then lay it on the token sky. The sky itself is never
+  // tone-mapped, so the live field and the CSS still meet with one ground.
+  vec3 col = uGround * (1.0 - shadow * mix(0.92, 0.97, uTheme)) + aces(light * 1.08);
   float horizon = 1.0 - smoothstep(R - 0.003, R + 0.002, r);
   col = mix(col, vec3(0.0), horizon);
-
-  // Chapter flash: light bending through the lens on a click that has no view
-  // transition to carry it.
   col += uAccent * uFlash * 0.55 + vec3(uFlash * 0.22);
-
   col *= 1.0 - 0.28 * smoothstep(0.22, 0.80, length(uv));
-  col = aces(col * 1.08);
   float grain = hash21(gl_FragCoord.xy + fract(t) * vec2(37.0, 17.0));
   col += (grain - 0.5) * 0.022;
   gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
@@ -162,11 +160,11 @@ function compile(gl: WebGLRenderingContext, type: number, source: string): WebGL
   return shader;
 }
 
-/** `--rec-signal` as a vec3, read from the live palette. */
-function accentVector(): [number, number, number] {
+/** A CSS hex custom property as a vec3. */
+function tokenVector(name: string, fallback: [number, number, number]): [number, number, number] {
   try {
     const value = getComputedStyle(document.documentElement)
-      .getPropertyValue("--rec-signal")
+      .getPropertyValue(name)
       .trim();
     const hex = value.replace("#", "");
     if (/^[0-9a-f]{6}$/i.test(hex)) {
@@ -177,9 +175,9 @@ function accentVector(): [number, number, number] {
       ];
     }
   } catch {
-    /* a DOM without a palette keeps the last accent */
+    /* a DOM without a palette keeps the fallback */
   }
-  return [0.29, 0.89, 0.61];
+  return fallback;
 }
 
 export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
@@ -229,6 +227,7 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
   const uProgress = context.getUniformLocation(program, "uProgress");
   const uTheme = context.getUniformLocation(program, "uTheme");
   const uAccent = context.getUniformLocation(program, "uAccent");
+  const uGround = context.getUniformLocation(program, "uGround");
   const uFlash = context.getUniformLocation(program, "uFlash");
 
   let progress = 0;
@@ -236,7 +235,8 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
   let visible = document.visibilityState !== "hidden";
   let onScreen = true;
   let theme = "";
-  let accent = accentVector();
+  let accent = tokenVector("--rec-signal", [0.29, 0.89, 0.61]);
+  let ground = tokenVector("--rec-ground", [0.039, 0.051, 0.043]);
   let disposed = false;
   let flash = 0;
   let lastNow = 0;
@@ -326,7 +326,8 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
     const nextTheme = document.documentElement.dataset.theme ?? "dark";
     if (nextTheme !== theme) {
       theme = nextTheme;
-      accent = accentVector();
+      accent = tokenVector("--rec-signal", [0.29, 0.89, 0.61]);
+      ground = tokenVector("--rec-ground", [0.039, 0.051, 0.043]);
     }
     flash = Math.max(0, flash - elapsed * 0.0022);
     resize();
@@ -335,6 +336,7 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
     context.uniform1f(uProgress, progress);
     context.uniform1f(uTheme, theme === "light" ? 1 : 0);
     context.uniform3f(uAccent, accent[0], accent[1], accent[2]);
+    context.uniform3f(uGround, ground[0], ground[1], ground[2]);
     context.uniform1f(uFlash, flash);
     context.drawArrays(context.TRIANGLES, 0, 3);
     frame = requestAnimationFrame(draw);
