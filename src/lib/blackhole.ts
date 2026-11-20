@@ -271,6 +271,7 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
   let cooldown = 0;
   let pendingResize = false;
   let lastScroll = 0;
+  let warmup = 60;
   const qualityState = { scale: 1, ema: 16 };
   const publishQuality = () => {
     const target = window as Window & { __stageQuality?: typeof qualityState };
@@ -294,9 +295,11 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
     lastNow = now;
     ema = ema * 0.9 + elapsed * 0.1;
     if (cooldown > 0) cooldown -= 1;
-    // React within ten slow frames, then wait before another step so the
-    // canvas is not reallocated repeatedly. The shape never changes.
-    if (cooldown === 0 && ema > 19) {
+    // Ignore the first second of load spikes so a capable GPU is not downscaled
+    // for a start-up frame. After that, react quickly and then cool down.
+    if (warmup > 0) {
+      warmup -= 1;
+    } else if (cooldown === 0 && ema > 19) {
       fastFrames = 0;
       slowFrames += 1;
       if (slowFrames > 12 && quality > 0.5) {
