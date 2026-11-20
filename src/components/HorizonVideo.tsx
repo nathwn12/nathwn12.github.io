@@ -159,7 +159,6 @@ export default function HorizonVideo() {
         />
         <img src="/horizon-poster-desktop.webp" alt="" />
       </picture>
-      <div className="horizon-grain" />
       <div className="horizon-fade" />
     </div>
   );
