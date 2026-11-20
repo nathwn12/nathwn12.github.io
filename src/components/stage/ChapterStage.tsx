@@ -130,6 +130,21 @@ export function ChapterStage() {
     };
   }, []);
 
+  // Back and forward move through the same five chapters the index writes.
+  useEffect(() => {
+    const onPop = () => {
+      const raw = window.location.hash.slice(1);
+      const id = (IDS as readonly string[]).includes(raw)
+        ? (raw as ChapterId)
+        : IDS[0];
+      setActive(id);
+      const panel = document.getElementById(id);
+      if (panel) scrollToTarget(panel, { immediate: true });
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
   function panelProps(id: ChapterId) {
     return {
       id,
@@ -145,7 +160,9 @@ export function ChapterStage() {
   function goTo(id: ChapterId) {
     setActive(id);
     if (typeof window === "undefined") return;
-    window.history.replaceState(null, "", `#${id}`);
+    const next = `#${id}`;
+    if (window.location.hash === next) window.history.replaceState(null, "", next);
+    else window.history.pushState(null, "", next);
     const panel = document.getElementById(id);
     if (!panel) return;
 
