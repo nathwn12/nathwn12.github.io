@@ -627,21 +627,6 @@ html {
   }
 }
 
-/* --- CHAPTER CHANGE — one shared language -------------------------------- */
-::view-transition-old(root),
-::view-transition-new(root) {
-  animation-duration: 520ms;
-  animation-timing-function: var(--rec-ease-out);
-}
-::view-transition-old(root) { animation-name: chapter-out; }
-::view-transition-new(root) { animation-name: chapter-in; }
-@keyframes chapter-out {
-  to { opacity: 0; transform: scale(0.97); filter: blur(3px); }
-}
-@keyframes chapter-in {
-  from { opacity: 0; transform: scale(1.03); filter: blur(3px); }
-}
-
 /* --- STATIC DOCUMENT ------------------------------------------------------ */
 @media (prefers-reduced-motion: reduce) {
   .stage-panel__frame {
@@ -656,8 +641,6 @@ html {
   .stage-data { background: var(--rec-ground); }
   .singularity__ring { display: none; }
   .stage-rail__sweep { transform: none; }
-  ::view-transition-old(root),
-  ::view-transition-new(root) { animation-duration: 0.01ms !important; }
 }
 html[data-motion="off"] .stage-panel__frame {
   position: static;
@@ -671,5 +654,3 @@ html[data-motion="off"] .stage-lead,
 html[data-motion="off"] .stage-data { background: var(--rec-ground); }
 html[data-motion="off"] .singularity__ring { display: none; }
 html[data-motion="off"] .stage-rail__sweep { transform: none; }
-html[data-motion="off"] ::view-transition-old(root),
-html[data-motion="off"] ::view-transition-new(root) { animation-duration: 0.01ms !important; }

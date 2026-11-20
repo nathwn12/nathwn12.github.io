@@ -108,7 +108,7 @@ describe("the descent field", () => {
 });
 
 describe("the chapter change", () => {
-  test("a click uses the View Transitions path when the browser offers it", async () => {
+  test("a click jumps to the chapter without snapshotting the page", async () => {
     allowMotion();
     const transition = vi.fn((callback: () => void) => {
       callback();
@@ -127,7 +127,8 @@ describe("the chapter change", () => {
       link?.click();
     });
 
-    expect(transition).toHaveBeenCalledTimes(1);
+    // The flash path is one frame; a full-page snapshot is not taken.
+    expect(transition).not.toHaveBeenCalled();
     expect(window.location.hash).toBe("#work");
     expect(
       host.querySelector('a[data-chapter-link="work"]')?.getAttribute("aria-current"),

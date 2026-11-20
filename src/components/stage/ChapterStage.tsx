@@ -32,7 +32,7 @@ import {
 import { projects, projectsLede } from "../../content/projects";
 import { credentials } from "../../content/credentials";
 import { CONTACT_EMAIL } from "../../lib/contact";
-import { countUp, motionAllowed } from "../../lib/motion";
+import { countUp } from "../../lib/motion";
 import { scrollTo as scrollToTarget } from "../../lib/smooth";
 import { emitStageFlash, mountStageMotion } from "../../lib/stage-motion";
 import { BlackHoleCanvas } from "./BlackHoleCanvas";
@@ -58,10 +58,6 @@ export function initialChapter(source?: string): ChapterId {
     ? (candidate as ChapterId)
     : IDS[0];
 }
-
-type ViewTransitionDocument = Document & {
-  startViewTransition?: (callback: () => void) => { finished: Promise<void> };
-};
 
 /**
  * ChapterStage — one descent past a single mass, read in five orbital shells.
@@ -153,19 +149,10 @@ export function ChapterStage() {
     const panel = document.getElementById(id);
     if (!panel) return;
 
-    const doc = document as ViewTransitionDocument;
-    // A full-page snapshot is two frames on a 2560 canvas. At that width the
-    // lens flash carries the cut; smaller viewports keep the document morph.
-    const canMorph =
-      motionAllowed() &&
-      typeof doc.startViewTransition === "function" &&
-      window.innerWidth < 2000;
-    const commit = () => {
-      if (!canMorph) emitStageFlash();
-      scrollToTarget(panel, { immediate: canMorph });
-    };
-    if (canMorph) doc.startViewTransition!(commit);
-    else commit();
+    // A document snapshot costs two frames on every width. The lens flash is
+    // one frame and reads as the same cut, so it carries every chapter change.
+    emitStageFlash();
+    scrollToTarget(panel, { immediate: true });
   }
 
   function railClick(id: ChapterId) {
