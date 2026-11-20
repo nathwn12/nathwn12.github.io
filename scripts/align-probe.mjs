@@ -32,25 +32,37 @@ const INK = 1; // optical tolerance, px
 const SYSTEM = { gutter: (w) => (w >= 900 ? 48 : 20), baseline: 8 };
 
 const LEFT_BLOCKS = [
-  ".masthead-mark", ".hud-name .eyebrow", ".hud-name h1", ".hud-status",
-  "#reduction .section-head", "#reduction .statement", "#reduction .proof-table",
-  "#method .section-head", "#method .lead", "#work .section-head", "#work .row-list",
-  "#record .section-head", "#record .record-figures", "#record .section-lede",
-  "#contact .section-head", "#contact .contact-line", "#contact .mailto", ".colophon > :first-child",
+  ".stage-mark", ".hud-name .eyebrow", ".hud-name h1", ".hud-status",
+  "#signal .cluster-corner", "#signal .signal-pair", "#signal .spark-bank",
+  "#signal .signal-lower", "#signal .stamp",
+  "#work .cluster-corner", "#work .featured-list", "#work .index-grid",
+  "#proof .cluster-corner", "#proof .proof-table",
+  "#method .cluster-corner", "#method .spec-grid", "#method .data-line",
+  "#contact .cluster-corner", "#contact .contact-line", "#contact .mailto",
+  ".colophon > :first-child",
 ];
 const RIGHT_BLOCKS = [
-  ".hud-role", "#reduction .proof-note", "#method .data-line dd",
-  "#work .row-arrow", "#record .experience-metric",
+  ".hud-role", "#method .data-line dd", ".featured-row > a",
 ];
 const INK_TARGETS = [
   { sel: ".hud-name .eyebrow", check: "hero-left-ink" },
   { sel: ".hud-name h1", check: "hero-left-ink" },
   { sel: ".hud-role p", check: "hero-right-ink", all: true },
   { sel: ".hud-scroll", check: "scroll-cue" },
-  { sel: ".row-meta", check: "cell-right-ink", all: true },
+  { sel: ".featured-stats > span", check: "cell-right-ink", all: true },
   { sel: ".proof-figure", check: "figure", all: true },
-  { sel: ".record-figure", check: "figure", all: true },
+  { sel: ".signal-figure", check: "figure", all: true },
+  { sel: ".micro-number", check: "figure", all: true },
+  { sel: ".featured-num", check: "figure", all: true },
 ];
+
+/** Host, title and vertical reference for each centred numeric column. */
+const FIGURE_GROUPS = {
+  ".proof-figure": { host: ".proof-row", title: ".proof-text h3", table: ".proof-table" },
+  ".signal-figure": { host: ".signal-pair > div", title: ".figure-label", table: ".signal-pair" },
+  ".micro-number": { host: ".micro-figures > div", title: ".micro-label", table: ".micro-figures" },
+  ".featured-num": { host: ".featured-row", title: ".featured-main h3", table: ".featured-list" },
+};
 
 const results = [];
 const round = (n) => Number(n.toFixed(2));
@@ -89,7 +101,7 @@ function installMetrics() {
       if (!el) return null;
       const r = el.getBoundingClientRect();
       const cs = getComputedStyle(el);
-      const host = el.closest(".section-body, .frame, .masthead, .hero-hud") ?? document.body;
+      const host = el.closest(".section-body, .frame, .stage-nav-wrap, .hero-hud") ?? document.body;
       const hcs = getComputedStyle(host);
       const hr = host.getBoundingClientRect();
       return {
@@ -190,6 +202,15 @@ async function inkFor(page, spec, theme, ground, wide) {
   const lumaMode = theme === "dark";
 
   for (const target of spec.ink) {
+    // The hero type is measured over the moving field. Every other ink box is
+    // measured on the true-black ground: the object's bright rim would widen
+    // a numeral's painted box and read as type it is not.
+    if (!target.sel.startsWith(".hud-")) {
+      await page.evaluate(() => {
+        document.querySelectorAll(".horizon-layer, .ticker, .stage-nav-wrap")
+          .forEach((node) => (node.style.visibility = "hidden"));
+      });
+    }
     const locator = page.locator(target.sel);
     const count = target.all ? await locator.count() : Math.min(1, await locator.count());
     for (let i = 0; i < count; i += 1) {
@@ -220,11 +241,12 @@ async function inkFor(page, spec, theme, ground, wide) {
         check("scroll cue word/arrow centre", spec.tag, round(parts.arrow.cy - parts.word.cy), INK);
         if (wide) check("scroll cue right ink", spec.tag, round(ink.right - box.edgeR), INK);
       } else if (target.check === "figure") {
-        const detail = await page.evaluate(({ sel, idx }) => {
+        const detail = await page.evaluate(({ sel, idx, map }) => {
+          const rule = map[sel];
           const fig = [...document.querySelectorAll(sel)].filter(Boolean)[idx];
-          const host = fig?.closest(".proof-row, .record-figures > div");
-          const title = host?.querySelector(".proof-text h3, .figure-label");
-          const table = document.querySelector(".proof-table, .record-figures");
+          const host = fig?.closest(rule.host);
+          const title = host?.querySelector(rule.title);
+          const table = document.querySelector(rule.table);
           const f = window.__align.rect(fig);
           return {
             colCx: f?.cx, figL: f?.x, figW: f?.w,
@@ -232,7 +254,7 @@ async function inkFor(page, spec, theme, ground, wide) {
             titleBase: title ? window.__align.baseline(title) : null,
             figBase: fig ? window.__align.baseline(fig) : null,
           };
-        }, { sel: target.sel, idx: i });
+        }, { sel: target.sel, idx: i, map: FIGURE_GROUPS });
         figures.push({ sel: target.sel, text: box.text, ink, detail });
       }
     }
@@ -241,7 +263,7 @@ async function inkFor(page, spec, theme, ground, wide) {
   // Binding rule: the painted ink centre owns the fixed column. The painted
   // left edge then sits one centred inset in from the rule; narrow glyphs hang
   // further in, and the raw rule delta is reported for each one.
-  for (const table of [".proof-figure", ".record-figure"]) {
+  for (const table of Object.keys(FIGURE_GROUPS)) {
     const group = figures.filter((f) => f.sel === table);
     if (!group.length) continue;
     for (const f of group) {
@@ -255,14 +277,18 @@ async function inkFor(page, spec, theme, ground, wide) {
       info(`figure hang ${f.text}`, spec.tag, `painted left ${raw}px from rule; glyph "${f.text}" is ${round(f.ink.w)}px wide in a ${round(f.detail.figW)}px column`);
     }
     const bases = group.map((f) => f.detail.figBase).filter((n) => n !== null);
-    if (table === ".record-figure" && spec.recordWide && bases.length > 1) {
-      check("record figures share one baseline", spec.tag, round(Math.max(...bases) - Math.min(...bases)), INK);
-    } else if (table === ".proof-figure") {
+    if (spec.figureWide && bases.length > 1 && (table === ".micro-number" || table === ".signal-figure")) {
+      check(`${table} share one baseline`, spec.tag, round(Math.max(...bases) - Math.min(...bases)), INK);
+    }
+    // Only the proof pairs set figure and claim on one shared baseline. The
+    // other clusters label beneath or beside their numerals by design.
+    if (table === ".proof-figure") {
       if (!spec.figureWide) {
-        info("figure baseline", spec.tag, "phone row stacks the figure above the claim; no shared baseline by design");
-      }
-      for (const f of group) {
-        if (spec.figureWide && f.detail.titleBase !== null) check(`figure baseline ${f.text}`, spec.tag, round(f.detail.figBase - f.detail.titleBase), INK);
+        info("proof baseline", spec.tag, "phone row stacks the figure above the claim; no shared baseline by design");
+      } else {
+        for (const f of group) {
+          if (f.detail.titleBase !== null) check(`proof baseline ${f.text}`, spec.tag, round(f.detail.figBase - f.detail.titleBase), INK);
+        }
       }
     }
   }
@@ -285,6 +311,18 @@ async function main() {
       // Freeze reveals at their settled state; a mid-transition transform
       // would move the measured type out of its true alignment.
       await page.addStyleTag({ content: "[data-reveal]{opacity:1!important;transform:none!important}" });
+      // Count-ups start on intersection. Settle every one before measuring,
+      // or a locator screenshot can scroll a figure into view and catch it
+      // mid-count with a painted width that no longer matches its column.
+      await page.evaluate(async () => {
+        const step = Math.max(280, Math.round(innerHeight * 0.5));
+        for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
+          scrollTo({ top: y, behavior: "instant" });
+          await new Promise((done) => setTimeout(done, 60));
+        }
+        scrollTo({ top: 0, behavior: "instant" });
+        await new Promise((done) => setTimeout(done, 900));
+      });
       await page.waitForTimeout(1100);
 
       const tag = `${view.name}/${theme}`;

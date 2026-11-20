@@ -1,29 +1,50 @@
 import { useEffect, type ReactNode } from "react";
 import HorizonVideo from "./HorizonVideo";
+import { CountUp, Heatmap, Sparkline, Ticker, useInstrumentMotion } from "./Instruments";
+import { employer } from "../content/experience";
 import {
-  aiPractice,
   contactBlock,
   figures,
   locatedIn,
   name,
   proofRows,
-  standfirst,
   statusLine,
 } from "../content/ledger";
-import { employer, experience, provenance } from "../content/experience";
-import { projects, projectsLede } from "../content/projects";
-import { recordOpener } from "../content/hero";
+import { signal, specLines } from "../content/signal";
+import { featuredRows, indexRows } from "../content/showcase";
+import { projectsLede } from "../content/projects";
 import { CONTACT_EMAIL, CV_PATH, RESUME_PATH } from "../lib/contact";
 
 const SECTIONS = [
-  { id: "reduction", index: "01", label: "The reduction" },
-  { id: "method", index: "02", label: "The method" },
-  { id: "work", index: "03", label: "The work" },
-  { id: "record", index: "04", label: "The record" },
+  { id: "signal", index: "01", label: "The signal" },
+  { id: "work", index: "02", label: "The work" },
+  { id: "proof", index: "03", label: "The proof" },
+  { id: "method", index: "04", label: "The method" },
   { id: "contact", index: "05", label: "Contact" },
 ] as const;
 
-function Section({
+/** Fixed stage indicator. An observer lights the current cluster, even with motion off. */
+function useStageNav() {
+  useEffect(() => {
+    const links = document.querySelectorAll<HTMLAnchorElement>(".stage-nav a");
+    const sections = document.querySelectorAll<HTMLElement>("section[data-stage]");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          links.forEach((link) => {
+            link.dataset.active = String(link.hash === `#${entry.target.id}`);
+          });
+        }
+      },
+      { rootMargin: "-45% 0px -45% 0px" },
+    );
+    sections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
+}
+
+function Cluster({
   id,
   index,
   label,
@@ -35,42 +56,19 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <section id={id} className="ledger-section frame" aria-labelledby={`${id}-title`}>
-      <div className="section-head" data-reveal>
+    <section id={id} data-stage={id} className="cluster frame" aria-labelledby={`${id}-title`}>
+      <div className="cluster-corner" data-reveal>
         <span className="section-index">{index}</span>
         <h2 id={`${id}-title`}>{label}</h2>
       </div>
-      <div className="section-body">{children}</div>
+      <div className="cluster-body">{children}</div>
     </section>
   );
 }
 
-/** Native-scroll reveal. With reduced motion the elements are already shown. */
-function useReveal() {
-  useEffect(() => {
-    const nodes = document.querySelectorAll<HTMLElement>("[data-reveal]");
-    if (document.documentElement.dataset.motion === "off") {
-      nodes.forEach((node) => node.classList.add("is-in"));
-      return;
-    }
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-in");
-            observer.unobserve(entry.target);
-          }
-        }
-      },
-      { rootMargin: "0px 0px -6% 0px", threshold: 0.04 },
-    );
-    nodes.forEach((node) => observer.observe(node));
-    return () => observer.disconnect();
-  }, []);
-}
-
 export default function LedgerPage() {
-  useReveal();
+  useInstrumentMotion();
+  useStageNav();
 
   useEffect(() => {
     document.title = `${name} — event horizon`;
@@ -85,11 +83,11 @@ export default function LedgerPage() {
         Skip to content
       </a>
 
-      <header className="masthead">
-        <a className="masthead-mark data" href="#horizon">
+      <header className="stage-nav-wrap">
+        <a className="stage-mark data" href="#horizon">
           NNL <span>/ the record</span>
         </a>
-        <nav className="masthead-nav data" aria-label="Chapters">
+        <nav className="stage-nav data" aria-label="Chapters">
           {SECTIONS.map((section) => (
             <a key={section.id} href={`#${section.id}`}>
               <span aria-hidden="true">{section.index}</span>{" "}
@@ -99,14 +97,15 @@ export default function LedgerPage() {
         </nav>
       </header>
 
+      <Ticker items={signal.ticker} />
+
       <main id="main" tabIndex={-1} className="outline-none">
         <section id="horizon" className="hero" aria-labelledby="hero-name">
           <HorizonVideo />
-
           <div className="hero-hud">
             <div className="hud hud-name">
               <p className="eyebrow data">Event horizon / portfolio / 2026</p>
-              <h1 id="hero-name">Nathaniel Nikolai Ladero</h1>
+              <h1 id="hero-name">{name}</h1>
             </div>
             <div className="hud hud-role">
               <p className="eyebrow data">Role</p>
@@ -118,18 +117,112 @@ export default function LedgerPage() {
               <p>{statusLine}</p>
               <p className="data">{employer.period}</p>
             </div>
-            <a className="hud hud-scroll data" href="#reduction">
+            <a className="hud hud-scroll data" href="#signal">
               <span className="scroll-line" aria-hidden="true" />
-              <span>Scroll to the record</span>
+              <span>Descend to the record</span>
               <span aria-hidden="true">↓</span>
             </a>
           </div>
         </section>
 
-        <Section id="reduction" index="01" label="The reduction">
-          <p className="statement" data-reveal>
-            {recordOpener}
+        <Cluster id="signal" index="01" label="The signal">
+          <div className="signal-pair" data-reveal>
+            <div>
+              <CountUp value={signal.allTime} className="signal-figure" />
+              <span className="figure-label data">npm downloads / all time</span>
+            </div>
+            <div>
+              <CountUp value={signal.month} className="signal-figure" />
+              <span className="figure-label data">npm downloads / last 30 days</span>
+            </div>
+          </div>
+
+          <div className="spark-bank" data-reveal>
+            {signal.packages.map((item) => (
+              <div className="spark-cell" key={item.name}>
+                <span className="spark-name data">{item.name}</span>
+                <Sparkline values={item.daily} />
+                <span className="spark-value data">{item.month.toLocaleString("en-US")}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="signal-lower" data-reveal>
+            <div className="activity-block">
+              <span className="micro-label data">github activity / 30 days</span>
+              <Heatmap />
+              <span className="heat-note data">{signal.activityText}</span>
+            </div>
+            <div className="micro-figures">
+              <div>
+                <CountUp value={signal.github.commits} className="micro-number" />
+                <span className="micro-label data">commits / 12 mo</span>
+              </div>
+              <div>
+                <CountUp value={signal.repos} className="micro-number" />
+                <span className="micro-label data">public repos</span>
+              </div>
+              <div>
+                <CountUp value={signal.github.contributions} className="micro-number" />
+                <span className="micro-label data">contributions / 12 mo</span>
+              </div>
+              <div>
+                <CountUp value={signal.github.pullRequests} className="micro-number" />
+                <span className="micro-label data">pull requests / 12 mo</span>
+              </div>
+              <div>
+                <CountUp value={signal.packageCount} className="micro-number" />
+                <span className="micro-label data">npm packages</span>
+              </div>
+            </div>
+          </div>
+          <p className="stamp data" data-reveal>
+            {signal.stamp}
           </p>
+        </Cluster>
+
+        <Cluster id="work" index="02" label="The work">
+          <div className="featured-list">
+            {featuredRows.map((row) => (
+              <div className="featured-row" data-reveal key={row.dir}>
+                <span className="featured-num">{row.num}</span>
+                <div className="featured-main">
+                  <h3>{row.name}</h3>
+                  <p className="claim">{row.claim}</p>
+                  <span className="tech data">{row.tech.join(" / ")}</span>
+                </div>
+                <div className="featured-stats data">
+                  <span>{row.monthLabel}</span>
+                  <span>{row.language}</span>
+                  <span>pushed {row.pushed}</span>
+                </div>
+                {row.daily && <Sparkline values={row.daily} tone="measure" />}
+                <a href={row.url} target="_blank" rel="noreferrer" aria-label={`Open ${row.name} on GitHub`}>
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </div>
+            ))}
+          </div>
+          <p className="index-head data" data-reveal>
+            {projectsLede}
+          </p>
+          <div className="index-grid">
+            {indexRows.map((row) => (
+              <div className="index-row" data-reveal key={row.dir}>
+                <span className="index-num data">{row.num}</span>
+                <a href={row.url} target="_blank" rel="noreferrer">
+                  {row.name}
+                </a>
+                <span className="index-claim">{row.claim}</span>
+                <span className="index-stats data">
+                  {row.language} · {row.monthLabel} · pushed {row.pushed}
+                </span>
+              </div>
+            ))}
+          </div>
+        </Cluster>
+
+        <Cluster id="proof" index="03" label="The proof">
           <div className="proof-table">
             {proofRows.map((row, i) => (
               <div className="proof-row" data-reveal key={row.claim}>
@@ -142,115 +235,41 @@ export default function LedgerPage() {
                 <div className="proof-text">
                   <h3>{row.claim}</h3>
                   <p>{row.detail}</p>
+                  <span className="proof-note data">
+                    {String(i + 1).padStart(2, "0")} / measured
+                  </span>
                 </div>
-                <span className="proof-note data">
-                  {String(i + 1).padStart(2, "0")} / measured
-                </span>
               </div>
             ))}
           </div>
-        </Section>
+        </Cluster>
 
-        <Section id="method" index="02" label="The method">
-          <div className="method-grid">
-            <div className="method-prose">
-              <p className="lead" data-reveal>
-                {standfirst}
-              </p>
-              {aiPractice.sentences.map((sentence) => (
-                <p key={sentence} data-reveal>
-                  {sentence}
-                </p>
-              ))}
-            </div>
-            <aside className="method-facts" aria-label="Practice and position">
-              <p className="eyebrow data" data-reveal>
-                The practice, in three terms
-              </p>
-              <ul className="fact-rule" data-reveal>
-                {aiPractice.facts.map((fact) => (
-                  <li key={fact}>{fact}</li>
-                ))}
-              </ul>
-              <dl className="data-line" data-reveal>
-                <div>
-                  <dt className="data">tenure</dt>
-                  <dd className="data">{figures.tenure}</dd>
-                </div>
-                <div>
-                  <dt className="data">period</dt>
-                  <dd className="data">{employer.period}</dd>
-                </div>
-                <div>
-                  <dt className="data">base</dt>
-                  <dd className="data">{locatedIn}</dd>
-                </div>
-              </dl>
-            </aside>
-          </div>
-        </Section>
-
-        <Section id="work" index="03" label="The work">
-          <p className="section-lede" data-reveal>
-            {projectsLede}
-          </p>
-          <ol className="row-list work-list">
-            {projects.map((project, i) => (
-              <li className="work-row" data-reveal key={project.id}>
-                <a href={project.url} target="_blank" rel="noreferrer">
-                  <span className="row-index data">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="row-name">{project.name}</span>
-                  <span className="row-desc">{project.description}</span>
-                  <span className="row-meta data">
-                    {project.kind} · {project.year}
-                  </span>
-                  <span className="row-arrow" aria-hidden="true">
-                    ↗
-                  </span>
-                </a>
-              </li>
+        <Cluster id="method" index="04" label="The method">
+          <div className="spec-grid">
+            {specLines.map((line) => (
+              <div className="spec-line" data-reveal key={line.key}>
+                <span className="spec-key data">{line.key}</span>
+                <span className="spec-value">{line.value}</span>
+              </div>
             ))}
-          </ol>
-        </Section>
-
-        <Section id="record" index="04" label="The record">
-          <div className="record-figures" data-reveal>
-            <div>
-              <span className="record-figure">{figures.commits}</span>
-              <span className="figure-label data">commits recovered</span>
-            </div>
-            <div>
-              <span className="record-figure">{figures.repositories}</span>
-              <span className="figure-label data">repositories carrying the work</span>
-            </div>
-            <div>
-              <span className="record-figure">{figures.scanned}</span>
-              <span className="figure-label data">repositories scanned</span>
-            </div>
           </div>
-          <p className="section-lede" data-reveal>
-            {provenance}
-          </p>
-          <ol className="row-list experience-list">
-            {experience.map((entry) => (
-              <li className="experience-row" data-reveal key={entry.id}>
-                <span className="row-index data">
-                  {entry.id} / {entry.date}
-                </span>
-                <div className="row-name">
-                  {entry.name}
-                  <span className="data">{entry.status}</span>
-                </div>
-                <p className="row-desc">{entry.outcome}</p>
-                <span className="experience-metric">{entry.metric ?? "—"}</span>
-              </li>
-            ))}
-          </ol>
-        </Section>
+          <dl className="data-line" data-reveal>
+            <div>
+              <dt className="data">tenure</dt>
+              <dd className="data">{figures.tenure}</dd>
+            </div>
+            <div>
+              <dt className="data">period</dt>
+              <dd className="data">{employer.period}</dd>
+            </div>
+            <div>
+              <dt className="data">base</dt>
+              <dd className="data">{locatedIn}</dd>
+            </div>
+          </dl>
+        </Cluster>
 
-        <Section id="contact" index="05" label="Contact">
+        <Cluster id="contact" index="05" label="Contact">
           <p className="contact-line" data-reveal>
             {contactBlock.line}
           </p>
@@ -264,31 +283,19 @@ export default function LedgerPage() {
           <p className="section-lede" data-reveal>
             {contactBlock.nextStep}
           </p>
-        </Section>
+        </Cluster>
       </main>
 
       <footer className="colophon frame">
         <span className="data">NNL / event horizon / 2026</span>
         <p className="colophon-links data">
-          <a href="https://github.com/nathwn12" target="_blank" rel="noreferrer">
-            GitHub
-          </a>
-          <a
-            href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            LinkedIn
-          </a>
+          <a href="https://github.com/nathwn12" target="_blank" rel="noreferrer">GitHub</a>
+          <a href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/" target="_blank" rel="noreferrer">LinkedIn</a>
           <a href={RESUME_PATH}>Résumé</a>
           <a href={CV_PATH}>CV</a>
-          <a href="https://github.com/nathwn12/nathwn12.github.io" target="_blank" rel="noreferrer">
-            Source
-          </a>
+          <a href="https://github.com/nathwn12/nathwn12.github.io" target="_blank" rel="noreferrer">Source</a>
         </p>
-        <span className="data">
-          Shader: glsl-black-hole · MIT · sayed1145
-        </span>
+        <span className="data">Shader: glsl-black-hole · MIT · sayed1145</span>
       </footer>
     </>
   );

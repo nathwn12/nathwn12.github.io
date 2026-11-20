@@ -8,11 +8,7 @@ const H264 = 'video/mp4; codecs="avc1.640028"';
 
 export type HeroVariant = "a" | "b" | "c";
 
-/**
- * The owner's picking lever. Only a, b and c are real; a missing or
- * unrecognised value is the default C. Read once — a change is a page load,
- * never a runtime source swap.
- */
+/** The owner's picking lever. Anything unrecognised is the default C. */
 export function heroVariantFromSearch(search: string): HeroVariant {
   const raw = new URLSearchParams(search).get("hero");
   return raw === "a" || raw === "b" || raw === "c" ? raw : "c";
@@ -23,14 +19,21 @@ function matches(query: string): boolean {
   return window.matchMedia?.(query).matches === true;
 }
 
+const smooth = (a: number, b: number, t: number) => {
+  const v = Math.min(1, Math.max(0, (t - a) / (b - a)));
+  return v * v * (3 - 2 * v);
+};
+
 /**
- * The recorded shader loop. No WebGL context and no overlay layers: grain and
- * vignette are baked into every frame. One video, two sources per aspect — AV1
- * first, H.264 second — chosen by the browser.
+ * The recorded loop is the page's void: one fixed full-viewport layer. As the
+ * page descends it recedes to an off-centre presence and dims; near the close
+ * it swells back. One rAF loop writes transform and opacity only. Scroll is
+ * read from a passive listener; the document height is cached on resize, so
+ * the loop never forces layout.
  */
 export default function HorizonVideo() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
-  const wrapRef = useRef<HTMLDivElement | null>(null);
+  const layerRef = useRef<HTMLDivElement | null>(null);
   const [variant] = useState(() =>
     heroVariantFromSearch(typeof window === "undefined" ? "" : window.location.search),
   );
@@ -64,8 +67,8 @@ export default function HorizonVideo() {
 
   useEffect(() => {
     const video = videoRef.current;
-    const wrap = wrapRef.current;
-    if (!video || !wrap) return;
+    const layer = layerRef.current;
+    if (!video || !layer) return;
 
     if (reduced) {
       video.pause();
@@ -74,79 +77,72 @@ export default function HorizonVideo() {
     }
 
     video.classList.remove("is-still");
-    let onScreen = true;
+    let scrolled = 0;
+    let max = 1;
+    let depth = -1;
+    let raf = 0;
+    let pausedByDepth = false;
 
     const play = () => {
-      if (!onScreen || document.hidden || reduced) return;
+      if (document.hidden) return;
       video.playbackRate = RATE;
       void video.play().catch(() => {
         /* low-power iOS may refuse; the poster stays legible */
       });
     };
-
     const onReady = () => {
       video.classList.remove("is-swapping");
       play();
     };
-
-    // A new aspect means new <source> children. Re-run selection so the browser
-    // picks the right master, and hold the poster until the first frame is up.
     video.classList.add("is-swapping");
     video.addEventListener("canplay", onReady, { once: true });
     video.load();
 
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        onScreen = entry.isIntersecting;
-        if (onScreen) play();
-        else video.pause();
-      },
-      { rootMargin: "120px" },
-    );
-    observer.observe(wrap);
-
-    const onVisibility = () => {
-      if (document.hidden) video.pause();
-      else play();
-    };
-
-    const target = { x: 0, y: 0, scale: 1, rotate: 0 };
-    const current = { ...target };
-    let pointerX = 0;
-    let pointerY = 0;
-    let scrolled = 0;
-    let raf = 0;
-
-    const onPointer = (event: PointerEvent) => {
-      pointerX = event.clientX / window.innerWidth - 0.5;
-      pointerY = event.clientY / window.innerHeight - 0.5;
+    const measure = () => {
+      max = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+      depth = -1;
     };
     const onScroll = () => {
-      scrolled = Math.min(window.scrollY / window.innerHeight, 1);
+      scrolled = window.scrollY;
+    };
+    const onVisibility = () => {
+      if (document.hidden) video.pause();
+      else if (!pausedByDepth) play();
     };
     const tick = () => {
-      target.x = pointerX * 14;
-      target.y = pointerY * 10 - scrolled * 26;
-      target.scale = 1.015 + scrolled * 0.05;
-      target.rotate = pointerX * 0.35;
-      current.x += (target.x - current.x) * 0.07;
-      current.y += (target.y - current.y) * 0.07;
-      current.scale += (target.scale - current.scale) * 0.07;
-      current.rotate += (target.rotate - current.rotate) * 0.07;
-      wrap.style.transform = `translate3d(${current.x.toFixed(2)}px, ${current.y.toFixed(2)}px, 0) scale(${current.scale.toFixed(4)}) rotate(${current.rotate.toFixed(3)}deg)`;
+      const next = Math.min(1, Math.max(0, scrolled / max));
+      if (Math.abs(next - depth) > 0.0004) {
+        depth = next;
+        const dive = smooth(0, 0.72, depth);
+        const swell = smooth(0.86, 1, depth);
+        const scale = 1 - 0.88 * dive + 0.48 * swell;
+        const opacity = 1 - 0.88 * dive + 0.38 * swell;
+        const x = 0.3 * dive * window.innerWidth;
+        const y = -0.18 * dive * window.innerHeight;
+        layer.style.transform = `translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+        layer.style.opacity = opacity.toFixed(4);
+        layer.dataset.depth = depth.toFixed(4);
+        if (depth > 0.3 && !pausedByDepth) {
+          pausedByDepth = true;
+          video.pause();
+        } else if (depth < 0.2 && pausedByDepth) {
+          pausedByDepth = false;
+          play();
+        }
+      }
       raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
 
-    window.addEventListener("pointermove", onPointer, { passive: true });
+    measure();
+    raf = requestAnimationFrame(tick);
+    window.addEventListener("resize", measure, { passive: true });
     window.addEventListener("scroll", onScroll, { passive: true });
     document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
       video.removeEventListener("canplay", onReady);
-      observer.disconnect();
       cancelAnimationFrame(raf);
-      window.removeEventListener("pointermove", onPointer);
+      window.removeEventListener("resize", measure);
       window.removeEventListener("scroll", onScroll);
       document.removeEventListener("visibilitychange", onVisibility);
       video.pause();
@@ -154,7 +150,12 @@ export default function HorizonVideo() {
   }, [source, reduced]);
 
   return (
-    <div className="horizon-video-wrap" ref={wrapRef} aria-hidden="true">
+    <div
+      className="horizon-layer"
+      data-static={reduced ? "true" : "false"}
+      ref={layerRef}
+      aria-hidden="true"
+    >
       <video
         ref={videoRef}
         className={`horizon-video horizon-video--${variant}`}

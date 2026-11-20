@@ -62,11 +62,16 @@ const REQUIRED = [
   { fg: "measure", bg: "panel", min: 4.5 },
   { fg: "alarm", bg: "ground", min: 4.5 },
   { fg: "on-signal", bg: "signal", min: 4.5 },
+  { fg: "signal", bg: "ground", min: 4.5, label: "ticker on ground" },
+  { fg: "heat-1", bg: "ground", min: 3, label: "heat level 1 on ground" },
+  { fg: "heat-2", bg: "ground", min: 3, label: "heat level 2 on ground" },
+  { fg: "heat-3", bg: "ground", min: 3, label: "heat level 3 on ground" },
 ];
 
 const REPORTED = [
   { fg: "rule", bg: "ground" },
   { fg: "rule-strong", bg: "ground" },
+  { fg: "heat-0", bg: "ground", label: "heat level 0 on ground" },
 ];
 
 function luminance(hex) {
@@ -94,7 +99,7 @@ for (const [theme, tokens] of Object.entries(THEMES)) {
     const fg = tokens[`--rec-${pair.fg}`];
     const bg = tokens[`--rec-${pair.bg}`];
     if (!fg || !bg) {
-      rows.push([theme, `${pair.fg} on ${pair.bg}`, "missing", pair.min, "FAIL"]);
+      rows.push([theme, pair.label ?? `${pair.fg} on ${pair.bg}`, "missing", pair.min, "FAIL"]);
       failed += 1;
       continue;
     }
@@ -103,7 +108,7 @@ for (const [theme, tokens] of Object.entries(THEMES)) {
     if (!pass) failed += 1;
     rows.push([
       theme,
-      `${pair.fg} on ${pair.bg}`,
+      pair.label ?? `${pair.fg} on ${pair.bg}`,
       ratio.toFixed(2),
       pair.min.toFixed(1),
       pass ? "pass" : "FAIL",
@@ -114,7 +119,7 @@ for (const [theme, tokens] of Object.entries(THEMES)) {
     const bg = tokens[`--rec-${pair.bg}`];
     rows.push([
       theme,
-      `${pair.fg} on ${pair.bg}`,
+      pair.label ?? `${pair.fg} on ${pair.bg}`,
       fg && bg ? contrast(fg, bg).toFixed(2) : "missing",
       "-",
       "report",

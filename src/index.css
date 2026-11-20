@@ -2,4 +2,6 @@
 @import "./styles/fonts.css";
 @import "./styles/tokens.css";
 @import "./styles/base.css";
+@import "./styles/descent.css";
 @import "./styles/ledger.css";
+@import "./styles/instruments.css";

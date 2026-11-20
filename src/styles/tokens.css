@@ -14,6 +14,12 @@
   --rec-signal: #4be39b;
   --rec-measure: #e5bc3f;
   --rec-alarm: #e85560;
+  /* Heatmap levels: the empty cell is reported, the three active levels hold
+     a 3:1 non-text floor on the true-black ground. */
+  --rec-heat-0: #131a16;
+  --rec-heat-1: #2b7a55;
+  --rec-heat-2: #38b878;
+  --rec-heat-3: #4be39b;
   --rec-on-signal: #06100a;
   /* The figure sits on the black horizon, so the readout keeps one constant
      light ink rather than a theme-dependent one. */

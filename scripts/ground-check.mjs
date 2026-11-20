@@ -90,7 +90,9 @@ async function main() {
     };
 
     // 1. Ground below the fold: the first section's top padding.
-    const rowY = geo.heroBottom + 40;
+    // The fixed bottom readout owns the last 2rem of the viewport. Sample a
+    // row inside the next cluster's top padding but above that readout.
+    const rowY = Math.min(geo.heroBottom + 40, view.h - 48);
     const xs = GROUND_X.map((f) => Math.min(info.width - 1, Math.round(f * geo.width)));
     const samples = xs.map((x) => at(x, rowY));
     const worst = Math.max(...samples.map((p) => Math.max(...p)));

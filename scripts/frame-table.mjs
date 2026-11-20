@@ -136,7 +136,7 @@ for (const vp of VIEWPORTS) {
     console.log(JSON.stringify({ size: vp.name, mode, revealed }));
     await page.screenshot({ path: `${OUT}/${vp.name}-${mode}-full.png`, fullPage: true });
     if (vp.name === "1440") {
-      for (const id of ["reduction", "method", "work", "record", "contact"]) {
+      for (const id of ["signal", "work", "proof", "method", "contact"]) {
         await page.locator(`#${id}`).screenshot({ path: `${OUT}/1440-${mode}-${id}.png` });
       }
     }
@@ -258,5 +258,44 @@ for (const variant of ["a", "b"]) {
     await page.close();
   }
 }
+
+// Descent trace: the scroll handler caches height and writes only transform
+// and opacity. Twenty native scroll steps must not force twenty layouts.
+const trace = await browser.newPage({
+  viewport: { width: 1440, height: 900 },
+  deviceScaleFactor: 1,
+  reducedMotion: "no-preference",
+});
+await trace.goto(URL, { waitUntil: "networkidle" });
+await trace.waitForTimeout(1200);
+const client = await trace.context().newCDPSession(trace);
+await client.send("Performance.enable");
+const layoutCount = async () =>
+  (await client.send("Performance.getMetrics")).metrics.find(
+    (metric) => metric.name === "LayoutCount",
+  )?.value ?? 0;
+// Settle first-entry animations before the measured pass: count-ups and
+// reveals run once on intersection and are not part of the recession loop.
+await trace.evaluate(async () => {
+  const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+  for (let step = 0; step <= 20; step += 1) {
+    scrollTo({ top: (max * step) / 20, behavior: "instant" });
+    await new Promise((done) => setTimeout(done, 60));
+  }
+  scrollTo({ top: 0, behavior: "instant" });
+  await new Promise((done) => setTimeout(done, 900));
+});
+const layoutsBefore = await layoutCount();
+await trace.evaluate(async () => {
+  const max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+  for (let step = 0; step <= 20; step += 1) {
+    scrollTo({ top: (max * step) / 20, behavior: "instant" });
+    await new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done)));
+  }
+});
+const layoutDelta = (await layoutCount()) - layoutsBefore;
+console.log(JSON.stringify({ descentTrace: { scrollSteps: 20, layoutDelta, pass: layoutDelta <= 4 } }));
+if (layoutDelta > 4) process.exitCode = 1;
+await trace.close();
 
 await browser.close();

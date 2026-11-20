@@ -1,0 +1,158 @@
+/* The descent: one fixed void under a sequence of instrument clusters. */
+
+.horizon-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  pointer-events: none;
+}
+/* Reduced motion: one settled still, held in the hero, no recession. */
+.horizon-layer[data-static="true"] {
+  position: absolute;
+  top: var(--rec-header-h);
+  bottom: auto;
+  height: calc(100dvh - var(--rec-header-h));
+}
+.horizon-video,
+.horizon-poster,
+.horizon-poster img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.horizon-video,
+.horizon-poster {
+  position: absolute;
+  inset: 0;
+}
+.horizon-poster {
+  z-index: 0;
+}
+.horizon-video {
+  z-index: 1;
+  transition: opacity var(--rec-dur-base) var(--rec-ease-out);
+}
+.horizon-video.is-still,
+.horizon-video.is-swapping {
+  opacity: 0;
+}
+
+/* The stage indicator is chrome, not a chapter. */
+.stage-nav-wrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: var(--rec-z-header);
+  display: flex;
+  align-items: center;
+  gap: var(--rec-space-6);
+  min-height: var(--rec-header-h);
+  padding-top: env(safe-area-inset-top);
+  padding-inline: calc(var(--rec-gutter) + env(safe-area-inset-left))
+    calc(var(--rec-gutter) + env(safe-area-inset-right));
+  border-bottom: var(--rec-rule-w) solid var(--rec-rule);
+  color: var(--rec-ink);
+}
+.stage-mark {
+  color: var(--rec-ink);
+  font-size: var(--rec-text-data-lg);
+  letter-spacing: 0.12em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.stage-mark span {
+  color: var(--rec-ink-muted);
+  letter-spacing: 0.02em;
+}
+.stage-nav {
+  display: flex;
+  gap: var(--rec-space-5);
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  white-space: nowrap;
+}
+.stage-nav::-webkit-scrollbar {
+  display: none;
+}
+.stage-nav a {
+  color: var(--rec-ink-muted);
+  font-size: var(--rec-text-data-sm);
+  text-decoration: none;
+  transition: color var(--rec-dur-quick) var(--rec-ease-out);
+}
+.stage-nav a span {
+  color: var(--rec-signal);
+  margin-right: 0.35em;
+}
+.stage-nav a[data-active="true"] {
+  color: var(--rec-ink);
+  /* Paint-only highlight: a border would relayout the nav on every stage. */
+  box-shadow: inset 0 calc(-1 * var(--rec-rule-w)) 0 var(--rec-signal);
+}
+
+@media (max-width: 760px) {
+  :root {
+    --rec-header-h: 5.25rem;
+  }
+  .stage-nav-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 0.2rem;
+    padding-block: 0.35rem;
+  }
+  .stage-nav {
+    gap: var(--rec-space-4);
+  }
+}
+
+/* Each chapter is a screen over the void, not a band in a document. */
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: calc(100svh - var(--rec-header-h));
+  min-height: calc(100dvh - var(--rec-header-h));
+}
+.cluster {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  min-height: 100dvh;
+  padding-block: calc(var(--rec-header-h) + var(--rec-space-7)) var(--rec-space-9);
+  border-top: var(--rec-rule-w) solid var(--rec-rule);
+}
+.cluster-corner {
+  display: flex;
+  align-items: baseline;
+  gap: var(--rec-space-4);
+  margin-bottom: var(--rec-space-7);
+}
+.cluster-corner h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 2.1vw, 2.25rem);
+  font-weight: 500;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.cluster-body {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .cluster {
+    padding-block: calc(var(--rec-header-h) + var(--rec-space-5)) var(--rec-space-8);
+  }
+  .cluster-corner {
+    margin-bottom: var(--rec-space-5);
+  }
+}

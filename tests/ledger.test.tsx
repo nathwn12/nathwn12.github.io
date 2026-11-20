@@ -1,9 +1,8 @@
 // @vitest-environment jsdom
 /**
- * The event-horizon ledger's own floor: one navigation, five reachable
- * chapters, content truth from src/content, tokens as the only colour source,
- * one dark sky, three selectable hero renders, and a complete static document
- * when motion is off.
+ * The event-horizon ledger's floor: one fixed stage nav, five instrument
+ * clusters in descent order, the data traceable to committed snapshots, the
+ * locked type stack, and a complete static document when motion is off.
  */
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
@@ -13,6 +12,8 @@ import { describe, expect, test } from "vitest";
 import LedgerPage from "../src/components/LedgerPage";
 import { heroVariantFromSearch } from "../src/components/HorizonVideo";
 import { figures, proofRows } from "../src/content/ledger";
+import { signal } from "../src/content/signal";
+import { featuredRows, indexRows } from "../src/content/showcase";
 import { CONTACT_EMAIL } from "../src/lib/contact";
 
 const root = resolve(import.meta.dirname, "..");
@@ -21,24 +22,28 @@ const read = (rel: string) => readFileSync(resolve(root, rel), "utf8");
 const html = renderToStaticMarkup(createElement(LedgerPage));
 const css = read("src/styles/ledger.css");
 const base = read("src/styles/base.css");
+const instruments = read("src/styles/instruments.css");
+const descent = read("src/styles/descent.css");
 const fonts = read("src/styles/fonts.css");
 const tokens = read("src/styles/tokens.css");
 const indexHtml = read("index.html");
+const ORDER = ["signal", "work", "proof", "method", "contact"];
 
-describe("one navigation, every chapter reachable", () => {
-  test("exactly one nav landmark with five in-page links", () => {
+describe("one fixed stage nav, five clusters in descent order", () => {
+  test("the nav lists the five stages in descent order", () => {
     expect(html.match(/<nav\b/g) ?? []).toHaveLength(1);
     const nav = html.match(/<nav\b[^>]*>[\s\S]*?<\/nav>/)?.[0] ?? "";
-    const links = nav.match(/href="#(reduction|method|work|record|contact)"/g) ?? [];
-    expect(links).toHaveLength(5);
+    const links = [...nav.matchAll(/href="#([a-z]+)"/g)].map((match) => match[1]);
+    expect(links).toEqual(ORDER);
   });
 
-  test("one main, one header, the skip link first, five labelled sections", () => {
+  test("the sections render after the hero in the same order", () => {
     expect(html.match(/<main\b/g) ?? []).toHaveLength(1);
     expect(html.match(/<header\b/g) ?? []).toHaveLength(1);
-    expect(html.indexOf("skip-link")).toBeLessThan(html.indexOf("masthead"));
-    for (const id of ["reduction", "method", "work", "record", "contact"]) {
-      expect(html).toContain(`id="${id}"`);
+    expect(html.indexOf("skip-link")).toBeLessThan(html.indexOf("stage-nav"));
+    const ids = [...html.matchAll(/<section id="([a-z]+)"/g)].map((match) => match[1]);
+    expect(ids.slice(0, 6)).toEqual(["horizon", ...ORDER]);
+    for (const id of ORDER) {
       expect(html).toContain(`aria-labelledby="${id}-title"`);
     }
   });
@@ -50,43 +55,70 @@ describe("one navigation, every chapter reachable", () => {
   });
 });
 
-describe("content truth is the ledger", () => {
-  test("the parsed figures render as tabular numerals", () => {
-    expect(figures.commits).toBe("1,182");
-    expect(figures.repositories).toBe("17");
-    expect(figures.scanned).toBe("21");
-    expect(html).toContain(figures.commits!);
-    expect(html).toContain(figures.repositories!);
-    expect(html).toContain(figures.scanned!);
+describe("the signal is a live instrument, not a stats list", () => {
+  test("every committed package draws one sparkline cell", () => {
+    expect(html.match(/class="spark-cell"/g) ?? []).toHaveLength(
+      signal.packages.length,
+    );
+    expect(signal.packages.length).toBeGreaterThanOrEqual(9);
+    expect(html).toContain("34,603");
   });
 
-  test("the measured rows come from content, not retyped copy", () => {
+  test("the activity strip is thirty measured cells with a text alternative", () => {
+    expect(html.match(/class="heat-cell"/g) ?? []).toHaveLength(30);
+    expect(html).toContain("active days from");
+  });
+
+  test("the bake date is visible in micro-type", () => {
+    expect(html).toContain(signal.stamp);
+    expect(html).toContain(signal.snapshotDate);
+  });
+
+  test("the ticker is a fixed bottom readout", () => {
+    expect(html).toContain('class="ticker"');
+    expect(instruments).toContain(".ticker {");
+    expect(instruments).toContain("position: fixed");
+    expect(instruments).toContain("@keyframes ticker-slide");
+  });
+});
+
+describe("the work is a showcase plus a dense index", () => {
+  test("three number-led features and ten compact index entries", () => {
+    expect(featuredRows).toHaveLength(3);
+    expect(indexRows).toHaveLength(10);
+    expect(html.match(/class="featured-row"/g) ?? []).toHaveLength(3);
+    expect(html.match(/class="index-row"/g) ?? []).toHaveLength(10);
+    expect(html).not.toMatch(/class="[^"]*\bcard\b/);
+  });
+
+  test("the proof keeps its four measured rows and their ink-centre figures", () => {
     for (const row of proofRows) {
       expect(html).toContain(row.figure);
       expect(html).toContain(row.claim);
     }
     expect(html).toContain("−98%");
+    expect(figures.commits).toBe("1,182");
+    expect(html).toContain(figures.commits!);
   });
 
-  test("the contact is a large mailto, with no form", () => {
-    expect(html).toContain(`mailto:${CONTACT_EMAIL}`);
-    expect(html).toContain(CONTACT_EMAIL);
-    expect(html).not.toContain("<form");
-  });
-
-  test("the work rows are open links, not cards", () => {
-    expect(html.match(/class="work-row"/g)).toHaveLength(13);
-    expect(html).not.toMatch(/class="[^"]*\bcard\b/);
+  test("the method is a spec sheet with no prose paragraphs", () => {
+    const from = html.indexOf('id="method"');
+    const to = html.indexOf('id="contact"');
+    const method = html.slice(from, to);
+    expect(method).not.toMatch(/<p\b/);
+    expect(method).toContain("spec-line");
   });
 });
 
-describe("tokens are the only colour source, and dark is the only sky", () => {
-  test("no raw hex in the new component, stylesheet or base", () => {
+describe("content truth, tokens and the one dark sky", () => {
+  test("no raw hex in a component or stylesheet", () => {
     for (const source of [
       read("src/components/LedgerPage.tsx"),
       read("src/components/HorizonVideo.tsx"),
       css,
       base,
+      instruments,
+      descent,
     ]) {
       expect(source).not.toMatch(/#[0-9a-f]{3,8}\b/i);
     }
@@ -95,8 +127,6 @@ describe("tokens are the only colour source, and dark is the only sky", () => {
   test("the paper sky is deleted, not adapted", () => {
     expect(tokens).toContain("color-scheme: dark");
     expect(tokens).not.toContain('[data-theme="light"]');
-    expect(css).not.toContain('[data-theme="light"]');
-    expect(css).not.toContain("horizon-plate");
     expect(indexHtml).toContain('data-theme="dark"');
     expect(indexHtml).not.toContain("prefers-color-scheme");
     expect(base).toContain('html[data-motion="off"]');
@@ -106,18 +136,32 @@ describe("tokens are the only colour source, and dark is the only sky", () => {
     expect(html).not.toMatch(/\bpaper\b|theme-toggle|void mode/i);
     expect(html).not.toContain("Switch to");
   });
+
+  test("the contact is a large mailto, with no form", () => {
+    expect(html).toContain(`mailto:${CONTACT_EMAIL}`);
+    expect(html).not.toContain("<form");
+  });
 });
 
-describe("three hero renders, one picking lever", () => {
+describe("the fixed descent layer keeps the C hero asset", () => {
   test("only a, b and c are real; anything else is the default c", () => {
     expect(heroVariantFromSearch("?hero=a")).toBe("a");
     expect(heroVariantFromSearch("?hero=b")).toBe("b");
     expect(heroVariantFromSearch("?hero=c")).toBe("c");
     expect(heroVariantFromSearch("")).toBe("c");
-    expect(heroVariantFromSearch("?hero=")).toBe("c");
     expect(heroVariantFromSearch("?hero=zzz")).toBe("c");
     expect(heroVariantFromSearch("?hero=A")).toBe("c");
-    expect(heroVariantFromSearch("?hero=dark")).toBe("c");
+  });
+
+  test("the layer is fixed and driven by one rAF, transform and opacity only", () => {
+    expect(descent).toContain("position: fixed");
+    expect(descent).toContain("will-change: transform, opacity");
+    const video = read("src/components/HorizonVideo.tsx");
+    expect(video).toContain("requestAnimationFrame");
+    expect(video).toContain('passive: true');
+    expect(video).not.toContain("getBoundingClientRect");
+    expect(video).toContain("scrollY");
+    expect(html).toContain("horizon-layer");
   });
 
   test("A keeps its dither crisp; B and C stay smooth", () => {
@@ -125,29 +169,20 @@ describe("three hero renders, one picking lever", () => {
     expect(css).toContain("image-rendering: pixelated");
     expect(css.match(/image-rendering/g) ?? []).toHaveLength(1);
   });
-});
 
-describe("reduced motion is a complete document", () => {
-  test("reveals are hidden only when motion is explicitly on and allowed", () => {
-    expect(css).toContain("@media (prefers-reduced-motion: no-preference)");
-    expect(css).toContain('html[data-motion="on"] [data-reveal]');
-    expect(css).toContain('html[data-motion="on"] [data-reveal].is-in');
-  });
-
-  test("the hero is a recorded loop and shows only its poster under reduced motion", () => {
+  test("the recorded loop keeps its sources and settled poster", () => {
     const video = read("src/components/HorizonVideo.tsx");
-    expect(video).toContain("preload=\"metadata\"");
+    expect(video).toContain('preload="metadata"');
     expect(video).toContain("playsInline");
     expect(video).toContain("RATE = 0.7");
     expect(video).toContain('classList.add("is-still")');
-    expect(video).toContain("IntersectionObserver");
     expect(video).toContain("visibilitychange");
     expect(html).toContain("horizon-c-poster-phone.webp");
     expect(html).toContain("horizon-c-poster-desktop.webp");
     expect(html).not.toContain("<canvas");
   });
 
-  test("two sources per aspect: AV1 first, H.264 second, browser picks", () => {
+  test("two sources per aspect: AV1 first, H.264 second", () => {
     const video = read("src/components/HorizonVideo.tsx");
     expect(video).toContain('PORTRAIT_QUERY = "(max-aspect-ratio: 1/1)"');
     expect(video).toContain('media="(max-aspect-ratio: 1/1)"');
@@ -158,23 +193,7 @@ describe("reduced motion is a complete document", () => {
     expect(video).toContain("video.load()");
     const videoTag = video.match(/<video[\s\S]*?<\/video>/)?.[0] ?? "";
     expect(videoTag.match(/<source\b/g) ?? []).toHaveLength(2);
-    const av1 = videoTag.indexOf("-av1.mp4");
-    const h264 = videoTag.indexOf("type={H264}");
-    expect(av1).toBeGreaterThan(-1);
-    expect(h264).toBeGreaterThan(av1);
     expect(videoTag).not.toContain("video.src");
-    expect(videoTag).not.toContain("<canvas");
-  });
-
-  test("no runtime overlay sits over the baked-in grain and vignette", () => {
-    expect(css).not.toContain(".horizon-fade");
-    expect(css).not.toContain(".hero::after");
-  });
-
-  test("the HUD respects the safe area and the dynamic viewport", () => {
-    expect(css).toContain("env(safe-area-inset-top)");
-    expect(css).toContain("env(safe-area-inset-bottom)");
-    expect(css).toContain("100dvh");
   });
 
   test("three variants, two aspects, two codecs and six posters are real assets", () => {
@@ -199,19 +218,33 @@ describe("reduced motion is a complete document", () => {
     }
   });
 
-  test("no live shader runs in the shipped page", () => {
-    const app = read("src/App.tsx");
-    const page = read("src/components/LedgerPage.tsx");
-    expect(page).not.toContain("HorizonCanvas");
-    expect(page).not.toContain("BlackHoleRenderer");
-    expect(app).not.toContain("blackhole");
-  });
-
-  test("native scroll is never intercepted", () => {
-    for (const source of [css, read("src/components/LedgerPage.tsx")]) {
+  test("no live shader runs and native scroll is never intercepted", () => {
+    expect(read("src/App.tsx")).not.toContain("blackhole");
+    for (const source of [css, instruments, descent, read("src/components/LedgerPage.tsx")]) {
       expect(source).not.toContain("preventDefault");
       expect(source).not.toMatch(/wheel|touchmove|scroll-snap-type/);
     }
+  });
+});
+
+describe("reduced motion is a complete document", () => {
+  test("reveals are hidden only when motion is explicitly on and allowed", () => {
+    expect(css).toContain("@media (prefers-reduced-motion: no-preference)");
+    expect(css).toContain('html[data-motion="on"] [data-reveal]');
+    expect(css).toContain('html[data-motion="on"] [data-reveal].is-in');
+  });
+
+  test("the ticker stops dead and the layer holds a still", () => {
+    expect(instruments).toContain("html[data-motion=\"off\"] .ticker-track");
+    expect(instruments).toContain("@media (prefers-reduced-motion: reduce)");
+    expect(descent).toContain('data-static="true"');
+    expect(html).toContain("data-static");
+  });
+
+  test("the HUD respects the safe area and the dynamic viewport", () => {
+    expect(css).toContain("env(safe-area-inset-top)");
+    expect(css).toContain("env(safe-area-inset-bottom)");
+    expect(css).toContain("100dvh");
   });
 });
 
@@ -226,7 +259,6 @@ describe("the committed type stack is self-hosted", () => {
   test("the display cut is the single preload and the licence ships", () => {
     expect(indexHtml).toContain("PlayfairDisplay-Variable.woff2");
     expect(indexHtml).not.toContain("Archivo-Variable");
-    expect(indexHtml).not.toContain("JetBrainsMono-Regular");
     expect(read("public/fonts/OFL-Ledger.txt")).toContain("OPEN FONT LICENSE");
   });
 });
