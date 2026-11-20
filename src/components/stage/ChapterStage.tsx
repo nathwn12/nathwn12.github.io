@@ -32,7 +32,7 @@ import {
 import { projects, projectsLede } from "../../content/projects";
 import { credentials } from "../../content/credentials";
 import { CONTACT_EMAIL } from "../../lib/contact";
-import { countUp, motionAllowed, revealLines } from "../../lib/motion";
+import { countUp, motionAllowed } from "../../lib/motion";
 import { scrollTo as scrollToTarget } from "../../lib/smooth";
 import { mountStageMotion } from "../../lib/stage-motion";
 import { BlackHoleCanvas } from "./BlackHoleCanvas";
@@ -84,7 +84,6 @@ export function ChapterStage() {
   const root = useRef<HTMLDivElement>(null);
   const panels = useRef<Partial<Record<ChapterId, HTMLElement | null>>>({});
   const figure = useRef<HTMLSpanElement>(null);
-  const claim = useRef<HTMLHeadingElement>(null);
 
   const onStatus = useCallback((value: boolean) => setLive(value), []);
 
@@ -99,7 +98,6 @@ export function ChapterStage() {
   // The first screen's single orchestrated reveal: the claim sets itself and
   // the one measured figure counts into the singularity.
   useEffect(() => {
-    const lines = revealLines(claim.current, { delay: 0.12, stagger: 0.09 });
     const reduction = proofRows[0]?.figure ?? "";
     const target = Number(reduction.replace(/[^\d.]/g, ""));
     const counter = Number.isFinite(target)
@@ -107,10 +105,7 @@ export function ChapterStage() {
           duration: 1.25,
         })
       : null;
-    return () => {
-      lines.revert();
-      counter?.revert();
-    };
+    return () => counter?.revert();
   }, []);
 
   // A thin band at the viewport's centre decides which shell is current. This
@@ -296,9 +291,13 @@ export function ChapterStage() {
                 <span className="stage-kicker__no">01</span>
                 <span>{CHAPTERS[0].label}</span>
               </p>
-              <h1 id="chapter-person-title" className="stage-title" ref={claim}>
-                <span className="stage-title__line">I ship systems</span>
-                <span className="stage-title__line">that hold in production.</span>
+              <h1 id="chapter-person-title" className="stage-title">
+                <span className="stage-title__line">
+                  <span className="stage-title__in">I ship systems</span>
+                </span>
+                <span className="stage-title__line">
+                  <span className="stage-title__in">that hold in production.</span>
+                </span>
               </h1>
               <p className="stage-claim">{recordOpener}</p>
               <p className="stage-voice">{standfirst}</p>

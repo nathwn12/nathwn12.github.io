@@ -64,8 +64,8 @@
 }
 .bh-still__shadow {
   position: absolute;
-  left: 50%;
-  top: 46%;
+  left: 79%;
+  top: 48%;
   width: 62vmin;
   height: 62vmin;
   transform: translate(-50%, -50%);
@@ -80,8 +80,8 @@
 }
 .bh-still__disc {
   position: absolute;
-  left: 50%;
-  top: 46%;
+  left: 79%;
+  top: 48%;
   width: 48vmin;
   height: 14vmin;
   transform: translate(-50%, -50%) rotate(-22deg);
@@ -93,8 +93,8 @@
 }
 .bh-still__photon {
   position: absolute;
-  left: 50%;
-  top: 46%;
+  left: 79%;
+  top: 48%;
   width: 25vmin;
   height: 25vmin;
   transform: translate(-50%, -50%);
@@ -103,8 +103,8 @@
 }
 .bh-still__horizon {
   position: absolute;
-  left: 50%;
-  top: 46%;
+  left: 79%;
+  top: 48%;
   width: 21vmin;
   height: 21vmin;
   transform: translate(-50%, -50%);
@@ -149,9 +149,10 @@
   position: relative;
   z-index: 5;
   border-bottom: var(--rec-rule-w) solid var(--rec-rule);
-  background: color-mix(in srgb, var(--rec-ground) 88%, transparent);
-  -webkit-backdrop-filter: blur(14px);
-  backdrop-filter: blur(14px);
+  /* Opaque enough to read over the field without a backdrop blur. A full-bleed
+     blur cost ~4.5 ms a frame on a software rasteriser; the type never needs
+     it and the frame budget does. */
+  background: color-mix(in srgb, var(--rec-panel) 94%, var(--rec-ground));
 }
 .stage-rail__inner {
   display: flex;
@@ -388,7 +389,6 @@
   transform: translate3d(0, 0, var(--shell-z)) scale(var(--shell-scale));
   transform-origin: center center;
   opacity: calc(0.42 + 0.58 * var(--shell-front));
-  will-change: transform;
 }
 .stage-panel__content {
   position: relative;
@@ -396,22 +396,20 @@
   max-width: var(--rec-frame);
   margin-inline: auto;
   padding: clamp(1.5rem, 4vw, 4rem) clamp(1.25rem, 5vw, 5rem);
+  /* The scrim ends before the hole. Type stays on a token surface; the field
+     keeps the right third of the frame for itself. */
   background: linear-gradient(
     100deg,
-    color-mix(in srgb, var(--rec-ground) 95%, transparent) 0%,
-    color-mix(in srgb, var(--rec-ground) 88%, transparent) 62%,
-    color-mix(in srgb, var(--rec-ground) 46%, transparent) 100%
+    color-mix(in srgb, var(--rec-ground) 96%, transparent) 0%,
+    color-mix(in srgb, var(--rec-ground) 93%, transparent) 42%,
+    color-mix(in srgb, var(--rec-ground) 62%, transparent) 62%,
+    color-mix(in srgb, var(--rec-ground) 0%, transparent) 80%
   );
   border-left: var(--rec-rule-w) solid color-mix(in srgb, var(--rec-signal) 34%, var(--rec-rule));
   transform: translate3d(0, calc(var(--shell-pass) * 38px), 0);
 }
 .stage-panel__content > * {
   max-width: var(--rec-prose-measure);
-}
-@media (min-width: 1200px) {
-  .stage-panel__content {
-    margin-left: clamp(1rem, 4vw, 5rem);
-  }
 }
 
 .stage-kicker {
@@ -448,7 +446,25 @@
 }
 .stage-title__line {
   display: block;
+  overflow: hidden;
   overflow-wrap: anywhere;
+}
+/* The claim sets itself from a fixed line box: no DOM splitting, no reflow,
+   so the reveal cannot shift the shell it sits in. */
+.stage-title__in {
+  display: block;
+  opacity: 0;
+  transform: translate3d(0, 110%, 0);
+  animation: title-rise 880ms var(--rec-ease-out) forwards;
+}
+.stage-title__line:nth-child(2) .stage-title__in {
+  animation-delay: 90ms;
+}
+@keyframes title-rise {
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
 }
 .stage-heading {
   font-family: var(--font-display);
@@ -496,7 +512,7 @@
 /* --- THE SINGULARITY ------------------------------------------------------ */
 .singularity {
   position: absolute;
-  left: 58%;
+  left: 76%;
   top: 50%;
   width: 10.5rem;
   height: 10.5rem;
@@ -544,6 +560,9 @@
   letter-spacing: -0.045em;
   font-variant-numeric: tabular-nums;
   color: var(--rec-ink);
+  /* A fixed measure keeps the count-up from shifting the line it sits on. */
+  min-width: 4.5ch;
+  text-align: center;
 }
 .singularity__label {
   font-family: var(--font-mono);
@@ -814,17 +833,14 @@
     margin: var(--rec-space-5) 0 var(--rec-space-6);
   }
   .stage-panel__content {
-    background: color-mix(in srgb, var(--rec-ground) 96%, transparent);
+    /* Thinner than the desktop scrim so the recentred disc still reads behind
+       the copy. The contrast probe measures the painted result at this width. */
+    background: color-mix(in srgb, var(--rec-ground) 90%, transparent);
   }
+  /* The current chapter is carried by the active rail diamond here; a second
+     floating marker would sit on top of the facts at this width. */
   .stage-hud {
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 0.75rem);
-    right: 0.75rem;
-  }
-  .stage-hud__rail {
-    height: 4.5rem;
-  }
-  .stage-hud__marker {
-    transform: translateY(calc(var(--stage-pos) * 16px));
+    display: none;
   }
 }
 

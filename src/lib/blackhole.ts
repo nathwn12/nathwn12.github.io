@@ -54,8 +54,7 @@ float plane(vec2 uv, float scale, float density, float drift) {
   vec2 jitter = vec2(hash21(id + 1.7), hash21(id + 9.1)) - 0.5;
   float d = length(f - jitter * 0.72);
   float core = smoothstep(0.052, 0.0, d);
-  float twinkle = 0.72 + 0.28 * sin(uTime * 1.3 + seed * 60.0);
-  return core * twinkle * (0.35 + 0.65 * hash21(id + 4.3));
+  return core * (0.4 + 0.6 * hash21(id + 4.3));
 }
 
 void main() {
@@ -63,27 +62,32 @@ void main() {
   float t = uTime;
   float prog = uProgress;
 
-  // The hole drifts a little on its orbit; it never leaves the frame.
-  vec2 center = vec2(0.015 * sin(prog * 0.85), 0.012 * cos(prog * 0.62));
+  // Desktop puts the hole in the clear right third, where the type scrim has
+  // faded out. Portrait recentres it behind the copy: the same field, a
+  // different authored composition rather than a cropped desktop frame.
+  float narrow = step(uRes.x, 500.0);
+  vec2 center = vec2(
+    mix(0.46, 0.0, narrow) + 0.02 * sin(prog * 0.85),
+    mix(0.02, -0.04, narrow) + 0.012 * cos(prog * 0.62)
+  );
   vec2 d = uv - center;
   float r = length(d);
-  float R = 0.108 + 0.010 * sin(prog * 1.05);
+  float R = mix(0.122, 0.17, narrow) + 0.010 * sin(prog * 1.05);
 
   // Lensing. Sample coordinates are pushed outward near the mass, so the
   // background bends around the horizon instead of being painted over it.
   float bend = 0.00042 / (r * r + 0.0045);
   vec2 lensed = uv + (d / max(r, 0.0001)) * bend;
 
-  float s1 = plane(lensed, 13.0, 0.84, prog * 0.055);
-  float s2 = plane(lensed, 24.0, 0.90, prog * 0.115 + 4.0);
-  float s3 = plane(lensed, 42.0, 0.94, prog * 0.205 + 11.0);
-  float star = s1 * 0.52 + s2 * 0.34 + s3 * 0.23;
+  float s1 = plane(lensed, 15.0, 0.80, prog * 0.055);
+  float s2 = plane(lensed, 30.0, 0.88, prog * 0.145 + 7.0);
+  float star = s1 * 0.62 + s2 * 0.42;
 
   // Two skies, authored separately. Light is a bright field, not an inverted
   // dark; the hole keeps its own shadow in both.
   vec3 sky = mix(vec3(0.014, 0.020, 0.020), vec3(0.885, 0.915, 0.880), uTheme);
   vec3 starTint = mix(vec3(0.86, 0.92, 0.89), vec3(0.19, 0.25, 0.21), uTheme);
-  vec3 col = sky + star * starTint * mix(0.95, 0.62, uTheme);
+  vec3 col = sky + star * starTint * mix(1.35, 0.95, uTheme);
 
   // Gravitational shadow: a dark well around the hole that holds the readout
   // legible in both skies and gives the disc something to glow against.
@@ -98,21 +102,19 @@ void main() {
   vec2 discP = vec2(e.x, e.y * 3.05);
   float rd = length(discP);
   float inner = R * 1.12;
-  float outer = R * (2.85 + 0.10 * sin(prog * 0.9));
+  float outer = R * (3.15 + 0.10 * sin(prog * 0.9));
   float ring = smoothstep(inner, inner + 0.014, rd) *
                (1.0 - smoothstep(outer - 0.055, outer, rd));
-  float theta = atan(discP.y, discP.x);
-  float swirl = 0.5 + 0.5 * sin(theta * 8.0 - t * 1.15 + rd * 38.0);
-  float grain = hash21(vec2(floor(theta * 26.0 + t * 0.7), floor(rd * 70.0)));
+  float swirl = 0.5 + 0.5 * sin(rd * 38.0 - t * 1.15 + d.x * 9.0);
   float doppler = 0.55 + 0.75 * smoothstep(-1.0, 1.0, d.x / max(r, 0.0001));
-  float disc = ring * (0.30 + 0.55 * swirl + 0.24 * grain) * doppler;
+  float disc = ring * (0.34 + 0.58 * swirl) * doppler;
 
   // Photon ring: the thin rim where light cannot escape.
   float photon = smoothstep(0.011, 0.0, abs(r - R * 1.045)) * 0.85;
 
   // Far half of the disc sits behind the hole, near half in front of it.
   float front = step(0.0, e.y);
-  col += uAccent * (disc * mix(0.42, 1.0, front) + photon);
+  col += uAccent * (disc * mix(0.70, 1.55, front) + photon * 1.25);
 
   // The event horizon is black in both themes. Non-negotiable.
   float horizon = 1.0 - smoothstep(R - 0.003, R + 0.002, r);
@@ -212,11 +214,15 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
   let theme = "";
   let accent = accentVector();
   let disposed = false;
+  let lastDraw = 0;
 
   const resize = () => {
-    // Cap the backing store at 1x: the shader is cheap, but a retina buffer is
-    // four times the fragments for no visible gain on a field of points.
-    const scale = 1;
+    // The field is light, but a full 1440p fragment pass is not free on a
+    // software rasteriser. Cap the backing width: above this the CSS upscale
+    // is invisible on a field of points, and the fragment count drops by more
+    // than half. Small viewports keep their native resolution.
+    const maxWidth = 640;
+    const scale = Math.min(1, maxWidth / Math.max(1, canvas.clientWidth));
     const width = Math.max(1, Math.round(canvas.clientWidth * scale));
     const height = Math.max(1, Math.round(canvas.clientHeight * scale));
     if (canvas.width !== width || canvas.height !== height) {
@@ -228,6 +234,14 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
 
   const draw = (now: number) => {
     if (disposed || !visible || !onScreen) return;
+    // The field turns on a 16-second cycle. Presenting it at 20 fps is
+    // indistinguishable from 60 fps, and keeps the compositor free for the
+    // scroll-driven shells and dust that carry the actual motion.
+    if (now - lastDraw < 50) {
+      frame = requestAnimationFrame(draw);
+      return;
+    }
+    lastDraw = now;
     const nextTheme = document.documentElement.dataset.theme ?? "dark";
     if (nextTheme !== theme) {
       theme = nextTheme;
