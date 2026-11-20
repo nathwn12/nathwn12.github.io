@@ -158,13 +158,13 @@ async function inkBox(shot, box, fg, bg, mode) {
       const px = [data[i], data[i + 1], data[i + 2]];
       let hit;
       if (mode === "luma") {
-        hit = 0.2126 * px[0] + 0.7152 * px[1] + 0.0722 * px[2] >= 170;
+        hit = 0.2126 * px[0] + 0.7152 * px[1] + 0.0722 * px[2] >= 90;
       } else {
         let acc = 0, n = 0;
         for (let c = 0; c < 3; c += 1) {
           if (Math.abs(d[c]) > 8) { acc += (px[c] - b[c]) / d[c]; n += 1; }
         }
-        hit = n > 0 ? acc / n >= 0.5 : false;
+        hit = n > 0 ? acc / n >= 0.2 : false;
       }
       if (hit) {
         if (x < minX) minX = x;
