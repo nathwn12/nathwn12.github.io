@@ -13,7 +13,6 @@ html {
   margin-bottom: 4.5rem;
 }
 .stage {
-  --stage-pos: 0;
   position: relative;
   isolation: isolate;
   background: var(--rec-ground);
@@ -140,17 +139,14 @@ html {
 }
 .bh-dust__plane--far {
   opacity: 0.16;
-  transform: translate3d(calc(var(--stage-pos) * -5px), calc(var(--stage-pos) * 3px), 0);
 }
 .bh-dust__plane--mid {
   opacity: 0.12;
   background-position: 31px 17px, 0 0;
-  transform: translate3d(calc(var(--stage-pos) * -13px), calc(var(--stage-pos) * 7px), 0);
 }
 .bh-dust__plane--near {
   opacity: 0.08;
   background-position: 0 43px, 59px 0;
-  transform: translate3d(calc(var(--stage-pos) * -26px), calc(var(--stage-pos) * 14px), 0);
 }
 
 /* --- THE ONE NAVIGATION — an orbit index along the bottom edge ------------ */
@@ -230,8 +226,6 @@ html {
   width: 20%;
   height: 2px;
   background: var(--rec-signal);
-  transform: translateX(calc(round(var(--stage-pos)) * 100%));
-  transition: transform 420ms var(--rec-ease-out);
 }
 @media (max-width: 520px) {
   .stage-rail__inner {
@@ -253,10 +247,6 @@ html {
   perspective: 1400px;
 }
 .stage-panel {
-  --shell-z: 0px;
-  --shell-scale: 1;
-  --shell-front: 1;
-  --shell-pass: 0;
   position: relative;
   min-height: 100svh;
   scroll-margin-top: var(--rec-space-4);
@@ -269,9 +259,8 @@ html {
   align-items: center;
   min-height: 100svh;
   padding-block: var(--rec-space-7) 8rem;
-  transform: translate3d(0, 0, var(--shell-z)) scale(var(--shell-scale));
   transform-origin: center center;
-  opacity: calc(0.42 + 0.58 * var(--shell-front));
+  opacity: 1;
 }
 .stage-panel__content {
   display: grid;
@@ -282,7 +271,6 @@ html {
   max-width: 82rem;
   margin-inline: auto;
   padding-inline: clamp(1.25rem, 5vw, 5rem);
-  transform: translate3d(0, calc(var(--shell-pass) * 38px), 0);
 }
 .stage-panel__content:not(.stage-panel__content--arrival):not(.stage-panel__content--contact) {
   align-items: start;

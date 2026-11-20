@@ -1,16 +1,14 @@
 /**
  * stage-motion — one scalar, five shells, no trapped input.
  *
- * Native scrolling owns the document. This module only reads where the reader
- * is and writes compositor-friendly transforms: one continuous position from
- * 0 to 4 drives the camera through the orbital shells, the dust parallax, the
- * chapter marker, and the shader. Nothing here calls preventDefault, and there
- * is no scroll snap and no wheel, touch or key handler.
+ * Native scrolling owns the document. This module reads the scroll position and
+ * writes compositor properties directly on the elements that move. It never
+ * writes a custom property per frame: a custom property on a parent invalidates
+ * style for every descendant, and on a five-chapter document that is hundreds
+ * of milliseconds of recalc per descent.
  *
- * The loop is event-driven: a scroll or resize schedules one frame, and the
- * frame is skipped while the tab is hidden or the stage is off screen. When
- * motion is off the module never starts at all; the resting layout in CSS is
- * the whole experience.
+ * Layout is measured on mount and on resize only. Nothing in the scroll path
+ * calls getBoundingClientRect, offsetHeight or innerHeight.
  */
 
 import { motionAllowed } from "./motion";
@@ -43,61 +41,81 @@ export function emitStageFlash(): void {
 
 export interface StageMotionHandle {
   destroy(): void;
-  /** Jump the camera to a chapter position without a scroll animation. */
+  /** Re-measure the document after a font swap or layout change. */
   sync(): void;
 }
 
 const clamp = (value: number, min: number, max: number) =>
   Math.min(max, Math.max(min, value));
 
+interface Shell {
+  panel: HTMLElement;
+  frame: HTMLElement;
+  content: HTMLElement;
+}
+
 export function mountStageMotion(root: HTMLElement): StageMotionHandle {
   if (!motionAllowed()) {
-    // A static document still needs a definite position for the still frame.
-    root.style.setProperty("--stage-pos", "0");
     emit(0);
     return { destroy() {}, sync() {} };
   }
 
-  const panels = [...root.querySelectorAll<HTMLElement>(".stage-panel")];
+  const shells: Shell[] = [...root.querySelectorAll<HTMLElement>(".stage-panel")]
+    .map((panel) => {
+      const frame = panel.querySelector<HTMLElement>(".stage-panel__frame");
+      const content = panel.querySelector<HTMLElement>(".stage-panel__content");
+      return frame && content ? { panel, frame, content } : null;
+    })
+    .filter((shell): shell is Shell => shell !== null);
+  const dust = [
+    ...root.querySelectorAll<HTMLElement>(".bh-dust__plane"),
+  ];
+  const sweep = root.querySelector<HTMLElement>(".stage-rail__sweep");
+
+  let top = 0;
+  let travel = 1;
+  let viewport = 1;
   let frame = 0;
   let visible = document.visibilityState !== "hidden";
   let onScreen = true;
   let last = -1;
 
+  const measure = () => {
+    top = root.getBoundingClientRect().top + window.scrollY;
+    viewport = window.innerHeight;
+    travel = Math.max(1, root.offsetHeight - viewport);
+  };
+
   const update = () => {
     frame = 0;
     if (!visible || !onScreen) return;
 
-    const top = root.getBoundingClientRect().top + window.scrollY;
-    const travel = Math.max(1, root.offsetHeight - window.innerHeight);
-    const raw = clamp((window.scrollY - top) / travel, 0, 1) * (panels.length - 1);
+    const raw = clamp((window.scrollY - top) / travel, 0, 1) * (shells.length - 1);
     if (Math.abs(raw - last) < 0.0004) return;
     last = raw;
-
-    root.style.setProperty("--stage-pos", raw.toFixed(4));
     emit(raw);
 
-    for (let i = 0; i < panels.length; i += 1) {
+    for (let i = 0; i < shells.length; i += 1) {
+      const shell = shells[i]!;
       const local = raw - i;
       const distance = Math.min(1, Math.abs(local));
-      const panel = panels[i];
-      if (!panel) continue;
-      // Depth is a real Z translation: the active shell is nearest, its
-      // neighbours recede. Scale and blur are the same recession, never a
-      // second effect. Type itself is never blurred.
-      const z = -distance * 220;
-      const scale = 1 - distance * 0.055;
       const front = clamp(1 - Math.abs(local), 0, 1);
-      panel.style.setProperty("--shell-z", `${z.toFixed(1)}px`);
-      panel.style.setProperty("--shell-scale", scale.toFixed(4));
-      panel.style.setProperty("--shell-front", front.toFixed(3));
-      // The arriving content locks to its grid position inside the centre
-      // band instead of drifting through it: the eye sees it snap into place.
+      // The arriving content locks inside the centre band and snaps to grid.
       const landing = clamp((Math.abs(local) - 0.12) / 0.88, 0, 1);
-      panel.style.setProperty(
-        "--shell-pass",
-        (Math.sign(local) * landing).toFixed(3),
-      );
+      const pass = Math.sign(local) * landing;
+      shell.frame.style.transform =
+        `translate3d(0,0,${(-distance * 220).toFixed(1)}px) scale(${(1 - distance * 0.055).toFixed(4)})`;
+      shell.frame.style.opacity = (0.42 + 0.58 * front).toFixed(3);
+      shell.content.style.transform = `translate3d(0,${(pass * 38).toFixed(1)}px,0)`;
+    }
+
+    const index = shellIndex(raw);
+    if (sweep) sweep.style.transform = `translateX(${index * 100}%)`;
+    for (let i = 0; i < dust.length; i += 1) {
+      const rate = [5, 13, 26][i] ?? 13;
+      const drift = (raw * -rate).toFixed(1);
+      const rise = (raw * rate * 0.5).toFixed(1);
+      dust[i]!.style.transform = `translate3d(${drift}px,${rise}px,0)`;
     }
   };
 
@@ -111,7 +129,13 @@ export function mountStageMotion(root: HTMLElement): StageMotionHandle {
   };
   document.addEventListener("visibilitychange", onVisibility);
   window.addEventListener("scroll", schedule, { passive: true });
-  window.addEventListener("resize", schedule, { passive: true });
+  window.addEventListener("resize", onResize, { passive: true });
+
+  function onResize() {
+    measure();
+    last = -1;
+    schedule();
+  }
 
   let observer: IntersectionObserver | null = null;
   if (typeof IntersectionObserver !== "undefined") {
@@ -125,20 +149,36 @@ export function mountStageMotion(root: HTMLElement): StageMotionHandle {
     observer.observe(root);
   }
 
+  let resizeObserver: ResizeObserver | null = null;
+  if (typeof ResizeObserver !== "undefined") {
+    resizeObserver = new ResizeObserver(() => {
+      measure();
+      last = -1;
+      schedule();
+    });
+    resizeObserver.observe(root);
+  }
+
+  measure();
   schedule();
-  update();
 
   return {
     destroy() {
       if (frame) cancelAnimationFrame(frame);
       document.removeEventListener("visibilitychange", onVisibility);
       window.removeEventListener("scroll", schedule);
-      window.removeEventListener("resize", schedule);
+      window.removeEventListener("resize", onResize);
       observer?.disconnect();
+      resizeObserver?.disconnect();
     },
     sync() {
+      measure();
       last = -1;
       schedule();
     },
   };
+}
+
+function shellIndex(position: number): number {
+  return Math.max(0, Math.min(4, Math.round(position)));
 }
