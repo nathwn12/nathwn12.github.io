@@ -36,9 +36,9 @@ const GEO = {
   cxDesktop: 0.46,
   cxNarrow: 0.0,
   cyDesktop: 0.02,
-  cyNarrow: -0.04,
-  rDesktop: 0.122,
-  rNarrow: 0.17,
+  cyNarrow: -0.026,
+  rDesktop: 0.1,
+  rNarrow: 0.066,
   drift: 0.01,
   driftRate: 1.05,
 } as const;
@@ -231,7 +231,17 @@ void main() {
 
   // The sky is never tone-mapped; the live field and the CSS still share it.
   float shadow = 1.0 - smoothstep(R * 0.96, R * 2.30, r);
-  vec3 col = uGround * (1.0 - shadow * mix(0.92, 0.97, uTheme)) + aces(light * 1.06);
+  vec3 sky = uGround * (1.0 - shadow * mix(0.92, 0.97, uTheme));
+  // On a light sky gas reads by absorption. Darken under the disc first, then
+  // add the emissive cusp, so the form survives the highlight shoulder.
+  sky *= 1.0 - uTheme * 0.62 * clamp(disc * 0.9 + tight, 0.0, 1.0);
+  vec3 col = sky + aces(light * mix(1.06, 0.92, uTheme));
+  // A photographic shoulder. The light sky is near white, so an additive
+  // highlight would merge with it; compress into 0.80..0.96 instead.
+  if (uTheme > 0.5) {
+    vec3 over = max(col - vec3(0.80), vec3(0.0));
+    col = vec3(0.80) + vec3(0.16) * (vec3(1.0) - exp(-over / 0.16));
+  }
   // The event horizon stays black in both skies.
   float horizon = 1.0 - smoothstep(R - 0.002, R + 0.001, r);
   col = mix(col, vec3(0.0), horizon);

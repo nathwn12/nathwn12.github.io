@@ -439,6 +439,7 @@ html {
   border: var(--rec-rule-w) solid var(--rec-rule);
   text-align: center;
 }
+.singularity__label-short { display: none; }
 
 /* --- SATELLITE DATA ------------------------------------------------------- */
 .stage-facts {
@@ -686,18 +687,51 @@ html {
   .stage-panel[data-chapter="person"] .stage-panel__frame {
     height: 100svh;
     min-height: 0;
-    padding-block: var(--rec-space-4) 8rem;
-  }
-  .singularity__num {
-    font-size: min(calc(var(--bh-r, 33vh) * 0.4), 3.4rem);
-  }
-  .stage-voice {
-    font-size: 0.875rem;
-    line-height: 1.4;
+    padding-block: 0 8rem;
+    align-items: start;
   }
   .stage-panel__content--arrival {
-    gap: var(--rec-space-1);
+    min-height: 0;
+    gap: 0;
   }
+  .stage-panel__content--arrival .stage-lead {
+    padding: 0.75rem;
+  }
+  .stage-panel__content--arrival .stage-kicker {
+    margin-bottom: 0.75rem;
+  }
+  .stage-title {
+    font-size: 1.45rem;
+  }
+  .stage-claim {
+    font-size: 0.875rem;
+  }
+  .stage-voice {
+    font-size: 0.8125rem;
+    line-height: 1.3;
+  }
+  .stage-panel__content--arrival .stage-facts {
+    margin-top: 22rem;
+  }
+  .singularity__num {
+    font-size: min(calc(var(--bh-r, 33vh) * 0.44), 3.4rem);
+  }
+  .singularity__label {
+    top: calc(50% + 26px);
+    padding: 0.15rem 0.4rem;
+    font-size: 0.5rem;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+  .singularity__label-full {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .singularity__label-short { display: inline; }
 }
 
 @media (max-width: 360px) {

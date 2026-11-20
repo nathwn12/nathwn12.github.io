@@ -216,7 +216,12 @@ export function ChapterStage() {
           <span className="singularity__num" ref={figure} data-figure>
             {singularity?.figure ?? ""}
           </span>
-          <span className="singularity__label">{singularity?.claim ?? ""}</span>
+          <span className="singularity__label">
+            <span className="singularity__label-full">{singularity?.claim ?? ""}</span>
+            <span className="singularity__label-short">
+              {singularity?.claim.split(" ").slice(-2).join(" ") ?? ""}
+            </span>
+          </span>
         </div>
       ) : null}
 
