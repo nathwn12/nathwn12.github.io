@@ -25,7 +25,14 @@ html {
   inset: 0 0 auto 0;
   height: 4.5rem;
   z-index: 1;
-  background: var(--rec-ground);
+  background-image:
+    radial-gradient(circle, color-mix(in srgb, var(--rec-ink) 42%, transparent) 1px, transparent 1.4px),
+    radial-gradient(circle, color-mix(in srgb, var(--rec-ink) 28%, transparent) 0.8px, transparent 1.2px);
+  background-size: 97px 89px, 61px 73px;
+  background-position: 0 0, 41px 23px;
+  background-color: var(--rec-ground);
+  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 68%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 0%, #000 68%, transparent 100%);
   pointer-events: none;
 }
 
@@ -700,6 +707,33 @@ html {
   }
   .singularity__num {
     font-size: min(11vh, 3.4rem);
+  }
+}
+
+@media (min-width: 2000px) {
+  /* The owner watches 2560x1440. Use the width instead of leaving a 1440
+     composition on a wider stage. */
+  :root {
+    --rec-frame: 100rem;
+  }
+  .stage-title {
+    font-size: clamp(2rem, 2.2vw, 3.4rem);
+  }
+  .stage-heading {
+    font-size: clamp(2.75rem, 3.4vw, 6rem);
+  }
+  .stage-claim {
+    font-size: 1.5rem;
+  }
+  .stage-voice,
+  .stage-lede {
+    font-size: 1.0625rem;
+  }
+  .stage-panel__content--arrival .stage-lead {
+    max-width: 56rem;
+  }
+  .stage-data {
+    padding-right: clamp(2rem, 3vw, 3.5rem);
   }
 }
 
