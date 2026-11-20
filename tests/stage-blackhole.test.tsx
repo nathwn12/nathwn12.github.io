@@ -90,10 +90,13 @@ describe("the descent field", () => {
     }
   });
 
-  test("the shared chapter marker is a single travelling element", async () => {
+  test("the one orbit index carries a single travelling sweep", async () => {
     await mount();
-    expect(host.querySelectorAll(".stage-hud__marker")).toHaveLength(1);
-    expect(host.querySelector(".stage-hud__index")?.textContent).toBe("01");
+    expect(host.querySelectorAll(".stage-rail")).toHaveLength(1);
+    expect(host.querySelectorAll(".stage-rail__sweep")).toHaveLength(1);
+    expect(
+      host.querySelector('a[data-chapter-link="person"]')?.getAttribute("aria-current"),
+    ).toBe("true");
   });
 
   test("the singularity figure is the record's own reduction", async () => {

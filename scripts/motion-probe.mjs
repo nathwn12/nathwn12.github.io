@@ -128,7 +128,20 @@ async function modalPixel(buffer, box) {
   let best = null;
   for (const entry of bins.values()) if (!best || entry[0] > best[0]) best = entry;
   if (!best) return null;
-  return [best[1] / best[0], best[2] / best[0], best[3] / best[0]].map(Math.round);
+  const pixels = [];
+  for (let i = 0; i < data.length; i += info.channels) {
+    pixels.push({
+      rgb: [data[i], data[i + 1], data[i + 2]],
+      lum: luminance([data[i], data[i + 1], data[i + 2]]),
+    });
+  }
+  pixels.sort((a, b) => a.lum - b.lum);
+  const at = (p) => pixels[Math.min(pixels.length - 1, Math.floor(pixels.length * p))]?.rgb;
+  return {
+    modal: [best[1] / best[0], best[2] / best[0], best[3] / best[0]].map(Math.round),
+    dark: at(0.05) ?? [0, 0, 0],
+    light: at(0.95) ?? [255, 255, 255],
+  };
 }
 
 async function contrastProbe(page) {
@@ -153,9 +166,16 @@ async function contrastProbe(page) {
   const shot = await page.screenshot({ type: "png" });
   const rows = [];
   for (const target of targets) {
-    const bg = await modalPixel(shot, target.box);
-    if (!bg) continue;
+    const sample = await modalPixel(shot, target.box);
+    if (!sample) continue;
     const fg = parseColor(target.color);
+    // A glyph can fill most of its own box. Pick the minority pixel that is
+    // the backdrop: dark for light type, light for dark type, not the glyph.
+    const modalLum = luminance(sample.modal);
+    const fgLum = luminance(fg);
+    const bg = Math.abs(modalLum - fgLum) < 0.15
+      ? (fgLum > 0.5 ? sample.dark : sample.light)
+      : (fgLum > modalLum ? sample.dark : sample.light);
     rows.push({
       selector: target.selector,
       fontPx: target.size,
