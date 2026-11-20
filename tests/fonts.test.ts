@@ -65,13 +65,16 @@ describe("the font is local, licensed, and correctly declared", () => {
     expect(TOKENS).toContain('--font-mono: "JetBrains Mono"');
   });
 
-  test("index.html preloads the one shipped display cut", () => {
+  test("index.html preloads the faces the first screen sets", () => {
     const preloads = [
       ...HTML.matchAll(/<link\b[^>]*\brel="preload"[^>]*>/gs),
     ]
       .filter((match) => /as="font"/.test(match[0]))
       .map((match) => match[0].match(/href="([^"]+)"/)?.[1]);
-    expect(preloads).toEqual(["/fonts/InstrumentSerif-Regular.woff2"]);
+    expect(preloads).toEqual([
+      "/fonts/Archivo-Variable.woff2",
+      "/fonts/JetBrainsMono-Regular.woff2",
+    ]);
   });
 
   test("the two byte-identical mono cuts ship as one file", () => {
