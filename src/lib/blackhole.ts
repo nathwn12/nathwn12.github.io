@@ -245,9 +245,11 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
   // reads clientWidth or clientHeight, so scrolling cannot force layout.
   let cssWidth = 1;
   let cssHeight = 1;
+  let dpr = 1;
   const measureCanvas = () => {
     cssWidth = Math.max(1, canvas.clientWidth);
     cssHeight = Math.max(1, canvas.clientHeight);
+    dpr = Math.max(1, window.devicePixelRatio || 1);
   };
   measureCanvas();
   let resizeObserver: ResizeObserver | null = null;
@@ -266,6 +268,9 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
   let ema = 16;
   let slowFrames = 0;
   let fastFrames = 0;
+  let cooldown = 0;
+  let pendingResize = false;
+  let lastScroll = 0;
   const qualityState = { scale: 1, ema: 16 };
   const publishQuality = () => {
     const target = window as Window & { __stageQuality?: typeof qualityState };
@@ -274,7 +279,6 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
   publishQuality();
 
   const resize = () => {
-    const dpr = Math.max(1, window.devicePixelRatio || 1);
     const width = Math.max(1, Math.round(cssWidth * dpr * quality));
     const height = Math.max(1, Math.round(cssHeight * dpr * quality));
     if (canvas.width !== width || canvas.height !== height) {
@@ -289,23 +293,36 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
     const elapsed = lastNow ? Math.min(64, now - lastNow) : 16;
     lastNow = now;
     ema = ema * 0.9 + elapsed * 0.1;
-    if (ema > 22) {
+    if (cooldown > 0) cooldown -= 1;
+    // React within ten slow frames, then wait before another step so the
+    // canvas is not reallocated repeatedly. The shape never changes.
+    if (cooldown === 0 && ema > 18) {
       fastFrames = 0;
       slowFrames += 1;
-      if (slowFrames > 45 && quality > 0.5) {
+      if (slowFrames > 8 && quality > 0.5) {
         quality = Math.max(0.5, quality - 0.15);
         slowFrames = 0;
+        cooldown = 60;
+        pendingResize = true;
       }
-    } else if (ema < 15) {
+    } else if (cooldown === 0 && ema < 14) {
       slowFrames = 0;
       fastFrames += 1;
-      if (fastFrames > 180 && quality < 1) {
+      if (fastFrames > 240 && quality < 1) {
         quality = Math.min(1, quality + 0.1);
         fastFrames = 0;
+        cooldown = 90;
+        pendingResize = true;
       }
     }
     qualityState.scale = Number(quality.toFixed(2));
     qualityState.ema = Number(ema.toFixed(1));
+    // A reallocation during a scroll is a visible hitch. Wait for the scroll to
+    // settle before applying the new scale.
+    if (pendingResize && now - lastScroll > 250) {
+      pendingResize = false;
+      resize();
+    }
     const nextTheme = document.documentElement.dataset.theme ?? "dark";
     if (nextTheme !== theme) {
       theme = nextTheme;
@@ -337,6 +354,10 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
     if (visible) resume();
     else pause();
   };
+  const onScroll = () => {
+    lastScroll = performance.now();
+  };
+  window.addEventListener("scroll", onScroll, { passive: true });
   document.addEventListener("visibilitychange", onVisibility);
 
   let observer: IntersectionObserver | null = null;
@@ -367,6 +388,7 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
       disposed = true;
       pause();
       document.removeEventListener("visibilitychange", onVisibility);
+      window.removeEventListener("scroll", onScroll);
       observer?.disconnect();
       resizeObserver?.disconnect();
       context.deleteBuffer(buffer);
