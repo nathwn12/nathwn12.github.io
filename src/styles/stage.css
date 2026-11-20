@@ -296,13 +296,9 @@ html {
     transparent 100%
   );
 }
-.stage-data::before {
-  background: radial-gradient(
-    120% 140% at 50% 50%,
-    color-mix(in srgb, var(--rec-ground) 98%, transparent) 0%,
-    color-mix(in srgb, var(--rec-ground) 98%, transparent) 78%,
-    transparent 100%
-  );
+.stage-data {
+  background: var(--rec-ground);
+  padding-right: clamp(1rem, 3vw, 2.5rem);
 }
 .stage-panel__content--arrival .stage-lead {
   grid-area: auto;
@@ -581,7 +577,7 @@ html {
 .stage-rows li > span:last-child {
   font-size: 0.8125rem;
   line-height: 1.45;
-  color: var(--rec-ink-muted);
+  color: var(--rec-ink);
 }
 .stage-sequence li {
   padding-block: var(--rec-space-4);
