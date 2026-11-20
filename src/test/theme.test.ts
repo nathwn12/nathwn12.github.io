@@ -75,17 +75,17 @@ const PAPER = { ...REC, ...hexTokens(block(TOKENS, '[data-theme="light"]'), "--r
 
 describe("the recorder palette is the brief's table, verbatim", () => {
   it.each([
-    ["--rec-ground", "#07090b"],
-    ["--rec-panel", "#0e1114"],
-    ["--rec-panel-2", "#151a1e"],
-    ["--rec-rule", "#20262b"],
-    ["--rec-rule-strong", "#39424a"],
-    ["--rec-ink", "#f2f6f8"],
-    ["--rec-ink-muted", "#8e9ba3"],
-    ["--rec-signal", "#4dd4e8"],
-    ["--rec-measure", "#f5a524"],
-    ["--rec-alarm", "#ff5d5d"],
-    ["--rec-on-signal", "#04070a"],
+    ["--rec-ground", "#0a0d0b"],
+    ["--rec-panel", "#111513"],
+    ["--rec-panel-2", "#181d1a"],
+    ["--rec-rule", "#242b28"],
+    ["--rec-rule-strong", "#454f4a"],
+    ["--rec-ink", "#f0f6f1"],
+    ["--rec-ink-muted", "#93a69a"],
+    ["--rec-signal", "#4be39b"],
+    ["--rec-measure", "#e5bc3f"],
+    ["--rec-alarm", "#e85560"],
+    ["--rec-on-signal", "#06100a"],
   ])("%s is %s", (name, hex) => {
     expect(REC[name]).toBe(hex);
   });
@@ -93,17 +93,17 @@ describe("the recorder palette is the brief's table, verbatim", () => {
 
 describe("the paper palette is the brief's table, verbatim", () => {
   it.each([
-    ["--rec-ground", "#f1f2ed"],
-    ["--rec-panel", "#e8eae4"],
-    ["--rec-panel-2", "#dde0d9"],
-    ["--rec-rule", "#c9cdc6"],
-    ["--rec-rule-strong", "#9aa09a"],
-    ["--rec-ink", "#0d1013"],
-    ["--rec-ink-muted", "#4a5257"],
-    ["--rec-signal", "#1b2ed1"],
-    ["--rec-measure", "#9a4708"],
-    ["--rec-alarm", "#c81e1e"],
-    ["--rec-on-signal", "#f7f8f4"],
+    ["--rec-ground", "#f1f4ef"],
+    ["--rec-panel", "#e7ebe4"],
+    ["--rec-panel-2", "#dbe0d7"],
+    ["--rec-rule", "#c6ccc1"],
+    ["--rec-rule-strong", "#828a7e"],
+    ["--rec-ink", "#101511"],
+    ["--rec-ink-muted", "#4e574e"],
+    ["--rec-signal", "#1f5b36"],
+    ["--rec-measure", "#4c3d00"],
+    ["--rec-alarm", "#ab1f24"],
+    ["--rec-on-signal", "#f6f9f3"],
   ])("%s is %s", (name, hex) => {
     expect(PAPER[name]).toBe(hex);
   });
@@ -115,10 +115,11 @@ describe("contrast — measured from the shipped tokens, both themes", () => {
     ["light", PAPER],
   ])("%s", (_theme, tokens) => {
     for (const [fg, bg, minimum] of [
-      ["--rec-ink", "--rec-ground", 7],
-      ["--rec-ink-muted", "--rec-ground", 4.5],
-      ["--rec-signal", "--rec-ground", 4.5],
-      ["--rec-measure", "--rec-ground", 4.5],
+      ["--rec-ink", "--rec-ground", 13],
+      ["--rec-ink-muted", "--rec-ground", 5.2],
+      ["--rec-signal", "--rec-ground", 6],
+      ["--rec-measure", "--rec-ground", 9],
+      // Pairs DESIGN.md does not floor keep the AA-strength floor they had.
       ["--rec-ink", "--rec-panel", 7],
       ["--rec-ink-muted", "--rec-panel", 4.5],
       ["--rec-on-signal", "--rec-signal", 4.5],

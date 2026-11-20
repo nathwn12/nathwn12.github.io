@@ -13,9 +13,10 @@ import { describe, expect, test } from "vitest";
  *
  * The pairs are the ones the components render: body copy and secondary notes on
  * the ground and on an inset surface, the link colour, the measured numerals, the
- * one alarm colour, and the label on the cover's filled action. The floors are
- * the brief's: ink ≥ 7, muted ink ≥ 4.5, signal ≥ 4.5, measure ≥ 4.5, alarm ≥ 4.5,
- * the filled action's label ≥ 4.5.
+ * one alarm colour, and the label on the cover's filled action. The seven floors
+ * DESIGN.md promises are enforced here: ink ≥ 13, muted ink ≥ 5.2, signal ≥ 6,
+ * measure ≥ 9, alarm ≥ 4.5, the filled action's label ≥ 4.5, and ink on panel-2
+ * ≥ 13. Pairs the document does not floor keep their old values.
  *
  * WCAG 2.2: 4.5:1 for text under 24px (or 18.66px bold), 3:1 for large text. The
  * floors above 4.5 are the recorder's own: this direction sets type small, so the
@@ -80,10 +81,10 @@ interface Pair {
 }
 
 const PAIRS: Pair[] = [
-  { role: "body text on the ground", fg: "ink", bg: "ground", min: 7 },
-  { role: "muted notes on the ground", fg: "ink-muted", bg: "ground", min: 4.5 },
-  { role: "signal link on the ground", fg: "signal", bg: "ground", min: 4.5 },
-  { role: "measured numerals on the ground", fg: "measure", bg: "ground", min: 4.5 },
+  { role: "body text on the ground", fg: "ink", bg: "ground", min: 13 },
+  { role: "muted notes on the ground", fg: "ink-muted", bg: "ground", min: 5.2 },
+  { role: "signal link on the ground", fg: "signal", bg: "ground", min: 6 },
+  { role: "measured numerals on the ground", fg: "measure", bg: "ground", min: 9 },
   { role: "the alarm date on the ground", fg: "alarm", bg: "ground", min: 4.5 },
 
   { role: "the action label on the signal fill", fg: "on-signal", bg: "signal", min: 4.5 },
@@ -91,7 +92,7 @@ const PAIRS: Pair[] = [
   { role: "body text on the instrument panel", fg: "ink", bg: "panel", min: 7 },
   { role: "muted notes on the instrument panel", fg: "ink-muted", bg: "panel", min: 4.5 },
   { role: "the reduction readout on the panel", fg: "measure", bg: "panel", min: 4.5 },
-  { role: "body text on a hovered row", fg: "ink", bg: "panel-2", min: 7 },
+  { role: "body text on a hovered row", fg: "ink", bg: "panel-2", min: 13 },
   { role: "muted notes on a hovered row", fg: "ink-muted", bg: "panel-2", min: 4.5 },
 ];
 

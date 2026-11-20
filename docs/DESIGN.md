@@ -49,42 +49,46 @@ value is written. A component reads a token; it never writes a hex.
 
 ### Colour
 
-| Token | Value | Role |
-|---|---|---|
-| `--rec-ground` | `#07090B` | the page ground |
-| `--rec-panel` | `#0E1114` | a raised surface: inset readout, instrument panel |
-| `--rec-panel-2` | `#151A1E` | the step above panel: hover, one inset row |
-| `--rec-rule` | `#20262B` | hairline structure: table rows, panel edges, seams |
-| `--rec-rule-strong` | `#39424A` | an active edge: underline, cap, scrollbar thumb |
-| `--rec-ink` | `#F2F6F8` | primary text |
-| `--rec-ink-muted` | `#8E9BA3` | secondary text only - never body |
-| `--rec-signal` | `#4DD4E8` | structural accent: links, focus, active rules, marks |
-| `--rec-measure` | `#F5A524` | **measured values only**: numerals, the live readout |
-| `--rec-alarm` | `#FF5D5D` | exactly one use per page |
-| `--rec-selection` | signal at 22% | `::selection` background |
+The palette is **Phosphor**: a green signal for structure and a gold measure for
+numbers, in a dark room and on a pale paper ground. The eleven roles keep their
+names in both themes; only the values change.
 
-The light theme is the same eleven roles, re-pointed: ground `#F1F2ED`, ink `#0D1013`,
-signal `#1B2ED1`, measure `#9A4708`, alarm `#C81E1E`. One switching mechanism -
-`data-theme` on `<html>`, seeded from the OS before first paint and persisted in
-`nnl-theme`; F2 and the footer switch both write it.
+| Token | Dark | Light | Role |
+|---|---|---|---|
+| `--rec-ground` | `#0A0D0B` | `#F1F4EF` | the page ground |
+| `--rec-panel` | `#111513` | `#E7EBE4` | a raised surface: inset readout, instrument panel |
+| `--rec-panel-2` | `#181D1A` | `#DBE0D7` | the step above panel: hover, one inset row |
+| `--rec-rule` | `#242B28` | `#C6CCC1` | hairline structure: table rows, panel edges, seams |
+| `--rec-rule-strong` | `#454F4A` | `#828A7E` | an active edge: underline, cap, scrollbar thumb |
+| `--rec-ink` | `#F0F6F1` | `#101511` | primary text |
+| `--rec-ink-muted` | `#93A69A` | `#4E574E` | secondary text only - never body |
+| `--rec-signal` | `#4BE39B` | `#1F5B36` | structural accent: links, focus, active rules, marks |
+| `--rec-measure` | `#E5BC3F` | `#4C3D00` | **measured values only**: numerals, the live readout |
+| `--rec-alarm` | `#E85560` | `#AB1F24` | exactly one use per page |
+| `--rec-on-signal` | `#06100A` | `#F6F9F3` | the label on a filled signal surface |
+| `--rec-selection` | signal at 22% | signal at 22% | `::selection` background |
+
+One switching mechanism - `data-theme` on `<html>`, seeded from the OS before
+first paint and persisted in `nnl-theme`; F2 and the footer switch both write it.
 
 The direction is **chroma × area**: the ground stays quiet and chroma is spent only on the
-data, so the eye lands on the numbers. Warm measure against cold signal is deliberate
+data, so the eye lands on the numbers. Gold measure against green signal is deliberate
 simultaneous contrast, and the alarm sits more than 45° away from the measure hue so it
 never reads as a figure.
 
-Contrast is computed from these values by `src/test/theme.test.ts` and
-`tests/contrast.test.ts`, so a palette edit flows into the numbers:
+Contrast is computed from the shipped tokens by `src/test/theme.test.ts` and
+`tests/contrast.test.ts`, so a palette edit flows into the numbers. Both themes are
+measured; the seven floors are identical in each:
 
-| Pair | Ratio | Floor |
-|---|---|---|
-| ink on ground | 16.8:1 | 13 |
-| muted on ground | 6.6:1 | 5.2 |
-| signal on ground | 7.5:1 | 6 |
-| measure on ground | 11.1:1 | 9 |
-| alarm on ground | 6.5:1 | 4.5 |
-| ground on signal (the cover's filled action) | 7.5:1 | 4.5 |
-| ink on panel-2 | 14.8:1 | 13 |
+| Pair | Dark | Light | Floor |
+|---|---|---|---|
+| ink on ground | 17.82:1 | 16.64:1 | 13 |
+| muted on ground | 7.59:1 | 6.77:1 | 5.2 |
+| signal on ground | 11.87:1 | 7.26:1 | 6 |
+| measure on ground | 10.78:1 | 9.58:1 | 9 |
+| alarm on ground | 5.49:1 | 6.41:1 | 4.5 |
+| ground on signal (the cover's filled action) | 11.75:1 | 7.58:1 | 4.5 |
+| ink on panel-2 | 15.58:1 | 13.76:1 | 13 |
 
 The floors above 4.5 are the palette's own: this direction sets type small and
 muted, so every role clears AA with room to spare.
