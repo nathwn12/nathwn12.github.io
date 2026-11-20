@@ -1,0 +1,388 @@
+/* =========================================================================
+   STAGE — the single URL's five chapters.
+
+   Ported from the identity's monograph composition: a fixed reading rail, a
+   narrow measure of running copy, hairline seams and figures set in the measure
+   ink. Every colour, size and motion value comes from the Phosphor tokens; this
+   file writes no hex. The page is an ordinary document — no wheel or touch
+   handler cancels the native scroll, and there is no scroll snap. The two
+   observers in ChapterStage only report which panel the reader is in.
+   ========================================================================= */
+
+.stage-shell {
+  position: relative;
+}
+
+/* --- RAIL ---------------------------------------------------------------- */
+.stage-rail {
+  position: relative;
+  z-index: var(--rec-z-header);
+  border-bottom: var(--rec-rule-w) solid var(--rec-rule);
+  background: var(--rec-ground);
+}
+@media (min-width: 900px) {
+  .stage-rail {
+    position: fixed;
+    inset: var(--rec-header-h) auto 0 0;
+    width: var(--rec-space-10);
+    border-bottom: 0;
+    border-right: var(--rec-rule-w) solid var(--rec-rule);
+    background: var(--rec-panel);
+  }
+}
+.stage-rail__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rec-space-2) var(--rec-space-5);
+  width: 100%;
+  max-width: var(--rec-frame);
+  margin-inline: auto;
+  padding: var(--rec-space-3) var(--rec-gutter);
+  list-style: none;
+}
+@media (min-width: 900px) {
+  .stage-rail__list {
+    flex-direction: column;
+    gap: var(--rec-space-1);
+    padding: var(--rec-space-7) 0;
+  }
+}
+.stage-rail__link {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--rec-space-2);
+  min-height: 2.75rem;
+  font-family: var(--font-mono);
+  font-size: var(--rec-text-data);
+  letter-spacing: var(--rec-tracking-data);
+  color: var(--rec-ink-muted);
+  text-decoration: none;
+  transition: color var(--rec-dur-quick) var(--rec-ease-out);
+}
+.stage-rail__link:hover {
+  color: var(--rec-ink);
+}
+.stage-rail__link[aria-current="true"] {
+  color: var(--rec-signal);
+}
+.stage-rail__link[aria-current="true"]::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: var(--rec-rule-w);
+  background: var(--rec-signal);
+}
+.stage-rail__no {
+  font-variant-numeric: tabular-nums;
+}
+.stage-rail__label {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  text-transform: none;
+}
+
+/* --- PANELS --------------------------------------------------------------- */
+.stage-panels {
+  width: 100%;
+  max-width: var(--rec-frame);
+  margin-inline: auto;
+  padding-inline: var(--rec-gutter);
+}
+@media (min-width: 900px) {
+  .stage-panels {
+    padding-inline: var(--rec-gutter-lg);
+  }
+}
+/* Every running paragraph is capped in its own font, so the stage obeys the
+   same 56ch reading ceiling as the record no matter which chapter owns it. */
+.stage p {
+  max-width: var(--rec-prose-measure);
+}
+.stage-panel {
+  min-height: 100vh;
+  padding-block: var(--rec-band) var(--rec-band-lg);
+  border-bottom: var(--rec-rule-w) solid var(--rec-rule);
+  scroll-margin-top: calc(var(--rec-header-h) + var(--rec-space-4));
+}
+.stage-panel[data-seen="true"] {
+  border-bottom-color: var(--rec-rule-strong);
+}
+.stage-kicker {
+  font-family: var(--font-mono);
+  font-size: var(--rec-text-data);
+  letter-spacing: var(--rec-tracking-data);
+  text-transform: uppercase;
+  color: var(--rec-signal);
+  margin: 0 0 var(--rec-space-7);
+}
+.stage-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--rec-text-display);
+  line-height: var(--rec-leading-display);
+  letter-spacing: var(--rec-tracking-display);
+  color: var(--rec-ink);
+  margin: 0;
+  max-width: 20ch;
+}
+.stage-title__line {
+  display: block;
+  overflow-wrap: anywhere;
+}
+.stage-mark {
+  display: inline-block;
+  background: var(--rec-signal);
+  color: var(--rec-on-signal);
+  padding: 0 0.12em 0.06em;
+}
+.stage-heading {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--rec-text-claim);
+  line-height: var(--rec-leading-claim);
+  letter-spacing: var(--rec-tracking-claim);
+  color: var(--rec-ink);
+  margin: 0 0 var(--rec-space-6);
+}
+.stage-subheading {
+  font-family: var(--font-mono);
+  font-size: var(--rec-text-data);
+  letter-spacing: var(--rec-tracking-data);
+  text-transform: uppercase;
+  color: var(--rec-ink-muted);
+  margin: var(--rec-space-8) 0 var(--rec-space-4);
+}
+.stage-claim,
+.stage-lede {
+  font-size: var(--rec-text-lead);
+  line-height: var(--rec-leading-lead);
+  color: var(--rec-ink);
+  max-width: var(--rec-prose-measure);
+  margin: 0 0 var(--rec-space-5);
+}
+.stage-voice,
+.stage-quote {
+  font-family: var(--font-voice);
+  font-style: italic;
+  font-size: var(--rec-text-claim);
+  line-height: var(--rec-leading-claim);
+  color: var(--rec-ink);
+  max-width: 44ch;
+  margin: 0 0 var(--rec-space-6);
+}
+.stage-quote {
+  border-left: var(--rec-space-1) solid var(--rec-signal);
+  padding-left: var(--rec-space-5);
+}
+.stage-facts,
+.stage-chips,
+.stage-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rec-space-2) var(--rec-space-6);
+  list-style: none;
+  padding: var(--rec-space-4) 0 0;
+  margin: var(--rec-space-6) 0 0;
+  border-top: var(--rec-rule-w) solid var(--rec-rule-strong);
+  font-family: var(--font-mono);
+  font-size: var(--rec-text-data);
+  letter-spacing: var(--rec-tracking-data);
+  color: var(--rec-ink-muted);
+}
+.stage-columns {
+  display: grid;
+  gap: var(--rec-space-7);
+}
+@media (min-width: 900px) {
+  .stage-columns {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  }
+}
+.stage-measure {
+  padding: var(--rec-space-5);
+  background: var(--rec-panel);
+  border-top: var(--rec-rule-w) solid var(--rec-rule-strong);
+}
+.stage-measure__label {
+  font-family: var(--font-mono);
+  font-size: var(--rec-text-data);
+  letter-spacing: var(--rec-tracking-data);
+  color: var(--rec-signal);
+  margin: 0 0 var(--rec-space-5);
+}
+.stage-measure__pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--rec-space-5);
+  margin: 0;
+}
+.stage-measure__pair dt,
+.stage-measure__pair dd {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--rec-text-data-sm);
+  letter-spacing: var(--rec-tracking-data);
+  color: var(--rec-ink-muted);
+}
+.stage-measure__pair dd.stage-measure__figure {
+  font-family: var(--font-display);
+  font-size: var(--rec-text-claim);
+  font-variant-numeric: tabular-nums;
+  color: var(--rec-measure);
+}
+.stage-measure__note {
+  font-size: var(--rec-text-data);
+  line-height: var(--rec-leading-data);
+  color: var(--rec-ink-muted);
+  margin: var(--rec-space-5) 0 0;
+}
+.stage-fields {
+  display: grid;
+  gap: var(--rec-space-5);
+  list-style: none;
+  padding: 0;
+  margin: var(--rec-space-8) 0 0;
+}
+@media (min-width: 700px) {
+  .stage-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+.stage-fields li {
+  padding: var(--rec-space-5);
+  background: var(--rec-panel);
+  border-top: var(--rec-rule-w) solid var(--rec-rule-strong);
+}
+.stage-fields__figure {
+  font-family: var(--font-display);
+  font-size: var(--rec-text-display);
+  line-height: var(--rec-leading-display);
+  color: var(--rec-measure);
+  margin: 0 0 var(--rec-space-4);
+}
+.stage-fields h3 {
+  font-family: var(--font-display);
+  font-size: var(--rec-text-title);
+  line-height: var(--rec-leading-title);
+  color: var(--rec-ink);
+  margin: 0 0 var(--rec-space-3);
+}
+.stage-fields p:last-child {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--rec-ink-muted);
+  margin: 0;
+}
+
+/* --- ROWS, SEQUENCE, CONTACT ---------------------------------------------- */
+.stage-rows {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: var(--rec-rule-w) solid var(--rec-rule);
+}
+.stage-rows li {
+  display: grid;
+  gap: var(--rec-space-2);
+  padding-block: var(--rec-space-5);
+  border-bottom: var(--rec-rule-w) solid var(--rec-rule);
+}
+@media (min-width: 900px) {
+  .stage-rows li {
+    grid-template-columns: var(--rec-space-10) minmax(0, 14rem) minmax(0, 1fr);
+    gap: var(--rec-space-6);
+    align-items: baseline;
+  }
+}
+.stage-rows__no {
+  font-family: var(--font-mono);
+  font-size: var(--rec-text-data);
+  letter-spacing: var(--rec-tracking-data);
+  color: var(--rec-ink-muted);
+}
+.stage-rows a {
+  font-family: var(--font-display);
+  font-size: var(--rec-text-title);
+  color: var(--rec-ink);
+  text-decoration: none;
+}
+.stage-rows a:hover {
+  color: var(--rec-signal);
+}
+.stage-rows li > span:last-child {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--rec-ink-muted);
+}
+.stage-sequence {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: var(--rec-rule-w) solid var(--rec-rule-strong);
+}
+.stage-sequence li {
+  padding-block: var(--rec-space-7);
+  border-bottom: var(--rec-rule-w) solid var(--rec-rule);
+}
+.stage-sequence__date {
+  font-family: var(--font-mono);
+  font-size: var(--rec-text-data);
+  letter-spacing: var(--rec-tracking-data);
+  text-transform: uppercase;
+  color: var(--rec-signal);
+}
+.stage-sequence h3 {
+  font-family: var(--font-display);
+  font-size: var(--rec-text-claim);
+  line-height: var(--rec-leading-claim);
+  color: var(--rec-ink);
+  margin: 0 0 var(--rec-space-4);
+}
+.stage-sequence__outcome {
+  font-family: var(--font-voice);
+  font-style: italic;
+  font-size: var(--rec-text-lead);
+  color: var(--rec-ink);
+}
+.stage-sequence li > p:not(.stage-sequence__date):not(.stage-sequence__outcome):not(.stage-sequence__figure) {
+  font-size: 0.9375rem;
+  line-height: 1.55;
+  color: var(--rec-ink-muted);
+  max-width: var(--rec-prose-measure);
+}
+.stage-sequence__figure {
+  font-family: var(--font-display);
+  font-size: var(--rec-text-claim);
+  color: var(--rec-measure);
+}
+.stage-contract {
+  font-family: var(--font-mono);
+  font-size: var(--rec-text-data);
+  letter-spacing: var(--rec-tracking-data);
+  color: var(--rec-ink-muted);
+}
+.stage-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.875rem;
+  padding-inline: var(--rec-space-5);
+  background: var(--rec-signal);
+  color: var(--rec-on-signal);
+  font-family: var(--font-display);
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+/* --- STATIC MODE -----------------------------------------------------------
+   The OS preference and the mirrored data-motion flag both stop the rail's
+   colour transition. The finished state is the markup's own; nothing waits on
+   an animation frame to become readable. */
+@media (prefers-reduced-motion: reduce) {
+  .stage-rail__link {
+    transition: none !important;
+  }
+}
+html[data-motion="off"] .stage-rail__link {
+  transition: none !important;
+}

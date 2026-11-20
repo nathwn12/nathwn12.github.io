@@ -1,48 +1,33 @@
-import {
-  Component,
-  useRef,
-  useEffect,
-  type ComponentType,
-  type ReactNode,
-} from "react";
+import { Component, useEffect, type ReactNode } from "react";
 import { Chrome } from "./components/Chrome";
 import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
-import { Record } from "./components/Record";
-import { Experience } from "./components/Experience";
-import Projects from "./components/Projects";
-import { NotFound } from "./components/NotFound";
-import { applyRouteMeta, routeByPath, useRoute } from "./lib/router";
+import { ChapterStage } from "./components/stage/ChapterStage";
+import { applyRouteMeta, ROUTES } from "./lib/router";
 
 /**
- * App — the shell around the record and its two detail routes.
+ * App — one URL, five chapters.
  *
- * The redesign moved the site from "five pages, each locked to one viewport
- * with an internal scroller" to a normal document scroll: the home page is one
- * long record, and a nested scroller would have trapped the address bar, the
- * native scrollbar and the browser's own scroll restoration. The page fades in
- * once on mount (CSS, opacity only), and nothing animates on route change.
- *
- * All three routes are imported eagerly. Splitting the two detail routes saved
- * about 6 kB of markup and cost a chunk waterfall on navigation: the fallback
- * painted, then the page replaced it, which moved a third of the viewport on a
- * route the visitor had already asked for. One bundle means the route is there
- * on the click.
+ * The revamp publishes one document. The two paths that used to be pages are
+ * chapters now, so a deep link to /experience or /projects is folded into the
+ * chapter anchor it became before first paint; the address bar then names the
+ * one page the site actually serves. The masthead is the rail, the stage is the
+ * record, and the footer is the colophon. No route change, curtain or scroll
+ * reset runs here — the stage owns the reading position.
  */
 
-const PAGES: Record<string, ComponentType> = {
-  record: Record,
-  experience: Experience,
-  projects: Projects,
+/** Retired detail path → the chapter anchor that carries its content. */
+const RETIRED_ANCHORS: Readonly<Record<string, string>> = {
+  "/experience": "#experience",
+  "/projects": "#work",
 };
 
 type ErrorBoundaryProps = { children: ReactNode };
 type ErrorBoundaryState = { hasError: boolean };
 
 /**
- * Error boundary around the routed content only. A render failure in one route
- * would otherwise blank the whole SPA; the fallback is static and offers a hard
- * link home.
+ * Error boundary around the stage only. A render failure would otherwise blank
+ * the whole shell; the fallback is static and offers a hard link home.
  */
 class PageErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { hasError: false };
@@ -71,23 +56,13 @@ class PageErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState
 }
 
 export default function App() {
-  const { route } = useRoute();
-  const firstRender = useRef(true);
-
   useEffect(() => {
-    applyRouteMeta(route);
-  }, [route]);
-
-  useEffect(() => {
-    if (firstRender.current) {
-      firstRender.current = false;
-      return;
+    applyRouteMeta(ROUTES[0]);
+    const anchor = RETIRED_ANCHORS[window.location.pathname];
+    if (anchor) {
+      window.history.replaceState(null, "", `/${anchor}`);
     }
-    window.scrollTo(0, 0);
-    document.getElementById("main")?.focus({ preventScroll: true });
-  }, [route.path]);
-
-  const Content = routeByPath(route.path) ? (PAGES[route.id] ?? Record) : NotFound;
+  }, []);
 
   return (
     <>
@@ -106,9 +81,9 @@ export default function App() {
       <Chrome />
       <Header />
 
-      <main id="main" tabIndex={-1} className="outline-none">
+      <main id="main" tabIndex={-1} className="stage-shell outline-none">
         <PageErrorBoundary>
-          <Content />
+          <ChapterStage />
         </PageErrorBoundary>
       </main>
 
