@@ -1,70 +1,66 @@
 {
   "source": "npm download-count API and GitHub GraphQL, measured by scripts/open-source-stats.mjs",
-  "generatedAt": "2026-11-19T15:30:23.828Z",
-  "snapshotDate": "2026-11-16",
-  "npmMonth": 22219,
-  "npmAllTime": 34168,
+  "generatedAt": "2026-11-20T15:08:30.160Z",
+  "snapshotDate": "2026-11-17",
+  "npmMonth": 22309,
+  "npmAllTime": 34603,
   "packages": [
     {
       "name": "puppet-mcp",
-      "month": 3701,
-      "allTime": 4293
+      "month": 3718,
+      "allTime": 4303
     },
     {
       "name": "gladius-mcp",
-      "month": 2574,
-      "allTime": 3206
+      "month": 2587,
+      "allTime": 3218
     },
     {
       "name": "@nathwn12/janua",
-      "month": 2663,
-      "allTime": 2652
+      "month": 2664,
+      "allTime": 2657
     },
     {
       "name": "@nathwn12/oc-bifrost",
-      "month": 1802,
-      "allTime": 5954
+      "month": 1812,
+      "allTime": 5966
     },
     {
       "name": "oc-flight-deck",
-      "month": 3561,
-      "allTime": 8810
+      "month": 3581,
+      "allTime": 8992
     },
     {
       "name": "oc-harness-setup",
-      "month": 1668,
-      "allTime": 2930
+      "month": 1672,
+      "allTime": 2957
     },
     {
       "name": "oc-plugin-view",
-      "month": 738,
-      "allTime": 726
+      "month": 742,
+      "allTime": 734
     },
     {
       "name": "oc-talk",
-      "month": 3716,
-      "allTime": 3515
+      "month": 3734,
+      "allTime": 3690
     },
     {
       "name": "rea-shim",
-      "month": 1796,
-      "allTime": 2082
+      "month": 1799,
+      "allTime": 2086
     }
   ],
   "github": {
-    "contributions": 6981,
-    "commits": 2864,
-    "pullRequests": 457,
+    "contributions": 7261,
+    "commits": 2929,
+    "pullRequests": 489,
     "calendarRange": [
       "2025-11-16",
-      "2026-11-19"
+      "2026-11-20"
     ]
   },
   "activity": [
-    {
-      "date": "2026-10-21",
-      "value": 158
-    },
     {
       "date": "2026-10-22",
       "value": 24
@@ -155,11 +151,11 @@
     },
     {
       "date": "2026-11-13",
-      "value": 394
+      "value": 416
     },
     {
       "date": "2026-11-14",
-      "value": 143
+      "value": 148
     },
     {
       "date": "2026-11-15",
@@ -171,15 +167,19 @@
     },
     {
       "date": "2026-11-17",
-      "value": 279
+      "value": 290
     },
     {
       "date": "2026-11-18",
-      "value": 460
+      "value": 535
     },
     {
       "date": "2026-11-19",
-      "value": 232
+      "value": 282
+    },
+    {
+      "date": "2026-11-20",
+      "value": 148
     }
   ]
 }

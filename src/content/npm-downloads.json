@@ -1,62 +1,62 @@
 {
   "source": "npm",
   "period": "all available daily package-download data since each package was registered",
-  "snapshotDate": "2026-11-16",
-  "total": 34168,
+  "snapshotDate": "2026-11-17",
+  "total": 34603,
   "packages": [
     {
       "name": "puppet-mcp",
       "created": "2026-10-17",
-      "through": "2026-11-16",
-      "downloads": 4293
+      "through": "2026-11-17",
+      "downloads": 4303
     },
     {
       "name": "gladius-mcp",
       "created": "2026-10-17",
-      "through": "2026-11-16",
-      "downloads": 3206
+      "through": "2026-11-17",
+      "downloads": 3218
     },
     {
       "name": "@nathwn12/janua",
       "created": "2026-10-31",
-      "through": "2026-11-16",
-      "downloads": 2652
+      "through": "2026-11-17",
+      "downloads": 2657
     },
     {
       "name": "@nathwn12/oc-bifrost",
       "created": "2026-09-28",
-      "through": "2026-11-16",
-      "downloads": 5954
+      "through": "2026-11-17",
+      "downloads": 5966
     },
     {
       "name": "oc-flight-deck",
       "created": "2026-09-11",
-      "through": "2026-11-16",
-      "downloads": 8810
+      "through": "2026-11-17",
+      "downloads": 8992
     },
     {
       "name": "oc-harness-setup",
       "created": "2026-09-19",
-      "through": "2026-11-16",
-      "downloads": 2930
+      "through": "2026-11-17",
+      "downloads": 2957
     },
     {
       "name": "oc-plugin-view",
       "created": "2026-11-03",
-      "through": "2026-11-16",
-      "downloads": 726
+      "through": "2026-11-17",
+      "downloads": 734
     },
     {
       "name": "oc-talk",
       "created": "2026-10-31",
-      "through": "2026-11-16",
-      "downloads": 3515
+      "through": "2026-11-17",
+      "downloads": 3690
     },
     {
       "name": "rea-shim",
       "created": "2026-10-17",
-      "through": "2026-11-16",
-      "downloads": 2082
+      "through": "2026-11-17",
+      "downloads": 2086
     }
   ]
 }
