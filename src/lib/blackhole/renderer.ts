@@ -79,6 +79,8 @@ export class BlackHoleRenderer {
   private renderW = 0;
   private renderH = 0;
   private quality: Quality;
+  /** Per-aspect framing. 1 is the desktop camera; smaller values zoom out. */
+  private fov = 1;
 
   private maps: WebGLTexture[] = [];
   private hdr: Target | null = null;
@@ -136,6 +138,10 @@ export class BlackHoleRenderer {
     this.canvas.width = w;
     this.canvas.height = h;
     this.allocate();
+  }
+
+  setFov(value: number): void {
+    this.fov = value;
   }
 
   setQuality(quality: Quality): void {
@@ -243,6 +249,7 @@ export class BlackHoleRenderer {
     this.v2(program, "uResolution", this.renderW, this.renderH);
     this.v2(program, "uCenter", OPTICS.center[0], OPTICS.center[1]);
     this.f(program, "uTilt", OPTICS.tilt);
+    this.f(program, "uFov", this.fov);
     this.f(program, "uTime", ((time % OPTICS.loopSeconds) + OPTICS.loopSeconds) % OPTICS.loopSeconds);
   }
 

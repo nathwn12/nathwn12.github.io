@@ -26,6 +26,7 @@ export const GEOMETRY_SOURCE = HEADER + `
 uniform vec2 uResolution;
 uniform vec2 uCenter;
 uniform float uTilt;
+uniform float uFov;
 uniform float uScale;
 uniform float uInclination;
 uniform float uInner;
@@ -39,7 +40,7 @@ vec3 acceleration(vec3 p, float h2) {
 }
 
 void main() {
-  vec2 p = (gl_FragCoord.xy - uCenter * uResolution) / uResolution.y;
+  vec2 p = (gl_FragCoord.xy - uCenter * uResolution) / uResolution.y / uFov;
   float c = cos(uTilt), s = sin(uTilt);
   p = mat2(c, -s, s, c) * p * uScale;
   // Image-directed compression of the lower lensed image around the
@@ -145,6 +146,7 @@ uniform vec2 uResolution;
 uniform float uTime;
 uniform vec2 uCenter;
 uniform float uTilt;
+uniform float uFov;
 uniform sampler2D uMap0;
 uniform sampler2D uMap1;
 uniform sampler2D uMap2;
@@ -192,7 +194,7 @@ vec3 plasma(vec4 data) {
   float filament2 = fbmP(vec2(rw * 2.0 + 72.0, a * 128.0 - t * 64.0), 32.0, footprint * 2.0);
   float density = pow(0.10 + 1.64 * filament, 2.25);
   density *= 0.65 + 0.74 * filament2;
-  vec2 pp = (gl_FragCoord.xy - uCenter * uResolution) / uResolution.y;
+  vec2 pp = (gl_FragCoord.xy - uCenter * uResolution) / uResolution.y / uFov;
   bool upper = (-sin(uTilt) * pp.x + cos(uTilt) * pp.y) >= 0.0;
   float front = pow(max(0.0, sin(phi)), 8.0) * (1.0 - smoothstep(0.12, 0.32, data.z));
   float frontBoost = 1.0 + 1.9 * front * smoothstep(6.0, 9.5, r);
@@ -207,16 +209,16 @@ void main() {
   float opacity = 0.72 * exp(-pow((a.x - 13.0) / 5.0, 2.0)) * (1.0 - smoothstep(0.12, 0.32, a.z));
   float transmission = exp(-opacity);
   vec3 col = plasma(a) + transmission * (plasma(b) * 0.86 + plasma(c) * 0.55);
-  vec2 p = (gl_FragCoord.xy - uCenter * uResolution) / uResolution.y;
+  vec2 p = (gl_FragCoord.xy - uCenter * uResolution) / uResolution.y / uFov;
   float radius = length(p) * 27.5;
   vec2 q = mat2(cos(uTilt), -sin(uTilt), sin(uTilt), cos(uTilt)) * p;
   col *= max(smoothstep(2.61, 2.68, radius), 1.0 - smoothstep(0.040, 0.058, abs(q.y)));
   float az = atan(q.y, q.x) / TAU;
   float stream = noiseP(vec2(radius * 2.2, az * 20.0 - uTime / 8.0 * 5.0), 5.0);
-  float silk = fbmP(vec2(radius * 12.0 + (stream - 0.5) * 0.6, az * 32.0 - uTime / 8.0 * 8.0), 8.0, 27.5 / uResolution.y * 12.0);
+  float silk = fbmP(vec2(radius * 12.0 + (stream - 0.5) * 0.6, az * 32.0 - uTime / 8.0 * 8.0), 8.0, 27.5 / uResolution.y / uFov * 12.0);
   float arcMask = smoothstep(0.018, 0.055, abs(q.y));
   col *= mix(1.0, 0.58 + 0.84 * silk, arcMask);
-  float px = 27.5 / uResolution.y;
+  float px = 27.5 / uResolution.y / uFov;
   float d = abs(radius - 2.598);
   float ring = (1.0 - smoothstep(px * 0.08, px * 0.76, d)) * 0.54;
   ring += 0.055 * exp(-pow(d / (px * 2.5), 2.0));
@@ -245,6 +247,7 @@ export const COMPOSITE_SOURCE = HEADER + `
 uniform vec2 uResolution;
 uniform vec2 uCenter;
 uniform float uTilt;
+uniform float uFov;
 uniform float uTime;
 uniform sampler2D uEmission;
 uniform sampler2D uBloom0;
@@ -278,7 +281,7 @@ void main() {
   vec3 b3 = texture(uBloom3, uv).rgb;
   vec3 hdr = base * 0.96 + 0.13 * b0 + 0.035 * b1;
   vec3 col = 1.0 - exp(-hdr * 1.45);
-  vec2 p = (gl_FragCoord.xy - uCenter * uResolution) / uResolution.y;
+  vec2 p = (gl_FragCoord.xy - uCenter * uResolution) / uResolution.y / uFov;
   float co = cos(uTilt), si = sin(uTilt);
   vec2 q = mat2(co, -si, si, co) * p;
   float blue = dot(b2, vec3(0.3, 0.5, 0.2)) * 0.085 + dot(b3, vec3(0.3, 0.5, 0.2)) * 0.18;
@@ -289,7 +292,9 @@ void main() {
   col += vec3(0.26, 0.59, 0.83) * blue * pow(max(0.0, 1.0 - max(col.r, max(col.g, col.b))), 0.8);
   float holeMask = smoothstep(0.093, 0.102, length(p));
   col += stars(uv) * holeMask;
-  col *= 1.0 - 0.16 * smoothstep(0.48, 0.78, length(uv - 0.5));
+  // Vignette is baked into the recording. A runtime gradient over a 1440p
+  // video costs a compositor frame; the shader can draw it for free.
+  col *= 1.0 - 0.34 * smoothstep(0.40, 0.76, length(uv - 0.5));
   fragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }`;
 
