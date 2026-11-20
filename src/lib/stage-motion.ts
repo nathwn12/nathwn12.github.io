@@ -96,13 +96,11 @@ export function mountStageMotion(root: HTMLElement): StageMotionHandle {
       const shell = shells[i]!;
       const local = raw - i;
       const distance = Math.min(1, Math.abs(local));
-      const front = clamp(1 - Math.abs(local), 0, 1);
       // The arriving content locks inside the centre band and snaps to grid.
       const landing = clamp((Math.abs(local) - 0.12) / 0.88, 0, 1);
       const pass = Math.sign(local) * landing;
       shell.frame.style.transform =
         `translate3d(0,0,${(-distance * 220).toFixed(1)}px) scale(${(1 - distance * 0.055).toFixed(4)})`;
-      shell.frame.style.opacity = (0.42 + 0.58 * front).toFixed(3);
       shell.content.style.transform = `translate3d(0,${(pass * 38).toFixed(1)}px,0)`;
     }
 
