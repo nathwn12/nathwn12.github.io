@@ -145,17 +145,17 @@ describe.each([
   ["/experience", { main: [], footer: [RESUME, CV] }],
   ["/projects", { main: [], footer: [RESUME, CV] }],
 ] as const)("%s offers exactly one pair", (route, expected) => {
-  test("the header and main are empty, the footer owns the pair, and the total is two", async () => {
+  test("the nav and main are empty, the footer owns the pair, and the total is two", async () => {
     act(() => {
       navigate(route);
     });
     await mount(createElement(App));
 
-    const header = host.querySelector("header")!;
+    const nav = host.querySelector("nav")!;
     const main = host.querySelector("main")!;
     const footer = host.querySelector("footer")!;
 
-    expect(downloadsIn(header), `${route} header`).toHaveLength(0);
+    expect(downloadsIn(nav), `${route} nav`).toHaveLength(0);
     expect(hrefs(downloadsIn(main)), `${route} main`).toEqual(
       [...expected.main].sort(),
     );
