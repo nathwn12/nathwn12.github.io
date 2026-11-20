@@ -1,365 +1,146 @@
-# DESIGN — the record
+# DESIGN — the event horizon ledger
 
-The site is a **working record, told by the person who did the work**. It opens
-with three years of production backend experience, then shows what Nathan builds
-now: solo public software, frontend projects, and practical AI tooling. The
-figures are receipts, not the personality. The visual system stays editorial
-and restrained so the work and the first-person account lead.
+This is an **event horizon portfolio**. A procedural black hole holds the first
+screen as one figure; beneath it the career is an open editorial ledger where
+hairline rules, tabular numerals and monospace data are the composition.
 
-The audience is a hiring manager who has ninety seconds and has read a hundred
-developer sites this week. The page has to make one claim credible — payment
-backends that held up under production load — and then hand over the receipts:
-1,182 commits recovered from 21 scanned repositories, 17 carrying the work, 11
-published tools, 88 packages, −98% payment latency, −40%+ read latency, 0 high or
-critical Snyk findings.
-
-This file is the design system as it ships. It is a spec, not a plan: anything
-described here is in the code, and anything in the code that contradicts this
-file is a bug in one of them.
+It deliberately refuses the five-panel dossier, the bottom orbit rail, the
+boxed copy, and any use of the shader as wallpaper behind cards. There are no
+cards, no panels, no second navigation and no scroll interception. The old
+"Recorder" stage is retired; this file describes what ships.
 
 ---
 
-## 1. Art direction — "Recorder"
+## 1. Art direction
 
-A quiet, type-led page with a serif display face, plain first-person copy,
-hairline rules, and one concrete before/after measurement. No generated
-backdrop, pointer gimmick, or texture layer.
-
-- **Two themes, one system.** Dark and light themes share the same semantic
-  roles. `color-scheme` is declared per theme, and `data-theme` on `<html>` is
-  the only selector that repoints the roles.
-- **Radius 0 everywhere.** Enforced by a single `*` rule reading
-  `--rec-radius`, so a component cannot quietly soften an edge and start a
-  second visual language. No shadows, no cards, no glass.
-- **Hairlines, not borders.** Structure is drawn with 1px (`--rec-rule`) or an
-  active edge (`--rec-rule-strong`). A rule appears where it encodes structure —
-  a panel edge, a table row, a section seam — never under a heading as
-  decoration.
-- **No ambient effects.** No grain, pointer reticle, or generated field.
-- **No imagery.** There are no screenshots, no portraits and no abstract art.
-  The only pictures on the site are the two brand marks (`/brand/signature.svg`)
-  and the icon.
-
----
+- **Dark** is the void. The shader is full-bleed; the name and role sit in the
+  corners as a HUD, and a scrim cut from `--rec-void` holds the type clear of
+  the bright disc.
+- **Light** is a paper sky, not an inverted dark page. The same shader frame is
+  shown as a dark plate on the ground, and the live canvas is not mounted.
+- Radius is 0. Structure is drawn with one-pixel rules (`--rec-rule`,
+  `--rec-rule-strong`). No shadows, glass, glow or decoration under a heading.
+- Space is a material. The five chapters alternate a large numeral band with an
+  open row list and a measured prose column.
 
 ## 2. Tokens
 
-`src/styles/tokens.css` is the only place a colour, size, space, motion or layer
-value is written. A component reads a token; it never writes a hex.
+`src/styles/tokens.css` is the only place a colour is written. A component
+reads a `--rec-*` token; it never writes a hex. Both skies declare the same
+roles under `:root` and `[data-theme="light"]`; the pre-paint script in
+`index.html` resolves the value before first paint and `src/lib/theme.ts` owns
+the switch and the `theme-color` mirror.
 
-### Colour
+The palette keeps the earlier Phosphor values because they already clear the
+floors. `scripts/contrast-audit.mjs` resolves both blocks and fails the build on
+a pair below its floor: ink ≥ 7, muted ink ≥ 4.5, signal ≥ 4.5, measure ≥ 4.5,
+alarm ≥ 4.5, on-signal ≥ 4.5. Rules are reported, not floored.
 
-The palette is **Phosphor**: a green signal for structure and a gold measure for
-numbers, in a dark room and on a pale paper ground. The eleven roles keep their
-names in both themes; only the values change.
+`--rec-measure` (gold) is spent only on measured figures. `--rec-signal` (green)
+is spent on structure: section numbers, links, the active hairline.
 
-| Token | Dark | Light | Role |
-|---|---|---|---|
-| `--rec-ground` | `#0A0D0B` | `#F1F4EF` | the page ground |
-| `--rec-panel` | `#111513` | `#E7EBE4` | a raised surface: inset readout, instrument panel |
-| `--rec-panel-2` | `#181D1A` | `#DBE0D7` | the step above panel: hover, one inset row |
-| `--rec-rule` | `#242B28` | `#C6CCC1` | hairline structure: table rows, panel edges, seams |
-| `--rec-rule-strong` | `#454F4A` | `#828A7E` | an active edge: underline, cap, scrollbar thumb |
-| `--rec-ink` | `#F0F6F1` | `#101511` | primary text |
-| `--rec-ink-muted` | `#93A69A` | `#4E574E` | secondary text only - never body |
-| `--rec-signal` | `#4BE39B` | `#1F5B36` | structural accent: links, focus, active rules, marks |
-| `--rec-measure` | `#E5BC3F` | `#4C3D00` | **measured values only**: numerals, the live readout |
-| `--rec-alarm` | `#E85560` | `#AB1F24` | exactly one use per page |
-| `--rec-on-signal` | `#06100A` | `#F6F9F3` | the label on a filled signal surface |
-| `--rec-selection` | signal at 22% | signal at 22% | `::selection` background |
+## 3. Type
 
-One switching mechanism - `data-theme` on `<html>`, seeded from the OS before
-first paint and persisted in `nnl-theme`; F2 and the footer switch both write it.
+One committed pairing from the `ui-ux-pro-max` typography search, self-hosted
+in `public/fonts` as latin subsets with `font-display: swap` and an OFL 1.1
+licence (`OFL-Ledger.txt`).
 
-The direction is **chroma × area**: the ground stays quiet and chroma is spent only on the
-data, so the eye lands on the numbers. Gold measure against green signal is deliberate
-simultaneous contrast, and the alarm sits more than 45° away from the measure hue so it
-never reads as a figure.
-
-Contrast is computed from the shipped tokens by `src/test/theme.test.ts` and
-`tests/contrast.test.ts`, so a palette edit flows into the numbers. Both themes are
-measured; the seven floors are identical in each:
-
-| Pair | Dark | Light | Floor |
-|---|---|---|---|
-| ink on ground | 17.82:1 | 16.64:1 | 13 |
-| muted on ground | 7.59:1 | 6.77:1 | 5.2 |
-| signal on ground | 11.87:1 | 7.26:1 | 6 |
-| measure on ground | 10.78:1 | 9.58:1 | 9 |
-| alarm on ground | 5.49:1 | 6.41:1 | 4.5 |
-| ground on signal (the cover's filled action) | 11.75:1 | 7.58:1 | 4.5 |
-| ink on panel-2 | 15.58:1 | 13.76:1 | 13 |
-
-The floors above 4.5 are the palette's own: this direction sets type small and
-muted, so every role clears AA with room to spare.
-
-### Type scale
-
-| Token | Value | Role |
+| Role | Face | Where |
 |---|---|---|
-| `--rec-text-display` | `clamp(3.5rem, 13vw, 15rem)` | display, hero scale |
-| `--rec-leading-display` | `0.86` | |
-| `--rec-tracking-display` | `-0.02em` | |
-| `--rec-text-claim` | `clamp(1.75rem, 1rem + 3.2vw, 4rem)` | a section claim |
-| `--rec-leading-claim` | `0.94` | |
-| `--rec-tracking-claim` | `-0.018em` | |
-| `--rec-text-title` | `clamp(1.375rem, 1.1rem + 0.9vw, 1.875rem)` | a title inside a band |
-| `--rec-leading-title` | `1.12` | |
-| `--rec-text-body` | `1.0625rem` (17px) | running copy |
-| `--rec-leading-body` | `1.6` | |
-| `--rec-text-lead` | `clamp(1.0625rem, 1rem + 0.4vw, 1.3125rem)` | standfirst, lede |
-| `--rec-leading-lead` | `1.45` | |
-| `--rec-prose-measure` | `56ch` | the reading measure (see §8) |
-| `--rec-text-data` | `0.75rem` (12px) | mono data |
-| `--rec-text-data-sm` | `0.6875rem` (11px) | mono labels, ticks |
-| `--rec-text-data-lg` | `0.8125rem` (13px) | mono readouts |
-| `--rec-leading-data` | `1.45` | |
-| `--rec-tracking-data` | `0.06em` | mono is tracked open |
+| Display | Playfair Display (variable 400–900) | the name, section labels, the statement, the mailto |
+| Text | Source Serif 4 (variable 300–600) | running copy, row descriptions, HUD lines |
+| Data | Space Mono (400, 700) | HUD labels, section numbers, all figures, metadata |
 
-### Space and frame
+The display cut is the single preload. Mono figures are tabular and aligned on
+the decimal; units stay with the number (`−98%`, `1,182`, `3 yrs 2 mos`). The
+measure is 56ch for running copy; a full-bleed paragraph is never set.
 
-One 4px base: `--rec-space-1` … `--rec-space-10` = 0.25 / 0.5 / 0.75 / 1 / 1.5 /
-2 / 3 / 4 / 6 / 8 rem.
+## 4. Composition
 
-| Token | Value | Role |
-|---|---|---|
-| `--rec-frame` | `82rem` | the one container, `margin-inline: auto` |
-| `--rec-gutter` | `1.25rem` (20px) | phone gutter |
-| `--rec-gutter-lg` | `3rem` (48px) | desktop gutter, from 900px |
-| `--rec-band` | `4rem` | band padding on the seamed pages |
-| `--rec-band-lg` | `7rem` | the same, from 900px |
-| `--rec-rhythm` | `var(--rec-space-6)` (32px) | the home record's band close |
-| `--rec-rhythm-lg` | `var(--rec-space-7)` (48px) | the same, from 900px |
+- **One masthead**, sticky, with the mark, the five chapter links and the one
+  theme toggle. On a phone the links wrap to a second row; they are never a
+  second nav or a menu.
+- **Hero**: `calc(100svh - header)`. Four HUD corners — name, role, status,
+  scroll cue. The figure is the shader; the type never sits over a card.
+- **01 The reduction**: the claim, then four open rows. Each row is a giant
+  mono figure, a claim and its mechanism, separated by a hairline.
+- **02 The method**: a measured prose column beside the practice as a *rule* —
+  three mono terms divided by hairlines, no box — and the tenure/period/base
+  as a ruled data list.
+- **03 The work**: thirteen open rows. Name, description, kind/year and an
+  arrow on one line at 1440, stacked at 390. Hover draws a 1px signal rule.
+- **04 The record**: three giant commit/repository figures as a rule, the
+  provenance sentence, then three experience rows with their measured result.
+- **05 Contact**: the contact line, the address as a large display link, the
+  one line about what a mailto does. No form.
+- **Colophon**: the ways out and the shader credit. A `<p>` of links, not a
+  landmark.
 
-The home record deliberately uses the smaller rhythm: its bands are separated by
-a drawn seam, not by air, so the record reads as one measured column instead of a
-stack of slides.
+Every fact comes from `src/content/*`; nothing is retyped in a component.
 
-### Structure, motion, layers
+## 5. Shader and the recorded loop
 
-| Token | Value | Role |
-|---|---|---|
-| `--rec-rule-w` | `1px` | every hairline |
-| `--rec-header-h` | `4.5rem` | the sticky bar's height; the scroll offset is derived from it |
-| `--rec-radius` | `0` | the only radius |
-| `--rec-ease-out` | `cubic-bezier(0.22, 1, 0.36, 1)` | the house ease |
-| `--rec-dur-quick` | `140ms` | hover, colour |
-| `--rec-dur-base` | `280ms` | a moving indicator |
-| `--rec-z-header` | `50` | masthead |
-| `--rec-z-curtain` | `80` | route curtain |
-| `--rec-z-skip` | `100` | skip link |
+`src/lib/blackhole/` ports the four-pass pipeline from the MIT-licensed
+`sayed1145/glsl-black-hole` viewer: MRT geodesic map (three float targets),
+plasma emission, four separable bloom levels, and the tone-mapping composite.
+The optical constants and radiance profiles are verbatim. `THIRD-PARTY-NOTICES.md`
+carries the licence.
 
-`@theme static` in the same file exposes the families (`--font-display`,
-`--font-sans`, `--font-mono`) and aliases the legacy `--color-*` / `--text-*` /
-`--spacing-*` names onto the `--rec-*` values, so the shared rules in
-`src/styles/legacy.css` (`.band`, `.prose`, `.button`, `.text-action`) paint on
-the recorder palette without a second hex. `static` is deliberate: those plain
-CSS rules read the variables directly, so every alias has to be emitted whether
-or not a utility happens to use it.
+The port is the **renderer, not the shipped path**. A per-aspect `uFov` uniform
+frames the same object for each master: `1` for the 16:9 camera, `0.42` for the
+9:16 camera, where the disc keeps a safe side margin and the ends of the frame
+stay clear for the HUD. `scripts/record-loop.mjs` drives the port from
+`capture.html` to record two eight-second seamless loops — 2560×1440 and
+1080×1920, 30 fps, each in H.264 MP4 and VP9 WebM — plus one poster per master.
+Both masters sample the same clock, so their phase is identical. The recorder
+compares `t=0` against `t=8` pixel for pixel on each master before encoding;
+the shader's modulo-eight clock makes them identical.
 
----
+The hero plays the matching recording as video. No WebGL context is created on
+the page, no shader is compiled and no per-frame shader cost is paid. The
+source is chosen by `matchMedia("(max-aspect-ratio: 1/1)")`, not by width, and
+only the chosen file is loaded. On an orientation change the poster stays up
+while the other source decodes; the loop does not restart on a resize that
+keeps the same aspect. The video pauses off screen and on a hidden tab, plays
+at 0.7×, and yields to its poster under reduced motion. The wrapper's pointer
+and scroll parallax, the grain layer and the bottom mask give the moving image
+depth without a scene graph. The vignette is drawn into the recording by the
+shader: a runtime gradient over a 2560×1440 video costs a compositor frame in
+headless software rendering, while the shader draws it for free.
 
-## 3. Typefaces — three faces, three strict roles
+`public/horizon-poster-{desktop,phone}.webp` are settled stills of each master.
+The `<picture>` under the video selects the same master by aspect; its `<img>`
+is the first paint, the reduced-motion document and the fallback when autoplay
+is refused, notably under iOS low-power mode. The HUD uses `100dvh` and the
+safe-area insets. Light mode uses a settled still as its dark plate — the
+shader has no sky colour, so the dark video is never inverted.
 
-All self-hosted latin subsets in `public/fonts/`, `font-display: swap`, no
-runtime font request on any route. Each family ships its OFL 1.1 licence beside
-it.
+## 6. Motion and accessibility
 
-| Role | Face | Weights | File | Where it may be used |
-|---|---|---|---|---|
-| Display | Instrument Serif | 400, 400 italic | `InstrumentSerif-Regular.woff2`, `InstrumentSerif-Italic.woff2` | the cover claim and section headings only |
-| Text | Archivo (variable) | 100–900 | `Archivo-Variable.woff2` | all running copy, UI labels, names |
-| Data | JetBrains Mono | 400–500 (one slice) | `JetBrainsMono-Regular.woff2` | numbers, units, repo names, timestamps, ticks, keycaps |
+- The shader runs while the hero is on screen and the tab is visible. It
+  freezes to a settled still under `prefers-reduced-motion: reduce`.
+- Copy reveals once on scroll. The hidden start exists only under
+  `@media (prefers-reduced-motion: no-preference)` and `data-motion="on"`; a
+  reduced-motion visitor gets a complete static document with nothing hidden.
+- Native scroll only. No wheel, touch or key interception, no snap.
+- One `<nav>`, one `<main>`, one `<header>`, five labelled sections and a skip
+  link. Focus order follows reading order; the focus ring is never removed.
+- 44px minimum on the theme toggle and every nav link.
 
-- The cover is set in Instrument Serif at `clamp(2.6rem, 9.5vw, 8.5rem)`, leading
-  `0.87`, tracking `-0.02em`, hand-broken into two lines: `I ship systems /
-  that hold in production.`
-- Running copy is Archivo at 17px/1.6, never wider than the reading measure.
-- Mono is **true data only**. A mono row of uppercase words over a heading is an
-  eyebrow, and there are none: no ALL-CAPS kicker, no `·`-joined meta string, no
-  `→` appended to a link.
-- Inter ships as the metric-matched body fallback (`--font-sans` order: Archivo,
-  Inter, Inter Fallback, Arial, system-ui). It is not a role; it exists so a
-  browser that refuses the variable font still lands on a face whose average
-  advance is within ~2% of the adjusted local fallback, and the swap moves
-  letterforms rather than line breaks.
-- The display cut is preloaded in `index.html`; nothing else is.
+## 7. Performance
 
----
+The hero is video decode, not shader work. The assets live in `public/`; the
+video is never inlined and the JS bundle stays under 250 kB gzip. Playback
+pauses off screen and on `document.hidden`; only transform and opacity move on
+the main thread, and the parallax loop stops with the video. Fonts are local;
+there is no runtime CSS-in-JS and no third-party script.
 
-## 4. Layout
+`scripts/frame-table.mjs` captures native-size screenshots and a frame table at
+2560, 1440 and 390 in both modes. Its rAF deltas are 60 Hz vsync-quantised: a
+literal 16.7 ms is the quantisation step, not a claim that a frame took exactly
+16.7 ms of work. The same run reports the settled window separately from the
+warm-up window so a first-frame decode is not read as steady state.
 
-- `.frame` is the only container: `max-width: 82rem`, 20px gutters, 48px from
-  900px, centred. Everything on every route sits inside one.
-- The scroll offset lives on the scrolling root:
-  `scroll-padding-top: calc(var(--rec-header-h) + var(--rec-space-3))`, so a band
-  link, a heading hash and focus moving into `main` all land clear of the sticky
-  bar, and padding and margin cannot stack into a double gap.
-- `scrollbar-gutter: stable` always reserves the gutter, so a route that grows
-  past the viewport and one that does not cannot shift the frame sideways.
-- Bands are separated by a **seam**: a `.frame`-wide `.rule` drawn in from the
-  left the first time it enters the viewport. The home record mounts seven bands
-  in reading order — cover, proof, work, atlas, forward, credentials, contact —
-  and each renders its own seam.
-- The cover is a two-column row from 1024px: the claim, first-person standfirst,
-  tenure and location,
-  former-employment line, availability and two actions on the left; the latency
-  instrument as a 20-23rem right-hand panel. Both display lines start on the
-  frame's left edge. The cover is content-height (about 740px at 1440) - it is
-  **not** a viewport tall and the instrument column is **not** sticky: the panel
-  scrolls with the page and states the measurement once.
-- Hairlines carry the atlas: the six group rows run the package names as
-  comma-separated runs with the tier as a word at the head of each run
-  (`Daily driver`, `Production shipped`, `Working knowledge`), so the tier costs
-  a word instead of a column. All 88 packages render once each; below `md` the
-  table folds into one block per group.
-- The work ledger on the home page is **four** featured rows; the other nine live
-  on `/projects`, where all thirteen render as one column. Each row is complete on
-  its own - name, the year flush on the frame's right edge, the line about the
-  project, then one mono run of kind, authorship and stack - so no two rows share
-  state and the scroll has no opinion about what is being read. Hover and focus
-  draw one 1px signal rule sweeping the row's width while the name steps one
-  space left.
-- The closed `footer.colophon` is the ways-out matrix: contact (mail), GitHub,
-  LinkedIn, the two documents, the source, and the one setting. One surface per
-  fact — no band repeats it.
-
----
-
-## 5. Motion
-
-Motion is a measurement aid, not decoration. It runs once, it resolves to a
-finished state, and every part of it has a fallback that renders that finished
-state immediately.
-
-One preference gates everything: the OS setting, `prefers-reduced-motion: reduce`,
-read by `motionAllowed()` in `src/lib/motion.ts`. There is no site switch and no
-stored override — the site follows the machine. `data-motion="on|off"` mirrors
-that answer onto `<html>` from a pre-paint script so a reduced-motion visitor
-never sees a frame of animation, and `watchMotionPreference()` re-reads it if the
-OS setting changes mid-visit.
-
-| Where | With motion | Reduced / `data-motion="off"` |
-|---|---|---|
-| Cover load, once per session, ~1.4s | two display lines `yPercent 110→0` (0.9s, 90ms stagger, power3.out), then copy and actions fade `y 12→0` (0.6s, 60ms stagger from 0.34s) | nothing runs; the resting DOM is the final state — no CSS-hidden start, so a JS-less page paints the finished cover |
-| Instrument | bars `scaleX 0→1` (0.9s, 150ms stagger, from 0.45s); `60 s` counts 0→60 from 0.55s; `−98%` counts 0→98 from 0.95s; one sweep crosses the plot and is erased | bars drawn at final width, every value is the final text in the markup, the grid draws once, the sweep never runs |
-| Band seams | hairline `scaleX 0→1` from the left, 0.7s, on first intersection | `revealRule` writes `scaleX: 1` instantly; a JS-less page paints the rule |
-| Proof figures | `countUp` once on the band's first intersection, formatted per figure | final values are already in the DOM and are never written to 0 |
-| Marquee | `xPercent 0→−50`, linear, 42s, repeat −1; paused on hover and on focus; the duplicate list is `aria-hidden` | the tween never starts; the track sits at 0 and the first copy is the strip |
-| Work rows | CSS only: a 1px `--rec-signal` scan sweeps the row (`scaleX` from the left), metadata shifts −4px, 200–300ms | the global kill switch collapses the transition to 0.01ms; the scan still lands at full width |
-| Detail-page titles and rows | masked line reveal on the claim, connector `scaleX` draws, per-row figure counts, one batched `ScrollTrigger.batch`; `fire()` is idempotent per row | no split, no tween: final text and drawn connectors at first paint |
-| Route change | `RouteCurtain`: the ground panel wipes up from the bottom (240ms, `power2.in`), the router swaps at the seam, the panel carries on up and out (420ms, `power3.inOut`), brand mark riding on it | the router commits synchronously — a correct page change, not an animated one |
-
-There is **one** route-transition code path. The curtain is the transition in
-every engine; there is no native `document.startViewTransition` branch, so a
-Chrome visitor and a Firefox visitor see the same seam.
-
-The global kill switch lives in `src/styles/base.css`: both
-`@media (prefers-reduced-motion: reduce)` and `html[data-motion="off"]` collapse
-every animation and transition to `0.01ms` with `scroll-behavior: auto`. The
-scripts read the same preference and skip the tween, so the CSS is the belt to
-the script's braces.
-
-**No pins.** There are no ScrollTrigger pins anywhere: the cover's load sequence
-is the only kinetic moment, and every other band resolves in place. A pin would
-hold the LCP element against the performance floor, delay the proof band by a
-viewport, and put a row list under a scroll-driven authority that keyboard focus
-then fights.
-
----
-
-## 6. Accessibility floor
-
-- One focus ring, site-wide: `outline: 2px solid var(--rec-signal)` at a 3px
-  offset, never removed. The single exception is `#main:focus`, which receives
-  focus programmatically on a route change and must not paint a ring.
-- 44px targets: every header link, the author mark (both axes), the footer's
-  links, `.button` and `.text-action`.
-- The skip link is the first tab stop, visible when focused, and moves focus to
-  `main`.
-- Landmarks: one `<main id="main" tabindex="-1">`, one `<header>`, one
-  `<footer>`, and on the home record seven `<section>`s, each with
-  `aria-labelledby` pointing at a real heading.
-- Every control has an accessible name; the author mark is an image whose
-  accessible name is the full person, not a three-letter monogram.
-- The route curtain is `aria-hidden` and `pointer-events: none`; it traps
-  nothing, holds nothing focusable, and never locks scrolling past its 660ms.
-- The mobile menu is one nav, not a second copy: Escape closes it and returns
-  focus to its trigger, and the page behind it does not scroll while it is open.
-- Reduced motion is a first-class path, not a fallback that merely stops a loop
-  (see §5).
-
----
-
-## 7. Copy rules
-
-- **Facts come from `src/content/*` verbatim.** No figure is retyped in a
-  component, and a figure that cannot be derived is dropped, never rounded.
-- Voice: plain, concrete, second person in UI, first person in copy. No hype
-  words, no emoji, no "blazing".
-- No middle-dot meta strings, no `→` appended to a link, no ALL-CAPS eyebrow
-  above a heading.
-- Mono labels are lowercase data (`before`, `after`, `commits`, `repositories`,
-  `published`, `retired`, `Tenure`, `Location`, `404`).
-- One surface per fact. The availability sentence is stated once, on the cover.
-  The documents and the two profile links belong to the footer alone. The
-  contact band states how to write, and nothing else.
-- The cover states the former employment in the past tense with its period
-  (`Formerly a Backend Developer at Xentra Infotech Solutions Inc.` ·
-  `March 2023 to May 2026` · `The company closed in May 2026.`), because the
-  record must never read as a current role.
-- No sentence appears on both the home record and a detail route, and no
-  ten-word run of home prose reappears in the delivered copy:
-  `tests/record-structure.test.tsx` enforces both.
-
----
-
-## 8. Performance floor
-
-- Transform and opacity only. `will-change` is added and removed, never left on.
-- No ambient canvas or frame loop runs on the page. The latency plot is the only
-  drawn measurement surface and it redraws only when its dimensions change.
-- No runtime font request; latin subsets only; `font-display: swap`; the display
-  cut is the single preload.
-- No images to decode, no third-party script, no runtime CSS-in-JS. The bundle
-  is one JS chunk and one CSS file (route components are imported eagerly, on
-  purpose: splitting them cost a chunk waterfall and repainted a third of the
-  viewport on a navigation the visitor had already asked for).
-
-Measured at the time of writing (`bun run build`):
-
-| Asset | Raw | Gzip |
-|---|---|---|
-| `index.html` | 6.49 kB | 2.00 kB |
-| `index-*.css` | 46.5 kB | 9.85 kB |
-| `index-*.js` | 490.7 kB | 156.5 kB |
-
-**The reading measure.** `--rec-prose-measure` is 56ch, and
-`tests/prose-measure.test.ts` loads the built page at 1440 and fails any block of
-running copy whose rendered box is wider than that measure in its own font. Note
-the arithmetic: 56ch of Archivo resolves to ~70 average characters per line at
-17px, inside the 45–80 range the type setting targets. A wider measure landed
-near 84 characters and read as a magazine column, so the measure is the token,
-not a character count.
-
-**Not measured here:** LCP and INP are targets (< 2.5s, < 200ms) and are not
-instrumented in CI. A claim about either needs a real field or lab trace, not a
-build size.
-
----
-
-## 9. Not doing
-
-- **Two grounds, one system.** Light is the same eleven roles re-pointed, not a
-  theme demo, and a second palette doubles every contrast number for a reader who
-  arrived to judge one page.
-- **No pins.** See §5.
-- **No ambient animation.** The latency plot's canvas draws only its labeled
-  scale; no generated illustration or pointer effect competes with the work.
-- **No fake screenshots.** No image of a dashboard that does not exist. The
-  evidence is numbers, repository names and dates.
-- **No contact form.** A relay form is a third party, a key and a failure mode;
-  the address is a `mailto:` with the subject and opening line already written.
-- **No cards.** No border-radius, no elevation, no glow. Structure is hairlines.
-- **No carousel, no accordion, no tab strip, no scroll-jacking.** The marquee is
-  the only loop, and it stops on hover, on focus, and when motion is off.
+`bun run check` runs the typecheck, the contrast audit, the production build
+and the tests. The production build emits one JS chunk and one CSS file plus
+redirect stubs for the retired paths; it pushes nothing.
