@@ -203,6 +203,18 @@ async function run() {
     }
   }
 
+  // The 320px accessibility floor: geometry only, no image.
+  {
+    const { context, page, errors } = await open(browser, { width: 320, height: 700 }, "dark", "reduce");
+    await page.goto(ORIGIN, { waitUntil: "load" });
+    await page.waitForSelector("main h1", { timeout: 10000 });
+    await page.evaluate(() => document.fonts.ready);
+    const g = await page.evaluate(geometry);
+    report.narrow = g;
+    if (errors.length) report.errors.push({ width: 320, errors });
+    await context.close();
+  }
+
   // Reduced motion: no images, only the semantic and geometric verdict.
   for (const viewport of WIDTHS) {
     const { context, page, errors } = await open(browser, viewport, "dark", "reduce");
@@ -223,6 +235,7 @@ async function run() {
     "2_five_headings": all.every((g) => g.headings.length === 5),
     "3_no_overflow": all.every((g) => g.overflowX <= 0),
     "3b_no_nav_overlap": all.every((g) => g.navOverlaps.length === 0),
+    "3c_floor_320": report.narrow.overflowX <= 0 && report.narrow.navOverlaps.length === 0 && report.narrow.colophonOverlaps.length === 0,
     "4_no_colophon_overlap": all.every((g) => g.colophonOverlaps.length === 0),
     "5_deep_link_lands": all
       .filter((g) => g.state.includes("#"))
@@ -244,6 +257,7 @@ async function run() {
       `  ${g.width} ${g.theme} ${g.state.padEnd(13)} nav=${g.navCount} headings=${g.headings.length} overflow=${g.overflowX} coloOverlap=${g.colophonOverlaps.length} navOverlap=${g.navOverlaps.length} hash=${g.deepLink.hash || "-"}@${g.deepLink.targetTop}`,
     );
   }
+  console.log(`  320 dark /             nav=${report.narrow.navCount} overflow=${report.narrow.overflowX} navOverlap=${report.narrow.navOverlaps.length} coloOverlap=${report.narrow.colophonOverlaps.length}`);
   for (const g of rm) {
     console.log(`  reduced ${g.width} motion=${g.motion} inert=${g.inertCount} visible=${g.allPanelsVisible} linear=${g.linear}`);
   }

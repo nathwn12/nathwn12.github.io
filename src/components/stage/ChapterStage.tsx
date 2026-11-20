@@ -200,6 +200,7 @@ export function ChapterStage() {
                     href={`#${chapter.id}`}
                     className="stage-rail__link"
                     data-chapter-link={chapter.id}
+                    aria-label={`${String(index + 1).padStart(2, "0")} ${chapter.label}`}
                     aria-current={current ? "true" : undefined}
                     onClick={railClick(chapter.id)}
                   >

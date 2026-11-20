@@ -111,6 +111,18 @@
   }
 }
 
+/* Below a phone's comfortable measure the index keeps its numbers and its
+   accessible names, but drops the visible words before they can overprint. */
+@media (max-width: 360px) {
+  .stage-rail__label {
+    display: none;
+  }
+  .stage-rail__link {
+    min-width: 2.75rem;
+    justify-content: center;
+  }
+}
+
 @media (min-width: 1200px) {
   .stage-shell,
   .colophon {
