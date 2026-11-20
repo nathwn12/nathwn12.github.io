@@ -130,9 +130,9 @@ void main() {
   // ends on a cut line at any aspect ratio.
   vec2 edge = min(gl_FragCoord.xy, uRes - gl_FragCoord.xy) / min(uRes.x, uRes.y);
   float feather = smoothstep(0.0, 0.07, edge.x) * smoothstep(0.0, 0.07, edge.y);
-  light += uAccent * (disc * mix(0.75, 1.75, front) + bloom) * feather;
+  light += uAccent * (disc * mix(0.70, 1.45, front) + bloom) * feather;
   light += vec3(0.72, 0.86, 0.80) * ring *
-           (1.0 - smoothstep(inner, inner + R * 0.5, rd)) * 0.26 * front * feather;
+           (1.0 - smoothstep(inner, inner + R * 0.5, rd)) * 0.18 * front * feather;
   light += vec3(pr, pg, pb) * uAccent * 1.40 * feather;
 
   // Tone-map the light, then lay it on the token sky. The sky itself is never

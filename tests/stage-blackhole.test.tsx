@@ -90,10 +90,10 @@ describe("the descent field", () => {
     }
   });
 
-  test("the one orbit index carries a single travelling sweep", async () => {
+  test("the active orbit item owns its underline", async () => {
     await mount();
     expect(host.querySelectorAll(".stage-rail")).toHaveLength(1);
-    expect(host.querySelectorAll(".stage-rail__sweep")).toHaveLength(1);
+    expect(host.querySelectorAll(".stage-rail__sweep")).toHaveLength(0);
     expect(
       host.querySelector('a[data-chapter-link="person"]')?.getAttribute("aria-current"),
     ).toBe("true");

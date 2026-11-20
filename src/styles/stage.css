@@ -3,7 +3,8 @@
    around it on a two-column orbit. One nav runs along the bottom edge. */
 
 html {
-  background-color: var(--rec-ground);
+  /* The root paints the scrollbar gutter; it must be the sky, not page cream. */
+  background-color: color-mix(in srgb, var(--rec-ground) 72%, black);
 }
 .stage-shell {
   position: relative;
@@ -167,6 +168,7 @@ html {
   min-width: 0;
 }
 .stage-rail__link {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-self: start;
@@ -206,22 +208,17 @@ html {
   border-color: var(--rec-signal);
   color: var(--rec-on-signal);
 }
-.stage-rail__sweep {
-  position: absolute;
-  left: var(--rail-pad);
-  bottom: 3px;
-  width: calc((100% - 2 * var(--rail-pad)) / 5);
-  height: 3px;
-  background: none;
-}
-.stage-rail__sweep::after {
+.stage-rail__link[aria-current="true"]::after {
   content: "";
-  display: block;
+  position: absolute;
+  left: 50%;
+  bottom: -11px;
   width: 1.5rem;
   height: 3px;
-  margin-inline: auto;
+  transform: translateX(-50%);
   background: var(--rec-signal);
 }
+
 @media (max-width: 520px) {
   .stage-rail__link {
     gap: 0.2rem;
@@ -472,6 +469,13 @@ html {
   letter-spacing: var(--rec-tracking-data);
   line-height: var(--rec-leading-data);
   color: var(--rec-ink-muted);
+}
+.stage-chips {
+  border-top: 0;
+  padding-top: 0;
+}
+.stage-chips li {
+  border: 0;
 }
 .stage-measure__label {
   margin: 0;
@@ -775,12 +779,10 @@ html {
     grid-template-rows: auto 1fr auto;
   }
   .stage-panel__content:not(.stage-panel__content--arrival):not(.stage-panel__content--contact) {
-    align-items: stretch;
+    align-items: start;
   }
   .stage-panel__content:not(.stage-panel__content--arrival):not(.stage-panel__content--contact) .stage-lead {
-    display: grid;
-    align-content: center;
-    height: 100%;
+    height: auto;
   }
   .stage-panel__content--arrival .stage-facts {
     grid-row: 3;

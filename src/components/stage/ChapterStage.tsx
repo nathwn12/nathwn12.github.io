@@ -227,7 +227,6 @@ export function ChapterStage() {
               );
             })}
           </ol>
-          <span className="stage-rail__sweep" aria-hidden="true" />
         </div>
       </nav>
 

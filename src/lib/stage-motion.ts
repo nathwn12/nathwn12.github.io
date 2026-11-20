@@ -67,8 +67,6 @@ export function mountStageMotion(root: HTMLElement): StageMotionHandle {
       return frame && content ? { panel, frame, content } : null;
     })
     .filter((shell): shell is Shell => shell !== null);
-  const sweep = root.querySelector<HTMLElement>(".stage-rail__sweep");
-
   let top = 0;
   let travel = 1;
   let viewport = 1;
@@ -104,8 +102,6 @@ export function mountStageMotion(root: HTMLElement): StageMotionHandle {
       shell.content.style.transform = `translate3d(0,${(pass * 38).toFixed(1)}px,0)`;
     }
 
-    const index = shellIndex(raw);
-    if (sweep) sweep.style.transform = `translateX(${index * 100}%)`;
   };
 
   const schedule = () => {
@@ -166,8 +162,4 @@ export function mountStageMotion(root: HTMLElement): StageMotionHandle {
       schedule();
     },
   };
-}
-
-function shellIndex(position: number): number {
-  return Math.max(0, Math.min(4, Math.round(position)));
 }
