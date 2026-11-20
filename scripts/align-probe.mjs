@@ -2,7 +2,7 @@
 /**
  * align-probe — alignment contract on the live preview.
  *
- * Four masters in both skies. Mechanical edges come from getBoundingClientRect;
+ * Four masters in the one dark sky. Mechanical edges come from getBoundingClientRect;
  * optical edges come from the painted pixels, because a sidebearing is invisible
  * to the layout box. Run against the dev server on 127.0.0.1:4334.
  *
@@ -23,7 +23,7 @@ const VIEWS = [
   { name: "768", w: 768, h: 1024 },
   { name: "390", w: 390, h: 844 },
 ];
-const THEMES = ["dark", "light"];
+const THEMES = ["dark"];
 const MECH = 0.5; // mechanical tolerance, px
 const INK = 1; // optical tolerance, px
 
@@ -39,7 +39,7 @@ const LEFT_BLOCKS = [
   "#contact .section-head", "#contact .contact-line", "#contact .mailto", ".colophon > :first-child",
 ];
 const RIGHT_BLOCKS = [
-  ".theme-toggle", ".hud-role", "#reduction .proof-note", "#method .data-line dd",
+  ".hud-role", "#reduction .proof-note", "#method .data-line dd",
   "#work .row-arrow", "#record .experience-metric",
 ];
 const INK_TARGETS = [
@@ -138,7 +138,6 @@ const LAYOUT_FN = (spec) => {
     tokens: { gutter: gutterPx, baseline: token("--rec-baseline", spec.baseline) },
     left: spec.left.map(one).filter(Boolean),
     right: spec.right.map(one).filter(Boolean),
-    plate: one(".horizon-plate"),
     video: one(".horizon-video-wrap"),
     hero: one(".hero"),
     eyebrow: one(".hud-name .eyebrow"),
@@ -281,7 +280,6 @@ async function main() {
         reducedMotion: "no-preference",
       });
       await page.addInitScript(installMetrics);
-      await page.addInitScript((m) => localStorage.setItem("nnl-theme", m), theme);
       await page.goto(URL, { waitUntil: "networkidle" });
       await page.evaluate(() => document.fonts.ready);
       // Freeze reveals at their settled state; a mid-transition transform
@@ -299,10 +297,6 @@ async function main() {
       const gutter = m.tokens.gutter;
       const step = m.tokens.baseline;
       const right = m.viewport.cw - gutter;
-      // The page axis is the centre of the painted content box, which excludes
-      // the reserved scrollbar gutter; innerWidth/2 would be off by half it.
-      const pageCentre = m.hero.x + m.hero.w / 2;
-
       for (const b of m.left) check(`left ${b.sel}`, tag, round(b.x - (b.edgeL + b.hangL)), MECH);
       for (const b of m.right) {
         // The phone HUD turns the role block into a left-aligned stack row.
@@ -310,11 +304,7 @@ async function main() {
         check(`right ${b.sel}`, tag, round(b.right - b.edgeR), MECH);
       }
 
-      if (theme === "light" && m.plate) {
-        if (view.w <= 620) check("object left (in column)", tag, round(m.plate.x - gutter), MECH);
-        else check("object centre (page axis)", tag, round(m.plate.cx - pageCentre), MECH);
-      }
-      if (theme === "dark" && m.video && m.hero) {
+      if (m.video && m.hero) {
         // The wrap is deliberately overscanned 3% for parallax. The contract is
         // that the overscan covers the hero on both sides and stays symmetric.
         const bleedL = m.hero.x - m.video.x;
@@ -329,11 +319,6 @@ async function main() {
         const dName = m.name.baseline - m.eyebrow.baseline;
         const nName = Math.round(dName / step);
         check("name baseline on lead grid", tag, round(dName - nName * step), MECH, `lead+${nName} steps`);
-        if (theme === "light" && m.plate) {
-          const dObj = m.plate.y - m.eyebrow.baseline;
-          const nObj = Math.round(dObj / step);
-          check("object top on lead grid", tag, round(dObj - nObj * step), MECH, `lead+${nObj} steps`);
-        }
       }
 
       const ground = await page.evaluate(() => getComputedStyle(document.body).backgroundColor);

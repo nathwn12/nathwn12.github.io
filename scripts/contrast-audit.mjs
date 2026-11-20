@@ -3,11 +3,9 @@
  * contrast-audit — the palette's own judge.
  *
  * Dependency-free, and it reads the shipped `src/styles/tokens.css` rather than a
- * copy: the two theme blocks are resolved the way the cascade resolves them (the
- * dark `:root` block first, the `[data-theme="light"]` block over it), then every
- * required pair is measured with the WCAG 2.2 relative-luminance formula and
- * printed as one table. A single failing pair exits 1, so `bun run check` cannot
- * pass on a palette that lost its floor.
+ * copy: the one dark `:root` palette is measured with the WCAG 2.2 relative-
+ * luminance formula and printed as one table. A single failing pair exits 1, so
+ * `bun run check` cannot pass on a palette that lost its floor.
  *
  * Thresholds are the brief's: ink ≥ 7, muted ink ≥ 4.5, signal ≥ 4.5,
  * measure ≥ 4.5, alarm ≥ 4.5, the label on a filled signal surface ≥ 4.5.
@@ -43,18 +41,13 @@ function hexTokens(css) {
 }
 
 const dark = hexTokens(block(source, ":root"));
-const lightOverride = hexTokens(block(source, '[data-theme="light"]'));
 
 if (Object.keys(dark).length === 0) {
   console.error("contrast-audit: tokens.css has no :root palette");
   process.exit(1);
 }
-if (Object.keys(lightOverride).length === 0) {
-  console.error('contrast-audit: tokens.css has no [data-theme="light"] palette');
-  process.exit(1);
-}
 
-const THEMES = { dark, light: { ...dark, ...lightOverride } };
+const THEMES = { dark };
 
 const REQUIRED = [
   { fg: "ink", bg: "ground", min: 7 },

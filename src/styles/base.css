@@ -42,8 +42,8 @@ body {
 
 * {
   scrollbar-width: thin;
-  /* The track is sky, not ground: in light mode a cream gutter reads as a
-     stripe beside the vignetted field. */
+  /* The track is sky, not ground: a lighter gutter reads as a stripe beside
+     the vignetted field. */
   scrollbar-color: var(--rec-rule-strong)
     color-mix(in srgb, var(--rec-ground) 72%, black);
 }

@@ -14,7 +14,6 @@ import { employer, experience, provenance } from "../content/experience";
 import { projects, projectsLede } from "../content/projects";
 import { recordOpener } from "../content/hero";
 import { CONTACT_EMAIL, CV_PATH, RESUME_PATH } from "../lib/contact";
-import { useTheme } from "../lib/theme";
 
 const SECTIONS = [
   { id: "reduction", index: "01", label: "The reduction" },
@@ -71,7 +70,6 @@ function useReveal() {
 }
 
 export default function LedgerPage() {
-  const [theme, toggleTheme] = useTheme();
   useReveal();
 
   useEffect(() => {
@@ -99,25 +97,11 @@ export default function LedgerPage() {
             </a>
           ))}
         </nav>
-        <button
-          type="button"
-          className="theme-toggle data"
-          onClick={toggleTheme}
-          aria-label={`Switch to ${theme === "dark" ? "paper" : "void"} mode`}
-        >
-          {theme === "dark" ? "Paper" : "Void"}
-        </button>
       </header>
 
       <main id="main" tabIndex={-1} className="outline-none">
         <section id="horizon" className="hero" aria-labelledby="hero-name">
-          {theme === "dark" ? (
-            <HorizonVideo />
-          ) : (
-            <div className="horizon-field horizon-plate" aria-hidden="true">
-              <img src="/horizon-still.png" alt="" />
-            </div>
-          )}
+          <HorizonVideo />
 
           <div className="hero-hud">
             <div className="hud hud-name">

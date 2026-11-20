@@ -2,7 +2,8 @@
 /**
  * The event-horizon ledger's own floor: one navigation, five reachable
  * chapters, content truth from src/content, tokens as the only colour source,
- * and a complete static document when motion is off.
+ * one dark sky, three selectable hero renders, and a complete static document
+ * when motion is off.
  */
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
@@ -10,6 +11,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
 import LedgerPage from "../src/components/LedgerPage";
+import { heroVariantFromSearch } from "../src/components/HorizonVideo";
 import { figures, proofRows } from "../src/content/ledger";
 import { CONTACT_EMAIL } from "../src/lib/contact";
 
@@ -21,6 +23,7 @@ const css = read("src/styles/ledger.css");
 const base = read("src/styles/base.css");
 const fonts = read("src/styles/fonts.css");
 const tokens = read("src/styles/tokens.css");
+const indexHtml = read("index.html");
 
 describe("one navigation, every chapter reachable", () => {
   test("exactly one nav landmark with five in-page links", () => {
@@ -77,7 +80,7 @@ describe("content truth is the ledger", () => {
   });
 });
 
-describe("tokens are the only colour source", () => {
+describe("tokens are the only colour source, and dark is the only sky", () => {
   test("no raw hex in the new component, stylesheet or base", () => {
     for (const source of [
       read("src/components/LedgerPage.tsx"),
@@ -89,10 +92,38 @@ describe("tokens are the only colour source", () => {
     }
   });
 
-  test("both skies are declared through data-theme", () => {
-    expect(tokens).toContain('[data-theme="light"]');
-    expect(css).toContain('[data-theme="light"] .horizon-plate');
+  test("the paper sky is deleted, not adapted", () => {
+    expect(tokens).toContain("color-scheme: dark");
+    expect(tokens).not.toContain('[data-theme="light"]');
+    expect(css).not.toContain('[data-theme="light"]');
+    expect(css).not.toContain("horizon-plate");
+    expect(indexHtml).toContain('data-theme="dark"');
+    expect(indexHtml).not.toContain("prefers-color-scheme");
     expect(base).toContain('html[data-motion="off"]');
+  });
+
+  test("zero PAPER nodes ship", () => {
+    expect(html).not.toMatch(/\bpaper\b|theme-toggle|void mode/i);
+    expect(html).not.toContain("Switch to");
+  });
+});
+
+describe("three hero renders, one picking lever", () => {
+  test("only a, b and c are real; anything else is the default c", () => {
+    expect(heroVariantFromSearch("?hero=a")).toBe("a");
+    expect(heroVariantFromSearch("?hero=b")).toBe("b");
+    expect(heroVariantFromSearch("?hero=c")).toBe("c");
+    expect(heroVariantFromSearch("")).toBe("c");
+    expect(heroVariantFromSearch("?hero=")).toBe("c");
+    expect(heroVariantFromSearch("?hero=zzz")).toBe("c");
+    expect(heroVariantFromSearch("?hero=A")).toBe("c");
+    expect(heroVariantFromSearch("?hero=dark")).toBe("c");
+  });
+
+  test("A keeps its dither crisp; B and C stay smooth", () => {
+    expect(css).toContain(".horizon-video--a {");
+    expect(css).toContain("image-rendering: pixelated");
+    expect(css.match(/image-rendering/g) ?? []).toHaveLength(1);
   });
 });
 
@@ -111,20 +142,33 @@ describe("reduced motion is a complete document", () => {
     expect(video).toContain('classList.add("is-still")');
     expect(video).toContain("IntersectionObserver");
     expect(video).toContain("visibilitychange");
-    expect(html).toContain("horizon-poster-phone.webp");
-    expect(html).toContain("horizon-poster-desktop.webp");
+    expect(html).toContain("horizon-c-poster-phone.webp");
+    expect(html).toContain("horizon-c-poster-desktop.webp");
     expect(html).not.toContain("<canvas");
   });
 
-  test("the source is chosen by aspect, not width, and one at a time", () => {
+  test("two sources per aspect: AV1 first, H.264 second, browser picks", () => {
     const video = read("src/components/HorizonVideo.tsx");
     expect(video).toContain('PORTRAIT_QUERY = "(max-aspect-ratio: 1/1)"');
     expect(video).toContain('media="(max-aspect-ratio: 1/1)"');
-    expect(video).toContain("canPlayType");
+    expect(video).toContain('const source = `/horizon-${variant}-${master}`');
+    expect(video).toContain('codecs="av01.0.05M.08"');
+    expect(video).toContain('codecs="avc1.640028"');
     expect(video).toContain('classList.add("is-swapping")');
-    expect(video).toContain('video.src = source');
-    const videoTag = video.match(/<video[\s\S]*?\/>/)?.[0] ?? "";
-    expect(videoTag).not.toContain("<source");
+    expect(video).toContain("video.load()");
+    const videoTag = video.match(/<video[\s\S]*?<\/video>/)?.[0] ?? "";
+    expect(videoTag.match(/<source\b/g) ?? []).toHaveLength(2);
+    const av1 = videoTag.indexOf("-av1.mp4");
+    const h264 = videoTag.indexOf("type={H264}");
+    expect(av1).toBeGreaterThan(-1);
+    expect(h264).toBeGreaterThan(av1);
+    expect(videoTag).not.toContain("video.src");
+    expect(videoTag).not.toContain("<canvas");
+  });
+
+  test("no runtime overlay sits over the baked-in grain and vignette", () => {
+    expect(css).not.toContain(".horizon-fade");
+    expect(css).not.toContain(".hero::after");
   });
 
   test("the HUD respects the safe area and the dynamic viewport", () => {
@@ -133,18 +177,25 @@ describe("reduced motion is a complete document", () => {
     expect(css).toContain("100dvh");
   });
 
-  test("both masters and their posters are real public assets", () => {
-    for (const file of [
-      "horizon-desktop.mp4",
-      "horizon-desktop.webm",
-      "horizon-phone.mp4",
-      "horizon-phone.webm",
-      "horizon-poster-desktop.webp",
-      "horizon-poster-phone.webp",
-    ]) {
+  test("three variants, two aspects, two codecs and six posters are real assets", () => {
+    const files: string[] = [];
+    for (const variant of ["a", "b", "c"]) {
+      for (const aspect of ["desktop", "phone"]) {
+        files.push(
+          `horizon-${variant}-${aspect}-av1.mp4`,
+          `horizon-${variant}-${aspect}.mp4`,
+          `horizon-${variant}-poster-${aspect}.webp`,
+        );
+      }
+    }
+    expect(files).toHaveLength(18);
+    for (const file of files) {
       const path = resolve(root, "public", file);
       expect(existsSync(path), file).toBe(true);
       expect(statSync(path).size, `${file} is empty`).toBeGreaterThan(1000);
+      if (file.endsWith(".webp")) {
+        expect(statSync(path).size, `${file} exceeds 120 KB`).toBeLessThan(120 * 1024);
+      }
     }
   });
 
@@ -173,10 +224,9 @@ describe("the committed type stack is self-hosted", () => {
   }
 
   test("the display cut is the single preload and the licence ships", () => {
-    const htmlFile = read("index.html");
-    expect(htmlFile).toContain("PlayfairDisplay-Variable.woff2");
-    expect(htmlFile).not.toContain("Archivo-Variable");
-    expect(htmlFile).not.toContain("JetBrainsMono-Regular");
+    expect(indexHtml).toContain("PlayfairDisplay-Variable.woff2");
+    expect(indexHtml).not.toContain("Archivo-Variable");
+    expect(indexHtml).not.toContain("JetBrainsMono-Regular");
     expect(read("public/fonts/OFL-Ledger.txt")).toContain("OPEN FONT LICENSE");
   });
 });

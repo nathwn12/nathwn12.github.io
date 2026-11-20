@@ -1,52 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- The dark ground is the no-JS default; the pre-paint script below
-         rewrites this to the resolved theme's `--rec-ground`. -->
+    <!-- One sky. The dark ground and its chrome colour are fixed; only motion
+         is resolved before first paint. -->
     <meta name="theme-color" content="#0a0d0b" />
     <script>
       (function () {
-        /* The only pre-paint work: the theme, and the motion state. Both are
-           resolved before first paint so a visitor who pinned Paper never sees
-           a dark frame, and one whose OS asks for less motion never sees the
-           page animate for one frame.
-
-           Theme: the stored pin wins, otherwise the OS preference. Each read is
-           its own try/catch — storage that throws (Safari private mode, a
-           blocked origin) must not stop the attribute being written, and an
-           unreadable OS probe falls back to the dark ground, which is the
-           identity.
-
-           Motion has no switch any more: it is on unless the OS asks for less,
-           and `data-motion` carries that state for the CSS kill switch. */
-        var theme = null;
-        try {
-          var stored = localStorage.getItem("nnl-theme");
-          if (stored === "light" || stored === "dark") theme = stored;
-        } catch {
-          /* storage unavailable — fall through to the OS preference */
-        }
-        if (theme === null) {
-          theme = "dark";
-          try {
-            if (
-              window.matchMedia &&
-              window.matchMedia("(prefers-color-scheme: light)").matches
-            ) {
-              theme = "light";
-            }
-          } catch {
-            /* no media query support — keep the dark ground */
-          }
-        }
-        document.documentElement.dataset.theme = theme;
-        var meta = document.querySelector('meta[name="theme-color"]');
-        if (meta) {
-          meta.setAttribute("content", theme === "light" ? "#f1f4ef" : "#0a0d0b");
-        }
-
+        /* The only pre-paint work: motion, resolved before first paint so a
+           visitor whose OS asks for less never sees the page animate for one
+           frame. There is no theme to resolve: the page is dark always. */
         var motion = "on";
         try {
           if (

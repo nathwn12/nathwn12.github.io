@@ -73,22 +73,6 @@
   color: var(--rec-ink);
 }
 
-.theme-toggle {
-  min-height: 44px;
-  padding-inline: var(--rec-space-2);
-  border: 0;
-  background: none;
-  color: var(--rec-signal);
-  font-family: var(--font-mono);
-  font-size: var(--rec-text-data-sm);
-  letter-spacing: var(--rec-tracking-data);
-  text-transform: uppercase;
-  cursor: pointer;
-}
-.theme-toggle:hover {
-  color: var(--rec-ink);
-}
-
 @media (max-width: 760px) {
   :root {
     --rec-header-h: 6.5rem;
@@ -122,25 +106,6 @@
   min-height: calc(100dvh - var(--rec-header-h));
   overflow: hidden;
   background: var(--rec-void);
-}
-
-/* A clear zone for the HUD: the disc is bright in the lower half on a phone. */
-.hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    color-mix(in srgb, var(--rec-void) 55%, transparent),
-    transparent 24%,
-    transparent 62%,
-    color-mix(in srgb, var(--rec-void) 78%, transparent)
-  );
-}
-[data-theme="light"] .hero::after {
-  background: none;
 }
 
 .horizon-field {
@@ -183,18 +148,10 @@
 .horizon-video.is-swapping {
   opacity: 0;
 }
-.horizon-fade {
-  position: absolute;
-  inset: auto 0 0;
-  height: 22%;
-  z-index: 4;
-  pointer-events: none;
-  background: linear-gradient(to bottom, transparent, var(--rec-ground));
+/* A is the pixel-dither master; keep its steps crisp at any scale. */
+.horizon-video--a {
+  image-rendering: pixelated;
 }
-[data-theme="light"] .horizon-video-wrap {
-  display: none;
-}
-
 .hero-hud {
   position: relative;
   z-index: 5;
@@ -321,30 +278,6 @@
     grid-column: 1;
     grid-row: 4;
     justify-self: start;
-  }
-}
-
-/* The paper sky: the same shader frame, held as a dark plate on the ground. */
-[data-theme="light"] .hero {
-  background: var(--rec-ground);
-}
-[data-theme="light"] .horizon-plate {
-  inset: auto;
-  top: 50%;
-  left: var(--rec-object-axis);
-  width: min(64vw, 56vh, 44rem);
-  aspect-ratio: 16 / 10;
-  transform: translate(-50%, calc(-50% + var(--rec-object-nudge)));
-  border: var(--rec-rule-w) solid var(--rec-rule-strong);
-  background: var(--rec-void);
-}
-@media (max-width: 620px) {
-  [data-theme="light"] .horizon-plate {
-    /* In the column the object's left edge owns the gutter, not its centre. */
-    top: 44%;
-    left: var(--rec-gutter);
-    width: min(72vw, 42vh, 44rem);
-    transform: translateY(calc(-50% + var(--rec-object-nudge)));
   }
 }
 

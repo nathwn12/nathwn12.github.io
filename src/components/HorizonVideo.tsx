@@ -3,16 +3,37 @@ import { useEffect, useRef, useState } from "react";
 const RATE = 0.7;
 const PORTRAIT_QUERY = "(max-aspect-ratio: 1/1)";
 const MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+const AV1 = 'video/mp4; codecs="av01.0.05M.08"';
+const H264 = 'video/mp4; codecs="avc1.640028"';
+
+export type HeroVariant = "a" | "b" | "c";
+
+/**
+ * The owner's picking lever. Only a, b and c are real; a missing or
+ * unrecognised value is the default C. Read once — a change is a page load,
+ * never a runtime source swap.
+ */
+export function heroVariantFromSearch(search: string): HeroVariant {
+  const raw = new URLSearchParams(search).get("hero");
+  return raw === "a" || raw === "b" || raw === "c" ? raw : "c";
+}
 
 function matches(query: string): boolean {
   if (typeof window === "undefined") return false;
   return window.matchMedia?.(query).matches === true;
 }
 
-/** The recorded shader loop. No WebGL context is created on this page. */
+/**
+ * The recorded shader loop. No WebGL context and no overlay layers: grain and
+ * vignette are baked into every frame. One video, two sources per aspect — AV1
+ * first, H.264 second — chosen by the browser.
+ */
 export default function HorizonVideo() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const wrapRef = useRef<HTMLDivElement | null>(null);
+  const [variant] = useState(() =>
+    heroVariantFromSearch(typeof window === "undefined" ? "" : window.location.search),
+  );
   const [portrait, setPortrait] = useState(() => matches(PORTRAIT_QUERY));
   const [reduced, setReduced] = useState(
     () =>
@@ -38,6 +59,8 @@ export default function HorizonVideo() {
   }, []);
 
   const master = portrait ? "phone" : "desktop";
+  const source = `/horizon-${variant}-${master}`;
+  const poster = `/horizon-${variant}-poster-${master}.webp`;
 
   useEffect(() => {
     const video = videoRef.current;
@@ -51,11 +74,6 @@ export default function HorizonVideo() {
     }
 
     video.classList.remove("is-still");
-    const codec = video.canPlayType('video/webm; codecs="vp9"')
-      ? "webm"
-      : "mp4";
-    const source = `/horizon-${master}.${codec}`;
-    const poster = `/horizon-poster-${master}.webp`;
     let onScreen = true;
 
     const play = () => {
@@ -71,16 +89,11 @@ export default function HorizonVideo() {
       play();
     };
 
-    if (video.getAttribute("src") !== source) {
-      video.classList.add("is-swapping");
-      video.poster = poster;
-      video.src = source;
-      video.load();
-      video.addEventListener("canplay", onReady, { once: true });
-    } else {
-      video.poster = poster;
-      play();
-    }
+    // A new aspect means new <source> children. Re-run selection so the browser
+    // picks the right master, and hold the poster until the first frame is up.
+    video.classList.add("is-swapping");
+    video.addEventListener("canplay", onReady, { once: true });
+    video.load();
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -138,28 +151,30 @@ export default function HorizonVideo() {
       document.removeEventListener("visibilitychange", onVisibility);
       video.pause();
     };
-  }, [master, reduced]);
+  }, [source, reduced]);
 
   return (
     <div className="horizon-video-wrap" ref={wrapRef} aria-hidden="true">
       <video
         ref={videoRef}
-        className="horizon-video"
-        autoPlay
+        className={`horizon-video horizon-video--${variant}`}
+        autoPlay={!reduced}
         muted
         loop
         playsInline
         preload="metadata"
-        poster="/horizon-poster-desktop.webp"
-      />
+        poster={poster}
+      >
+        <source src={`${source}-av1.mp4`} type={AV1} />
+        <source src={`${source}.mp4`} type={H264} />
+      </video>
       <picture className="horizon-poster">
         <source
           media="(max-aspect-ratio: 1/1)"
-          srcSet="/horizon-poster-phone.webp"
+          srcSet={`/horizon-${variant}-poster-phone.webp`}
         />
-        <img src="/horizon-poster-desktop.webp" alt="" />
+        <img src={`/horizon-${variant}-poster-desktop.webp`} alt="" />
       </picture>
-      <div className="horizon-fade" />
     </div>
   );
 }

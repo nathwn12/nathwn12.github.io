@@ -25,7 +25,7 @@ const quantile = (values, q) => {
 };
 
 for (const vp of VIEWPORTS) {
-  for (const mode of ["dark", "light"]) {
+  for (const mode of ["dark"]) {
     const page = await browser.newPage({
       viewport: { width: vp.width, height: vp.height },
       deviceScaleFactor: 1,
@@ -33,7 +33,6 @@ for (const vp of VIEWPORTS) {
     });
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
-    await page.addInitScript((m) => localStorage.setItem("nnl-theme", m), mode);
     await page.goto(URL, { waitUntil: "networkidle" });
     await page.waitForTimeout(1600);
 
@@ -86,7 +85,6 @@ for (const vp of VIEWPORTS) {
           : null,
         navs: document.querySelectorAll("nav").length,
         sections: document.querySelectorAll("main section").length,
-        plate: !!document.querySelector(".horizon-plate"),
         warm,
         settled,
       };
@@ -151,7 +149,6 @@ const selection = await browser.newPage({
   deviceScaleFactor: 1,
   reducedMotion: "no-preference",
 });
-await selection.addInitScript(() => localStorage.setItem("nnl-theme", "dark"));
 await selection.goto(URL, { waitUntil: "networkidle" });
 await selection.waitForTimeout(1200);
 const readSource = () =>
@@ -178,7 +175,6 @@ const playback = await browser.newPage({
   deviceScaleFactor: 1,
   reducedMotion: "no-preference",
 });
-await playback.addInitScript(() => localStorage.setItem("nnl-theme", "dark"));
 await playback.goto(URL, { waitUntil: "networkidle" });
 await playback.waitForTimeout(1200);
 const readVideo = () =>
@@ -213,7 +209,6 @@ const reduced = await browser.newPage({
   viewport: { width: 390, height: 844 },
   reducedMotion: "reduce",
 });
-await reduced.addInitScript(() => localStorage.setItem("nnl-theme", "dark"));
 await reduced.goto(URL, { waitUntil: "networkidle" });
 await reduced.waitForTimeout(900);
 console.log(
@@ -230,5 +225,38 @@ console.log(
   }),
 );
 await reduced.close();
+
+// The picking lever: verify A and B once each at both aspects. C is the
+// default and is covered by the main table above.
+for (const variant of ["a", "b"]) {
+  for (const vp of [
+    { name: "1440", width: 1440, height: 900 },
+    { name: "390", width: 390, height: 844 },
+  ]) {
+    const page = await browser.newPage({
+      viewport: { width: vp.width, height: vp.height },
+      deviceScaleFactor: 1,
+      reducedMotion: "no-preference",
+    });
+    await page.goto(`${URL}?hero=${variant}`, { waitUntil: "networkidle" });
+    await page.waitForTimeout(1400);
+    const state = await page.evaluate(() => {
+      const v = document.querySelector("video");
+      return v
+        ? {
+            source: v.currentSrc.split("/").pop(),
+            paused: v.paused,
+            rate: v.playbackRate,
+            rendering: getComputedStyle(v).imageRendering,
+            pixelated: v.classList.contains("horizon-video--a"),
+          }
+        : null;
+    });
+    console.log(
+      JSON.stringify({ variantVerify: { variant, size: vp.name, ...state } }),
+    );
+    await page.close();
+  }
+}
 
 await browser.close();

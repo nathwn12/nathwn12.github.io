@@ -15,11 +15,11 @@
   --rec-measure: #e5bc3f;
   --rec-alarm: #e85560;
   --rec-on-signal: #06100a;
-  /* The figure sits on the black horizon in both skies, so the readout needs
-     one constant light ink rather than a theme-dependent one. */
+  /* The figure sits on the black horizon, so the readout keeps one constant
+     light ink rather than a theme-dependent one. */
   --rec-on-void: #f0f6f1;
   --rec-on-void-muted: #b9c8c0;
-  /* The hero's HUD sits on the dark field in dark mode and on paper in light. */
+  /* The hero HUD sits on the dark field. */
   --rec-hero-ink: var(--rec-on-void);
   --rec-hero-ink-muted: var(--rec-on-void-muted);
 
@@ -114,26 +114,6 @@
     --rec-object-nudge: -3px;
     --rec-percent-hang: -6px;
   }
-}
-
-[data-theme="light"] {
-  color-scheme: light;
-
-  --rec-ground: #f1f4ef;
-  --rec-panel: #e7ebe4;
-  --rec-panel-2: #dbe0d7;
-  --rec-rule: #c6ccc1;
-  --rec-rule-strong: #828a7e;
-  --rec-ink: #101511;
-  --rec-ink-muted: #3b433b;
-  --rec-signal: #1f5b36;
-  --rec-measure: #4c3d00;
-  --rec-alarm: #ab1f24;
-  --rec-on-signal: #f6f9f3;
-  --rec-on-void: #f0f6f1;
-  --rec-on-void-muted: #b9c8c0;
-  --rec-hero-ink: var(--rec-ink);
-  --rec-hero-ink-muted: var(--rec-ink-muted);
 }
 
 @theme static {
