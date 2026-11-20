@@ -2,9 +2,9 @@
 :root {
   color-scheme: dark;
 
-  --rec-ground: #0a0d0b;
-  /* The event horizon's own ground: the void behind the field and its plate. */
-  --rec-void: #000000;
+  --rec-ground: #000000;
+  /* The hero's ground is the page's ground: one true black, no second dark. */
+  --rec-void: var(--rec-ground);
   --rec-panel: #111513;
   --rec-panel-2: #181d1a;
   --rec-rule: #242b28;
