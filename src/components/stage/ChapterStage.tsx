@@ -32,7 +32,7 @@ import {
 import { projects, projectsLede } from "../../content/projects";
 import { credentials } from "../../content/credentials";
 import { CONTACT_EMAIL } from "../../lib/contact";
-import { countUp } from "../../lib/motion";
+import { countUp, motionAllowed } from "../../lib/motion";
 import { scrollTo as scrollToTarget } from "../../lib/smooth";
 import { emitStageFlash, mountStageMotion } from "../../lib/stage-motion";
 import { BlackHoleCanvas } from "./BlackHoleCanvas";
@@ -67,6 +67,7 @@ export function initialChapter(source?: string): ChapterId {
 export function ChapterStage() {
   const [active, setActive] = useState<ChapterId>(() => initialChapter());
   const [live, setLive] = useState(false);
+  const [figureReady, setFigureReady] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const panels = useRef<Partial<Record<ChapterId, HTMLElement | null>>>({});
   const figure = useRef<HTMLSpanElement>(null);
@@ -79,7 +80,14 @@ export function ChapterStage() {
     return () => motion.destroy();
   }, []);
 
+  // The figure is added only once the shader has published the horizon, so it
+  // never grows from a placeholder box and contributes no layout shift.
   useEffect(() => {
+    if (live || !motionAllowed()) setFigureReady(true);
+  }, [live]);
+
+  useEffect(() => {
+    if (!figureReady) return;
     const reduction = proofRows[0]?.figure ?? "";
     const target = Number(reduction.replace(/[^\d.]/g, ""));
     const counter = Number.isFinite(target)
@@ -88,7 +96,7 @@ export function ChapterStage() {
         })
       : null;
     return () => counter?.revert();
-  }, []);
+  }, [figureReady]);
 
   useEffect(() => {
     if (typeof IntersectionObserver === "undefined") return;
@@ -203,12 +211,14 @@ export function ChapterStage() {
         <div className="bh-still__horizon" />
       </div>
 
-      <div className="singularity" hidden={active !== "person"}>
-        <span className="singularity__num" ref={figure} data-figure>
-          {singularity?.figure ?? ""}
-        </span>
-        <span className="singularity__label">{singularity?.claim ?? ""}</span>
-      </div>
+      {figureReady ? (
+        <div className="singularity" hidden={active !== "person"}>
+          <span className="singularity__num" ref={figure} data-figure>
+            {singularity?.figure ?? ""}
+          </span>
+          <span className="singularity__label">{singularity?.claim ?? ""}</span>
+        </div>
+      ) : null}
 
       <nav className="stage-rail" aria-label="Chapters">
         <div className="stage-rail__inner">

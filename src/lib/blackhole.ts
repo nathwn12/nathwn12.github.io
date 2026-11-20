@@ -104,8 +104,31 @@ float hash21(vec2 p) {
   return fract(p.x * p.y);
 }
 
-// One sparse star plane. Drift is the parallax; soft is the depth-of-field
-// blur applied to the distant layers.
+float vnoise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = fract(p);
+  f = f * f * (3.0 - 2.0 * f);
+  float a = hash21(i);
+  float b = hash21(i + vec2(1.0, 0.0));
+  float c = hash21(i + vec2(0.0, 1.0));
+  float d = hash21(i + vec2(1.0, 1.0));
+  return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+}
+
+// Three octaves of value noise. Cost is bounded; the shape is not downgraded
+// by adaptive quality, only the backing-store scale is.
+float fbm(vec2 p) {
+  float v = 0.0;
+  float a = 0.55;
+  for (int i = 0; i < 3; i++) {
+    v += a * vnoise(p);
+    p = p * 2.07 + vec2(13.1, 7.3);
+    a *= 0.5;
+  }
+  return v;
+}
+
+// One sparse star plane. Drift is parallax; soft is depth-of-field blur.
 float plane(vec2 uv, float scale, float density, float drift, float soft) {
   vec2 g = uv * scale + vec2(drift, -drift * 0.32);
   vec2 id = floor(g);
@@ -119,7 +142,6 @@ float plane(vec2 uv, float scale, float density, float drift, float soft) {
   return core * twinkle * (0.35 + 0.65 * hash21(id + 4.3));
 }
 
-// ACES filmic curve: keeps the bright ring from clipping to a flat disc.
 vec3 aces(vec3 x) {
   return clamp((x * (2.51 * x + 0.03)) / (x * (2.43 * x + 0.59) + 0.14), 0.0, 1.0);
 }
@@ -136,63 +158,82 @@ void main() {
   float R = uRadius;
   vec2 dir = d / max(r, 0.0001);
 
-  // Lensing: the primary ray bends outward, the secondary ray folds back and
-  // draws the far stars again on the near side of the mass.
-  float bend = 0.00052 / (r * r + 0.004);
-  vec2 lensed = uv + dir * bend;
-  vec2 echo = uv - dir * (bend * 0.42);
+  // Point-mass lens equation. Near the hole the source plane is pulled inward,
+  // so background stars arc into an Einstein ring and the far side of the disc
+  // lifts over the shadow instead of sitting flat.
+  float theta2 = R * R * 1.18;
+  vec2 src = d - dir * (theta2 / max(r, 0.012));
+  float near = 1.0 - smoothstep(R * 1.2, R * 4.5, r);
 
-  float s0 = plane(lensed, 13.0, 0.70, prog * 0.055, 0.000) * 0.52;
-  float s1 = plane(lensed, 27.0, 0.81, prog * 0.125 + 4.0, 0.010) * 0.44;
-  float s2 = plane(lensed, 47.0, 0.87, prog * 0.210 + 9.0, 0.022) * 0.36;
-  float s3 = plane(echo,  19.0, 0.90, -prog * 0.070 + 13.0, 0.014) * 0.24;
-  float star = s0 + s1 + s2 + s3;
+  float s0 = plane(uCenter + src, 16.0, 0.72, prog * 0.055, 0.000) * 0.55;
+  float s1 = plane(uCenter + src, 31.0, 0.82, prog * 0.130 + 4.0, 0.008) * 0.42;
+  float s2 = plane(uCenter + src * 0.72 + dir * 0.03, 53.0, 0.88, prog * 0.210 + 9.0, 0.018) * 0.30;
+  float star = s0 + s1 + s2;
+  vec3 starTint = mix(vec3(0.92, 0.96, 0.94), vec3(0.18, 0.24, 0.21), uTheme);
+  vec3 light = star * starTint * mix(1.65, 1.10, uTheme);
 
-  vec3 starTint = mix(vec3(0.90, 0.95, 0.93), vec3(0.16, 0.22, 0.19), uTheme);
-  vec3 light = star * starTint * mix(1.55, 1.05, uTheme);
+  // Lensed background light forms its own faint ring. It is never accent-tinted.
+  float einstein = exp(-abs(r - R * 1.13) * (95.0 / R) * 0.12) * (0.16 + 0.26 * near);
+  light += starTint * einstein;
 
-  // A slow, desaturated deep-field wash. It never competes with the disc.
-  float neb = sin(uv.x * 3.2 + t * 0.03) * sin(uv.y * 2.6 - t * 0.02);
-  light += uAccent * (neb * 0.5 + 0.5) * 0.022 * (1.0 - uTheme);
-
-  // Gravitational shadow holds the readout legible in both skies.
-  float shadow = 1.0 - smoothstep(R * 0.98, R * 2.45, r);
-
-  // Accretion disc: tilted ellipse, doppler beaming on the approaching side,
-  // a soft volumetric bloom and a hotter inner rim that tends toward white.
-  float tilt = -0.38 + 0.09 * sin(prog * 0.75);
-  mat2 rot = mat2(cos(tilt), -sin(tilt), sin(tilt), cos(tilt));
-  vec2 e = rot * d;
-  vec2 dp = vec2(e.x, e.y * 3.05);
+  // Thin inclined disc in the deflected source plane. The inclination makes the
+  // band thin; the deflection makes its far side arc above and below the hole.
+  float tilt = -0.20 + 0.06 * sin(prog * 0.7);
+  float ct = cos(tilt), st = sin(tilt);
+  vec2 sr = mat2(ct, st, -st, ct) * src;
+  vec2 dp = vec2(sr.x, sr.y / 0.26);
   float rd = length(dp);
-  float inner = R * 1.10;
-  float outer = R * (3.20 + 0.10 * sin(prog * 0.9));
-  float ring = smoothstep(inner, inner + 0.016, rd) *
-               (1.0 - smoothstep(outer - 0.060, outer, rd));
-  float swirl = 0.5 + 0.5 * sin(rd * 38.0 - t * 1.15 + d.x * 9.0);
-  float doppler = 0.45 + 0.95 * smoothstep(-1.0, 1.0, d.x / max(r, 0.0001));
-  float disc = ring * (0.30 + 0.70 * swirl) * doppler;
-  float bloom = exp(-abs(rd - (inner + outer) * 0.5) * 7.0) * 0.17;
-  float front = smoothstep(-0.025, 0.025, e.y);
+  float inner = R * 1.25;
+  float outer = R * (2.60 + 0.06 * sin(prog * 0.8));
+  float band = smoothstep(inner, inner + R * 0.05, rd) *
+               (1.0 - smoothstep(outer - R * 0.18, outer, rd));
 
-  // Photon ring, split per channel for chromatic aberration at the rim.
-  float pr = smoothstep(0.013, 0.0, abs(r - R * 1.045 - 0.004));
-  float pg = smoothstep(0.013, 0.0, abs(r - R * 1.045));
-  float pb = smoothstep(0.013, 0.0, abs(r - R * 1.045 + 0.004));
+  // Polar filaments: shear the sample frame with Keplerian orbital time, so
+  // the inner gas winds faster than the outer gas. No single sine ring.
+  float orbit = t * 0.42 / pow(max(rd / R, 0.5), 1.5);
+  float co = cos(orbit), so = sin(orbit);
+  vec2 spun = mat2(co, so, -so, co) * dp;
+  float fil = fbm(spun * (9.0 / R) + vec2(2.3, 7.1));
+  float texture = 0.28 + 0.85 * fil * fil;
 
-  // Every bright edge feathers before the viewport boundary, so the disc never
-  // ends on a cut line at any aspect ratio.
+  // Relativistic beaming: a power curve on the line-of-sight velocity. The
+  // approaching side is bright and cool; the receding side is dim and warm.
+  // The cap keeps filaments readable after ACES in the light sky.
+  float vlos = clamp(-dp.x / max(rd, 0.001), -1.0, 1.0);
+  float beam = pow(clamp(1.0 + 0.40 * vlos, 0.14, 1.30), 1.9);
+  float approach = smoothstep(0.0, 1.0, vlos);
+
+  // Temperature: white-hot inner, amber mid, phosphor green only as the outer
+  // gas tint. The accent never paints the whole disc.
+  float temp = clamp((outer - rd) / max(outer - inner, 0.001), 0.0, 1.0);
+  vec3 discColor = mix(uAccent, vec3(1.0, 0.56, 0.22), smoothstep(0.05, 0.55, temp));
+  discColor = mix(discColor, vec3(1.0, 0.97, 0.90), smoothstep(0.55, 1.0, temp));
+  discColor = mix(discColor, vec3(0.78, 0.88, 1.0), approach * 0.30);
+
+  float disc = band * texture * beam;
+  float tight = exp(-abs(rd - (inner + outer) * 0.5) * (9.0 / R)) * 0.09 * band;
+  light += discColor * (disc + tight) * mix(1.0, 0.48, uTheme);
+
+  // Photon ring: one thin near-white circle with a slight channel split.
+  float ringR = R * 1.05;
+  float pr = smoothstep(0.007, 0.0, abs(r - ringR - 0.0026));
+  float pg = smoothstep(0.007, 0.0, abs(r - ringR));
+  float pb = smoothstep(0.007, 0.0, abs(r - ringR + 0.0026));
+  vec3 split = vec3(pr, pg, pb);
+  vec3 ringLight = mix(vec3(dot(split, vec3(0.3333))), split, 0.30) * 1.85;
+  light += ringLight;
+  light += vec3(0.85, 0.92, 1.0) * exp(-abs(r - ringR) * (55.0 / R)) * 0.15;
+
+  // Every bright edge feathers before the viewport boundary.
   vec2 edge = min(gl_FragCoord.xy, uRes - gl_FragCoord.xy) / min(uRes.x, uRes.y);
-  float feather = smoothstep(0.0, 0.07, edge.x) * smoothstep(0.0, 0.07, edge.y);
-  light += uAccent * (disc * mix(0.70, 1.45, front) + bloom) * feather;
-  light += vec3(0.72, 0.86, 0.80) * ring *
-           (1.0 - smoothstep(inner, inner + R * 0.5, rd)) * 0.18 * front * feather;
-  light += vec3(pr, pg, pb) * uAccent * 1.40 * feather;
+  float feather = smoothstep(0.0, 0.06, edge.x) * smoothstep(0.0, 0.06, edge.y);
+  light *= feather;
 
-  // Tone-map the light, then lay it on the token sky. The sky itself is never
-  // tone-mapped, so the live field and the CSS still meet with one ground.
-  vec3 col = uGround * (1.0 - shadow * mix(0.92, 0.97, uTheme)) + aces(light * 1.08);
-  float horizon = 1.0 - smoothstep(R - 0.003, R + 0.002, r);
+  // The sky is never tone-mapped; the live field and the CSS still share it.
+  float shadow = 1.0 - smoothstep(R * 0.96, R * 2.30, r);
+  vec3 col = uGround * (1.0 - shadow * mix(0.92, 0.97, uTheme)) + aces(light * 1.06);
+  // The event horizon stays black in both skies.
+  float horizon = 1.0 - smoothstep(R - 0.002, R + 0.001, r);
   col = mix(col, vec3(0.0), horizon);
   col += uAccent * uFlash * 0.55 + vec3(uFlash * 0.22);
   col *= 1.0 - 0.28 * smoothstep(0.22, 0.80, length(uv));
@@ -335,22 +376,19 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
   };
   publishQuality();
 
-  // Scoped to the figure, not the root: a custom property on the root would
-  // invalidate style for the whole five-chapter document on every scroll.
-  const figure = document.querySelector<HTMLElement>(".singularity");
+  // The centre and the layout radius are width-only. Progress drift stays in
+  // the shader, so these properties change on resize, never while scrolling.
   let lastGeometry = "";
+  const root = document.documentElement;
   const publishGeometry = (geometry: HorizonGeometry) => {
-    const key = `${geometry.cx.toFixed(2)}|${geometry.cy.toFixed(2)}|${geometry.radius.toFixed(2)}|${geometry.baseRadius.toFixed(2)}`;
-    if (key === lastGeometry) return;
-    lastGeometry = key;
-    if (figure) {
-      figure.style.setProperty("--bh-cx", `${geometry.cx.toFixed(2)}px`);
-      figure.style.setProperty("--bh-cy", `${geometry.cy.toFixed(2)}px`);
-      figure.style.setProperty("--bh-r", `${geometry.radius.toFixed(2)}px`);
-      figure.style.setProperty("--bh-base-r", `${geometry.baseRadius.toFixed(2)}px`);
-    }
     (window as Window & { __bhGeometry?: HorizonGeometry }).__bhGeometry =
       geometry;
+    const key = `${geometry.cx.toFixed(2)}|${geometry.cy.toFixed(2)}|${geometry.baseRadius.toFixed(2)}`;
+    if (key === lastGeometry) return;
+    lastGeometry = key;
+    root.style.setProperty("--bh-cx", `${geometry.cx.toFixed(2)}px`);
+    root.style.setProperty("--bh-cy", `${geometry.cy.toFixed(2)}px`);
+    root.style.setProperty("--bh-r", `${geometry.baseRadius.toFixed(2)}px`);
   };
 
   const resize = () => {
@@ -456,6 +494,9 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
     observer.observe(canvas);
   }
 
+  // Publish before the canvas reports live, so the figure never appears at a
+  // CSS fallback position and then jumps to the shader centre.
+  publishGeometry(horizonGeometry(cssWidth, cssHeight, progress));
   resume();
 
   return {

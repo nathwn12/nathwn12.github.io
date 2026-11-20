@@ -411,7 +411,11 @@ html {
 .singularity__num {
   position: relative;
   z-index: 1;
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 92%;
+  height: calc(var(--bh-r, 33vh) * 0.62);
   font-family: var(--font-display);
   font-size: min(calc(var(--bh-r, 33vh) * 0.55), 6rem);
   font-weight: 900;
@@ -419,12 +423,11 @@ html {
   letter-spacing: -0.075em;
   font-variant-numeric: tabular-nums;
   color: var(--rec-on-void);
-  min-width: 4.5ch;
   text-align: center;
 }
 .singularity__label {
   position: absolute;
-  top: calc(50% + var(--bh-r, 33vh) * 0.34);
+  top: calc(50% + var(--bh-r, 33vh) * 0.46);
   left: 50%;
   transform: translate(-50%, -50%);
   font-family: var(--font-mono);
