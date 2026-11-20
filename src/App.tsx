@@ -1,6 +1,5 @@
 import { Component, useEffect, type ReactNode } from "react";
 import { Chrome } from "./components/Chrome";
-import { Header } from "./components/Header";
 import { Footer } from "./components/Footer";
 import { ChapterStage } from "./components/stage/ChapterStage";
 import { applyRouteMeta, ROUTES } from "./lib/router";
@@ -11,9 +10,9 @@ import { applyRouteMeta, ROUTES } from "./lib/router";
  * The revamp publishes one document. The two paths that used to be pages are
  * chapters now, so a deep link to /experience or /projects is folded into the
  * chapter anchor it became before first paint; the address bar then names the
- * one page the site actually serves. The masthead is the rail, the stage is the
- * record, and the footer is the colophon. No route change, curtain or scroll
- * reset runs here — the stage owns the reading position.
+ * one page the site actually serves. The chapter rail is the only navigation,
+ * the stage is the record, and the footer is the colophon. No route change,
+ * curtain or scroll reset runs here — the stage owns the reading position.
  */
 
 /** Retired detail path → the chapter anchor that carries its content. */
@@ -79,7 +78,6 @@ export default function App() {
       </a>
 
       <Chrome />
-      <Header />
 
       <main id="main" tabIndex={-1} className="stage-shell outline-none">
         <PageErrorBoundary>

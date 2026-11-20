@@ -45,7 +45,7 @@ export function Footer() {
             />
           </div>
 
-          <nav aria-label="Ways out" className="colophon__ways">
+          <div className="colophon__ways">
             <div className="colophon__col">
               <p className="data colophon__label">Contact</p>
               <a href={`mailto:${CONTACT_EMAIL}`} className={LINK_FLOOR}>
@@ -95,7 +95,7 @@ export function Footer() {
               </a>
               <ThemeToggle />
             </div>
-          </nav>
+          </div>
         </div>
 
         <div className="colophon__imprint">

@@ -6,12 +6,13 @@
  * The masthead that used to sit above it is retired; this file now holds the
  * index that replaced it. Every assertion below can go red:
  *
- *   bunx vitest run tests/header-resume-nav.test.tsx
+ *   bunx vitest run tests/single-nav.test.tsx
  */
 import { act, createElement, type ReactElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { renderToStaticMarkup } from "react-dom/server";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import App from "../src/App";
 import { ChapterStage } from "../src/components/stage/ChapterStage";
 import { Footer } from "../src/components/Footer";
 import { FirstScreen } from "../src/components/FirstScreen";
@@ -56,6 +57,14 @@ afterEach(async () => {
     root = null;
   }
   host?.remove();
+});
+
+describe("one navigation landmark", () => {
+  test("the rendered document has one nav and no masthead", async () => {
+    await mount(createElement(App));
+    expect(host.querySelectorAll("nav")).toHaveLength(1);
+    expect(host.querySelector("header")).toBeNull();
+  });
 });
 
 describe("the one chapter index", () => {
