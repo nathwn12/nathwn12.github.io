@@ -311,17 +311,8 @@ html {
 .stage-panel__content--arrival .stage-facts {
   grid-area: auto;
 }
-/* The DOM figure rides the shader centre exactly: 50% + 46vh across, 48% down.
-   The mass does not drift, so the number can stay inside it. */
-.stage-panel__content--arrival .singularity {
-  position: absolute;
-  left: calc(50% + 46vh);
-  top: calc(50% - 2vh);
-  transform: translate(-50%, -50%);
-  width: 33vh;
-  height: 33vh;
-  margin: 0;
-}
+/* The figure is not part of this grid. It is anchored to the viewport horizon
+   published by the shader; the empty slot only holds the middle row. */
 .stage-panel[data-active="true"] .stage-panel__content > *:not(.singularity) {
   animation: land 520ms var(--ease-out) both;
 }
@@ -402,30 +393,27 @@ html {
 }
 
 /* --- THE SINGULARITY ------------------------------------------------------ */
+/* One owner: the shader publishes --bh-cx/--bh-cy/--bh-r for the horizon it
+   draws. The figure reads those, so centre and size cannot drift apart. */
 .singularity {
-  position: relative;
+  position: fixed;
+  left: var(--bh-cx, 50vw);
+  top: var(--bh-cy, 50vh);
+  transform: translate(-50%, -50%);
   display: grid;
   place-items: center;
-  justify-self: center;
-  width: 33vh;
-  height: 33vh;
+  width: calc(var(--bh-r, 33vh) * 2);
+  height: calc(var(--bh-r, 33vh) * 2);
+  z-index: 2;
+  pointer-events: none;
 }
-.singularity__ring {
-  position: absolute;
-  inset: 6%;
-  border: 1px dashed color-mix(in srgb, var(--rec-signal) 62%, transparent);
-  border-radius: 50%;
-  animation: ring-spin 24s linear infinite;
-}
-@keyframes ring-spin {
-  to { transform: rotate(360deg); }
-}
+.singularity[hidden] { display: none; }
 .singularity__num {
   position: relative;
   z-index: 1;
   display: block;
   font-family: var(--font-display);
-  font-size: min(7.2vh, 6rem);
+  font-size: min(calc(var(--bh-r, 33vh) * 0.55), 6rem);
   font-weight: 900;
   line-height: 0.82;
   letter-spacing: -0.075em;
@@ -436,9 +424,11 @@ html {
 }
 .singularity__label {
   position: absolute;
-  bottom: 10%;
+  top: calc(50% + var(--bh-r, 33vh) * 0.34);
+  left: 50%;
+  transform: translate(-50%, -50%);
   font-family: var(--font-mono);
-  font-size: var(--rec-text-data);
+  font-size: clamp(0.5rem, calc(var(--bh-r, 33vh) * 0.09), var(--rec-text-data));
   letter-spacing: var(--rec-tracking-data);
   color: var(--rec-ink-muted);
   background: var(--rec-ground);
@@ -660,7 +650,6 @@ html {
     gap: var(--rec-space-5);
   }
   .stage-panel__content--arrival .stage-lead,
-  .stage-panel__content--arrival .singularity,
   .stage-panel__content--arrival .stage-facts {
     grid-area: auto;
   }
@@ -670,18 +659,8 @@ html {
   .stage-panel__content--arrival {
     gap: var(--rec-space-4);
   }
-  .stage-panel__content--arrival .singularity {
-    position: relative;
-    left: auto;
-    top: auto;
-    transform: none;
-    width: min(42vh, 20rem);
-    height: min(42vh, 20rem);
-    margin: var(--rec-space-4) auto;
-    justify-self: center;
-  }
   .singularity__num {
-    font-size: min(13vh, 4rem);
+    font-size: min(calc(var(--bh-r, 33vh) * 0.4), 4rem);
   }
   .stage-title {
     font-size: clamp(1.6rem, 7vw, 2.4rem);
@@ -706,12 +685,8 @@ html {
     min-height: 0;
     padding-block: var(--rec-space-4) 8rem;
   }
-  .stage-panel__content--arrival .singularity {
-    width: min(64vw, 16rem);
-    margin: var(--rec-space-3) auto;
-  }
   .singularity__num {
-    font-size: min(11vh, 3.4rem);
+    font-size: min(calc(var(--bh-r, 33vh) * 0.4), 3.4rem);
   }
   .stage-voice {
     font-size: 0.875rem;
@@ -742,13 +717,8 @@ html {
     font-size: 0.625rem;
     padding: var(--rec-space-2) var(--rec-space-3);
   }
-  .stage-panel__content--arrival .singularity {
-    width: min(58vw, 12rem);
-    height: min(58vw, 12rem);
-    margin: var(--rec-space-2) auto;
-  }
   .singularity__num {
-    font-size: min(9vh, 2.6rem);
+    font-size: min(calc(var(--bh-r, 33vh) * 0.34), 2.6rem);
   }
 }
 
@@ -804,8 +774,7 @@ html {
   .stage-panel__content { transform: none; }
   .stage-lead,
   .stage-data { background: var(--rec-ground); }
-  .singularity__ring { display: none; }
-  .stage-rail__sweep { transform: none; }
+  .singularity { left: 79%; top: 48%; --bh-r: 10.5vmin; }
 }
 html[data-motion="off"] .stage-panel__frame {
   position: static;
@@ -817,5 +786,4 @@ html[data-motion="off"] .stage-panel { min-height: 0; }
 html[data-motion="off"] .stage-panel__content { transform: none; }
 html[data-motion="off"] .stage-lead,
 html[data-motion="off"] .stage-data { background: var(--rec-ground); }
-html[data-motion="off"] .singularity__ring { display: none; }
-html[data-motion="off"] .stage-rail__sweep { transform: none; }
+html[data-motion="off"] .singularity { left: 79%; top: 48%; --bh-r: 10.5vmin; }

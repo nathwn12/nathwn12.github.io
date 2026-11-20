@@ -203,6 +203,13 @@ export function ChapterStage() {
         <div className="bh-still__horizon" />
       </div>
 
+      <div className="singularity" hidden={active !== "person"}>
+        <span className="singularity__num" ref={figure} data-figure>
+          {singularity?.figure ?? ""}
+        </span>
+        <span className="singularity__label">{singularity?.claim ?? ""}</span>
+      </div>
+
       <nav className="stage-rail" aria-label="Chapters">
         <div className="stage-rail__inner">
           <ol className="stage-rail__list">
@@ -254,15 +261,7 @@ export function ChapterStage() {
                 <p className="stage-claim">{recordOpener}</p>
                 <p className="stage-voice">{standfirst}</p>
               </div>
-              <div className="singularity">
-                <span className="singularity__ring" aria-hidden="true" />
-                <span className="singularity__num" ref={figure} data-figure>
-                  {singularity?.figure ?? ""}
-                </span>
-                <span className="singularity__label">
-                  {singularity?.claim ?? ""}
-                </span>
-              </div>
+              <span className="singularity-slot" aria-hidden="true" />
               <ul className="stage-facts">
                 <li>{name}</li>
                 <li>{figures.tenure} in production</li>

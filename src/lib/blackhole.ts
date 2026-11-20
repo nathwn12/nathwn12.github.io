@@ -26,6 +26,61 @@ export interface BlackHoleHandle {
   destroy(): void;
 }
 
+/**
+ * One geometry owner. The fragment shader draws the horizon from the uv
+ * values here, and the DOM figure is positioned from the CSS-pixel values
+ * here. No second centre and no decorative ring can drift away from it.
+ */
+const GEO = {
+  narrowAt: 900,
+  cxDesktop: 0.46,
+  cxNarrow: 0.0,
+  cyDesktop: 0.02,
+  cyNarrow: -0.04,
+  rDesktop: 0.122,
+  rNarrow: 0.17,
+  drift: 0.01,
+  driftRate: 1.05,
+} as const;
+
+export interface HorizonGeometry {
+  /** Centre in CSS pixels, viewport top-left origin. */
+  cx: number;
+  cy: number;
+  /** Live event-horizon radius in CSS pixels. */
+  radius: number;
+  /** Radius without progress drift, for sizing so the figure never overflows. */
+  baseRadius: number;
+  /** Centre and radius in the shader's height-normalised uv space. */
+  ux: number;
+  uy: number;
+  ur: number;
+}
+
+const mix = (a: number, b: number, t: number) => a + (b - a) * t;
+
+export function horizonGeometry(
+  cssWidth: number,
+  cssHeight: number,
+  progress: number,
+): HorizonGeometry {
+  const narrow = cssWidth <= GEO.narrowAt ? 1 : 0;
+  const ux = mix(GEO.cxDesktop, GEO.cxNarrow, narrow);
+  const uy = mix(GEO.cyDesktop, GEO.cyNarrow, narrow);
+  const ur =
+    mix(GEO.rDesktop, GEO.rNarrow, narrow) +
+    GEO.drift * Math.sin(progress * GEO.driftRate);
+  return {
+    cx: cssWidth / 2 + ux * cssHeight,
+    cy: cssHeight / 2 - uy * cssHeight,
+    radius: ur * cssHeight,
+    baseRadius: mix(GEO.rDesktop, GEO.rNarrow, narrow) * cssHeight,
+    ux,
+    uy,
+    ur,
+  };
+}
+
 const VERT = `
 attribute vec2 aPos;
 void main() { gl_Position = vec4(aPos, 0.0, 1.0); }
@@ -40,6 +95,8 @@ uniform float uTheme;
 uniform vec3 uAccent;
 uniform vec3 uGround;
 uniform float uFlash;
+uniform vec2 uCenter;
+uniform float uRadius;
 
 float hash21(vec2 p) {
   p = fract(p * vec2(123.34, 456.21));
@@ -72,14 +129,11 @@ void main() {
   float t = uTime;
   float prog = uProgress;
 
-  // Fixed centre: the DOM figure must stay inside the horizon at every width,
-  // so the mass does not wander. Desktop uses the clear right third; portrait
-  // recentres for its own composition.
-  float narrow = step(uRes.x, 900.0);
-  vec2 center = vec2(mix(0.46, 0.0, narrow), mix(0.02, -0.04, narrow));
-  vec2 d = uv - center;
+  // The horizon is owned by horizonGeometry() in TypeScript. The DOM figure
+  // reads the same numbers, so the numeral can never drift off the shadow.
+  vec2 d = uv - uCenter;
   float r = length(d);
-  float R = mix(0.165, 0.21, narrow);
+  float R = uRadius;
   vec2 dir = d / max(r, 0.0001);
 
   // Lensing: the primary ray bends outward, the secondary ray folds back and
@@ -229,6 +283,8 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
   const uAccent = context.getUniformLocation(program, "uAccent");
   const uGround = context.getUniformLocation(program, "uGround");
   const uFlash = context.getUniformLocation(program, "uFlash");
+  const uCenter = context.getUniformLocation(program, "uCenter");
+  const uRadius = context.getUniformLocation(program, "uRadius");
 
   let progress = 0;
   let frame = 0;
@@ -278,6 +334,24 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
     target.__stageQuality = qualityState;
   };
   publishQuality();
+
+  // Scoped to the figure, not the root: a custom property on the root would
+  // invalidate style for the whole five-chapter document on every scroll.
+  const figure = document.querySelector<HTMLElement>(".singularity");
+  let lastGeometry = "";
+  const publishGeometry = (geometry: HorizonGeometry) => {
+    const key = `${geometry.cx.toFixed(2)}|${geometry.cy.toFixed(2)}|${geometry.radius.toFixed(2)}|${geometry.baseRadius.toFixed(2)}`;
+    if (key === lastGeometry) return;
+    lastGeometry = key;
+    if (figure) {
+      figure.style.setProperty("--bh-cx", `${geometry.cx.toFixed(2)}px`);
+      figure.style.setProperty("--bh-cy", `${geometry.cy.toFixed(2)}px`);
+      figure.style.setProperty("--bh-r", `${geometry.radius.toFixed(2)}px`);
+      figure.style.setProperty("--bh-base-r", `${geometry.baseRadius.toFixed(2)}px`);
+    }
+    (window as Window & { __bhGeometry?: HorizonGeometry }).__bhGeometry =
+      geometry;
+  };
 
   const resize = () => {
     const width = Math.max(1, Math.round(cssWidth * dpr * quality));
@@ -334,7 +408,11 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
     }
     flash = Math.max(0, flash - elapsed * 0.0022);
     resize();
+    const geometry = horizonGeometry(cssWidth, cssHeight, progress);
+    publishGeometry(geometry);
     context.uniform2f(uRes, canvas.width, canvas.height);
+    context.uniform2f(uCenter, geometry.ux, geometry.uy);
+    context.uniform1f(uRadius, geometry.ur);
     context.uniform1f(uTime, now * 0.001);
     context.uniform1f(uProgress, progress);
     context.uniform1f(uTheme, theme === "light" ? 1 : 0);
