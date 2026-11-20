@@ -13,11 +13,10 @@ cards, no panels, no second navigation and no scroll interception. The old
 
 ## 1. Art direction
 
-- **Dark** is the void. The shader is full-bleed; the name and role sit in the
-  corners as a HUD, and a scrim cut from `--rec-void` holds the type clear of
-  the bright disc.
-- **Light** is a paper sky, not an inverted dark page. The same shader frame is
-  shown as a dark plate on the ground, and the live canvas is not mounted.
+- **Dark is the only sky.** Three recorded renders — A pixel-dither, B CRT/VHS,
+  C high fidelity — fill the hero full-bleed, chosen by `?hero=a|b|c` with C as
+  the default. The name and role sit in the corners as a HUD; grain and
+  vignette are baked into every frame, so no runtime scrim or overlay is drawn.
 - Radius is 0. Structure is drawn with one-pixel rules (`--rec-rule`,
   `--rec-rule-strong`). No shadows, glass, glow or decoration under a heading.
 - Space is a material. The five chapters alternate a large numeral band with an
@@ -26,15 +25,15 @@ cards, no panels, no second navigation and no scroll interception. The old
 ## 2. Tokens
 
 `src/styles/tokens.css` is the only place a colour is written. A component
-reads a `--rec-*` token; it never writes a hex. Both skies declare the same
-roles under `:root` and `[data-theme="light"]`; the pre-paint script in
-`index.html` resolves the value before first paint and `src/lib/theme.ts` owns
-the switch and the `theme-color` mirror.
+reads a `--rec-*` token; it never writes a hex. The one dark `:root` block
+declares every role; `index.html` fixes `data-theme="dark"` and the
+`theme-color` mirror before first paint. There is no theme switch and no
+`prefers-color-scheme` branch.
 
 The palette keeps the earlier Phosphor values because they already clear the
-floors. `scripts/contrast-audit.mjs` resolves both blocks and fails the build on
-a pair below its floor: ink ≥ 7, muted ink ≥ 4.5, signal ≥ 4.5, measure ≥ 4.5,
-alarm ≥ 4.5, on-signal ≥ 4.5. Rules are reported, not floored.
+floors. `scripts/contrast-audit.mjs` resolves the dark block and fails the build
+on a pair below its floor: ink ≥ 7, muted ink ≥ 4.5, signal ≥ 4.5, measure ≥
+4.5, alarm ≥ 4.5, on-signal ≥ 4.5. Rules are reported, not floored.
 
 `--rec-measure` (gold) is spent only on measured figures. `--rec-signal` (green)
 is spent on structure: section numbers, links, the active hairline.
@@ -57,9 +56,8 @@ measure is 56ch for running copy; a full-bleed paragraph is never set.
 
 ## 4. Composition
 
-- **One masthead**, sticky, with the mark, the five chapter links and the one
-  theme toggle. On a phone the links wrap to a second row; they are never a
-  second nav or a menu.
+- **One masthead**, sticky, with the mark and the five chapter links. On a
+  phone the links wrap to a second row; they are never a second nav or a menu.
 - **Hero**: `calc(100svh - header)`. Four HUD corners — name, role, status,
   scroll cue. The figure is the shader; the type never sits over a card.
 - **01 The reduction**: the claim, then four open rows. Each row is a giant
@@ -88,46 +86,43 @@ carries the licence.
 
 The port is the **renderer, not the shipped path**. A per-aspect `uFov` uniform
 frames the same object for each master: `1` for the 16:9 camera, `0.42` for the
-9:16 camera, where the disc keeps a safe side margin and the ends of the frame
-stay clear for the HUD. `scripts/record-loop.mjs` drives the port from
-`capture.html` to record two eight-second seamless loops — 2560×1440 and
-1080×1920, 30 fps, each in H.264 MP4 and VP9 WebM — plus one poster per master.
-Both masters sample the same clock, so their phase is identical. The recorder
-compares `t=0` against `t=8` pixel for pixel on each master before encoding;
-the shader's modulo-eight clock makes them identical.
+9:16 camera. Three treatments ship from the settled render: **A** pixel-dither,
+**B** CRT/VHS, **C** high fidelity. Each has one eight-second seamless loop per
+aspect at 30 fps, encoded as AV1 MP4 with an H.264 MP4 fallback. Both aspects
+sample the same clock, so their phase is identical; the shader's modulo-eight
+clock makes `t=0` and `t=8` pixel-identical.
 
-The hero plays the matching recording as video. No WebGL context is created on
-the page, no shader is compiled and no per-frame shader cost is paid. The
-source is chosen by `matchMedia("(max-aspect-ratio: 1/1)")`, not by width, and
-only the chosen file is loaded. On an orientation change the poster stays up
-while the other source decodes; the loop does not restart on a resize that
-keeps the same aspect. The video pauses off screen and on a hidden tab, plays
-at 0.7×, and yields to its poster under reduced motion. The wrapper's pointer
-and scroll parallax and the bottom mask give the moving image depth without a
-scene graph. Grain and vignette are drawn into the recording by the shader: a
-full-screen overlay over a 2560×1440 video costs a compositor frame in
-headless software rendering, while the shader draws both for free. Grain is a
-fixed pattern per pixel, so the encoder keeps its temporal redundancy and the
-loop stays seamless.
+The hero plays one recording as video. No WebGL context is created on the page,
+no shader is compiled and no per-frame shader cost is paid. `?hero=a|b|c`
+selects the treatment once, with C as the default; a change is a page load, not
+a runtime source swap. Within a treatment the source is chosen by
+`matchMedia("(max-aspect-ratio: 1/1)")`, not by width. Two `<source>` children
+per aspect let the browser pick AV1 first and H.264 second. On an orientation
+change the poster stays up while the other source decodes. The video pauses off
+screen and on a hidden tab, plays at 0.7×, and yields to its poster under
+reduced motion. The wrapper's pointer and scroll parallax give the moving image
+depth without a scene graph; there is no runtime overlay. Grain and vignette are
+drawn into each recording by the shader, so the encoder keeps its temporal
+redundancy and the loop stays seamless. A alone sets `image-rendering:
+pixelated` on the video so the dither stays crisp at scale.
 
-`public/horizon-poster-{desktop,phone}.webp` are settled stills of each master.
-The `<picture>` under the video selects the same master by aspect; its `<img>`
-is the first paint, the reduced-motion document and the fallback when autoplay
-is refused, notably under iOS low-power mode. The HUD uses `100dvh` and the
-safe-area insets. Light mode uses a settled still as its dark plate — the
-shader has no sky colour, so the dark video is never inverted.
+`public/horizon-{a,b,c}-poster-{desktop,phone}.webp` are settled stills of each
+master. The `<picture>` under the video selects the same treatment and aspect;
+its `<img>` is the first paint, the reduced-motion document and the fallback
+when autoplay is refused, notably under iOS low-power mode. The HUD uses
+`100dvh` and the safe-area insets.
 
 ## 6. Motion and accessibility
 
-- The shader runs while the hero is on screen and the tab is visible. It
-  freezes to a settled still under `prefers-reduced-motion: reduce`.
+- The recorded loop plays while the hero is on screen and the tab is visible.
+  It yields to a settled still under `prefers-reduced-motion: reduce`.
 - Copy reveals once on scroll. The hidden start exists only under
   `@media (prefers-reduced-motion: no-preference)` and `data-motion="on"`; a
   reduced-motion visitor gets a complete static document with nothing hidden.
 - Native scroll only. No wheel, touch or key interception, no snap.
 - One `<nav>`, one `<main>`, one `<header>`, five labelled sections and a skip
   link. Focus order follows reading order; the focus ring is never removed.
-- 44px minimum on the theme toggle and every nav link.
+- 44px minimum on every nav link; no toggle chrome ships.
 
 ## 7. Performance
 
@@ -138,7 +133,9 @@ the main thread, and the parallax loop stops with the video. Fonts are local;
 there is no runtime CSS-in-JS and no third-party script.
 
 `scripts/frame-table.mjs` captures native-size screenshots and a frame table at
-2560, 1440 and 390 in both modes. Its rAF deltas are 60 Hz vsync-quantised: a
+2560, 1440, 768, 390, 393 and 430 in the one dark sky, on the default C, and
+verifies A and B playback once each at 1440 and 390. Its rAF deltas are 60 Hz
+vsync-quantised: a
 literal 16.7 ms is the quantisation step, not a claim that a frame took exactly
 16.7 ms of work. The same run reports the settled window separately from the
 warm-up window so a first-frame decode is not read as steady state.
