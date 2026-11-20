@@ -296,10 +296,10 @@ export function createBlackHole(canvas: HTMLCanvasElement): BlackHoleHandle {
     if (cooldown > 0) cooldown -= 1;
     // React within ten slow frames, then wait before another step so the
     // canvas is not reallocated repeatedly. The shape never changes.
-    if (cooldown === 0 && ema > 18) {
+    if (cooldown === 0 && ema > 19) {
       fastFrames = 0;
       slowFrames += 1;
-      if (slowFrames > 8 && quality > 0.5) {
+      if (slowFrames > 12 && quality > 0.5) {
         quality = Math.max(0.5, quality - 0.15);
         slowFrames = 0;
         cooldown = 60;

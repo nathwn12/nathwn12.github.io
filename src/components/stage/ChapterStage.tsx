@@ -154,7 +154,12 @@ export function ChapterStage() {
     if (!panel) return;
 
     const doc = document as ViewTransitionDocument;
-    const canMorph = motionAllowed() && typeof doc.startViewTransition === "function";
+    // A full-page snapshot is two frames on a 2560 canvas. At that width the
+    // lens flash carries the cut; smaller viewports keep the document morph.
+    const canMorph =
+      motionAllowed() &&
+      typeof doc.startViewTransition === "function" &&
+      window.innerWidth < 2000;
     const commit = () => {
       if (!canMorph) emitStageFlash();
       scrollToTarget(panel, { immediate: canMorph });
