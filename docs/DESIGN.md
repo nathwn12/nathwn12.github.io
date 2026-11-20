@@ -103,10 +103,12 @@ only the chosen file is loaded. On an orientation change the poster stays up
 while the other source decodes; the loop does not restart on a resize that
 keeps the same aspect. The video pauses off screen and on a hidden tab, plays
 at 0.7×, and yields to its poster under reduced motion. The wrapper's pointer
-and scroll parallax, the grain layer and the bottom mask give the moving image
-depth without a scene graph. The vignette is drawn into the recording by the
-shader: a runtime gradient over a 2560×1440 video costs a compositor frame in
-headless software rendering, while the shader draws it for free.
+and scroll parallax and the bottom mask give the moving image depth without a
+scene graph. Grain and vignette are drawn into the recording by the shader: a
+full-screen overlay over a 2560×1440 video costs a compositor frame in
+headless software rendering, while the shader draws both for free. Grain is a
+fixed pattern per pixel, so the encoder keeps its temporal redundancy and the
+loop stays seamless.
 
 `public/horizon-poster-{desktop,phone}.webp` are settled stills of each master.
 The `<picture>` under the video selects the same master by aspect; its `<img>`
