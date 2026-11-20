@@ -124,13 +124,15 @@ describe("the record's route merge", () => {
   test("keeps only the surviving routes in navigation order", async () => {
     const { router } = await loadRouter("/");
 
-    expect(router.ROUTES.map((route) => route.path)).toEqual([
-      "/",
+    expect(router.ROUTES.map((route) => route.path)).toEqual(["/"]);
+    expect(router.ROUTES).toHaveLength(1);
+    for (const retired of [
+      "/skills",
+      "/contact",
+      "/about",
       "/experience",
       "/projects",
-    ]);
-    expect(router.ROUTES).toHaveLength(3);
-    for (const retired of ["/skills", "/contact", "/about"]) {
+    ]) {
       expect(router.ROUTES.map((route) => route.path)).not.toContain(retired);
     }
   });
@@ -139,18 +141,17 @@ describe("the record's route merge", () => {
     const { router } = await loadRouter("/");
 
     expect(router.routeByPath("/?x=1")?.path).toBe("/");
-    expect(router.routeByPath("/experience/?tab=all")?.path).toBe(
-      "/experience",
-    );
-    expect(router.routeByPath("/projects/")?.path).toBe("/projects");
+    expect(router.routeByPath("/experience/?tab=all")?.path).toBe("/");
+    expect(router.routeByPath("/projects/")?.path).toBe("/");
   });
 
-  test("boots a trailing-slash deep link onto its route, not the 404", async () => {
+  test("boots a retired trailing-slash deep link onto the record, not the 404", async () => {
     const { browser, router } = await loadRouter("/experience/");
 
-    expect(browser.location.pathname).toBe("/experience/");
-    expect(router.resolveRoute("/experience/").id).toBe("experience");
-    expect(readRouteState(router)).toMatchObject({ path: "/experience" });
+    expect(browser.location.pathname).toBe("/");
+    expect(router.resolveRoute("/experience/").id).toBe("record");
+    expect(router.consumeSectionScroll()).toBe("experience");
+    expect(readRouteState(router)).toMatchObject({ path: "/" });
   });
 
   test("makes canonical home and unknown navigation no-ops", async () => {
@@ -177,14 +178,15 @@ describe("the record's route merge", () => {
     expect(resolved.path).toBe("/definitely-not-a-page");
     expect(resolved.title).toContain("Not found");
 
-    expect(router.resolveRoute("/projects").id).toBe("projects");
+    expect(router.resolveRoute("/projects").id).toBe("record");
+    expect(router.resolveRoute("/projects").path).toBe("/");
     expect(readRouteState(router)).toMatchObject({
       path: "/definitely-not-a-page",
     });
   });
 
   test("deduplicates a stale /about history entry at canonical home", async () => {
-    const { browser, router } = await loadRouter("/experience");
+    const { browser, router } = await loadRouter("/unknown");
 
     router.navigate("/about");
     expect(browser.pushCalls).toEqual(["/"]);
@@ -215,7 +217,7 @@ describe("the record's route merge", () => {
   });
 
   test("keeps history direction while suppressing stale home duplicates", async () => {
-    const { browser, router } = await loadRouter("/experience");
+    const { browser, router } = await loadRouter("/unknown");
 
     router.navigate("/about");
     router.navigate("/about.md");
@@ -225,10 +227,10 @@ describe("the record's route merge", () => {
       direction: "forward",
     });
 
-    browser.location.pathname = "/experience";
+    browser.location.pathname = "/unknown";
     browser.emitPopState();
     expect(readRouteState(router)).toMatchObject({
-      path: "/experience",
+      path: "/unknown",
       direction: "back",
     });
 

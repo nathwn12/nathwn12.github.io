@@ -64,15 +64,13 @@ All three roles were remote, at Xentra Infotech Solutions Inc. The company close
 ## Site
 
 - Home (the record): https://nathwn12.github.io/
-- Experience: https://nathwn12.github.io/experience
-- Projects: https://nathwn12.github.io/projects
 
-The home page is one continuous record: identity, proof, selected work, the
-system atlas (the full 88-package list), what is being worked on next,
-credentials, and contact. There is no contact form; a message goes by email, and
-the résumé and CV are the two PDFs above. `/skills` and `/contact` are bands of
-the record and `/thanks` was the retired contact form's confirmation; all three
-answer with a redirect to the record, and none is in the sitemap.
+The home page is one staged record: person, method, work, experience, and
+contact. There is no contact form; a message goes by email, and the résumé and
+CV are the two PDFs above. `/experience` and `/projects` now land on the
+experience and work chapters. `/skills` and `/contact` are bands of the record
+and `/thanks` was the retired contact form's confirmation; those five answer
+with a redirect to the record, and none is in the sitemap.
 
 ## Last updated
 

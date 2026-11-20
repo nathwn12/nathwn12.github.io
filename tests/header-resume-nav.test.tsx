@@ -142,12 +142,12 @@ describe("global header navigation", () => {
     expect(host.querySelector("#site-nav")!.getAttribute("data-open")).toBe(
       "false",
     );
-    expect(window.location.pathname).toBe("/projects");
+    expect(window.location.pathname).toBe("/");
   });
 });
 
 describe("the footer owns the documents on every route", () => {
-  for (const route of ["/", "/experience", "/projects"] as const) {
+  for (const route of ["/"] as const) {
     test(`${route} keeps the pair out of the header and main, in the footer`, async () => {
       act(() => {
         navigate(route);

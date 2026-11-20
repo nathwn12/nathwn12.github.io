@@ -9,18 +9,16 @@
  * what makes every route answer HTTP 200 on GitHub Pages with its own
  * canonical instead of all pointing at `/`.
  *
- * The redesign cut five routes to two detail routes plus the record: the home
- * page is one continuous document (identity, the record, AI practice, public
- * work, the atlas, forward, credentials, contact), and `/experience` and
- * `/projects` carry the long-form material that would have made that record
- * too tall.
+ * The revamp publishes one route: the home page is a single staged document
+ * (person, method, work, experience, contact). The long-form material that used
+ * to live on `/experience` and `/projects` now sits in chapters of that record.
  *
  * What the old site published but no longer warrants a page lives in
- * {@link RETIRED_ROUTES}: `/skills` and `/contact` are bands of the record now,
- * `/thanks` existed only for the relay form that has been retired, and three
- * earlier pages were folded into the record. Every one of them still answers
- * 200 — as a redirect stub with a meta refresh, a canonical and `noindex` —
- * so an old inbound link lands on the content instead of the 404 body.
+ * {@link RETIRED_ROUTES}: those two detail routes, `/skills` and `/contact` as
+ * bands of the record, `/thanks` from the retired relay form, and three earlier
+ * pages folded into the record. Every one of them still answers 200 — as a
+ * redirect stub with a meta refresh, a canonical and `noindex` — so an old
+ * inbound link lands on the content instead of the 404 body.
  */
 
 export interface RouteDef {
@@ -59,22 +57,6 @@ export const ROUTES: readonly RouteDef[] = [
     metaDescription: HOME_META_DESCRIPTION,
     title: `${FULL_NAME} — software developer, C# and .NET`,
   },
-  {
-    path: "/experience",
-    id: "experience",
-    label: "EXPERIENCE",
-    metaDescription:
-      "Formerly a Backend Developer at Xentra Infotech Solutions Inc. — ASP.NET Web APIs, gRPC, SignalR, and RabbitMQ, including a 98% payment-query latency cut.",
-    title: `Experience — ${FULL_NAME}`,
-  },
-  {
-    path: "/projects",
-    id: "projects",
-    label: "PROJECTS",
-    metaDescription:
-      "Open-source work on github.com/nathwn12 — MCP tool servers, OpenCode plugins, and solo-built apps and tools, featured work first.",
-    title: `Projects — ${FULL_NAME}`,
-  },
 ] as const;
 
 export interface RetiredRoute {
@@ -91,12 +73,25 @@ export interface RetiredRoute {
 /**
  * Published URLs that are no longer pages.
  *
- * `/skills` and `/contact` are bands of the record; `/thanks` was the relay
- * form's confirmation and the relay form is retired; `/about`, `/education` and
+ * `/experience` and `/projects` are chapters of the staged record now;
+ * `/skills` and `/contact` are bands of it; `/thanks` was the relay form's
+ * confirmation and the relay form is retired; `/about`, `/education` and
  * `/footprint` were folded into the record before that. Each keeps a stub so a
  * search result or a five-year-old link still reaches the material.
  */
 export const RETIRED_ROUTES: readonly RetiredRoute[] = [
+  {
+    path: "/experience",
+    canonical: `${SITE_ORIGIN}/`,
+    target: "/#experience",
+    reason: "Experience is a chapter of the staged record.",
+  },
+  {
+    path: "/projects",
+    canonical: `${SITE_ORIGIN}/`,
+    target: "/#work",
+    reason: "Public work is a chapter of the staged record.",
+  },
   {
     path: "/skills",
     canonical: `${SITE_ORIGIN}/`,

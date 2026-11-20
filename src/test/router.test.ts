@@ -22,12 +22,12 @@ describe("router", () => {
     document.head.querySelectorAll('link[rel="canonical"]').forEach((l) => l.remove());
   });
 
-  it("navigate() updates location; applyRouteMeta updates document.title", () => {
+  it("navigate() canonicalizes a retired path; applyRouteMeta updates document.title", () => {
     navigate("/experience");
-    expect(window.location.pathname).toBe("/experience");
+    expect(window.location.pathname).toBe("/");
 
     const route = routeByPath("/experience");
-    expect(route).toBeDefined();
+    expect(route?.path).toBe("/");
     applyRouteMeta(route!);
     expect(document.title).toBe(route!.title);
   });
@@ -76,11 +76,11 @@ describe("router", () => {
     expect(window.location.pathname).toBe(before);
   });
 
-  it("resolves a single trailing slash to its route, not the 404", () => {
+  it("resolves a retired trailing slash to the record, not the 404", () => {
     expect(normalizePath("/experience/")).toBe("/experience");
-    expect(routeByPath("/experience/")?.id).toBe("experience");
-    expect(resolveRoute("/experience/").id).toBe("experience");
-    expect(resolveRoute("/experience/").path).toBe("/experience");
+    expect(routeByPath("/experience/")?.id).toBe("record");
+    expect(resolveRoute("/experience/").id).toBe("record");
+    expect(resolveRoute("/experience/").path).toBe("/");
 
     expect(normalizePath("/")).toBe("/");
     expect(normalizePath("/skills/?tab=all")).toBe("/skills");
@@ -90,22 +90,22 @@ describe("router", () => {
   it("navigate() on a trailing-slash path lands on the canonical route", () => {
     navigate("/");
     navigate("/projects/");
-    expect(window.location.pathname).toBe("/projects");
+    expect(window.location.pathname).toBe("/");
   });
 
   it("points the canonical and og:url at the active route", () => {
-    applyRouteMeta(routeByPath("/projects")!);
+    applyRouteMeta(routeByPath("/")!);
     expect(
       document.head
         .querySelector('link[rel="canonical"]')
         ?.getAttribute("href"),
-    ).toBe("https://nathwn12.github.io/projects");
+    ).toBe("https://nathwn12.github.io/");
     expect(
       document.head
         .querySelector('meta[property="og:url"]')
         ?.getAttribute("content"),
-    ).toBe("https://nathwn12.github.io/projects");
-    expect(document.title).toBe(routeByPath("/projects")!.title);
+    ).toBe("https://nathwn12.github.io/");
+    expect(document.title).toBe(routeByPath("/")!.title);
   });
 
   it("a 404 keeps the static noindex, drops the canonical, and is reversible", () => {
@@ -118,7 +118,7 @@ describe("router", () => {
     ).toBe("noindex, follow");
     expect(document.title).toContain("Not found");
 
-    applyRouteMeta(routeByPath("/experience")!);
+    applyRouteMeta(routeByPath("/")!);
     expect(
       document.head.querySelector('meta[name="robots"]'),
     ).toBeNull();
@@ -126,6 +126,6 @@ describe("router", () => {
       document.head
         .querySelector('link[rel="canonical"]')
         ?.getAttribute("href"),
-    ).toBe("https://nathwn12.github.io/experience");
+    ).toBe("https://nathwn12.github.io/");
   });
 });

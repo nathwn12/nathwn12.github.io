@@ -24,7 +24,7 @@ import {
   tenureSpan,
 } from "../src/content/experience";
 import { contractLine } from "../src/content/ledger";
-import { ROUTES } from "../src/lib/router";
+import { RETIRED_ROUTES, SITE_ORIGIN } from "../src/lib/routes";
 
 const root = resolve(import.meta.dirname, "..");
 const read = (rel: string) => readFileSync(resolve(root, rel), "utf8");
@@ -63,9 +63,11 @@ describe("Xentra is stated as past employment", () => {
     }
   });
 
-  test("the experience route meta description leads with the past framing", () => {
-    const route = ROUTES.find((entry) => entry.path === "/experience");
-    expect(route?.metaDescription).toContain(formerRoleLine);
+  test("the retired experience route points at the record, not a live page", () => {
+    const route = RETIRED_ROUTES.find((entry) => entry.path === "/experience");
+    expect(route?.canonical).toBe(`${SITE_ORIGIN}/`);
+    expect(route?.target).toBe("/#experience");
+    expect(contractLine).toContain(formerRoleLine);
   });
 
   test("provenance retains the dated ledger scope", () => {

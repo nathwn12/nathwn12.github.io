@@ -90,6 +90,7 @@
 
 @theme static {
   --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
+  --font-voice: "Instrument Serif", Georgia, "Times New Roman", serif;
   --font-sans: "Archivo", "Inter", "Inter Fallback", Arial, system-ui,
     sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,

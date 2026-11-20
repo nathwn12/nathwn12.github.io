@@ -88,12 +88,20 @@ describe("every live route is a real page with its own head", () => {
     }
   });
 
-  test("the canonicals are three distinct URLs, not three copies of /", () => {
+  test("one live canonical, with the two former routes as stubs", () => {
     const canonicals = ROUTES.map((route) => canonicalOf(distHtml(route.path)));
-    expect(new Set(canonicals).size).toBe(ROUTES.length);
-    expect(canonicals).toContain(`${SITE_ORIGIN}/`);
-    expect(canonicals).toContain(`${SITE_ORIGIN}/experience`);
-    expect(canonicals).toContain(`${SITE_ORIGIN}/projects`);
+    expect(canonicals).toEqual([`${SITE_ORIGIN}/`]);
+
+    const former = RETIRED_ROUTES.filter((route) =>
+      ["/experience", "/projects"].includes(route.path),
+    );
+    expect(former).toHaveLength(2);
+    for (const route of former) {
+      const stub = distHtml(route.path);
+      expect(canonicalOf(stub)).toBe(`${SITE_ORIGIN}/`);
+      expect(metaName(stub, "robots")).toBe("noindex, follow");
+      expect(stub).toContain(`url=${route.target}`);
+    }
   });
 
   test("each title names the route and the person", () => {

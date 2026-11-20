@@ -24,17 +24,14 @@ import {
   resolveRoute,
   routeByPath,
 } from "../src/lib/router";
+import { IDS as CHAPTER_IDS } from "../src/lib/chapters";
 import { RETIRED_ROUTES, ROUTES, SITE_ORIGIN } from "../src/lib/routes";
 
 const root = resolve(import.meta.dirname, "..");
 
 describe("the live route table", () => {
-  test("is exactly the three pages the site serves", () => {
-    expect(ROUTES.map((route) => route.path)).toEqual([
-      "/",
-      "/experience",
-      "/projects",
-    ]);
+  test("is exactly the one page the site serves", () => {
+    expect(ROUTES.map((route) => route.path)).toEqual(["/"]);
   });
 
   test("does not contain a retired path", () => {
@@ -60,7 +57,7 @@ describe("a retired path canonicalizes into the record", () => {
     },
   );
 
-  test("every retired anchor names a band the record actually renders", () => {
+  test("every retired anchor names a rendered band or a declared chapter", () => {
     const record = readFileSync(
       resolve(root, "src", "components", "Record.tsx"),
       "utf8",
@@ -76,10 +73,16 @@ describe("a retired path canonicalizes into the record", () => {
     for (const route of RETIRED_ROUTES) {
       const anchor = route.target.startsWith("/#") ? route.target.slice(2) : "";
       if (!anchor) continue;
-      expect(bands[anchor], `${route.path} targets unknown band #${anchor}`).toBeDefined();
-      expect(record, `${route.path} targets #${anchor}, which the record does not render`).toContain(
-        bands[anchor],
-      );
+      const band = bands[anchor];
+      if (band) {
+        expect(record, `${route.path} targets #${anchor}, which the record does not render`).toContain(
+          band,
+        );
+      } else {
+        expect(CHAPTER_IDS, `${route.path} targets unknown chapter #${anchor}`).toContain(
+          anchor,
+        );
+      }
     }
   });
 
