@@ -10,7 +10,7 @@ html {
   padding-bottom: 5.5rem;
 }
 .colophon {
-  margin-bottom: 4.5rem;
+  margin-bottom: 7rem;
 }
 .stage {
   position: relative;
@@ -27,10 +27,14 @@ html {
   z-index: 1;
   background-image:
     radial-gradient(circle, color-mix(in srgb, var(--rec-ink) 42%, transparent) 1px, transparent 1.4px),
-    radial-gradient(circle, color-mix(in srgb, var(--rec-ink) 28%, transparent) 0.8px, transparent 1.2px);
-  background-size: 97px 89px, 61px 73px;
-  background-position: 0 0, 41px 23px;
-  background-color: var(--rec-ground);
+    radial-gradient(circle, color-mix(in srgb, var(--rec-ink) 28%, transparent) 0.8px, transparent 1.2px),
+    linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--rec-ground) 86%, black),
+      color-mix(in srgb, var(--rec-ground) 95%, black)
+    );
+  background-size: 97px 89px, 61px 73px, 100% 100%;
+  background-position: 0 0, 41px 23px, 0 0;
   -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 68%, transparent 100%);
   mask-image: linear-gradient(to bottom, #000 0%, #000 68%, transparent 100%);
   pointer-events: none;
@@ -202,9 +206,9 @@ html {
 .stage-rail__sweep {
   position: absolute;
   left: var(--rail-pad);
-  bottom: 0;
+  bottom: 3px;
   width: calc((100% - 2 * var(--rail-pad)) / 5);
-  height: 2px;
+  height: 3px;
   background: var(--rec-signal);
 }
 @media (max-width: 520px) {
@@ -245,7 +249,7 @@ html {
   gap: clamp(1.5rem, 5vw, 5rem);
   align-items: center;
   width: 100%;
-  max-width: 82rem;
+  max-width: var(--rec-frame);
   margin-inline: auto;
   padding-inline: clamp(1.25rem, 5vw, 5rem);
 }
@@ -265,46 +269,23 @@ html {
   justify-items: center;
   text-align: center;
 }
+/* One composed panel for every text block: token ground, hairline, 2 px
+   radius. The edge is stated, so it neither cuts the disc nor floats. */
 .stage-lead,
 .stage-data {
   position: relative;
   isolation: isolate;
   min-width: 0;
   padding: clamp(0.75rem, 2vw, 1.75rem);
+  background: var(--rec-ground);
+  border: var(--rec-rule-w) solid var(--rec-rule);
+  border-radius: 2px;
 }
-/* The clear zone is a masked layer behind the copy: its edge feathers into the
-   field without fading a single glyph. */
 .stage-lead::before,
 .stage-data::before {
-  content: "";
-  position: absolute;
-  inset: -0.75rem;
-  z-index: -1;
-  -webkit-mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    #000 6%,
-    #000 94%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to bottom,
-    transparent 0%,
-    #000 6%,
-    #000 94%,
-    transparent 100%
-  );
-}
-.stage-lead::before {
-  background: linear-gradient(
-    to right,
-    color-mix(in srgb, var(--rec-ground) 98%, transparent) 0%,
-    color-mix(in srgb, var(--rec-ground) 98%, transparent) 86%,
-    transparent 100%
-  );
+  content: none;
 }
 .stage-data {
-  background: var(--rec-ground);
   padding-right: clamp(1rem, 3vw, 2.5rem);
 }
 .stage-panel__content--arrival .stage-lead {
@@ -328,7 +309,8 @@ html {
   left: calc(50% + 46vh);
   top: calc(50% - 2vh);
   transform: translate(-50%, -50%);
-  width: min(48vh, 32rem);
+  width: 33vh;
+  height: 33vh;
   margin: 0;
 }
 .stage-panel[data-active="true"] .stage-panel__content > *:not(.singularity) {
@@ -416,8 +398,8 @@ html {
   display: grid;
   place-items: center;
   justify-self: center;
-  width: min(38vw, 28rem);
-  aspect-ratio: 1;
+  width: 33vh;
+  height: 33vh;
 }
 .singularity__ring {
   position: absolute;
@@ -445,7 +427,7 @@ html {
 }
 .singularity__label {
   position: absolute;
-  bottom: 4%;
+  bottom: 10%;
   font-family: var(--font-mono);
   font-size: var(--rec-text-data);
   letter-spacing: var(--rec-tracking-data);
@@ -457,6 +439,12 @@ html {
 }
 
 /* --- SATELLITE DATA ------------------------------------------------------- */
+.stage-facts {
+  background: var(--rec-ground);
+  border: var(--rec-rule-w) solid var(--rec-rule);
+  border-radius: 2px;
+  padding: var(--rec-space-3) var(--rec-space-4);
+}
 .stage-facts,
 .stage-chips,
 .stage-list {
@@ -671,7 +659,8 @@ html {
     left: auto;
     top: auto;
     transform: none;
-    width: min(74vw, 26rem);
+    width: min(42vh, 20rem);
+    height: min(42vh, 20rem);
     margin: var(--rec-space-4) auto;
     justify-self: center;
   }
@@ -707,6 +696,36 @@ html {
   }
   .singularity__num {
     font-size: min(11vh, 3.4rem);
+  }
+}
+
+@media (max-width: 360px) {
+  .stage-panel[data-chapter="person"] .stage-panel__frame {
+    padding-block: var(--rec-space-3) 5rem;
+  }
+  .stage-panel__content--arrival {
+    gap: var(--rec-space-2);
+  }
+  .stage-title {
+    font-size: 1.35rem;
+  }
+  .stage-claim {
+    font-size: 0.95rem;
+  }
+  .stage-voice {
+    font-size: 0.85rem;
+  }
+  .stage-facts {
+    font-size: 0.625rem;
+    padding: var(--rec-space-2) var(--rec-space-3);
+  }
+  .stage-panel__content--arrival .singularity {
+    width: min(58vw, 12rem);
+    height: min(58vw, 12rem);
+    margin: var(--rec-space-2) auto;
+  }
+  .singularity__num {
+    font-size: min(9vh, 2.6rem);
   }
 }
 

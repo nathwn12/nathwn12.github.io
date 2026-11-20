@@ -99,7 +99,7 @@ describe("the paper palette is the brief's table, verbatim", () => {
     ["--rec-rule", "#c6ccc1"],
     ["--rec-rule-strong", "#828a7e"],
     ["--rec-ink", "#101511"],
-    ["--rec-ink-muted", "#4e574e"],
+    ["--rec-ink-muted", "#3b433b"],
     ["--rec-signal", "#1f5b36"],
     ["--rec-measure", "#4c3d00"],
     ["--rec-alarm", "#ab1f24"],
