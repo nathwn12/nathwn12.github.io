@@ -4,7 +4,7 @@
  * chapters, content truth from src/content, tokens as the only colour source,
  * and a complete static document when motion is off.
  */
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import { resolve } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -81,7 +81,7 @@ describe("tokens are the only colour source", () => {
   test("no raw hex in the new component, stylesheet or base", () => {
     for (const source of [
       read("src/components/LedgerPage.tsx"),
-      read("src/components/HorizonCanvas.tsx"),
+      read("src/components/HorizonVideo.tsx"),
       css,
       base,
     ]) {
@@ -103,11 +103,57 @@ describe("reduced motion is a complete document", () => {
     expect(css).toContain('html[data-motion="on"] [data-reveal].is-in');
   });
 
-  test("the canvas holds a still when motion is off", () => {
-    const canvas = read("src/components/HorizonCanvas.tsx");
-    expect(canvas).toContain("prefersReducedMotion");
-    expect(canvas).toContain("renderStill");
-    expect(canvas).toContain("webglcontextlost");
+  test("the hero is a recorded loop and shows only its poster under reduced motion", () => {
+    const video = read("src/components/HorizonVideo.tsx");
+    expect(video).toContain("preload=\"metadata\"");
+    expect(video).toContain("playsInline");
+    expect(video).toContain("RATE = 0.7");
+    expect(video).toContain('classList.add("is-still")');
+    expect(video).toContain("IntersectionObserver");
+    expect(video).toContain("visibilitychange");
+    expect(html).toContain("horizon-poster-phone.webp");
+    expect(html).toContain("horizon-poster-desktop.webp");
+    expect(html).not.toContain("<canvas");
+  });
+
+  test("the source is chosen by aspect, not width, and one at a time", () => {
+    const video = read("src/components/HorizonVideo.tsx");
+    expect(video).toContain('PORTRAIT_QUERY = "(max-aspect-ratio: 1/1)"');
+    expect(video).toContain('media="(max-aspect-ratio: 1/1)"');
+    expect(video).toContain("canPlayType");
+    expect(video).toContain('classList.add("is-swapping")');
+    expect(video).toContain('video.src = source');
+    const videoTag = video.match(/<video[\s\S]*?\/>/)?.[0] ?? "";
+    expect(videoTag).not.toContain("<source");
+  });
+
+  test("the HUD respects the safe area and the dynamic viewport", () => {
+    expect(css).toContain("env(safe-area-inset-top)");
+    expect(css).toContain("env(safe-area-inset-bottom)");
+    expect(css).toContain("100dvh");
+  });
+
+  test("both masters and their posters are real public assets", () => {
+    for (const file of [
+      "horizon-desktop.mp4",
+      "horizon-desktop.webm",
+      "horizon-phone.mp4",
+      "horizon-phone.webm",
+      "horizon-poster-desktop.webp",
+      "horizon-poster-phone.webp",
+    ]) {
+      const path = resolve(root, "public", file);
+      expect(existsSync(path), file).toBe(true);
+      expect(statSync(path).size, `${file} is empty`).toBeGreaterThan(1000);
+    }
+  });
+
+  test("no live shader runs in the shipped page", () => {
+    const app = read("src/App.tsx");
+    const page = read("src/components/LedgerPage.tsx");
+    expect(page).not.toContain("HorizonCanvas");
+    expect(page).not.toContain("BlackHoleRenderer");
+    expect(app).not.toContain("blackhole");
   });
 
   test("native scroll is never intercepted", () => {

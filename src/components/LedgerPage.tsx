@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from "react";
-import HorizonCanvas from "./HorizonCanvas";
+import HorizonVideo from "./HorizonVideo";
 import {
   aiPractice,
   contactBlock,
@@ -94,7 +94,8 @@ export default function LedgerPage() {
         <nav className="masthead-nav data" aria-label="Chapters">
           {SECTIONS.map((section) => (
             <a key={section.id} href={`#${section.id}`}>
-              <span aria-hidden="true">{section.index}</span> {section.label}
+              <span aria-hidden="true">{section.index}</span>{" "}
+              {section.label.replace(/^The /, "")}
             </a>
           ))}
         </nav>
@@ -111,7 +112,7 @@ export default function LedgerPage() {
       <main id="main" tabIndex={-1} className="outline-none">
         <section id="horizon" className="hero" aria-labelledby="hero-name">
           {theme === "dark" ? (
-            <HorizonCanvas className="horizon-field" />
+            <HorizonVideo />
           ) : (
             <div className="horizon-field horizon-plate" aria-hidden="true">
               <img src="/horizon-still.png" alt="" />
@@ -131,9 +132,7 @@ export default function LedgerPage() {
             <div className="hud hud-status">
               <p className="eyebrow data">Status</p>
               <p>{statusLine}</p>
-              <p className="data">
-                {employer.period} · Formerly {employer.role}, {employer.company}
-              </p>
+              <p className="data">{employer.period}</p>
             </div>
             <a className="hud hud-scroll data" href="#reduction">
               <span className="scroll-line" aria-hidden="true" />

@@ -27,7 +27,9 @@
   align-items: center;
   gap: var(--rec-space-4);
   min-height: var(--rec-header-h);
-  padding-inline: var(--rec-gutter);
+  padding-top: env(safe-area-inset-top);
+  padding-inline: calc(var(--rec-gutter) + env(safe-area-inset-left))
+    calc(var(--rec-gutter) + env(safe-area-inset-right));
   background: var(--rec-ground);
   border-bottom: var(--rec-rule-w) solid var(--rec-rule);
 }
@@ -95,19 +97,25 @@
 
 @media (max-width: 760px) {
   :root {
-    --rec-header-h: 5.5rem;
+    --rec-header-h: 6.5rem;
   }
   .masthead {
     grid-template-columns: auto auto;
     row-gap: 0;
-    min-height: 5.5rem;
+    min-height: 6.5rem;
     padding-block: 0.35rem;
+  }
+  .masthead-nav a {
+    font-size: var(--rec-text-data);
   }
   .masthead-nav {
     grid-column: 1 / -1;
     grid-row: 2;
+    flex-wrap: wrap;
     justify-content: flex-start;
-    gap: var(--rec-space-4);
+    gap: 0.2rem var(--rec-space-4);
+    overflow-x: visible;
+    white-space: normal;
     padding-bottom: 0.35rem;
   }
 }
@@ -116,9 +124,29 @@
 
 .hero {
   position: relative;
-  min-height: 100svh;
+  min-height: calc(100svh - var(--rec-header-h));
+  min-height: calc(100dvh - var(--rec-header-h));
   overflow: hidden;
   background: var(--rec-void);
+}
+
+/* A clear zone for the HUD: the disc is bright in the lower half on a phone. */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--rec-void) 55%, transparent),
+    transparent 24%,
+    transparent 62%,
+    color-mix(in srgb, var(--rec-void) 78%, transparent)
+  );
+}
+[data-theme="light"] .hero::after {
+  background: none;
 }
 
 .horizon-field {
@@ -126,31 +154,83 @@
   inset: 0;
   z-index: 0;
 }
-.horizon-still,
-.horizon-canvas {
+
+/* The recorded shader loop. The wrapper is the only moving layer. */
+.horizon-video-wrap {
+  position: absolute;
+  inset: -3%;
+  z-index: 0;
+  overflow: hidden;
+  transform-origin: center center;
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.horizon-video,
+.horizon-poster,
+.horizon-poster img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.horizon-canvas.is-hidden {
+.horizon-video,
+.horizon-poster {
+  position: absolute;
+  inset: 0;
+}
+.horizon-poster {
+  z-index: 0;
+}
+.horizon-video {
+  z-index: 1;
+  transition: opacity var(--rec-dur-base) var(--rec-ease-out);
+}
+.horizon-video.is-still,
+.horizon-video.is-swapping {
+  opacity: 0;
+}
+.horizon-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0.055;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+}
+.horizon-fade {
+  position: absolute;
+  inset: auto 0 0;
+  height: 22%;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(to bottom, transparent, var(--rec-ground));
+}
+[data-theme="light"] .horizon-video-wrap {
   display: none;
 }
 
 .hero-hud {
   position: relative;
-  z-index: 2;
+  z-index: 5;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: auto 1fr auto;
-  min-height: 100svh;
-  padding: var(--rec-space-7) var(--rec-gutter) var(--rec-space-6);
+  min-height: calc(100svh - var(--rec-header-h));
+  min-height: calc(100dvh - var(--rec-header-h));
+  padding: calc(var(--rec-space-7) + env(safe-area-inset-top))
+    calc(var(--rec-gutter) + env(safe-area-inset-right))
+    calc(var(--rec-space-6) + env(safe-area-inset-bottom))
+    calc(var(--rec-gutter) + env(safe-area-inset-left));
   color: var(--rec-hero-ink);
   pointer-events: none;
 }
 @media (min-width: 900px) {
   .hero-hud {
-    padding: var(--rec-space-8) var(--rec-gutter-lg) var(--rec-space-7);
+    padding-top: calc(var(--rec-space-8) + env(safe-area-inset-top));
+    padding-right: calc(var(--rec-gutter-lg) + env(safe-area-inset-right));
+    padding-bottom: calc(var(--rec-space-7) + env(safe-area-inset-bottom));
+    padding-left: calc(var(--rec-gutter-lg) + env(safe-area-inset-left));
   }
 }
 
@@ -231,7 +311,8 @@
   .hero-hud {
     grid-template-columns: 1fr;
     grid-template-rows: auto 1fr auto auto;
-    gap: var(--rec-space-6);
+    gap: var(--rec-space-4);
+    padding-block: var(--rec-space-5);
   }
   .hud-name {
     grid-column: 1;
@@ -263,11 +344,17 @@
   inset: auto;
   top: 50%;
   left: 50%;
-  width: min(72vw, 46rem);
-  aspect-ratio: 1;
+  width: min(64vw, 56vh, 44rem);
+  aspect-ratio: 16 / 10;
   transform: translate(-50%, -50%);
   border: var(--rec-rule-w) solid var(--rec-rule-strong);
   background: var(--rec-void);
+}
+@media (max-width: 620px) {
+  [data-theme="light"] .horizon-plate {
+    top: 44%;
+    width: min(72vw, 42vh, 44rem);
+  }
 }
 
 /* ---------- sections ---------- */
@@ -345,7 +432,7 @@
 }
 .proof-row {
   display: grid;
-  grid-template-columns: 9rem minmax(0, 1fr) auto;
+  grid-template-columns: 18rem minmax(0, 1fr) auto;
   gap: var(--rec-space-5);
   align-items: start;
   padding-block: var(--rec-space-6);
