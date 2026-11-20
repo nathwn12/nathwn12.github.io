@@ -149,7 +149,12 @@ export default function LedgerPage() {
           <div className="proof-table">
             {proofRows.map((row, i) => (
               <div className="proof-row" data-reveal key={row.claim}>
-                <span className="proof-figure">{row.figure}</span>
+                <span
+                  className="proof-figure"
+                  data-figure-hang={row.figure.endsWith("%") ? "percent" : undefined}
+                >
+                  {row.figure}
+                </span>
                 <div className="proof-text">
                   <h3>{row.claim}</h3>
                   <p>{row.detail}</p>

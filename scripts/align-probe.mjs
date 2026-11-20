@@ -97,6 +97,8 @@ function installMetrics() {
         cx: r.x + r.width / 2, cy: r.y + r.height / 2,
         color: cs.color, text: (el.textContent || "").trim().slice(0, 40),
         align: cs.textAlign,
+        hangL: parseFloat(cs.marginLeft) || 0,
+        hangR: parseFloat(cs.marginRight) || 0,
         edgeL: hr.x + parseFloat(hcs.paddingLeft || 0),
         edgeR: hr.right - parseFloat(hcs.paddingRight || 0),
         baseline: window.__align.baseline(el),
@@ -207,7 +209,9 @@ async function inkFor(page, spec, theme, ground, wide) {
       } else if (target.check === "hero-right-ink") {
         if (wide && box.align === "right") check(`right ink ${box.text}`, spec.tag, round(ink.right - box.edgeR), INK);
       } else if (target.check === "cell-right-ink") {
-        check(`cell right ink ${box.text}`, spec.tag, round(ink.right - box.right), INK);
+        if (spec.cellWide) {
+          check(`cell right ink ${box.text}`, spec.tag, round(ink.right - (box.right + box.hangR)), INK);
+        }
       } else if (target.check === "scroll-cue") {
         const parts = await page.evaluate(() => {
           const pick = (s) => window.__align.rect(document.querySelector(s));
@@ -243,9 +247,11 @@ async function inkFor(page, spec, theme, ground, wide) {
     if (!group.length) continue;
     for (const f of group) {
       const raw = round(f.ink.left - f.detail.ruleX);
-      const inset = (f.detail.figW - f.ink.w) / 2;
-      const residual = round(f.ink.left - (f.detail.figL + inset));
-      check(`figure ink left ${f.text}`, spec.tag, residual, INK, `raw rule delta ${raw}px, centred inset ${round(inset)}px`);
+      // Expected painted left = column centre minus half the painted width:
+      // the exact consequence of the ink-centre rule, with no box rounding.
+      const expectedLeft = f.detail.colCx - (f.ink.w - 1) / 2;
+      const inset = f.detail.figL === null ? 0 : expectedLeft - f.detail.figL;
+      check(`figure ink left ${f.text}`, spec.tag, round(f.ink.left - expectedLeft), INK, `raw rule delta ${raw}px, planned inset ${round(inset)}px`);
       check(`figure ink centre ${f.text}`, spec.tag, round(f.ink.cx - f.detail.colCx), INK);
       info(`figure hang ${f.text}`, spec.tag, `painted left ${raw}px from rule; glyph "${f.text}" is ${round(f.ink.w)}px wide in a ${round(f.detail.figW)}px column`);
     }
@@ -253,8 +259,11 @@ async function inkFor(page, spec, theme, ground, wide) {
     if (table === ".record-figure" && spec.recordWide && bases.length > 1) {
       check("record figures share one baseline", spec.tag, round(Math.max(...bases) - Math.min(...bases)), INK);
     } else if (table === ".proof-figure") {
+      if (!spec.figureWide) {
+        info("figure baseline", spec.tag, "phone row stacks the figure above the claim; no shared baseline by design");
+      }
       for (const f of group) {
-        if (f.detail.titleBase !== null) check(`figure baseline ${f.text}`, spec.tag, round(f.detail.figBase - f.detail.titleBase), INK);
+        if (spec.figureWide && f.detail.titleBase !== null) check(`figure baseline ${f.text}`, spec.tag, round(f.detail.figBase - f.detail.titleBase), INK);
       }
     }
   }
@@ -281,7 +290,11 @@ async function main() {
       await page.waitForTimeout(1100);
 
       const tag = `${view.name}/${theme}`;
-      const spec = { tag, gutter: SYSTEM.gutter(view.w), baseline: SYSTEM.baseline, recordWide: view.w >= 900, left: LEFT_BLOCKS, right: RIGHT_BLOCKS, ink: INK_TARGETS };
+      const spec = {
+        tag, gutter: SYSTEM.gutter(view.w), baseline: SYSTEM.baseline,
+        recordWide: view.w >= 900, figureWide: view.w >= 761, cellWide: view.w > 900,
+        left: LEFT_BLOCKS, right: RIGHT_BLOCKS, ink: INK_TARGETS,
+      };
       const m = await page.evaluate(LAYOUT_FN, spec);
       const gutter = m.tokens.gutter;
       const step = m.tokens.baseline;
@@ -290,7 +303,7 @@ async function main() {
       // the reserved scrollbar gutter; innerWidth/2 would be off by half it.
       const pageCentre = m.hero.x + m.hero.w / 2;
 
-      for (const b of m.left) check(`left ${b.sel}`, tag, round(b.x - b.edgeL), MECH);
+      for (const b of m.left) check(`left ${b.sel}`, tag, round(b.x - (b.edgeL + b.hangL)), MECH);
       for (const b of m.right) {
         // The phone HUD turns the role block into a left-aligned stack row.
         if (b.sel === ".hud-role" && view.w <= 620) continue;

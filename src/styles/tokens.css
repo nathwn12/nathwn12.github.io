@@ -57,16 +57,29 @@
   --rec-space-9: 6rem;
   --rec-space-10: 8rem;
 
-  --rec-rail-w: 15rem;
+  /* One alignment system. Every edge and every vertical step reads from here. */
+  --rec-gutter: 1.25rem;
+  --rec-rail-w: 13rem;
+  --rec-rail-gap: var(--rec-space-7);
+  --rec-baseline: 0.5rem;
+  --rec-object-axis: 50%;
 
   --rec-frame: 82rem;
-  --rec-gutter: 1.25rem;
-  --rec-gutter-lg: 3rem;
   --rec-band: 4rem;
   --rec-band-lg: 7rem;
 
   --rec-rhythm: var(--rec-space-5);
   --rec-rhythm-lg: var(--rec-space-5);
+
+  /* Optical corrections. The eyebrow baseline leads the hero; these land the
+     name's first baseline and the object's top on its rhythm grid. */
+  --rec-name-nudge: -3px;
+  --rec-object-nudge: 0px;
+  --rec-name-hang: -2px;
+  --rec-role-hang: -2px;
+  --rec-cue-hang: -3px;
+  --rec-meta-hang: -2px;
+  --rec-percent-hang: -5px;
 
   --rec-rule-w: 1px;
   --rec-header-h: 4.5rem;
@@ -81,6 +94,26 @@
   --rec-z-reticle: 70;
   --rec-z-curtain: 80;
   --rec-z-skip: 100;
+}
+
+@media (min-width: 620px) and (max-width: 899px) {
+  :root {
+    --rec-object-nudge: 3px;
+  }
+}
+@media (min-width: 900px) {
+  :root {
+    --rec-gutter: 3rem;
+    --rec-name-nudge: -2px;
+    --rec-object-nudge: -1px;
+  }
+}
+@media (min-width: 2000px) {
+  :root {
+    --rec-name-nudge: 3px;
+    --rec-object-nudge: -3px;
+    --rec-percent-hang: -6px;
+  }
 }
 
 [data-theme="light"] {
@@ -150,7 +183,7 @@
   --text-ledger-mail: clamp(1.25rem, 3.1vw, 3rem);
 
   --spacing-gutter: var(--rec-gutter);
-  --spacing-gutter-lg: var(--rec-gutter-lg);
+  --spacing-gutter-lg: var(--rec-gutter);
   --spacing-band: var(--rec-band);
   --spacing-band-lg: var(--rec-band-lg);
   --spacing-row: var(--rec-space-5);
