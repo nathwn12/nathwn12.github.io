@@ -23,7 +23,6 @@ import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { Record } from "../src/components/Record";
-import { Header } from "../src/components/Header";
 import { Footer } from "../src/components/Footer";
 import { experience, provenance } from "../src/content/experience";
 import { projects } from "../src/content/projects";
@@ -200,10 +199,8 @@ describe("the rendered record", () => {
       "I ship systems that hold in production.",
     );
 
-    const header = renderToStaticMarkup(createElement(Header));
-    expect(header).toContain('aria-label="Nathaniel Nikolai Ladero, home"');
-
     const footer = renderToStaticMarkup(createElement(Footer));
+    expect(footer).toContain('alt="nathwn12"');
     expect(footer).toContain(
       `© ${new Date().getFullYear()} Nathaniel Nikolai Ladero.`,
     );
@@ -325,7 +322,6 @@ describe("the rendered record", () => {
       "src/components/Experience.tsx",
       "src/components/Projects.tsx",
       "src/components/Footer.tsx",
-      "src/components/Header.tsx",
     ];
     for (const file of components) {
       const source = readFileSync(resolve(root, file), "utf8");

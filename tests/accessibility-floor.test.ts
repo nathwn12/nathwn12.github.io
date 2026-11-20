@@ -76,7 +76,6 @@ describe("skip link and main landmark", () => {
     const app = read("src/App.tsx");
     const skip = app.indexOf('href="#main"');
     expect(skip).toBeGreaterThan(-1);
-    expect(skip).toBeLessThan(app.indexOf("<Header"));
     expect(app).toContain('id="main"');
     expect(app).toContain("tabIndex={-1}");
   });
@@ -121,7 +120,6 @@ describe("motion — one state, one resting truth", () => {
     const readers = [
       "src/lib/router.tsx",
       "src/components/FirstScreen.tsx",
-      "src/components/Header.tsx",
       "src/components/RouteCurtain.tsx",
     ].filter((file) =>
       /prefers-reduced-motion|matchMedia/.test(code(read(file))),
@@ -161,15 +159,6 @@ describe("in-page scroll clearance", () => {
       /scroll-padding-top:\s*calc\(var\(--rec-header-h[^)]*\)\s*\+\s*var\(--rec-space-3\)\)/,
     );
 
-    const row = css.match(/\.masthead__row\s*\{([^}]*)\}/s)?.[1] ?? "";
-    expect(row, "the masthead row has no min-height").toMatch(
-      /min-height:\s*var\(--rec-header-h\)/,
-    );
-    const header = css.match(/\.masthead\s*\{([^}]*)\}/s)?.[1] ?? "";
-    expect(header, "the masthead has no structural rule").toMatch(
-      /border-bottom:\s*var\(--rec-rule-w\)/,
-    );
-
     const clearance =
       remToPx(cssVar("--rec-header-h")) +
       remToPx(cssVar("--rec-space-3")) -
@@ -197,19 +186,13 @@ describe("target size", () => {
   test.each([
     ".button",
     ".text-action",
-    ".masthead__link",
-    ".masthead__mark",
+    ".stage-rail__link",
   ])("%s carries the 44px floor", (selector) => {
     const rule = css.match(
       new RegExp(`${selector.replace(".", "\\.")}\\s*\\{([^}]*)\\}`, "s"),
     )?.[1];
     expect(rule, `${selector} has no rule`).toBeDefined();
     expect(rule, selector).toContain(`min-height: ${FLOOR}`);
-  });
-
-  test("the author mark keeps the floor on both axes", () => {
-    const rule = css.match(/\.masthead__mark\s*\{([^}]*)\}/s)?.[1] ?? "";
-    expect(rule).toContain("min-width: 2.75rem");
   });
 
   test("the theme switch carries the floor", () => {

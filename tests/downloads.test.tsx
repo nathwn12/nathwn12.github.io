@@ -24,7 +24,6 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import App from "../src/App";
 import { Contact } from "../src/components/Contact";
 import { FirstScreen } from "../src/components/FirstScreen";
-import { Header } from "../src/components/Header";
 import { CV_PATH, RESUME_PATH } from "../src/lib/contact";
 import { navigate } from "../src/lib/router";
 
@@ -110,11 +109,15 @@ describe("the document URLs are fixed", () => {
 });
 
 describe("the single pair on every route", () => {
-  test("the header is navigation only: no download anchors at all", async () => {
-    await mount(createElement(Header));
-    expect(host.querySelectorAll("a[download]")).toHaveLength(0);
-    expect(host.querySelectorAll('a[href$=".pdf"]')).toHaveLength(0);
-    expect(host.textContent).not.toMatch(/Résumé|Resume/);
+  test("the navigation carries no download anchors at all", async () => {
+    await mount(createElement(App));
+    const navs = [...host.querySelectorAll("header nav, .stage-rail")];
+    expect(navs.length).toBeGreaterThan(0);
+    for (const nav of navs) {
+      expect(nav.querySelectorAll("a[download]")).toHaveLength(0);
+      expect(nav.querySelectorAll('a[href$=".pdf"]')).toHaveLength(0);
+      expect(nav.textContent).not.toMatch(/Résumé|Resume/);
+    }
   });
 
   test("the first screen offers no documents: its two actions are the record's", async () => {

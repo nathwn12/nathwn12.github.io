@@ -200,7 +200,6 @@ describe("the tokens are the ones the stylesheet defines", () => {
       "src/components/Footer.tsx",
       "src/components/ForwardBand.tsx",
       "src/components/Grain.tsx",
-      "src/components/Header.tsx",
       "src/components/HeroField.tsx",
       "src/components/LatencyInstrument.tsx",
       "src/components/Marquee.tsx",
