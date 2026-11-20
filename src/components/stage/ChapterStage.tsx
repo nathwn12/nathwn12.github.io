@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MouseEvent } from "react";
 import { CHAPTERS, IDS, type ChapterId } from "../../lib/chapters";
 import { recordOpener } from "../../content/hero";
 import {
@@ -26,6 +26,7 @@ import {
 import { projects, projectsLede } from "../../content/projects";
 import { credentials } from "../../content/credentials";
 import { CONTACT_EMAIL } from "../../lib/contact";
+import { motionAllowed } from "../../lib/motion";
 
 /** Retired detail paths land on the chapter that absorbed their content. */
 const ANCHOR_BY_PATH: Readonly<Record<string, string>> = {
@@ -56,12 +57,11 @@ export function initialChapter(source?: string): ChapterId {
 /**
  * ChapterStage — one document, five chapters, one source of truth.
  *
- * The chapter registry owns the order and the labels. Each row renders one
- * `<section>` panel and one rail link; the scroll position decides which panel
- * is active through a narrow band in the middle of the viewport. Only the active
- * panel is interactive (`inert` on the rest), and a polite live region states the
- * chapter change so keyboard and screen-reader visitors get the same signal the
- * rail's underline gives a sighted visitor.
+ * Every chapter is rendered in the ordinary document flow and stays visible.
+ * Nothing here gates a panel on the active chapter: no `inert`, no
+ * `aria-hidden`, no hidden remainder. The two observers only report where the
+ * reader is — one moves the current mark on the rail, one draws a chapter's
+ * seam once it has been read. A line says the same thing to a screen reader.
  */
 export function ChapterStage() {
   const [active, setActive] = useState<ChapterId>(() => initialChapter());
@@ -70,9 +70,7 @@ export function ChapterStage() {
   useEffect(() => {
     if (typeof IntersectionObserver === "undefined") return;
 
-    // A 45% inset on both edges leaves a thin band at the viewport's centre.
-    // Both observers read the same band: one chooses the active chapter, one
-    // marks a panel as seen so its seam can be drawn once.
+    // A thin band at the viewport's centre decides which chapter is current.
     const rootMargin = "-45% 0px -45% 0px";
     const activeObserver = new IntersectionObserver(
       (entries) => {
@@ -109,15 +107,12 @@ export function ChapterStage() {
     };
   }, []);
 
-  /** The props every chapter panel shares: identity, active state, inertness. */
+  /** The props every chapter panel shares: identity and reading seam. */
   function panelProps(id: ChapterId) {
-    const isActive = active === id;
     return {
       id,
       "data-chapter": id,
-      "data-active": isActive ? "true" : "false",
-      inert: !isActive,
-      "aria-hidden": !isActive,
+      "data-active": active === id ? "true" : "false",
       className: "stage-panel",
       ref: (node: HTMLElement | null) => {
         panels.current[id] = node;
@@ -131,8 +126,28 @@ export function ChapterStage() {
     window.history.replaceState(null, "", `#${id}`);
     const panel = document.getElementById(id);
     if (panel && typeof panel.scrollIntoView === "function") {
-      panel.scrollIntoView({ behavior: "smooth", block: "start" });
+      panel.scrollIntoView({
+        behavior: motionAllowed() ? "smooth" : "auto",
+        block: "start",
+      });
     }
+  }
+
+  /** Every rail link is a hash jump; no route link exists anywhere. */
+  function railClick(id: ChapterId) {
+    return (event: MouseEvent<HTMLAnchorElement>) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      )
+        return;
+      event.preventDefault();
+      goTo(id);
+    };
   }
 
   const activeIndex = Math.max(0, IDS.indexOf(active));
@@ -140,39 +155,40 @@ export function ChapterStage() {
   return (
     <div className="stage">
       <nav className="stage-rail" aria-label="Chapters">
-        <ol className="stage-rail__list">
-          {CHAPTERS.map((chapter, index) => {
-            const current = chapter.id === active;
-            return (
-              <li key={chapter.id} className="stage-rail__item">
-                <a
-                  href={`#${chapter.id}`}
-                  className="stage-rail__link"
-                  data-chapter-link={chapter.id}
-                  aria-current={current ? "true" : undefined}
-                  onClick={(event) => {
-                    if (
-                      event.defaultPrevented ||
-                      event.button !== 0 ||
-                      event.metaKey ||
-                      event.ctrlKey ||
-                      event.shiftKey ||
-                      event.altKey
-                    )
-                      return;
-                    event.preventDefault();
-                    goTo(chapter.id);
-                  }}
-                >
-                  <span className="stage-rail__no">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <span className="stage-rail__label">{chapter.label}</span>
-                </a>
-              </li>
-            );
-          })}
-        </ol>
+        <div className="stage-rail__inner">
+          <span className="stage-rail__mark" aria-hidden="true">
+            <img
+              src="/brand/signature.svg"
+              alt=""
+              width="30"
+              height="30"
+              draggable={false}
+            />
+          </span>
+          <p className="stage-rail__eyebrow">Nathaniel Nikolai Ladero</p>
+          <ol className="stage-rail__list">
+            {CHAPTERS.map((chapter, index) => {
+              const current = chapter.id === active;
+              return (
+                <li key={chapter.id} className="stage-rail__item">
+                  <a
+                    href={`#${chapter.id}`}
+                    className="stage-rail__link"
+                    data-chapter-link={chapter.id}
+                    aria-current={current ? "true" : undefined}
+                    onClick={railClick(chapter.id)}
+                  >
+                    <span className="stage-rail__no">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span className="stage-rail__label">{chapter.label}</span>
+                  </a>
+                </li>
+              );
+            })}
+          </ol>
+          <p className="stage-rail__foot">Five chapters in one document.</p>
+        </div>
       </nav>
 
       <p
@@ -189,12 +205,13 @@ export function ChapterStage() {
           {...panelProps("person")}
           aria-labelledby="chapter-person-title"
         >
-          <p className="stage-kicker">01 / {CHAPTERS[0].label}</p>
+          <p className="stage-kicker">
+            <span className="stage-kicker__no">01</span>
+            <span>{CHAPTERS[0].label}</span>
+          </p>
           <h1 id="chapter-person-title" className="stage-title">
             <span className="stage-title__line">I ship systems</span>
-            <span className="stage-title__line">
-              that hold in <em className="stage-mark">production.</em>
-            </span>
+            <span className="stage-title__line">that hold in production.</span>
           </h1>
           <p className="stage-claim">{recordOpener}</p>
           <p className="stage-voice">{standfirst}</p>
@@ -210,7 +227,10 @@ export function ChapterStage() {
           {...panelProps("method")}
           aria-labelledby="chapter-method-title"
         >
-          <p className="stage-kicker">02 / {CHAPTERS[1].label}</p>
+          <p className="stage-kicker">
+            <span className="stage-kicker__no">02</span>
+            <span>{CHAPTERS[1].label}</span>
+          </p>
           <h2 id="chapter-method-title" className="stage-heading">
             {aiPractice.heading}
           </h2>
@@ -249,15 +269,20 @@ export function ChapterStage() {
             {proofRows.map((row) => (
               <li key={row.claim}>
                 <p className="stage-fields__figure">{row.figure}</p>
-                <h3>{row.claim}</h3>
-                <p>{row.detail}</p>
+                <div>
+                  <h3>{row.claim}</h3>
+                  <p>{row.detail}</p>
+                </div>
               </li>
             ))}
           </ul>
         </section>
 
         <section {...panelProps("work")} aria-labelledby="chapter-work-title">
-          <p className="stage-kicker">03 / {CHAPTERS[2].label}</p>
+          <p className="stage-kicker">
+            <span className="stage-kicker__no">03</span>
+            <span>{CHAPTERS[2].label}</span>
+          </p>
           <h2 id="chapter-work-title" className="stage-heading">
             Selected work
           </h2>
@@ -294,13 +319,18 @@ export function ChapterStage() {
           {...panelProps("experience")}
           aria-labelledby="chapter-experience-title"
         >
-          <p className="stage-kicker">04 / {CHAPTERS[3].label}</p>
+          <p className="stage-kicker">
+            <span className="stage-kicker__no">04</span>
+            <span>{CHAPTERS[3].label}</span>
+          </p>
           <h2 id="chapter-experience-title" className="stage-heading">
             Experience
           </h2>
           <p className="stage-lede">{experienceLede}</p>
           <p className="stage-contract">
-            {formerRoleLine} · {tenureSpan} · {employer.location}
+            <span>{formerRoleLine}</span>
+            <span>{tenureSpan}</span>
+            <span>{employer.location}</span>
           </p>
           <ol className="stage-sequence">
             {experience.map((entry) => (
@@ -322,13 +352,14 @@ export function ChapterStage() {
           </ol>
           <p className="stage-lede">{provenance}</p>
           <h3 className="stage-subheading">Credentials</h3>
-          <ul className="stage-list">
+          <ul className="stage-list stage-list--credentials">
             {credentials.map((credential) => (
               <li key={credential.id}>
                 <a href={credential.url} target="_blank" rel="noopener noreferrer">
                   {credential.title}
-                </a>{" "}
-                — {credential.issuer}, {credential.date}
+                </a>
+                <span>{credential.issuer}</span>
+                <span>{credential.date}</span>
               </li>
             ))}
           </ul>
@@ -338,7 +369,10 @@ export function ChapterStage() {
           {...panelProps("contact")}
           aria-labelledby="chapter-contact-title"
         >
-          <p className="stage-kicker">05 / {CHAPTERS[4].label}</p>
+          <p className="stage-kicker">
+            <span className="stage-kicker__no">05</span>
+            <span>{CHAPTERS[4].label}</span>
+          </p>
           <h2 id="chapter-contact-title" className="stage-heading">
             {contactBlock.heading}
           </h2>

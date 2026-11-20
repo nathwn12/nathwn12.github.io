@@ -1,4 +1,7 @@
 
+/* Chrome around the record: the curtain, the quiet overlays and the colophon.
+   The masthead is retired — the chapter rail is the only navigation. */
+
 .grain {
   position: fixed;
   inset: 0;
@@ -106,110 +109,13 @@ html[data-motion="off"] .grain {
   opacity: 0.92;
 }
 
-.masthead {
-  position: sticky;
-  top: 0;
-  z-index: var(--rec-z-header);
-  background: var(--rec-ground);
-  border-bottom: var(--rec-rule-w) solid var(--rec-rule);
-}
-.masthead__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--rec-space-5);
-  min-height: var(--rec-header-h);
-}
-.masthead__mark {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 2.75rem;
-  min-height: 2.75rem;
-}
-.masthead__mark img {
-  display: block;
-  width: 36px;
-  height: 36px;
-}
-.masthead__nav {
-  display: flex;
-  align-items: center;
-  gap: var(--rec-space-5);
-}
-.masthead__link {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.75rem;
-  color: var(--rec-ink-muted);
-  text-decoration: none;
-  transition: color var(--rec-dur-quick) var(--rec-ease-out);
-}
-.masthead__link::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0.55rem;
-  height: var(--rec-rule-w);
-  background: var(--rec-signal);
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform var(--rec-dur-base) var(--rec-ease-out);
-}
-.masthead__link:hover {
-  color: var(--rec-ink);
-}
-.masthead__link[aria-current="page"] {
-  color: var(--rec-ink);
-}
-.masthead__link[aria-current="page"]::after {
-  transform: scaleX(1);
-}
-.masthead__trigger {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  min-width: 2.75rem;
-  min-height: 2.75rem;
-  padding-inline: var(--rec-space-3);
-  border: 0;
-  background: none;
-  color: var(--rec-ink);
-  font: inherit;
-  font-size: var(--rec-text-data-lg);
-  cursor: pointer;
-}
-@media (max-width: 899px) {
-  .masthead__nav {
-    display: none;
-  }
-  .masthead__nav[data-open="true"] {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    gap: 0;
-    padding: var(--rec-space-2) var(--rec-gutter) var(--rec-space-4);
-    background: var(--rec-ground);
-    border-bottom: var(--rec-rule-w) solid var(--rec-rule);
-  }
-  .masthead__nav[data-open="true"] .masthead__link {
-    min-height: 2.75rem;
-    font-size: var(--rec-text-data-lg);
-  }
-  .masthead__trigger {
-    display: inline-flex;
-  }
-}
-
+/* --- COLOPHON --------------------------------------------------------------
+   A closing imprint, not a second menu. It sits in the document flow after the
+   fifth chapter and is offset past the fixed rail on wide screens, so no word
+   in it can share a box with the index. */
 .colophon {
   border-top: var(--rec-rule-w) solid var(--rec-rule);
-  padding-block: var(--rec-space-5) var(--rec-space-6);
+  padding-block: var(--rec-space-7) var(--rec-space-7);
 }
 .colophon__top {
   display: grid;
@@ -260,8 +166,8 @@ html[data-motion="off"] .grain {
   display: flex;
   flex-wrap: wrap;
   gap: var(--rec-space-2) var(--rec-space-6);
-  margin-top: var(--rec-space-4);
-  padding-top: var(--rec-space-3);
+  margin-top: var(--rec-space-6);
+  padding-top: var(--rec-space-4);
   border-top: var(--rec-rule-w) solid var(--rec-rule);
   color: var(--rec-ink-muted);
 }

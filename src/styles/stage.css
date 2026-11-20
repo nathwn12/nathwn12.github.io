@@ -1,147 +1,250 @@
 /* =========================================================================
-   STAGE — the single URL's five chapters.
+   STAGE — a measured field record in five chapters.
 
-   Ported from the identity's monograph composition: a fixed reading rail, a
-   narrow measure of running copy, hairline seams and figures set in the measure
-   ink. Every colour, size and motion value comes from the Phosphor tokens; this
-   file writes no hex. The page is an ordinary document — no wheel or touch
-   handler cancels the native scroll, and there is no scroll snap. The two
-   observers in ChapterStage only report which panel the reader is in.
+   One document, read top to bottom. A numbered index sits in the margin on a
+   wide screen and becomes a single line above the text on a narrow one. The
+   signal ink is a status stroke, not a filling colour; the measure ink carries
+   one figure per view. Every colour comes from the Phosphor tokens — this file
+   writes no hex. No wheel or touch handler cancels native scroll, and there is
+   no scroll snap.
    ========================================================================= */
 
 .stage-shell {
   position: relative;
 }
 
-/* --- RAIL ---------------------------------------------------------------- */
+/* --- THE ONE NAVIGATION --------------------------------------------------- */
 .stage-rail {
   position: relative;
   z-index: var(--rec-z-header);
   border-bottom: var(--rec-rule-w) solid var(--rec-rule);
   background: var(--rec-ground);
 }
-@media (min-width: 900px) {
-  .stage-rail {
-    position: fixed;
-    inset: var(--rec-header-h) auto 0 0;
-    width: var(--rec-space-10);
-    border-bottom: 0;
-    border-right: var(--rec-rule-w) solid var(--rec-rule);
-    background: var(--rec-panel);
-  }
-}
-.stage-rail__list {
+.stage-rail__inner {
   display: flex;
-  flex-wrap: wrap;
-  gap: var(--rec-space-2) var(--rec-space-5);
+  align-items: center;
+  gap: var(--rec-space-4);
   width: 100%;
   max-width: var(--rec-frame);
   margin-inline: auto;
-  padding: var(--rec-space-3) var(--rec-gutter);
+  padding: 0 var(--rec-gutter);
+}
+.stage-rail__mark {
+  display: none;
+}
+.stage-rail__eyebrow,
+.stage-rail__foot {
+  display: none;
+}
+.stage-rail__list {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  gap: var(--rec-space-1);
+  min-width: 0;
+  padding: var(--rec-space-2) 0;
   list-style: none;
 }
-@media (min-width: 900px) {
-  .stage-rail__list {
-    flex-direction: column;
-    gap: var(--rec-space-1);
-    padding: var(--rec-space-7) 0;
-  }
+.stage-rail__item {
+  min-width: 0;
 }
 .stage-rail__link {
-  position: relative;
   display: inline-flex;
-  align-items: baseline;
-  gap: var(--rec-space-2);
+  align-items: center;
+  gap: 0.375rem;
   min-height: 2.75rem;
   font-family: var(--font-mono);
-  font-size: var(--rec-text-data);
-  letter-spacing: var(--rec-tracking-data);
+  font-size: var(--rec-text-data-sm);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
   color: var(--rec-ink-muted);
   text-decoration: none;
   transition: color var(--rec-dur-quick) var(--rec-ease-out);
+}
+.stage-rail__link::before {
+  content: "";
+  flex: none;
+  width: 0.375rem;
+  height: 0.375rem;
+  background: var(--rec-rule-strong);
+  transition: background-color var(--rec-dur-quick) var(--rec-ease-out);
 }
 .stage-rail__link:hover {
   color: var(--rec-ink);
 }
 .stage-rail__link[aria-current="true"] {
-  color: var(--rec-signal);
+  color: var(--rec-ink);
 }
-.stage-rail__link[aria-current="true"]::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0 0;
-  height: var(--rec-rule-w);
+.stage-rail__link[aria-current="true"]::before {
   background: var(--rec-signal);
 }
 .stage-rail__no {
   font-variant-numeric: tabular-nums;
+  color: inherit;
 }
 .stage-rail__label {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  text-transform: none;
+  font-family: var(--font-sans);
+  font-size: var(--rec-text-data);
+  letter-spacing: 0;
 }
 
-/* --- PANELS --------------------------------------------------------------- */
+@media (max-width: 360px) {
+  .stage-rail__link {
+    gap: 0.25rem;
+    font-size: var(--rec-text-data-sm);
+  }
+  .stage-rail__label {
+    font-size: var(--rec-text-data-sm);
+  }
+}
+
+@media (min-width: 1200px) {
+  .stage-shell,
+  .colophon {
+    padding-left: var(--rec-rail-w);
+  }
+  .stage-rail {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: var(--rec-rail-w);
+    padding: var(--rec-space-7) var(--rec-space-5) var(--rec-space-6);
+    border-bottom: 0;
+    border-right: var(--rec-rule-w) solid var(--rec-rule);
+    background: var(--rec-panel);
+  }
+  .stage-rail__inner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    padding: 0;
+  }
+  .stage-rail__mark {
+    display: block;
+  }
+  .stage-rail__mark img {
+    display: block;
+    width: 30px;
+    height: 30px;
+    opacity: 0.9;
+  }
+  .stage-rail__eyebrow {
+    display: block;
+    margin: var(--rec-space-5) 0 var(--rec-space-8);
+    font-family: var(--font-mono);
+    font-size: var(--rec-text-data);
+    letter-spacing: var(--rec-tracking-data);
+    line-height: 1.45;
+    color: var(--rec-ink-muted);
+    max-width: 12ch;
+  }
+  .stage-rail__list {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 0;
+    padding: 0;
+    border-top: var(--rec-rule-w) solid var(--rec-rule-strong);
+  }
+  .stage-rail__item {
+    width: 100%;
+  }
+  .stage-rail__link {
+    width: 100%;
+    min-height: 3rem;
+    gap: var(--rec-space-3);
+    border-bottom: var(--rec-rule-w) solid var(--rec-rule);
+    font-size: var(--rec-text-data);
+  }
+  .stage-rail__link[aria-current="true"] {
+    border-bottom-color: var(--rec-signal);
+  }
+  .stage-rail__label {
+    font-size: var(--rec-text-lead);
+  }
+  .stage-rail__foot {
+    display: block;
+    margin: var(--rec-space-6) 0 0;
+    font-family: var(--font-mono);
+    font-size: var(--rec-text-data-sm);
+    letter-spacing: var(--rec-tracking-data);
+    color: var(--rec-ink-muted);
+  }
+}
+
+/* --- THE READING COLUMN --------------------------------------------------- */
 .stage-panels {
   width: 100%;
   max-width: var(--rec-frame);
   margin-inline: auto;
   padding-inline: var(--rec-gutter);
 }
-@media (min-width: 900px) {
+@media (min-width: 1200px) {
   .stage-panels {
-    padding-inline: var(--rec-gutter-lg);
+    padding-inline: clamp(2rem, 5vw, 5rem);
   }
 }
-/* Every running paragraph is capped in its own font, so the stage obeys the
-   same 56ch reading ceiling as the record no matter which chapter owns it. */
 .stage p {
   max-width: var(--rec-prose-measure);
 }
 .stage-panel {
-  min-height: 100vh;
-  padding-block: var(--rec-band) var(--rec-band-lg);
-  border-bottom: var(--rec-rule-w) solid var(--rec-rule);
+  padding-block: var(--rec-space-9) var(--rec-space-9);
+  border-top: var(--rec-rule-w) solid var(--rec-rule);
   scroll-margin-top: calc(var(--rec-header-h) + var(--rec-space-4));
 }
-.stage-panel[data-seen="true"] {
-  border-bottom-color: var(--rec-rule-strong);
+.stage-panel:first-child {
+  border-top: 0;
 }
+.stage-panel[data-seen="true"] {
+  border-top-color: var(--rec-rule-strong);
+}
+@media (min-width: 1200px) {
+  .stage-panel {
+    padding-block: var(--rec-space-9) calc(var(--rec-space-9) * 1.5);
+  }
+}
+
 .stage-kicker {
+  display: flex;
+  align-items: baseline;
+  gap: var(--rec-space-3);
+  margin: 0 0 var(--rec-space-7);
   font-family: var(--font-mono);
   font-size: var(--rec-text-data);
   letter-spacing: var(--rec-tracking-data);
-  text-transform: uppercase;
-  color: var(--rec-signal);
-  margin: 0 0 var(--rec-space-7);
+  color: var(--rec-ink-muted);
 }
+.stage-kicker__no {
+  color: var(--rec-signal);
+  font-variant-numeric: tabular-nums;
+}
+.stage-kicker::after {
+  content: "";
+  flex: 1;
+  height: var(--rec-rule-w);
+  background: var(--rec-rule);
+}
+
 .stage-title {
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: var(--rec-text-display);
-  line-height: var(--rec-leading-display);
+  font-weight: 400;
+  font-size: clamp(2.75rem, 6.2vw, 6rem);
+  line-height: 1;
   letter-spacing: var(--rec-tracking-display);
   color: var(--rec-ink);
-  margin: 0;
+  margin: 0 0 var(--rec-space-6);
   max-width: 20ch;
 }
 .stage-title__line {
   display: block;
   overflow-wrap: anywhere;
 }
-.stage-mark {
-  display: inline-block;
-  background: var(--rec-signal);
-  color: var(--rec-on-signal);
-  padding: 0 0.12em 0.06em;
-}
 .stage-heading {
   font-family: var(--font-display);
-  font-weight: 700;
-  font-size: var(--rec-text-claim);
-  line-height: var(--rec-leading-claim);
-  letter-spacing: var(--rec-tracking-claim);
+  font-weight: 400;
+  font-size: clamp(2.25rem, 4.4vw, 4rem);
+  line-height: 1.04;
+  letter-spacing: -0.015em;
   color: var(--rec-ink);
   margin: 0 0 var(--rec-space-6);
 }
@@ -149,32 +252,35 @@
   font-family: var(--font-mono);
   font-size: var(--rec-text-data);
   letter-spacing: var(--rec-tracking-data);
-  text-transform: uppercase;
   color: var(--rec-ink-muted);
-  margin: var(--rec-space-8) 0 var(--rec-space-4);
+  margin: var(--rec-space-9) 0 var(--rec-space-5);
+  padding-top: var(--rec-space-4);
+  border-top: var(--rec-rule-w) solid var(--rec-rule-strong);
 }
 .stage-claim,
 .stage-lede {
   font-size: var(--rec-text-lead);
   line-height: var(--rec-leading-lead);
   color: var(--rec-ink);
-  max-width: var(--rec-prose-measure);
   margin: 0 0 var(--rec-space-5);
 }
 .stage-voice,
 .stage-quote {
   font-family: var(--font-voice);
   font-style: italic;
-  font-size: var(--rec-text-claim);
-  line-height: var(--rec-leading-claim);
+  font-weight: 400;
+  font-size: clamp(1.25rem, 1rem + 1.1vw, 1.75rem);
+  line-height: 1.4;
   color: var(--rec-ink);
-  max-width: 44ch;
+  max-width: 46ch;
   margin: 0 0 var(--rec-space-6);
 }
 .stage-quote {
-  border-left: var(--rec-space-1) solid var(--rec-signal);
   padding-left: var(--rec-space-5);
+  border-left: var(--rec-rule-w) solid var(--rec-signal);
 }
+
+/* --- FACT ROWS AND CHIPS -------------------------------------------------- */
 .stage-facts,
 .stage-chips,
 .stage-list {
@@ -188,27 +294,29 @@
   font-family: var(--font-mono);
   font-size: var(--rec-text-data);
   letter-spacing: var(--rec-tracking-data);
+  line-height: var(--rec-leading-data);
   color: var(--rec-ink-muted);
 }
 .stage-columns {
   display: grid;
-  gap: var(--rec-space-7);
+  gap: var(--rec-space-8);
 }
 @media (min-width: 900px) {
   .stage-columns {
     grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
   }
 }
+
+/* The comparison is an instrument reading, not a card. */
 .stage-measure {
-  padding: var(--rec-space-5);
-  background: var(--rec-panel);
+  padding-top: var(--rec-space-5);
   border-top: var(--rec-rule-w) solid var(--rec-rule-strong);
 }
 .stage-measure__label {
   font-family: var(--font-mono);
   font-size: var(--rec-text-data);
   letter-spacing: var(--rec-tracking-data);
-  color: var(--rec-signal);
+  color: var(--rec-ink-muted);
   margin: 0 0 var(--rec-space-5);
 }
 .stage-measure__pair {
@@ -223,13 +331,18 @@
   font-family: var(--font-mono);
   font-size: var(--rec-text-data-sm);
   letter-spacing: var(--rec-tracking-data);
+  line-height: var(--rec-leading-data);
   color: var(--rec-ink-muted);
 }
 .stage-measure__pair dd.stage-measure__figure {
-  font-family: var(--font-display);
-  font-size: var(--rec-text-claim);
+  font-family: var(--font-sans);
+  font-size: clamp(1.75rem, 3.4vw, 2.75rem);
+  font-weight: 500;
+  line-height: 1.1;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
   color: var(--rec-measure);
+  margin-block: var(--rec-space-2);
 }
 .stage-measure__note {
   font-size: var(--rec-text-data);
@@ -237,54 +350,63 @@
   color: var(--rec-ink-muted);
   margin: var(--rec-space-5) 0 0;
 }
+
+/* The measured outcomes read as a ledger, never as a grid of cards. */
 .stage-fields {
-  display: grid;
-  gap: var(--rec-space-5);
-  list-style: none;
+  display: block;
   padding: 0;
-  margin: var(--rec-space-8) 0 0;
-}
-@media (min-width: 700px) {
-  .stage-fields {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-.stage-fields li {
-  padding: var(--rec-space-5);
-  background: var(--rec-panel);
+  margin: var(--rec-space-9) 0 0;
   border-top: var(--rec-rule-w) solid var(--rec-rule-strong);
 }
+.stage-fields li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--rec-space-2);
+  padding-block: var(--rec-space-5);
+  border-bottom: var(--rec-rule-w) solid var(--rec-rule);
+}
+@media (min-width: 700px) {
+  .stage-fields li {
+    grid-template-columns: minmax(7rem, 10rem) minmax(0, 1fr);
+    gap: var(--rec-space-6);
+    align-items: start;
+  }
+}
 .stage-fields__figure {
-  font-family: var(--font-display);
-  font-size: var(--rec-text-display);
-  line-height: var(--rec-leading-display);
+  font-family: var(--font-sans);
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
   color: var(--rec-measure);
-  margin: 0 0 var(--rec-space-4);
+  margin: 0;
 }
 .stage-fields h3 {
-  font-family: var(--font-display);
-  font-size: var(--rec-text-title);
-  line-height: var(--rec-leading-title);
+  font-family: var(--font-sans);
+  font-size: var(--rec-text-body);
+  font-weight: 600;
+  line-height: 1.35;
   color: var(--rec-ink);
-  margin: 0 0 var(--rec-space-3);
+  margin: 0 0 var(--rec-space-2);
 }
-.stage-fields p:last-child {
-  font-size: 0.875rem;
-  line-height: 1.5;
+.stage-fields li p:last-child {
+  font-size: 0.9375rem;
+  line-height: 1.55;
   color: var(--rec-ink-muted);
   margin: 0;
 }
 
-/* --- ROWS, SEQUENCE, CONTACT ---------------------------------------------- */
+/* --- TABLES, SEQUENCE, CONTACT -------------------------------------------- */
 .stage-rows {
   list-style: none;
   padding: 0;
   margin: 0;
-  border-top: var(--rec-rule-w) solid var(--rec-rule);
+  border-top: var(--rec-rule-w) solid var(--rec-rule-strong);
 }
 .stage-rows li {
   display: grid;
-  gap: var(--rec-space-2);
+  gap: var(--rec-space-1) var(--rec-space-5);
   padding-block: var(--rec-space-5);
   border-bottom: var(--rec-rule-w) solid var(--rec-rule);
 }
@@ -299,13 +421,16 @@
   font-family: var(--font-mono);
   font-size: var(--rec-text-data);
   letter-spacing: var(--rec-tracking-data);
+  font-variant-numeric: tabular-nums;
   color: var(--rec-ink-muted);
 }
 .stage-rows a {
-  font-family: var(--font-display);
-  font-size: var(--rec-text-title);
+  font-family: var(--font-sans);
+  font-size: var(--rec-text-body);
+  font-weight: 600;
   color: var(--rec-ink);
   text-decoration: none;
+  overflow-wrap: anywhere;
 }
 .stage-rows a:hover {
   color: var(--rec-signal);
@@ -315,6 +440,7 @@
   line-height: 1.55;
   color: var(--rec-ink-muted);
 }
+
 .stage-sequence {
   list-style: none;
   padding: 0;
@@ -329,15 +455,15 @@
   font-family: var(--font-mono);
   font-size: var(--rec-text-data);
   letter-spacing: var(--rec-tracking-data);
-  text-transform: uppercase;
-  color: var(--rec-signal);
+  color: var(--rec-ink-muted);
 }
 .stage-sequence h3 {
-  font-family: var(--font-display);
-  font-size: var(--rec-text-claim);
-  line-height: var(--rec-leading-claim);
+  font-family: var(--font-sans);
+  font-size: clamp(1.25rem, 1rem + 0.8vw, 1.625rem);
+  font-weight: 600;
+  line-height: 1.25;
   color: var(--rec-ink);
-  margin: 0 0 var(--rec-space-4);
+  margin: var(--rec-space-3) 0 var(--rec-space-4);
 }
 .stage-sequence__outcome {
   font-family: var(--font-voice);
@@ -352,37 +478,77 @@
   max-width: var(--rec-prose-measure);
 }
 .stage-sequence__figure {
-  font-family: var(--font-display);
-  font-size: var(--rec-text-claim);
+  font-family: var(--font-sans);
+  font-size: var(--rec-text-lead);
+  font-weight: 500;
   color: var(--rec-measure);
 }
 .stage-contract {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--rec-space-2) var(--rec-space-6);
   font-family: var(--font-mono);
   font-size: var(--rec-text-data);
   letter-spacing: var(--rec-tracking-data);
   color: var(--rec-ink-muted);
 }
-.stage-action {
-  display: inline-flex;
-  align-items: center;
-  min-height: 2.875rem;
-  padding-inline: var(--rec-space-5);
-  background: var(--rec-signal);
-  color: var(--rec-on-signal);
-  font-family: var(--font-display);
+.stage-contract span + span::before {
+  content: "";
+  display: inline-block;
+  width: var(--rec-space-3);
+  height: var(--rec-rule-w);
+  margin-right: var(--rec-space-3);
+  vertical-align: middle;
+  background: var(--rec-rule-strong);
+}
+.stage-list--credentials li {
+  display: grid;
+  gap: var(--rec-space-1) var(--rec-space-5);
+}
+@media (min-width: 900px) {
+  .stage-list--credentials li {
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) auto;
+    align-items: baseline;
+  }
+}
+.stage-list--credentials a {
+  color: var(--rec-ink);
   text-decoration: none;
   overflow-wrap: anywhere;
 }
+.stage-list--credentials a:hover {
+  color: var(--rec-signal);
+}
+.stage-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-inline: var(--rec-space-5);
+  background: var(--rec-signal);
+  color: var(--rec-on-signal);
+  font-family: var(--font-sans);
+  font-size: var(--rec-text-data-lg);
+  font-weight: 600;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+  transition: transform var(--rec-dur-quick) var(--rec-ease-out);
+}
+.stage-action:active {
+  transform: scale(0.98);
+}
 
 /* --- STATIC MODE -----------------------------------------------------------
-   The OS preference and the mirrored data-motion flag both stop the rail's
-   colour transition. The finished state is the markup's own; nothing waits on
-   an animation frame to become readable. */
+   The finished resting state is the markup's own. Nothing waits on a frame to
+   become readable; the rail's colour change is the only transition. */
 @media (prefers-reduced-motion: reduce) {
-  .stage-rail__link {
+  .stage-rail__link,
+  .stage-rail__link::before,
+  .stage-action {
     transition: none !important;
   }
 }
-html[data-motion="off"] .stage-rail__link {
+html[data-motion="off"] .stage-rail__link,
+html[data-motion="off"] .stage-rail__link::before,
+html[data-motion="off"] .stage-action {
   transition: none !important;
 }
