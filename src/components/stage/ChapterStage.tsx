@@ -194,12 +194,6 @@ export function ChapterStage() {
         <div className="bh-still__horizon" />
       </div>
 
-      <div className="bh-dust" aria-hidden="true">
-        <span className="bh-dust__plane bh-dust__plane--far" />
-        <span className="bh-dust__plane bh-dust__plane--mid" />
-        <span className="bh-dust__plane bh-dust__plane--near" />
-      </div>
-
       <nav className="stage-rail" aria-label="Chapters">
         <div className="stage-rail__inner">
           <ol className="stage-rail__list">

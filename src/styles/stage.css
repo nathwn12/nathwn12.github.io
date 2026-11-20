@@ -121,34 +121,6 @@ html {
   background: black;
 }
 
-/* Three planes read the same camera scalar at different rates. */
-.bh-dust {
-  position: fixed;
-  inset: 0;
-  z-index: 1;
-  overflow: hidden;
-  pointer-events: none;
-}
-.bh-dust__plane {
-  position: absolute;
-  inset: -20%;
-  background-image:
-    radial-gradient(circle, var(--rec-ink) 1.2px, transparent 1.6px),
-    radial-gradient(circle, var(--rec-ink) 0.9px, transparent 1.3px);
-  background-size: 113px 97px, 79px 131px;
-}
-.bh-dust__plane--far {
-  opacity: 0.16;
-}
-.bh-dust__plane--mid {
-  opacity: 0.12;
-  background-position: 31px 17px, 0 0;
-}
-.bh-dust__plane--near {
-  opacity: 0.08;
-  background-position: 0 43px, 59px 0;
-}
-
 /* --- THE ONE NAVIGATION — an orbit index along the bottom edge ------------ */
 .stage-rail {
   position: fixed;
@@ -682,7 +654,6 @@ html {
   .stage-panel__content { transform: none; }
   .stage-lead,
   .stage-data { background: var(--rec-ground); }
-  .bh-dust,
   .singularity__ring { display: none; }
   .stage-rail__sweep { transform: none; }
   ::view-transition-old(root),
@@ -698,7 +669,6 @@ html[data-motion="off"] .stage-panel { min-height: 0; }
 html[data-motion="off"] .stage-panel__content { transform: none; }
 html[data-motion="off"] .stage-lead,
 html[data-motion="off"] .stage-data { background: var(--rec-ground); }
-html[data-motion="off"] .bh-dust,
 html[data-motion="off"] .singularity__ring { display: none; }
 html[data-motion="off"] .stage-rail__sweep { transform: none; }
 html[data-motion="off"] ::view-transition-old(root),

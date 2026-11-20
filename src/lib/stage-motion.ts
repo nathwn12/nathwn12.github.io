@@ -67,9 +67,6 @@ export function mountStageMotion(root: HTMLElement): StageMotionHandle {
       return frame && content ? { panel, frame, content } : null;
     })
     .filter((shell): shell is Shell => shell !== null);
-  const dust = [
-    ...root.querySelectorAll<HTMLElement>(".bh-dust__plane"),
-  ];
   const sweep = root.querySelector<HTMLElement>(".stage-rail__sweep");
 
   let top = 0;
@@ -111,12 +108,6 @@ export function mountStageMotion(root: HTMLElement): StageMotionHandle {
 
     const index = shellIndex(raw);
     if (sweep) sweep.style.transform = `translateX(${index * 100}%)`;
-    for (let i = 0; i < dust.length; i += 1) {
-      const rate = [5, 13, 26][i] ?? 13;
-      const drift = (raw * -rate).toFixed(1);
-      const rise = (raw * rate * 0.5).toFixed(1);
-      dust[i]!.style.transform = `translate3d(${drift}px,${rise}px,0)`;
-    }
   };
 
   const schedule = () => {

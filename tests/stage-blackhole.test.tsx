@@ -74,7 +74,7 @@ describe("the descent field", () => {
     expect(host.querySelectorAll("canvas.bh-canvas")).toHaveLength(1);
     expect(host.querySelectorAll(".bh-still")).toHaveLength(1);
     expect(host.querySelectorAll(".bh-still__horizon")).toHaveLength(1);
-    expect(host.querySelectorAll(".bh-dust__plane")).toHaveLength(3);
+    expect(host.querySelectorAll(".bh-dust__plane")).toHaveLength(0);
     // Without a GL context the still is the visible path, never a blank hero.
     expect(host.querySelector(".stage")?.getAttribute("data-bh")).toBe("still");
   });
