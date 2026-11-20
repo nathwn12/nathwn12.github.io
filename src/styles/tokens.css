@@ -13,6 +13,10 @@
   --rec-measure: #e5bc3f;
   --rec-alarm: #e85560;
   --rec-on-signal: #06100a;
+  /* The figure sits on the black horizon in both skies, so the readout needs
+     one constant light ink rather than a theme-dependent one. */
+  --rec-on-void: #f0f6f1;
+  --rec-on-void-muted: #b9c8c0;
 
   --rec-selection: color-mix(in srgb, var(--rec-signal) 22%, transparent);
 
@@ -88,11 +92,15 @@
   --rec-measure: #4c3d00;
   --rec-alarm: #ab1f24;
   --rec-on-signal: #f6f9f3;
+  --rec-on-void: #f0f6f1;
+  --rec-on-void-muted: #b9c8c0;
 }
 
 @theme static {
-  --font-display: "Instrument Serif", Georgia, "Times New Roman", serif;
-  --font-voice: "Instrument Serif", Georgia, "Times New Roman", serif;
+  /* The field is an instrument, not a journal. One grotesk carries every
+     voice; weight and tracking do the work the old serif contrast did. */
+  --font-display: "Archivo", "Inter", Arial, system-ui, sans-serif;
+  --font-voice: "Archivo", "Inter", Arial, system-ui, sans-serif;
   --font-sans: "Archivo", "Inter", "Inter Fallback", Arial, system-ui,
     sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
