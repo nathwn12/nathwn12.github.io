@@ -17,7 +17,7 @@
  */
 
 import { execFile } from "node:child_process";
-import { mkdir, rename, writeFile } from "node:fs/promises";
+import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import process from "node:process";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -209,19 +209,15 @@ function requireCount(value, label) {
   return value;
 }
 
-/** Measure everything first; write nothing until every number is validated. */
-export async function measure({ now = new Date(), fetcher = npmFetch } = {}) {
+/** The npm half of the measurement. Keyless, so it can run without a token. */
+export async function measureNpm({ now = new Date(), fetcher = npmFetch } = {}) {
   const through = snapshotDate(now);
   const npm = await collectDownloads({ names: NPM_PACKAGES, now, fetcher });
   const months = [];
   for (const name of NPM_PACKAGES) months.push(await fetchPackageMonth(name, fetcher));
 
-  const activity = await githubActivity();
-  const days = activity.contributionCalendar.weeks.flatMap((week) => week.contributionDays);
-  const activityWindow = recentDays(days);
   const monthByName = new Map(months.map((item) => [item.name, item.month]));
   const allTimeByName = new Map(npm.packages.map((item) => [item.name, item.downloads]));
-
   if (npm.packages.map((item) => item.name).join("|") !== NPM_PACKAGES.join("|")) {
     throw new Error("npm all-time package order changed");
   }
@@ -233,6 +229,35 @@ export async function measure({ now = new Date(), fetcher = npmFetch } = {}) {
   });
   const npmMonth = packages.reduce((sum, item) => sum + item.month, 0);
   if (!Number.isSafeInteger(npmMonth)) throw new Error("combined month total exceeds safe integer range");
+  return { through, npmMonth, npm, packages };
+}
+
+/** A tokenless local bake: npm is refreshed, the GitHub half is carried over. */
+export async function refreshNpmOnly({ dryRun = false } = {}) {
+  const { through, npmMonth, npm, packages } = await measureNpm();
+  const committed = JSON.parse(await readFile(STATS_OUTPUT, "utf8"));
+  const report = {
+    ...committed,
+    generatedAt: new Date().toISOString(),
+    snapshotDate: through,
+    npmMonth,
+    npmAllTime: npm.total,
+    packages,
+  };
+  if (!dryRun) {
+    await writeAtomic(NPM_OUTPUT, npm);
+    await writeAtomic(STATS_OUTPUT, report);
+  }
+  return { through, npmMonth, npmAllTime: npm.total, report };
+}
+
+/** Measure everything first; write nothing until every number is validated. */
+export async function measure({ now = new Date(), fetcher = npmFetch } = {}) {
+  const { through, npmMonth, npm, packages } = await measureNpm({ now, fetcher });
+
+  const activity = await githubActivity();
+  const days = activity.contributionCalendar.weeks.flatMap((week) => week.contributionDays);
+  const activityWindow = recentDays(days);
 
   const report = {
     source: "npm download-count API and GitHub GraphQL, measured by scripts/open-source-stats.mjs",
@@ -272,18 +297,35 @@ if (invokedDirectly) {
   }
   if (process.exitCode !== 1) {
     try {
-      const { report, npm } = await measure();
-      if (args.has("--dry-run")) {
-        console.log(JSON.stringify(report, null, 2));
+      const token = process.env.GITHUB_TOKEN || process.env.GH_TOKEN;
+      if (!token) {
+        // The keyless local path. GitHub figures stay as last baked by the
+        // tokened workflow; only the npm fields move to the new settle date.
+        const npmOnly = await refreshNpmOnly({ dryRun: args.has("--dry-run") });
+        if (args.has("--dry-run")) {
+          console.log(JSON.stringify(npmOnly.report, null, 2));
+        } else {
+          console.log(
+            `open-source-stats: no GITHUB_TOKEN — npm snapshot baked through ${npmOnly.through}, ` +
+              `GitHub snapshot left untouched; ` +
+              `${npmOnly.npmMonth.toLocaleString("en-US")} in 30 days, ` +
+              `${npmOnly.npmAllTime.toLocaleString("en-US")} all-time`,
+          );
+        }
       } else {
-        await writeAtomic(NPM_OUTPUT, npm);
-        await writeAtomic(STATS_OUTPUT, report);
-        console.log(
-          `open-source-stats: ${report.npmMonth.toLocaleString("en-US")} npm downloads this month, ` +
-            `${report.npmAllTime.toLocaleString("en-US")} all-time through ${report.snapshotDate}, ` +
-            `${report.github.contributions.toLocaleString("en-US")} contributions, ` +
-            `${report.github.commits.toLocaleString("en-US")} commits; wrote both committed snapshots`,
-        );
+        const { report, npm } = await measure();
+        if (args.has("--dry-run")) {
+          console.log(JSON.stringify(report, null, 2));
+        } else {
+          await writeAtomic(NPM_OUTPUT, npm);
+          await writeAtomic(STATS_OUTPUT, report);
+          console.log(
+            `open-source-stats: ${report.npmMonth.toLocaleString("en-US")} npm downloads this month, ` +
+              `${report.npmAllTime.toLocaleString("en-US")} all-time through ${report.snapshotDate}, ` +
+              `${report.github.contributions.toLocaleString("en-US")} contributions, ` +
+              `${report.github.commits.toLocaleString("en-US")} commits; wrote both committed snapshots`,
+          );
+        }
       }
     } catch (error) {
       console.error(`open-source-stats: ${error.message}`);

@@ -14,6 +14,8 @@ export const NPM_PACKAGES = Object.freeze(
 
 const DAY_MS = 86_400_000;
 const MAX_WINDOW_DAYS = 365;
+const DAILY_WINDOW_DAYS = 30;
+const datePattern = /^\d{4}-\d{2}-\d{2}$/;
 const DEFAULT_OUTPUT = resolve(
   dirname(fileURLToPath(import.meta.url)),
   "../src/content/npm-downloads.json",
@@ -84,7 +86,10 @@ export async function fetchPackageDownloads(name, through, fetcher = fetch) {
     throw new Error(`npm registry metadata is incomplete for ${packageName}`);
   }
   const created = metadata.time.created.slice(0, 10);
-  const windows = buildDateWindows(created, through);
+  // A package published inside the unsettled buffer has no measured all-time
+  // window yet. Zero here means "not settled", never "no downloads": its daily
+  // window is measured separately and carries the live figure.
+  const windows = created > through ? [] : buildDateWindows(created, through);
   let downloads = 0;
 
   for (const { start, end } of windows) {
@@ -109,6 +114,51 @@ export async function fetchPackageDownloads(name, through, fetcher = fetch) {
   return { name: packageName, created, through, downloads };
 }
 
+/**
+ * The keyless rolling 30-day window for one package, used to draw its sparkline.
+ * The point and range endpoints cover the same window, so a complete response
+ * must sum to the point month; a partial or malformed range throws rather than
+ * leaving a gap that a sparkline would silently read as zero activity.
+ */
+export async function fetchPackageDaily(name, fetcher = fetch) {
+  const packageName = validatePackageNames([name])[0];
+  const url = `https://api.npmjs.org/downloads/range/last-month/${encodeURIComponent(packageName)}`;
+  const body = await readJson(fetcher, url);
+  if (
+    body?.package !== packageName ||
+    !datePattern.test(body.start ?? "") ||
+    !datePattern.test(body.end ?? "") ||
+    !Array.isArray(body.downloads) ||
+    body.downloads.length !== DAILY_WINDOW_DAYS
+  ) {
+    throw new Error(`npm returned no complete 30-day window for ${packageName}`);
+  }
+  let previous = null;
+  const days = body.downloads.map((item) => {
+    const day = String(item?.day ?? "");
+    if (
+      !datePattern.test(day) ||
+      !Number.isSafeInteger(item.downloads) ||
+      item.downloads < 0
+    ) {
+      throw new Error(`npm returned an invalid day for ${packageName}`);
+    }
+    if (previous && addDays(previous, 1) !== day) {
+      throw new Error(`npm 30-day window for ${packageName} is missing a day`);
+    }
+    previous = day;
+    return { day, downloads: item.downloads };
+  });
+  if (days[0].day !== body.start || days.at(-1).day !== body.end) {
+    throw new Error(`npm 30-day window edges disagree for ${packageName}`);
+  }
+  const sum = days.reduce((total, item) => total + item.downloads, 0);
+  if (!Number.isSafeInteger(sum)) {
+    throw new Error(`npm 30-day total exceeds safe integer range for ${packageName}`);
+  }
+  return { name: packageName, start: body.start, end: body.end, days, total: sum };
+}
+
 export function snapshotDate(now = new Date()) {
   return addDays(isoDate(now), -3);
 }
@@ -120,7 +170,9 @@ export async function collectDownloads(
   const through = snapshotDate(now);
   const results = [];
   for (const name of packages) {
-    results.push(await fetchPackageDownloads(name, through, fetcher));
+    const allTime = await fetchPackageDownloads(name, through, fetcher);
+    const daily = await fetchPackageDaily(name, fetcher);
+    results.push({ ...allTime, daily: daily.days });
   }
   const total = results.reduce((sum, item) => sum + item.downloads, 0);
   if (!Number.isSafeInteger(total)) {

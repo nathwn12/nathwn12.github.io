@@ -1,66 +1,79 @@
 {
   "source": "npm download-count API and GitHub GraphQL, measured by scripts/open-source-stats.mjs",
-  "generatedAt": "2026-11-21T14:27:17.176Z",
-  "snapshotDate": "2026-11-18",
-  "npmMonth": 21998,
-  "npmAllTime": 34716,
+  "generatedAt": "2026-11-20T16:05:47.386Z",
+  "snapshotDate": "2026-11-17",
+  "npmMonth": 22635,
+  "npmAllTime": 34603,
   "packages": [
     {
       "name": "puppet-mcp",
-      "month": 3310,
-      "allTime": 4307
+      "month": 3718,
+      "allTime": 4303
     },
     {
       "name": "gladius-mcp",
-      "month": 2349,
-      "allTime": 3223
+      "month": 2587,
+      "allTime": 3218
     },
     {
       "name": "@nathwn12/janua",
-      "month": 2666,
-      "allTime": 2663
+      "month": 2664,
+      "allTime": 2657
     },
     {
       "name": "@nathwn12/oc-bifrost",
-      "month": 1752,
-      "allTime": 5987
+      "month": 1812,
+      "allTime": 5966
     },
     {
       "name": "oc-flight-deck",
-      "month": 3851,
-      "allTime": 9028
+      "month": 3581,
+      "allTime": 8992
     },
     {
       "name": "oc-harness-setup",
-      "month": 1616,
-      "allTime": 2959
+      "month": 1672,
+      "allTime": 2957
     },
     {
       "name": "oc-plugin-view",
       "month": 742,
-      "allTime": 738
+      "allTime": 734
     },
     {
       "name": "oc-talk",
-      "month": 3942,
-      "allTime": 3716
+      "month": 3734,
+      "allTime": 3690
     },
     {
       "name": "rea-shim",
-      "month": 1770,
-      "allTime": 2095
+      "month": 1799,
+      "allTime": 2086
+    },
+    {
+      "name": "hand-mcp",
+      "month": 326,
+      "allTime": 0
     }
   ],
   "github": {
-    "contributions": 7439,
-    "commits": 3023,
-    "pullRequests": 489,
+    "contributions": 6981,
+    "commits": 2864,
+    "pullRequests": 457,
     "calendarRange": [
       "2025-11-16",
-      "2026-11-21"
+      "2026-11-19"
     ]
   },
   "activity": [
+    {
+      "date": "2026-10-21",
+      "value": 158
+    },
+    {
+      "date": "2026-10-22",
+      "value": 24
+    },
     {
       "date": "2026-10-23",
       "value": 78
@@ -147,11 +160,11 @@
     },
     {
       "date": "2026-11-13",
-      "value": 416
+      "value": 394
     },
     {
       "date": "2026-11-14",
-      "value": 148
+      "value": 143
     },
     {
       "date": "2026-11-15",
@@ -163,23 +176,15 @@
     },
     {
       "date": "2026-11-17",
-      "value": 290
+      "value": 279
     },
     {
       "date": "2026-11-18",
-      "value": 535
+      "value": 460
     },
     {
       "date": "2026-11-19",
-      "value": 282
-    },
-    {
-      "date": "2026-11-20",
-      "value": 199
-    },
-    {
-      "date": "2026-11-21",
-      "value": 127
+      "value": 232
     }
   ]
 }

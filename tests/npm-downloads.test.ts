@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import {
   buildDateWindows,
+  fetchPackageDaily,
   fetchPackageDownloads,
   NPM_PACKAGES,
   validatePackageNames,
@@ -41,7 +42,7 @@ describe("npm all-time download aggregation", () => {
 
   test("the package inventory has exact, unique names", () => {
     expect(NPM_PACKAGES).toEqual(expectedPackages);
-    expect(new Set(NPM_PACKAGES).size).toBe(9);
+    expect(new Set(NPM_PACKAGES).size).toBe(10);
     expect(snapshot.packages.map((item) => item.name)).toEqual(expectedPackages);
     expect(() =>
       validatePackageNames(["puppet-mcp", "puppet-mcp"]),
@@ -114,6 +115,60 @@ describe("npm all-time download aggregation", () => {
     await expect(
       fetchPackageDownloads("puppet-mcp", "2024-12-31", fetcher as typeof fetch),
     ).rejects.toThrow(/range/i);
+  });
+
+  test("the 30-day range is accepted whole and a gap is rejected", async () => {
+    const start = Date.parse("2026-10-21T00:00:00Z");
+    const days = Array.from({ length: 30 }, (_, index) => ({
+      day: new Date(start + index * 86_400_000).toISOString().slice(0, 10),
+      downloads: index + 1,
+    }));
+    const fetcher = async () =>
+      Response.json({
+        package: "oc-talk",
+        start: days[0]!.day,
+        end: days.at(-1)!.day,
+        downloads: days,
+      }) as unknown as typeof fetch;
+    const result = await fetchPackageDaily("oc-talk", fetcher);
+    expect(result.days).toHaveLength(30);
+    expect(result.total).toBe(465);
+    expect(result.days[0]!.day).toBe("2026-10-21");
+    expect(result.days.at(-1)!.day).toBe("2026-11-19");
+
+    const gap = days.map((item, index) =>
+      index === 12 ? { ...item, day: "2026-11-09" } : item,
+    );
+    await expect(
+      fetchPackageDaily(
+        "oc-talk",
+        (async () =>
+          Response.json({
+            package: "oc-talk",
+            start: days[0]!.day,
+            end: days.at(-1)!.day,
+            downloads: gap,
+          })) as unknown as typeof fetch,
+      ),
+    ).rejects.toThrow(/missing a day/i);
+  });
+
+  test("the committed snapshot carries a full daily window for every package", () => {
+    const withDaily = snapshot.packages as unknown as {
+      name: string;
+      daily: { day: string; downloads: number }[];
+    }[];
+    for (const item of withDaily) {
+      expect(item.daily, item.name).toHaveLength(30);
+      expect(item.daily[0]!.day).toBe(withDaily[0]!.daily[0]!.day);
+      expect(item.daily.at(-1)!.day).toBe(withDaily[0]!.daily.at(-1)!.day);
+      for (const day of item.daily) {
+        expect(Number.isSafeInteger(day.downloads) && day.downloads >= 0).toBe(true);
+      }
+      expect(item.daily.reduce((sum, day) => sum + day.downloads, 0)).toBe(
+        statsSnapshot.packages.find((month) => month.name === item.name)?.month,
+      );
+    }
   });
 
   test("marks a valid dated snapshot fresh or stale without relabeling its period", () => {

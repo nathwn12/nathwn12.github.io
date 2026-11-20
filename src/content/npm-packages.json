@@ -7,5 +7,6 @@
   "oc-harness-setup",
   "oc-plugin-view",
   "oc-talk",
-  "rea-shim"
+  "rea-shim",
+  "hand-mcp"
 ]
