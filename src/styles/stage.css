@@ -212,6 +212,14 @@ html {
   bottom: 3px;
   width: calc((100% - 2 * var(--rail-pad)) / 5);
   height: 3px;
+  background: none;
+}
+.stage-rail__sweep::after {
+  content: "";
+  display: block;
+  width: 1.5rem;
+  height: 3px;
+  margin-inline: auto;
   background: var(--rec-signal);
 }
 @media (max-width: 520px) {
@@ -283,6 +291,7 @@ html {
   background: var(--rec-ground);
   border: var(--rec-rule-w) solid var(--rec-rule);
   border-radius: 2px;
+  box-shadow: 0 0 24px 10px color-mix(in srgb, var(--rec-ground) 72%, transparent);
 }
 .stage-lead::before,
 .stage-data::before {
@@ -691,7 +700,7 @@ html {
   .stage-panel[data-chapter="person"] .stage-panel__frame {
     height: 100svh;
     min-height: 0;
-    padding-block: var(--rec-space-4) 6rem;
+    padding-block: var(--rec-space-4) 8rem;
   }
   .stage-panel__content--arrival .singularity {
     width: min(64vw, 16rem);
@@ -699,6 +708,13 @@ html {
   }
   .singularity__num {
     font-size: min(11vh, 3.4rem);
+  }
+  .stage-voice {
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+  .stage-panel__content--arrival {
+    gap: var(--rec-space-1);
   }
 }
 
@@ -753,6 +769,21 @@ html {
   }
   .stage-panel__content--arrival .stage-lead {
     max-width: 56rem;
+  }
+  .stage-panel__content--arrival {
+    min-height: 78vh;
+    grid-template-rows: auto 1fr auto;
+  }
+  .stage-panel__content:not(.stage-panel__content--arrival):not(.stage-panel__content--contact) {
+    align-items: stretch;
+  }
+  .stage-panel__content:not(.stage-panel__content--arrival):not(.stage-panel__content--contact) .stage-lead {
+    display: grid;
+    align-content: center;
+    height: 100%;
+  }
+  .stage-panel__content--arrival .stage-facts {
+    grid-row: 3;
   }
   .stage-data {
     padding-right: clamp(2rem, 3vw, 3.5rem);

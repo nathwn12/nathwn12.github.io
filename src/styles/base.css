@@ -42,14 +42,17 @@ body {
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--rec-rule-strong) var(--rec-ground);
+  /* The track is sky, not ground: in light mode a cream gutter reads as a
+     stripe beside the vignetted field. */
+  scrollbar-color: var(--rec-rule-strong)
+    color-mix(in srgb, var(--rec-ground) 72%, black);
 }
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 ::-webkit-scrollbar-track {
-  background: var(--rec-ground);
+  background: color-mix(in srgb, var(--rec-ground) 72%, black);
 }
 ::-webkit-scrollbar-thumb {
   background: var(--rec-rule-strong);
