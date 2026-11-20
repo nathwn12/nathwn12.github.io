@@ -87,6 +87,7 @@ function stats(values) {
   return {
     frames: sorted.length,
     mean: Number((sorted.reduce((a, b) => a + b, 0) / Math.max(1, sorted.length)).toFixed(2)),
+    p50: Number(at(0.5).toFixed(2)),
     p95: Number(at(0.95).toFixed(2)),
     max: Number(at(1).toFixed(2)),
     over16: sorted.filter((v) => v > 16).length,
@@ -297,7 +298,7 @@ async function run() {
   await writeFile(path.join(OUT, "probe.json"), JSON.stringify(report, null, 2));
 
   for (const entry of report.frames) {
-    console.log(`frames ${entry.viewport}: field=${entry.field.bh} motion=${entry.field.motion} mean=${entry.frames.mean}ms p95=${entry.frames.p95}ms max=${entry.frames.max}ms over16=${entry.frames.over16}/${entry.frames.frames}`);
+    console.log(`frames ${entry.viewport}: field=${entry.field.bh} motion=${entry.field.motion} mean=${entry.frames.mean}ms p50=${entry.frames.p50}ms p95=${entry.frames.p95}ms max=${entry.frames.max}ms over16=${entry.frames.over16}/${entry.frames.frames}`);
     console.log(`  change: cls=${entry.change.cls} loadCls=${entry.change.loadCls} vtCalls=${entry.change.vtCalls} hash=${entry.change.hash} panelDelta=${entry.change.maxPanelDelta}`);
   }
   for (const [vp, t] of Object.entries(report.transitions)) console.log(`transition ${vp}: native=${t.nativeCalls} degrades=${t.degrades}`);
