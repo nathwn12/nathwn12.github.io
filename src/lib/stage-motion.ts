@@ -28,6 +28,19 @@ function emit(position: number): void {
   for (const listener of listeners) listener(position);
 }
 
+const flashListeners = new Set<() => void>();
+
+/** Subscribe to the chapter flash used when View Transitions are absent. */
+export function onStageFlash(listener: () => void): () => void {
+  flashListeners.add(listener);
+  return () => flashListeners.delete(listener);
+}
+
+/** Fire the lens flash on a chapter change. */
+export function emitStageFlash(): void {
+  for (const listener of flashListeners) listener();
+}
+
 export interface StageMotionHandle {
   destroy(): void;
   /** Jump the camera to a chapter position without a scroll animation. */
@@ -78,7 +91,13 @@ export function mountStageMotion(root: HTMLElement): StageMotionHandle {
       panel.style.setProperty("--shell-z", `${z.toFixed(1)}px`);
       panel.style.setProperty("--shell-scale", scale.toFixed(4));
       panel.style.setProperty("--shell-front", front.toFixed(3));
-      panel.style.setProperty("--shell-pass", clamp(local, -1, 1).toFixed(3));
+      // The arriving content locks to its grid position inside the centre
+      // band instead of drifting through it: the eye sees it snap into place.
+      const landing = clamp((Math.abs(local) - 0.12) / 0.88, 0, 1);
+      panel.style.setProperty(
+        "--shell-pass",
+        (Math.sign(local) * landing).toFixed(3),
+      );
     }
   };
 

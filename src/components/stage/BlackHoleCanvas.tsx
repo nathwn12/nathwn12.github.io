@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { createBlackHole, type BlackHoleHandle } from "../../lib/blackhole";
 import { motionAllowed } from "../../lib/motion";
-import { onStageProgress } from "../../lib/stage-motion";
+import { onStageFlash, onStageProgress } from "../../lib/stage-motion";
 
 interface Props {
   /** Reports whether the live shader is up, so the shell can hide the still. */
@@ -11,9 +11,9 @@ interface Props {
 /**
  * BlackHoleCanvas — the one moving surface on the page.
  *
- * With motion off, or without a WebGL context, this component never draws and
- * the CSS still underneath it is the composition. The canvas is aria-hidden:
- * the meaning lives in the chapters, never in the field.
+ * With motion off, or without a GL context, nothing is drawn and
+ * the CSS still underneath is the composition. The field carries no meaning;
+ * it is aria-hidden and the chapters carry the words.
  */
 export function BlackHoleCanvas({ onStatus }: Props) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -37,9 +37,11 @@ export function BlackHoleCanvas({ onStatus }: Props) {
     const unsubscribe = onStageProgress((position) => {
       handle?.setProgress(position);
     });
+    const unflash = onStageFlash(() => handle?.flash());
 
     return () => {
       unsubscribe();
+      unflash();
       handle?.destroy();
       onStatus(false);
     };
