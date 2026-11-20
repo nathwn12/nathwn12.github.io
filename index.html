@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- The dark ground is the no-JS default; the pre-paint script below
          rewrites this to the resolved theme's `--rec-ground`. -->
-    <meta name="theme-color" content="#07090B" />
+    <meta name="theme-color" content="#0a0d0b" />
     <script>
       (function () {
         /* The only pre-paint work: the theme, and the motion state. Both are
@@ -44,7 +44,7 @@
         document.documentElement.dataset.theme = theme;
         var meta = document.querySelector('meta[name="theme-color"]');
         if (meta) {
-          meta.setAttribute("content", theme === "light" ? "#F1F2ED" : "#07090B");
+          meta.setAttribute("content", theme === "light" ? "#f1f4ef" : "#0a0d0b");
         }
 
         var motion = "on";
@@ -82,17 +82,10 @@
       rel="preload"
       as="font"
       type="font/woff2"
-      href="/fonts/Archivo-Variable.woff2"
+      href="/fonts/PlayfairDisplay-Variable.woff2"
       crossorigin
     />
-    <link
-      rel="preload"
-      as="font"
-      type="font/woff2"
-      href="/fonts/JetBrainsMono-Regular.woff2"
-      crossorigin
-    />
-    <title>Nathaniel Nikolai Ladero — software developer, C# and .NET</title>
+    <title>Nathaniel Nikolai Ladero — event horizon</title>
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
