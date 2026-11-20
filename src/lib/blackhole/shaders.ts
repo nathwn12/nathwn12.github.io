@@ -292,9 +292,13 @@ void main() {
   col += vec3(0.26, 0.59, 0.83) * blue * pow(max(0.0, 1.0 - max(col.r, max(col.g, col.b))), 0.8);
   float holeMask = smoothstep(0.093, 0.102, length(p));
   col += stars(uv) * holeMask;
-  // Vignette is baked into the recording. A runtime gradient over a 1440p
-  // video costs a compositor frame; the shader can draw it for free.
+  // Vignette and grain are baked into the recording. A full-screen overlay
+  // over a 1440p video costs a compositor frame in software rendering; the
+  // shader draws both for free. Grain is fixed per pixel so the encoder still
+  // finds temporal redundancy between frames.
   col *= 1.0 - 0.34 * smoothstep(0.40, 0.76, length(uv - 0.5));
+  float grain = hash21(gl_FragCoord.xy);
+  col += (grain - 0.5) * 0.045;
   fragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }`;
 
