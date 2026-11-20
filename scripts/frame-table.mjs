@@ -2,10 +2,11 @@ import { chromium } from "playwright";
 import { mkdir } from "node:fs/promises";
 
 const OUT = "C:/Users/nathan/AppData/Local/Temp/opencode/ledger-shots";
-const URL = "http://127.0.0.1:4334/";
+const URL = process.env.FRAME_TABLE_URL ?? "http://127.0.0.1:4334/";
 const ALL_VIEWPORTS = [
   { name: "2560", width: 2560, height: 1440 },
   { name: "1440", width: 1440, height: 900 },
+  { name: "768", width: 768, height: 1024 },
   { name: "390", width: 390, height: 844 },
   { name: "393", width: 393, height: 852 },
   { name: "430", width: 430, height: 932 },
