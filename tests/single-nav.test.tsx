@@ -97,6 +97,15 @@ describe("the one chapter index", () => {
     const headings = [...host.querySelectorAll(".stage-panel h1, .stage-panel h2")];
     expect(headings).toHaveLength(CHAPTERS.length);
   });
+
+  test("no chapter is gated behind inert or aria-hidden", async () => {
+    await mount(createElement(ChapterStage));
+    expect(host.querySelectorAll("[inert]")).toHaveLength(0);
+    for (const panel of host.querySelectorAll(".stage-panel")) {
+      expect(panel.getAttribute("aria-hidden")).toBeNull();
+      expect(panel.getClientRects().length).toBeGreaterThanOrEqual(0);
+    }
+  });
 });
 
 describe("the footer owns the documents", () => {
