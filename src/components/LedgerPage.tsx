@@ -284,18 +284,14 @@ export default function LedgerPage() {
         </Cluster>
 
         <Cluster id="contact" index="05" label="Contact" variant="ca">
-          <p className="contact-line">
-            {contactBlock.line}
-          </p>
+          <p className="line">{contactBlock.line}</p>
           <a
-            className="mailto"
+            className="mail"
             href={`mailto:${CONTACT_EMAIL}?subject=${mailSubject}&body=${mailBody}`}
           >
             {CONTACT_EMAIL}
           </a>
-          <p className="section-lede">
-            {contactBlock.nextStep}
-          </p>
+          <p className="next">{contactBlock.nextStep}</p>
         </Cluster>
       </main>
 

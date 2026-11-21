@@ -244,12 +244,16 @@ describe("the content survives the strip", () => {
     expect(html).not.toContain("<form");
   });
 
-  test("the address is a display link and the colophon is links", () => {
-    expect(html).toContain('class="mailto"');
+  test("Contact uses the approved variant A structure", () => {
+    const contact = html.slice(html.indexOf('id="contact"'));
+    expect(contact).toContain('class="line"');
+    expect(contact).toContain('class="mail"');
+    expect(contact).toContain('class="next"');
     const colophon = html.slice(html.indexOf('class="colophon'));
     expect(colophon.match(/<a /g) ?? []).toHaveLength(5);
     const css = read("src/styles/ledger.css");
-    expect(css).toMatch(/\.mailto\s*\{[^}]*var\(--font-display\)/);
+    expect(css).toMatch(/\.ca \.line \{[^}]*max-width:\s*22ch/);
+    expect(css).toMatch(/\.ca \.mail \{[^}]*border-block-end:\s*1px solid var\(--color-signal\)/);
     expect(css).toContain(".colophon-links");
   });
 

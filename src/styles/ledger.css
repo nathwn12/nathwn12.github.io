@@ -769,25 +769,34 @@
   }
 }
 
-/* Contact — the address is the display line; the colophon is a set of links. */
-.contact-line {
-  max-width: 46ch;
-  color: var(--color-ink-muted);
+/* 05 Contact A — one sentence, the address as the only action. */
+.ca .line {
+  font-family: var(--font-display);
+  font-size: clamp(28px, 3.3vw, 44px);
+  line-height: 1.2;
+  max-width: 22ch;
+  margin: 0;
+  letter-spacing: -0.01em;
 }
 
-.mailto {
+.ca .mail {
   display: inline-block;
-  margin-block: var(--space-32);
-  font-family: var(--font-display);
-  font-size: clamp(1.75rem, 6vw, 4.5rem);
-  line-height: var(--leading-display);
-  letter-spacing: var(--tracking-display);
+  margin-block-start: 34px;
+  font-family: var(--font-data);
+  font-size: clamp(15px, 1.7vw, 21px);
+  color: var(--color-signal);
+  text-decoration: none;
+  border-block-end: 1px solid var(--color-signal);
+  padding-block-end: 4px;
   overflow-wrap: anywhere;
 }
 
-.section-lede {
-  max-width: var(--measure);
+.ca .next {
+  font-family: var(--font-data);
+  font-size: 8.5px;
   color: var(--color-ink-muted);
+  margin-block-start: 14px;
+  letter-spacing: 0.04em;
 }
 
 .colophon {
