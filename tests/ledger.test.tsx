@@ -101,11 +101,13 @@ describe("the content survives the strip", () => {
 });
 
 describe("the stripped floor", () => {
-  test("index.html carries no theme law or font preload", () => {
+  test("index.html preloads one display cut and carries no theme law", () => {
     expect(indexHtml).not.toContain("data-theme");
     expect(indexHtml).not.toContain("theme-color");
-    expect(indexHtml).not.toContain("PlayfairDisplay");
-    expect(indexHtml).not.toContain("rel=\"preload\"");
+    expect(indexHtml.match(/rel="preload"/g) ?? []).toHaveLength(1);
+    expect(indexHtml).toContain('href="/fonts/libre-bodoni-latin-var.woff2"');
+    expect(indexHtml).toContain('as="font"');
+    expect(indexHtml).toContain("crossorigin");
     expect(indexHtml).toContain("<title>Nathaniel Nikolai Ladero — event horizon</title>");
   });
 
@@ -134,8 +136,29 @@ describe("the stripped floor", () => {
     expect(base).not.toMatch(/#[0-9a-f]{3,8}\b/i);
   });
 
-  test("the hero assets, fonts and blackhole port are gone", () => {
-    expect(existsSync(resolve(root, "public/fonts"))).toBe(false);
+  test("display, text and data fonts ship with their licences", () => {
+    const dir = resolve(root, "public/fonts");
+    const faces = [
+      "libre-bodoni-latin-var.woff2",
+      "newsreader-latin-var.woff2",
+      "ibm-plex-mono-400-latin.woff2",
+      "ibm-plex-mono-500-latin.woff2",
+      "ibm-plex-mono-600-latin.woff2",
+    ];
+    for (const face of faces) {
+      const file = readFileSync(resolve(dir, face));
+      expect(file.subarray(0, 4).toString("ascii"), face).toBe("wOF2");
+      expect(file.length, face).toBeGreaterThan(1000);
+    }
+    for (const licence of [
+      "OFL-Libre-Bodoni.txt",
+      "OFL-Newsreader.txt",
+      "OFL-IBM-Plex-Mono.txt",
+    ]) {
+      expect(readFileSync(resolve(dir, licence), "utf8")).toContain(
+        "SIL OPEN FONT LICENSE",
+      );
+    }
     expect(existsSync(resolve(root, "public/horizon-a-desktop.mp4"))).toBe(false);
     expect(existsSync(resolve(root, "src/lib/blackhole"))).toBe(false);
     expect(existsSync(resolve(root, "src/components/HorizonVideo.tsx"))).toBe(false);
