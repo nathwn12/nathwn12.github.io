@@ -38,17 +38,18 @@ motion:
 
 ## Idea
 
-A deep-field catalog: quiet but lush. The career is a mapped sky on true
-black — the work and the record are resolved points of light, the chapters
-are constellations, and one burnt-orange accent marks the live signal. The
-hero is a rendered deep field: the sky's material — star populations, warm
-galaxy smudges, a dust lane, a faint lensing band — is deterministic
-decorative render, never claimed as data; within it the record points stand
-apart, spiked and data-mapped, each a shipped package or a worked repo,
-sized by its own numbers. The sky is the record, set in its sky.
+An event-horizon ledger: grand by figure, exact by ledger. The hero holds
+one full-viewport stellar singularity on true black — a recorded seamless
+loop, rendered by the optical renderer that draws it, decoded as video, no
+runtime shader cost. Beneath it the career is a deep-field catalog: the
+record as resolved figures, sparklines and ruled rows, chapters as
+constellations, one burnt-orange accent marking the live signal, the sky's
+deep-field material as art direction. The singularity is the awe; the
+ledger is the truth.
 
 It refuses wallpaper nebulae behind text, cropped focal heroes, boxed panels
-and plates, second navigations, and the retired black hole.
+and plates, second navigations, and decoration where the record should
+speak.
 
 ## Color
 
@@ -98,8 +99,9 @@ One masthead: the author mark `public/brand/signature.svg` at width 120
 once — the owned mark keeps its own file, format and palette; site tokens
 bind site surfaces, never the brand mark — then the five chapter links on
 one hairline — the constellation line; the active chapter carries the
-signal tint. The hero is one full-viewport field; its plate content sits in the
-corners. Chapters alternate dense catalog blocks — figures, sparklines,
+signal tint. The hero is one full-viewport singularity — a recorded loop
+with its plate content in the corners. Chapters alternate dense catalog
+blocks — figures, sparklines,
 ruled rows — with open register rows; hairline rules separate rows, never
 boxes. Rhythm: dense, open, dense; never five equal bands.
 
@@ -112,11 +114,12 @@ targets. Per-class art direction, never a squeezed desktop.
 
 ## Motion
 
-One kinetic moment: the hero points settle once, then hold. Under
-`prefers-reduced-motion: reduce` the field renders settled and the document
-is complete and static — nothing hidden, nothing inert. Everything else is
-state motion only: hover hairlines, focus rings, the 140/280ms tokens.
-Native scroll; no interception, no snap, no scroll-driven choreography.
+One kinetic moment: the hero's recorded loop. It plays while on screen and
+the tab is visible, pauses offscreen and on a hidden tab, and under
+`prefers-reduced-motion: reduce` yields to its settled still — a complete
+static document, nothing hidden, nothing inert. Everything else is state
+motion only: hover hairlines, focus rings, the 140/280ms tokens. Native
+scroll; no interception, no snap, no scroll-driven choreography.
 
 ## Rules
 
