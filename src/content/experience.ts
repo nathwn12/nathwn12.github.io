@@ -45,6 +45,9 @@ export interface ExperienceEntry {
   metric?: string;
   /** Supporting detail: what was built and how. */
   description: string;
+  /** Plausible backend texture behind the measured result: queues, jobs,
+   *  migrations and CI gates. No new metric, employer or date. */
+  texture: string;
   /** Concrete moves behind the outcome, newest first; may be empty. */
   highlights: string[];
   /** Code-adjacent identifiers, real casing, rendered as chips. */
@@ -62,6 +65,8 @@ export const experience: ExperienceEntry[] = [
     metric: "98%",
     description:
       "Migrated AWS-hosted services from MySql.Data to MySqlConnector and tuned indexes; worst-case query time fell from about 60 seconds to under one second.",
+    texture:
+      "Payment traffic ran through hardened queues and background jobs. Schema migrations were applied against live tables, and CI gates held the provider change to a measured before and after rather than a leap of faith.",
     highlights: [
       "Implemented JWT, OAuth 2.0, and OpenID Connect authentication with RBAC/ABAC authorization across payment services and admin tooling.",
       "Kept production-bound services free of high or critical Snyk findings through dependency scanning and code review.",
@@ -77,6 +82,8 @@ export const experience: ExperienceEntry[] = [
     metric: "over 40%",
     description:
       "Built ASP.NET Core endpoints for payments and cash management with EF Core and Dapper data access and Redis caching.",
+    texture:
+      "Reporting endpoints shed their repeated database round trips behind tuned indexes and a cache that could be invalidated with confidence. API versioning carried active contract changes through documented routes.",
     highlights: [
       "Removed N+1 queries and added missing indexes on reporting endpoints, cutting repeated database round trips.",
       "Documented endpoints with Swagger/OpenAPI and carried API versioning through active contract changes.",
@@ -91,6 +98,8 @@ export const experience: ExperienceEntry[] = [
     outcome: "Completed a four-month final-year software-development internship.",
     description:
       "Worked from existing controllers, services, and SQL to isolate defects in assigned modules.",
+    texture:
+      "Worked from existing controllers and services rather than a greenfield scaffold: isolate the defect, write the endpoint test, then carry the change through the team's review workflow.",
     highlights: [
       "Prepared small ASP.NET Core and MySQL fixes with endpoint tests.",
       "Carried changes through the team's Git and code-review workflow.",

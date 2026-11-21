@@ -208,6 +208,7 @@ describe("the content survives the strip", () => {
     );
     for (const entry of experience) {
       expect(html).toContain(entry.outcome);
+      expect(html).toContain(entry.texture.replace(/'/g, "&#x27;"));
     }
   });
 

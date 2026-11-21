@@ -268,6 +268,7 @@ export default function LedgerPage() {
                 <div className="experience-copy">
                   <h3>{entry.name}</h3>
                   <p>{entry.outcome}</p>
+                  <p className="row-detail">{entry.texture}</p>
                   <span className="data">{entry.date} · {entry.status}</span>
                 </div>
               </div>
