@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from "react";
-import { CountUp, Heatmap, Sparkline, Ticker, useInstrumentMotion } from "./Instruments";
+import { CountUp, Heatmap, Sparkline, Ticker } from "./Instruments";
 import { employer } from "../content/experience";
 import {
   contactBlock,
@@ -22,27 +22,6 @@ const SECTIONS = [
   { id: "contact", index: "05", label: "Contact" },
 ] as const;
 
-/** Fixed stage indicator. An observer lights the current cluster, even with motion off. */
-function useStageNav() {
-  useEffect(() => {
-    const links = document.querySelectorAll<HTMLAnchorElement>(".stage-nav a");
-    const sections = document.querySelectorAll<HTMLElement>("section[data-stage]");
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          links.forEach((link) => {
-            link.dataset.active = String(link.hash === `#${entry.target.id}`);
-          });
-        }
-      },
-      { rootMargin: "-45% 0px -45% 0px" },
-    );
-    sections.forEach((section) => observer.observe(section));
-    return () => observer.disconnect();
-  }, []);
-}
-
 function Cluster({
   id,
   index,
@@ -55,8 +34,8 @@ function Cluster({
   children: ReactNode;
 }) {
   return (
-    <section id={id} data-stage={id} className="cluster frame" aria-labelledby={`${id}-title`}>
-      <div className="cluster-corner" data-reveal>
+    <section id={id} className="cluster frame" aria-labelledby={`${id}-title`}>
+      <div className="cluster-corner">
         <span className="section-index">{index}</span>
         <h2 id={`${id}-title`}>{label}</h2>
       </div>
@@ -66,9 +45,6 @@ function Cluster({
 }
 
 export default function LedgerPage() {
-  useInstrumentMotion();
-  useStageNav();
-
   useEffect(() => {
     document.title = `${name} — event horizon`;
   }, []);
@@ -124,7 +100,7 @@ export default function LedgerPage() {
         </section>
 
         <Cluster id="signal" index="01" label="The signal">
-          <div className="signal-pair" data-reveal>
+          <div className="signal-pair">
             <div>
               <CountUp value={signal.allTime} className="signal-figure" />
               <span className="figure-label data">npm downloads / all time</span>
@@ -135,7 +111,7 @@ export default function LedgerPage() {
             </div>
           </div>
 
-          <div className="spark-bank" data-reveal>
+          <div className="spark-bank">
             {signal.packages.map((item) => (
               <div className="spark-cell" key={item.name}>
                 <span className="spark-name data">{item.name}</span>
@@ -145,7 +121,7 @@ export default function LedgerPage() {
             ))}
           </div>
 
-          <div className="signal-lower" data-reveal>
+          <div className="signal-lower">
             <div className="activity-block">
               <span className="micro-label data">github activity / 30 days</span>
               <Heatmap />
@@ -174,7 +150,7 @@ export default function LedgerPage() {
               </div>
             </div>
           </div>
-          <p className="stamp data" data-reveal>
+          <p className="stamp data">
             {signal.stamp}
           </p>
         </Cluster>
@@ -182,7 +158,7 @@ export default function LedgerPage() {
         <Cluster id="work" index="02" label="The work">
           <div className="featured-list">
             {featuredRows.map((row) => (
-              <div className="featured-row" data-reveal key={row.dir}>
+              <div className="featured-row" key={row.dir}>
                 <span className="featured-num">{row.num}</span>
                 <div className="featured-main">
                   <h3>{row.name}</h3>
@@ -201,12 +177,12 @@ export default function LedgerPage() {
               </div>
             ))}
           </div>
-          <p className="index-head data" data-reveal>
+          <p className="index-head data">
             {projectsLede}
           </p>
           <div className="index-grid">
             {indexRows.map((row) => (
-              <div className="index-row" data-reveal key={row.dir}>
+              <div className="index-row" key={row.dir}>
                 <span className="index-num data">{row.num}</span>
                 <a href={row.url} target="_blank" rel="noreferrer">
                   {row.name}
@@ -223,7 +199,7 @@ export default function LedgerPage() {
         <Cluster id="proof" index="03" label="The proof">
           <div className="proof-table">
             {proofRows.map((row, i) => (
-              <div className="proof-row" data-reveal key={row.claim}>
+              <div className="proof-row" key={row.claim}>
                 <span
                   className="proof-figure"
                   data-figure-hang={row.figure.endsWith("%") ? "percent" : undefined}
@@ -245,13 +221,13 @@ export default function LedgerPage() {
         <Cluster id="method" index="04" label="The method">
           <div className="spec-grid">
             {specLines.map((line) => (
-              <div className="spec-line" data-reveal key={line.key}>
+              <div className="spec-line" key={line.key}>
                 <span className="spec-key data">{line.key}</span>
                 <span className="spec-value">{line.value}</span>
               </div>
             ))}
           </div>
-          <dl className="data-line" data-reveal>
+          <dl className="data-line">
             <div>
               <dt className="data">tenure</dt>
               <dd className="data">{figures.tenure}</dd>
@@ -268,17 +244,16 @@ export default function LedgerPage() {
         </Cluster>
 
         <Cluster id="contact" index="05" label="Contact">
-          <p className="contact-line" data-reveal>
+          <p className="contact-line">
             {contactBlock.line}
           </p>
           <a
             className="mailto"
-            data-reveal
             href={`mailto:${CONTACT_EMAIL}?subject=${mailSubject}&body=${mailBody}`}
           >
             {CONTACT_EMAIL}
           </a>
-          <p className="section-lede" data-reveal>
+          <p className="section-lede">
             {contactBlock.nextStep}
           </p>
         </Cluster>

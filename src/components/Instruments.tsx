@@ -1,68 +1,7 @@
-import { useEffect, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { fmt, signal } from "../content/signal";
 
-/** One shared motion driver: reveals, count-ups and sparkline draws. */
-export function useInstrumentMotion() {
-  useEffect(() => {
-    const nodes = document.querySelectorAll<HTMLElement>("[data-reveal]");
-    const counts = document.querySelectorAll<HTMLElement>("[data-count-to]");
-    const sparks = document.querySelectorAll<SVGPolylineElement>("[data-spark]");
-    if (document.documentElement.dataset.motion === "off") {
-      nodes.forEach((node) => node.classList.add("is-in"));
-      return;
-    }
-
-    const reveal = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          entry.target.classList.add("is-in");
-          reveal.unobserve(entry.target);
-        }
-      },
-      { rootMargin: "0px 0px -6% 0px", threshold: 0.04 },
-    );
-    nodes.forEach((node) => reveal.observe(node));
-
-    const draw = (element: SVGPolylineElement) => {
-      element.style.strokeDashoffset = "0";
-    };
-    const count = (element: HTMLElement) => {
-      const target = Number(element.dataset.countTo ?? "0");
-      const start = performance.now();
-      const step = (now: number) => {
-        const t = Math.min(1, (now - start) / 800);
-        const eased = 1 - Math.pow(1 - t, 3);
-        element.textContent = fmt(Math.round(target * eased));
-        if (t < 1) requestAnimationFrame(step);
-        else element.textContent = fmt(target);
-      };
-      requestAnimationFrame(step);
-    };
-
-    const instrument = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          const el = entry.target;
-          if (el instanceof SVGPolylineElement) draw(el);
-          else if (el instanceof HTMLElement) count(el);
-          instrument.unobserve(el);
-        }
-      },
-      { threshold: 0.12 },
-    );
-    counts.forEach((node) => instrument.observe(node));
-    sparks.forEach((node) => instrument.observe(node));
-
-    return () => {
-      reveal.disconnect();
-      instrument.disconnect();
-    };
-  }, []);
-}
-
-/** The final value is in the markup; the animation only starts on entry. */
+/** The final value lives in the markup. */
 export function CountUp({
   value,
   className = "",
@@ -72,13 +11,7 @@ export function CountUp({
 }) {
   const text = fmt(value);
   return (
-    <span
-      className={`count-up ${className}`.trim()}
-      data-count-to={value}
-      style={{ minWidth: `${text.length}ch` }}
-    >
-      {text}
-    </span>
+    <span className={`count-up ${className}`.trim()}>{text}</span>
   );
 }
 
@@ -103,7 +36,7 @@ export function Sparkline({
       preserveAspectRatio="none"
       aria-hidden="true"
     >
-      <polyline data-spark points={points} />
+      <polyline points={points} />
     </svg>
   );
 }
