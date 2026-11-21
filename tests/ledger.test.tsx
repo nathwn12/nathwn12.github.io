@@ -109,7 +109,7 @@ describe("the content survives the strip", () => {
       signal.packages.length,
     );
     expect(signal.packages.length).toBeGreaterThanOrEqual(9);
-    expect(html).toContain("34,603");
+    expect(html).toContain(signal.allTime.toLocaleString("en-US"));
   });
 
   test("the activity strip is thirty measured cells with a text alternative", () => {

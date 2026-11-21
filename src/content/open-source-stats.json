@@ -3,7 +3,7 @@
   "generatedAt": "2026-11-20T16:05:47.386Z",
   "snapshotDate": "2026-11-17",
   "npmMonth": 22635,
-  "npmAllTime": 34603,
+  "npmAllTime": 35143,
   "packages": [
     {
       "name": "puppet-mcp",
@@ -53,7 +53,7 @@
     {
       "name": "hand-mcp",
       "month": 326,
-      "allTime": 0
+      "allTime": 540
     }
   ],
   "github": {
