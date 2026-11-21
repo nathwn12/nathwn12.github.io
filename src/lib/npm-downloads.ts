@@ -3,6 +3,9 @@ export interface NpmPackageDownload {
   created: string;
   through: string;
   downloads: number;
+  /** Daily series when the snapshot carries one; its last day must be the
+   *  snapshot date, so the displayed window cannot understate the capture. */
+  daily?: { day: string; downloads: number }[];
 }
 
 export interface NpmDownloadSnapshot {
@@ -52,7 +55,10 @@ export function downloadSnapshotFreshness(
         !/^\d{4}-\d{2}-\d{2}$/.test(item.created) ||
         !Number.isSafeInteger(item.downloads) ||
         item.downloads < 0 ||
-        item.through !== snapshot.snapshotDate,
+        item.through !== snapshot.snapshotDate ||
+        (item.daily !== undefined &&
+          (item.daily.length === 0 ||
+            item.daily[item.daily.length - 1]?.day !== snapshot.snapshotDate)),
     ) ||
     snapshot.packages.reduce((sum, item) => sum + item.downloads, 0) !==
       snapshot.total

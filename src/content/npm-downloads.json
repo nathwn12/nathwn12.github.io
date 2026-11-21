@@ -1,13 +1,13 @@
 {
   "source": "npm",
-  "period": "all available daily package-download data since each package was registered",
-  "snapshotDate": "2026-11-17",
+  "period": "all available daily package-download data since each package was registered · daily window through 2026-11-19",
+  "snapshotDate": "2026-11-19",
   "total": 35143,
   "packages": [
     {
       "name": "puppet-mcp",
       "created": "2026-10-17",
-      "through": "2026-11-17",
+      "through": "2026-11-19",
       "downloads": 4303,
       "daily": [
         {
@@ -135,7 +135,7 @@
     {
       "name": "gladius-mcp",
       "created": "2026-10-17",
-      "through": "2026-11-17",
+      "through": "2026-11-19",
       "downloads": 3218,
       "daily": [
         {
@@ -263,7 +263,7 @@
     {
       "name": "@nathwn12/janua",
       "created": "2026-10-31",
-      "through": "2026-11-17",
+      "through": "2026-11-19",
       "downloads": 2657,
       "daily": [
         {
@@ -391,7 +391,7 @@
     {
       "name": "@nathwn12/oc-bifrost",
       "created": "2026-09-28",
-      "through": "2026-11-17",
+      "through": "2026-11-19",
       "downloads": 5966,
       "daily": [
         {
@@ -519,7 +519,7 @@
     {
       "name": "oc-flight-deck",
       "created": "2026-09-11",
-      "through": "2026-11-17",
+      "through": "2026-11-19",
       "downloads": 8992,
       "daily": [
         {
@@ -647,7 +647,7 @@
     {
       "name": "oc-harness-setup",
       "created": "2026-09-19",
-      "through": "2026-11-17",
+      "through": "2026-11-19",
       "downloads": 2957,
       "daily": [
         {
@@ -775,7 +775,7 @@
     {
       "name": "oc-plugin-view",
       "created": "2026-11-03",
-      "through": "2026-11-17",
+      "through": "2026-11-19",
       "downloads": 734,
       "daily": [
         {
@@ -903,7 +903,7 @@
     {
       "name": "oc-talk",
       "created": "2026-10-31",
-      "through": "2026-11-17",
+      "through": "2026-11-19",
       "downloads": 3690,
       "daily": [
         {
@@ -1031,7 +1031,7 @@
     {
       "name": "rea-shim",
       "created": "2026-10-17",
-      "through": "2026-11-17",
+      "through": "2026-11-19",
       "downloads": 2086,
       "daily": [
         {
@@ -1159,7 +1159,7 @@
     {
       "name": "hand-mcp",
       "created": "2026-11-18",
-      "through": "2026-11-17",
+      "through": "2026-11-19",
       "downloads": 540,
       "daily": [
         {

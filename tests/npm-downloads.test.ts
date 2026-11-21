@@ -201,6 +201,25 @@ describe("npm all-time download aggregation", () => {
         ["a", "b"],
       ),
     ).toEqual({ status: "unavailable", ageDays: null });
+    // A daily series whose last day disagrees with the snapshot date would
+    // understate the displayed window; the freshness check must reject it.
+    expect(
+      downloadSnapshotFreshness(
+        {
+          ...good,
+          packages: good.packages.map((item, index) =>
+            index === 0
+              ? {
+                  ...item,
+                  daily: [{ day: "2026-11-10", downloads: 5 }],
+                }
+              : item,
+          ),
+        },
+        new Date("2026-11-16T12:00:00Z"),
+        ["a", "b"],
+      ),
+    ).toEqual({ status: "unavailable", ageDays: null });
     expect(
       downloadSnapshotFreshness(good, new Date("2026-11-16T12:00:00Z"), [
         "a",

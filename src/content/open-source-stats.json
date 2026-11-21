@@ -1,7 +1,7 @@
 {
   "source": "npm download-count API and GitHub GraphQL, measured by scripts/open-source-stats.mjs",
   "generatedAt": "2026-11-20T16:05:47.386Z",
-  "snapshotDate": "2026-11-17",
+  "snapshotDate": "2026-11-19",
   "npmMonth": 22635,
   "npmAllTime": 35143,
   "packages": [
