@@ -100,6 +100,22 @@
   display: none;
 }
 
+/* The still is in the prerendered markup; CSS selects it before first paint.
+   This is the no-JS reduced-motion path: no script, no hydration flash. */
+.horizon-still {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .horizon-still {
+    display: block;
+  }
+
+  video.horizon-media {
+    display: none !important;
+  }
+}
+
 .hero-hud {
   position: relative;
   z-index: 1;

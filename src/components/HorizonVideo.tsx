@@ -64,19 +64,15 @@ export default function HorizonVideo() {
     };
   }, [phone, reduce]);
 
-  /** Reduced motion shows the settled still: a complete static document. */
-  if (reduce) {
-    return (
+  /** The settled still is always in the markup. CSS picks it before paint
+   *  under reduced motion — no hydration flash, and it works with JS off. */
+  return (
+    <>
       <img
-        className="horizon-media"
+        className="horizon-media horizon-still"
         src={phone ? "/horizon-poster-phone.webp" : "/horizon-poster-desktop.webp"}
         alt="A stellar singularity on true black, with a thin photon ring and a resolved accretion disc"
       />
-    );
-  }
-
-  return (
-    <>
       <video
         ref={desktopRef}
         className="horizon-media horizon-desktop"
