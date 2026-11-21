@@ -25,22 +25,21 @@
     color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
 }
 
+/* The owned mark keeps its own file, format and palette; site tokens do not
+   bind it. Rendered once at width 120. */
 .stage-mark {
   flex: 0 0 120px;
   width: 120px;
   min-height: 44px;
   display: inline-flex;
   align-items: center;
-  gap: var(--space-8);
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  line-height: 1;
-  color: var(--color-ink);
   text-decoration: none;
 }
 
-.stage-mark-tail {
-  color: var(--color-ink-muted);
+.stage-mark img {
+  display: block;
+  width: 120px;
+  height: 120px;
 }
 
 .stage-nav {
@@ -243,7 +242,7 @@
   letter-spacing: var(--tracking-data);
   color: var(--color-ink-muted);
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
 }
 
 /* Chapters alternate a dense catalog with an open register. */
