@@ -12,7 +12,13 @@ import LedgerPage from "../src/components/LedgerPage";
 import { aiPractice, figures, proofRows } from "../src/content/ledger";
 import { experience, provenance } from "../src/content/experience";
 import { signal } from "../src/content/signal";
-import { featuredRows, indexRows, lifetimeNote, workIntro } from "../src/content/showcase";
+import {
+  featuredRows,
+  indexRows,
+  lifetimeNote,
+  workIndexLede,
+  workIntro,
+} from "../src/content/showcase";
 import { CONTACT_EMAIL } from "../src/lib/contact";
 
 const root = resolve(import.meta.dirname, "..");
@@ -179,6 +185,8 @@ describe("the content survives the strip", () => {
     expect(html).toContain(workIntro);
     expect(html).toContain("opencode-harness");
     expect(html).toContain("Doctrine-guarded and self-policing");
+    expect(workIndexLede).toContain("Fourteen projects");
+    expect(html).toContain(workIndexLede);
   });
 
   test("the register draws a signal rule on hover, never a box", () => {

@@ -12,8 +12,13 @@ import {
   statusLine,
 } from "../content/ledger";
 import { signal, specLines } from "../content/signal";
-import { featuredRows, indexRows, lifetimeNote, workIntro } from "../content/showcase";
-import { projectsLede } from "../content/projects";
+import {
+  featuredRows,
+  indexRows,
+  lifetimeNote,
+  workIndexLede,
+  workIntro,
+} from "../content/showcase";
 import { CONTACT_EMAIL, CV_PATH, RESUME_PATH } from "../lib/contact";
 
 const SECTIONS = [
@@ -209,7 +214,7 @@ export default function LedgerPage() {
             ))}
           </div>
           <p className="index-head data">
-            {projectsLede}
+            {workIndexLede}
           </p>
           <div className="index-grid">
             {indexRows.map((row) => (

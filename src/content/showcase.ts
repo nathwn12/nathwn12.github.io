@@ -1,4 +1,4 @@
-import { projects } from "./projects";
+import { countWords, projects } from "./projects";
 import probe from "./repos.probe.json";
 import downloads from "./npm-downloads.json";
 
@@ -136,6 +136,13 @@ const harnessRow: ShowcaseRow = {
 };
 
 const allRows: ShowcaseRow[] = [...rows, harnessRow];
+
+/** Derived from the rows actually rendered, so the count cannot drift. */
+const rowCountWord = countWords(allRows.length);
+export const workIndexLede =
+  `${rowCountWord.charAt(0).toUpperCase()}${rowCountWord.slice(1)} projects ` +
+  "published under github.com/nathwn12 — featured work first, then the " +
+  "supporting tools, forks last.";
 
 export const featuredRows = allRows.slice(0, 3);
 export const indexRows = allRows.slice(3);
