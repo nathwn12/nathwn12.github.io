@@ -1,7 +1,7 @@
 ---
 name: Deep Field Ledger
 colors:
-  ground: "#121214"
+  ground: "#000000"
   ink: "#E9E6E1"
   ink-muted: "#9A968E"
   signal: "#C68E74"
@@ -38,12 +38,14 @@ motion:
 
 ## Idea
 
-A deep-field catalog. The career is a mapped sky: the void is the ground, the
-work and the record are resolved points of light, the chapters are
-constellations, and one burnt-orange accent marks the live signal. The hero's
-point field is drawn from the real record — every point a shipped package or
-a worked repo, sized by its own numbers — so the sky is the record, not a
-decoration.
+A deep-field catalog: quiet but lush. The career is a mapped sky on true
+black — the work and the record are resolved points of light, the chapters
+are constellations, and one burnt-orange accent marks the live signal. The
+hero is a rendered deep field: the sky's material — star populations, warm
+galaxy smudges, a dust lane, a faint lensing band — is deterministic
+decorative render, never claimed as data; within it the record points stand
+apart, spiked and data-mapped, each a shipped package or a worked repo,
+sized by its own numbers. The sky is the record, set in its sky.
 
 It refuses wallpaper nebulae behind text, cropped focal heroes, boxed panels
 and plates, second navigations, and the retired black hole.
@@ -54,7 +56,8 @@ and plates, second navigations, and the retired black hole.
 reads a token, never a hex. The void is the only ground; there is no light
 mode and no `prefers-color-scheme` branch.
 
-- `ground` `#121214` — the deep-field void, page and hero alike.
+- `ground` `#000000` — AMOLED true black, page and hero alike: one void,
+  nothing lit but the sky.
 - `ink` `#E9E6E1` — warm paper starlight: headings and body.
 - `ink-muted` `#9A968E` — dim points: descriptions, meta lines.
 - `signal` `#C68E74` — the burnt-orange lensed arcs, the one hot accent:
@@ -69,8 +72,9 @@ mode and no `prefers-color-scheme` branch.
 Floors, asserted by `tests/design-floors.test.ts` computed from the live
 token values: ink ≥ 7:1, ink-muted ≥ 4.5:1 and signal ≥ 4.5:1 against
 ground; on-signal ≥ 4.5:1 on its signal fill; measure ≥ 3:1, non-text and
-large text only. A mismatch between this file and the test is a defect in
-both.
+large text only. On true black every measured value exceeds its floor by a
+wide margin; the floors stay the floors. A mismatch between this file and
+the test is a defect in both.
 
 ## Type
 
@@ -97,8 +101,14 @@ one hairline — the constellation line; the active chapter carries the
 signal tint. The hero is one full-viewport field; its plate content sits in the
 corners. Chapters alternate dense catalog blocks — figures, sparklines,
 ruled rows — with open register rows; hairline rules separate rows, never
-boxes. Rhythm: dense, open, dense; never five equal bands. Content frame
-82rem; gutter widens at 900px.
+boxes. Rhythm: dense, open, dense; never five equal bands.
+
+Two compositions, not one reflowed: 2560x1440 is the primary canvas — the
+sky spans edge to edge, the content frame widens with the viewport (82rem
+on desktop, up to 110rem at native 1440p, never dead margins), display
+scale tuned at native. 390-430 gets a recreated compact UI — condensed
+numeral navigation on one hairline, stacked catalog rows, touch-first
+targets. Per-class art direction, never a squeezed desktop.
 
 ## Motion
 
@@ -115,8 +125,10 @@ Native scroll; no interception, no snap, no scroll-driven choreography.
 - Tokens are normative; prose explains and never overrides.
 - One navigation; every chapter reachable from it.
 - Reduced motion is a complete document, not a frozen animation.
-- Content truth only: every figure and every point comes from `src/content/`;
-  nothing retyped in a component; a caveat beside the claim it qualifies.
+- Content truth only: every figure and every claimed point comes from
+  `src/content/`; the sky's backdrop material is decorative render, never
+  presented as data; nothing retyped in a component; a caveat beside the
+  claim it qualifies.
 - The OG card regenerates from this law when the look changes.
 - Dark-only by concept: a daylight catalog is a different product, not a
   mode of this one.
