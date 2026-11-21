@@ -205,7 +205,6 @@ export default function LedgerPage() {
                     </span>
                   )}
                   <span>{row.language}</span>
-                  <span>pushed {row.pushed}</span>
                 </div>
                 <a href={row.url} target="_blank" rel="noreferrer" aria-label={`Open ${row.name} on GitHub`}>
                   <span aria-hidden="true">↗</span>
@@ -231,7 +230,7 @@ export default function LedgerPage() {
                   {row.lifetime !== null
                     ? `${row.lifetime.toLocaleString("en-US")} lifetime · ${lifetimeNote}`
                     : "no package"}{" · "}
-                  {row.language} · pushed {row.pushed}
+                  {row.language}
                 </span>
               </div>
             ))}

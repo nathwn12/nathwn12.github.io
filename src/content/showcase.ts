@@ -58,8 +58,11 @@ const DETAILS: Readonly<Record<string, string>> = {
 
 /** The open-source thread, in the owner's register. It names the work and the
  *  habit behind it without restating counts that signal and proof already own. */
+const probeStamp = probe.measuredAt.slice(5).replace("-", ".");
 export const workIntro =
-  "The public repositories are the argument. A driver published this week gives an agent a bounded way into a browser and a Windows desktop. The OpenCode packages in that family are the ones he runs daily — the harness is his own, opened up rather than demonstrated. Every tool below ships publicly, with its case notes attached.";
+  "The public repositories are the argument. A driver published this week gives an agent a bounded way into a browser and a Windows desktop. The OpenCode packages in that family are the ones he runs daily — the harness is his own, opened up rather than demonstrated. Every tool below ships publicly, with its case notes attached. Probe captured " +
+  probeStamp +
+  ".";
 
 export interface ShowcaseRow {
   num: string;
@@ -70,7 +73,6 @@ export interface ShowcaseRow {
   detail: string;
   tech: string[];
   language: string;
-  pushed: string;
   lifetime: number | null;
 }
 
@@ -113,7 +115,6 @@ const rows: ShowcaseRow[] = projects.map((project, index) => {
     detail: DETAILS[project.dir] ?? project.description,
     tech: project.tech.slice(0, 3),
     language: repo?.primaryLanguage ?? project.tech[0] ?? "—",
-    pushed: repo ? repo.pushedAt.slice(5).replace("-", ".") : "—",
     lifetime: names.length > 0 ? lifetime : null,
   };
 });
@@ -131,7 +132,6 @@ const harnessRow: ShowcaseRow = {
     "Doctrine-guarded and self-policing: nine seats, a verify allowlist, and the Atlas as the only channel into live configuration. The rules are written down because the loop is the asset.",
   tech: ["OpenCode"],
   language: "—",
-  pushed: "—",
   lifetime: null,
 };
 

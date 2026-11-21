@@ -190,6 +190,8 @@ describe("the content survives the strip", () => {
     expect(html).toContain("Doctrine-guarded and self-policing");
     expect(workIndexLede).toContain("Fourteen projects");
     expect(html).toContain(workIndexLede);
+    expect(work.match(/pushed \d/g) ?? []).toHaveLength(0);
+    expect((work.match(/Probe captured/g) ?? []).length).toBe(1);
   });
 
   test("the register draws a signal rule on hover, never a box", () => {
