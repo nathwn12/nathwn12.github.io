@@ -171,7 +171,7 @@ function reductionFigure(text: string | null, plus = false): string | null {
 }
 
 const paymentsFigure = reductionFigure(figures.paymentsPercent);
-const readsFigure = reductionFigure(figures.readLatency, true);
+const readsFigure = reductionFigure(figures.readLatency);
 
 /**
  * The record band's four outcomes: what the work measured, each with one line
@@ -194,7 +194,7 @@ export const proofRows: RecordRow[] = [
     ? {
         claim: "Reads on high-traffic financial tables",
         detail:
-          "Used Dapper and Redis on read paths, with indexes tuned against query plans.",
+          "Dapper and Redis on the read paths, with indexes tuned against query plans, cut latency by over 40%.",
         figure: readsFigure,
       }
     : null,

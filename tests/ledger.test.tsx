@@ -207,6 +207,9 @@ describe("the content survives the strip", () => {
       expect(html).toContain(row.claim);
     }
     expect(html).toContain("−98%");
+    expect(html).not.toContain("−40%+");
+    expect(html).toContain("−40%");
+    expect(html).toContain("cut latency by over 40%");
     expect(figures.commits).toBe("1,182");
     expect(html).toContain(figures.commits!);
   });
