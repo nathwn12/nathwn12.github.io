@@ -1153,7 +1153,7 @@
 }
 
 .pc .date {
-  font-size: var(--text-mono);
+  font-size: var(--text-mono-label);
   letter-spacing: 0.03em;
   margin-block-end: var(--space-4);
 }
@@ -1165,8 +1165,9 @@
   margin-block-end: var(--space-8);
 }
 
-/* At the measure and above they hang in the left margin, right-aligned. */
-@media (min-width: 1200px) {
+/* Only at native do they hang in the left margin, right-aligned; below it the
+   field margin is too narrow for a legible single-line date. */
+@media (min-width: 1600px) {
   .pc .date,
   .pc .stampfig {
     position: absolute;

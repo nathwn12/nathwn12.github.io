@@ -228,8 +228,17 @@ describe("the content survives the strip", () => {
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(/\.pc \.spine \{[^}]*padding-inline-start:\s*0/);
     expect(css).toMatch(/\.pc \.spine::before \{[^}]*inset-inline-start:\s*calc\(-1 \* var\(--space-16\)\)/);
-    expect(css).toMatch(/@media \(min-width: 1200px\)[\s\S]*?\.pc \.date,\s*\.pc \.stampfig \{[^}]*position:\s*absolute/);
+    expect(css).toMatch(/@media \(min-width: 1600px\)[\s\S]*?\.pc \.date,\s*\.pc \.stampfig \{[^}]*position:\s*absolute/);
     expect(css).toMatch(/\.pc \.stampfig \{[^}]*white-space:\s*nowrap/);
+  });
+
+  test("Work dates fall above the node below the native margin threshold", () => {
+    const css = read("src/styles/ledger.css");
+    const tokens = read("src/styles/tokens.css");
+    expect(css).toMatch(/@media \(min-width: 1600px\)[\s\S]*?\.pc \.date,\s*\.pc \.stampfig \{[^}]*position:\s*absolute/);
+    expect(css).not.toMatch(/@media \(min-width: 1200px\)/);
+    expect(css).toMatch(/\.pc \.date \{[^}]*font-size:\s*var\(--text-mono-label\)/);
+    expect(tokens).toMatch(/--text-mono-label:\s*0\.53125rem/);
   });
 
   test("the Work band and spine derive from the measured record", () => {
