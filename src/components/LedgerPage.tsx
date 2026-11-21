@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import HorizonVideo from "./HorizonVideo";
+import ZeroSeal from "./ZeroSeal";
 import { CountUp, Heatmap, Sparkline } from "./Instruments";
 import {
   employer,
@@ -267,12 +268,11 @@ export default function LedgerPage() {
 
         <Cluster id="proof" index="03" label="Work" variant="pc" active={active}>
           <div className="band">
-            {workBand.map((item) => (
-              <div key={item.label}>
-                <b>{item.figure}</b>
-                <span>{item.label}</span>
-              </div>
-            ))}
+            <div>
+              <b>{workBand[0].figure}</b>
+              <span>{workBand[0].label}</span>
+            </div>
+            <ZeroSeal figure={workBand[1].figure} label={workBand[1].label} />
           </div>
           <div className="spine">
             {experience.map((entry) => (
@@ -281,9 +281,11 @@ export default function LedgerPage() {
                 {spineStamp(entry.id) && (
                   <span className="stampfig">{spineStamp(entry.id)}</span>
                 )}
-                <h3>{entry.name}</h3>
-                <p className="out">{entry.outcome}</p>
-                <p className="tex">{entry.texture}</p>
+                <div className="node-body">
+                  <h3>{entry.name}</h3>
+                  <p className="out">{entry.outcome}</p>
+                  <p className="tex">{entry.texture}</p>
+                </div>
               </div>
             ))}
           </div>

@@ -721,8 +721,9 @@
   letter-spacing: 0;
 }
 
-/* 03 Work — the band spans the field; each node sets outcome beside texture. */
+/* 03 Work — the band is the field's right track; the seal ends it. */
 .pc .band {
+  grid-column: band-start / field-end;
   display: flex;
   justify-content: space-between;
   gap: var(--space-64);
@@ -745,9 +746,61 @@
   color: var(--color-ink-muted);
 }
 
-.pc .spine {
+/* The only hollow figure. A solid ink-muted fill is the fallback; where the
+   stroke is supported the fill clears and the outline carries the figure. */
+.zero-seal {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.zero-seal .seal-counter {
   position: relative;
-  /* The body starts on the shared field edge, like the other four chapters. */
+  display: inline-grid;
+  place-items: center;
+}
+
+.zero-seal .seal-zero {
+  font-family: var(--font-data);
+  font-size: var(--text-figure);
+  line-height: 0.82;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums lining-nums;
+  color: var(--color-ink-muted);
+  -webkit-text-stroke: 1px var(--color-ink-muted);
+}
+
+@supports (-webkit-text-stroke: 1px currentColor) {
+  .zero-seal .seal-zero {
+    color: transparent;
+  }
+}
+
+.zero-seal .seal-stamp {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-data);
+  font-size: var(--text-mono);
+  color: var(--color-signal);
+  white-space: nowrap;
+}
+
+.zero-seal .seal-label {
+  font-family: var(--font-data);
+  font-size: var(--text-mono);
+  letter-spacing: 0.1em;
+  text-align: center;
+  color: var(--color-ink-muted);
+}
+
+.pc .spine {
+  grid-column: measure-start / band-start;
+  display: grid;
+  grid-template-columns: subgrid;
+  position: relative;
   padding-inline-start: 0;
 }
 
@@ -762,10 +815,10 @@
 }
 
 .pc .node {
-  position: relative;
+  grid-column: measure-start / band-start;
   display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  column-gap: var(--space-64);
+  grid-template-columns: subgrid;
+  position: relative;
   padding-block-end: var(--space-48);
 }
 
@@ -780,10 +833,17 @@
   border-radius: 50%;
 }
 
-/* Below the margin threshold the stamps sit above their node. */
+.node-body {
+  grid-column: measure-start / aside-start;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  column-gap: var(--space-64);
+}
+
+/* Below the desktop margin the date and stamp stack above the node. */
 .pc .date,
 .pc .stampfig {
-  grid-column: 1 / -1;
+  grid-column: measure-start / aside-start;
   font-family: var(--font-data);
   color: var(--color-ink-muted);
 }
@@ -801,29 +861,26 @@
   margin-block-end: var(--space-8);
 }
 
-/* Only at native do they hang in the left margin, right-aligned; below it the
-   field margin is too narrow for a legible single-line date. */
-@media (min-width: 1600px) {
+/* At the margin threshold they leave the measure and sit in the aside. */
+@media (min-width: 1100px) {
   .pc .date,
   .pc .stampfig {
-    position: absolute;
-    inset-inline-start: calc(-1 * var(--date-offset));
-    width: calc(var(--date-offset) - var(--date-gap));
-    padding-inline-end: var(--date-gap);
-    text-align: right;
-    white-space: nowrap;
-    font-size: var(--text-date-margin);
+    grid-column: aside-start / band-start;
   }
 
   .pc .date {
-    inset-block-start: 0;
+    grid-row: 1;
     margin-block-end: 0;
   }
 
   .pc .stampfig {
-    inset-block-start: var(--space-24);
+    grid-row: 2;
     margin-block-end: 0;
     font-size: var(--text-figure-sm);
+  }
+
+  .node-body {
+    grid-row: 1 / span 2;
   }
 }
 
@@ -1005,7 +1062,7 @@
     gap: var(--space-4) var(--space-16);
   }
 
-  .pc .node {
+  .node-body {
     grid-template-columns: 1fr;
     row-gap: var(--space-8);
   }

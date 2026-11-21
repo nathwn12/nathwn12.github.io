@@ -9,7 +9,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
 import LedgerPage from "../src/components/LedgerPage";
-import { aiPractice, contactBlock, figures, proofRows, workBand } from "../src/content/ledger";
+import { aiPractice, contactBlock, figures, proofRows, spineStamp, workBand } from "../src/content/ledger";
 import { experience, spineDate } from "../src/content/experience";
 import { projects } from "../src/content/projects";
 import { signal, specLines } from "../src/content/signal";
@@ -259,21 +259,18 @@ describe("the content survives the strip", () => {
     expect(html).toContain(figures.commits!);
   });
 
-  test("Work body sits on the field edge; margin dates never push it right", () => {
+  test("Work body keeps its spine and the dates leave the rail", () => {
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(/\.pc \.spine \{[^}]*padding-inline-start:\s*0/);
     expect(css).toMatch(/\.pc \.spine::before \{[^}]*inset-inline-start:\s*calc\(-1 \* var\(--space-16\)\)/);
-    expect(css).toMatch(/@media \(min-width: 1600px\)[\s\S]*?\.pc \.date,\s*\.pc \.stampfig \{[^}]*position:\s*absolute/);
-    expect(css).toMatch(/\.pc \.stampfig \{[^}]*white-space:\s*nowrap/);
+    expect(css).toMatch(/\.pc \.date \{[^}]*font-size:\s*var\(--text-mono-label\)/);
   });
 
-  test("Work dates fall above the node below the native margin threshold", () => {
+  test("Work dates move to the aside at 1100 and stack above below it", () => {
     const css = read("src/styles/ledger.css");
-    const tokens = read("src/styles/tokens.css");
-    expect(css).toMatch(/@media \(min-width: 1600px\)[\s\S]*?\.pc \.date,\s*\.pc \.stampfig \{[^}]*position:\s*absolute/);
-    expect(css).not.toMatch(/@media \(min-width: 1200px\)/);
-    expect(css).toMatch(/\.pc \.date \{[^}]*font-size:\s*var\(--text-mono-label\)/);
-    expect(tokens).toMatch(/--text-mono-label:\s*0\.53125rem/);
+    expect(css).toMatch(/\.pc \.date,\s*\.pc \.stampfig \{[^}]*grid-column:\s*measure-start \/ aside-start/);
+    expect(css).toMatch(/@media \(min-width: 1100px\)[\s\S]*?\.pc \.date,\s*\.pc \.stampfig \{[^}]*grid-column:\s*aside-start \/ band-start/);
+    expect(css).not.toMatch(/\.pc \.date \{[^}]*position:\s*absolute/);
   });
 
   test("the Work band and spine derive from the measured record", () => {
@@ -500,6 +497,34 @@ describe("the coordinate and margin lines", () => {
     expect(css).toMatch(/\.chapter-margin \{[^}]*grid-row:\s*1/);
     expect(css).toMatch(/\.chapter-margin \{[^}]*max-width:\s*22ch/);
     expect(css).toMatch(/@media \(max-width: 1100px\)[\s\S]*?\.chapter-margin \{[^}]*grid-column:\s*measure-start \/ field-end/);
+  });
+});
+
+describe("the Work zero seal", () => {
+  test("the band is flush to the field right, with the seal at its end", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.pc \.band \{[^}]*grid-column:\s*band-start \/ field-end/);
+    const proof = html.slice(html.indexOf('id="proof"'), html.indexOf('id="method"'));
+    expect(proof).toContain(workBand[0].figure!);
+    expect(proof).toContain('class="zero-seal"');
+    expect(proof.indexOf(workBand[0].figure!)).toBeLessThan(
+      proof.indexOf('class="zero-seal"'),
+    );
+  });
+
+  test("the zero is the only hollow figure, with its stamp as real text", () => {
+    const css = read("src/styles/ledger.css");
+    const proof = html.slice(html.indexOf('id="proof"'), html.indexOf('id="method"'));
+    expect(proof).toContain('class="seal-zero"');
+    expect(proof).toContain('class="seal-stamp"');
+    expect(proof).toContain(spineStamp("03")!);
+    expect(css).toMatch(/\.seal-zero \{[^}]*font-family:\s*var\(--font-data\)/);
+    expect(css).toMatch(/\.seal-zero \{[^}]*font-size:\s*var\(--text-figure\)/);
+    expect(css).toMatch(/\.seal-zero \{[^}]*color:\s*var\(--color-ink-muted\)/);
+    expect(css).toMatch(/\.seal-zero \{[^}]*-webkit-text-stroke:\s*1px var\(--color-ink-muted\)/);
+    expect(css).toMatch(/@supports \([-a-z]*-webkit-text-stroke/);
+    expect(css.match(/-webkit-text-stroke/g) ?? []).toHaveLength(2);
+    expect(css).toMatch(/\.seal-stamp \{[^}]*font-size:\s*var\(--text-mono\)/);
   });
 });
 
