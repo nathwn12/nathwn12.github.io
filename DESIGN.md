@@ -8,6 +8,7 @@ colors:
   on-signal: "#1A1512"
   measure: "#627AC2"
   selection: "#C68E7428"
+  witness: "#C68E7414"
 typography:
   display:
     fontFamily: "Libre Bodoni"
@@ -35,6 +36,97 @@ motion:
 ---
 
 # Deep Field Ledger
+
+[skip ci]
+
+## V2 — the field law
+
+The v1 arrangement below still holds for identity, palette, typefaces, stack
+and constraints. V2 changes the structural layer: one field, one coordinate
+line per chapter, one margin note, a second hero beat, a tier ledger, a seal,
+a phone spine and one ornament. The goal remains a cold read with a margin.
+
+### One field, twelve tracks
+
+Every full-bleed strip — nav, hero beats, chapters, footer — centres the same
+`width: min(100% - 2·gutter, field)`. Inside it, twelve tracks share four named
+lines: `field-start`, `measure-start`, `aside-start`, `band-start`, `field-end`.
+The fixed rail track is `index-rail − gutter`, so content begins exactly at the
+old rail offset (32/64/96px). Heads, bodies and margins span the field and ride
+`subgrid`; gutter 24/48/64, field 82/96/110rem unchanged.
+
+Tracks: rail col 1; measure cols 2–6; aside cols 7–8; band cols 9–12; full
+cols 2–12. Data bands end flush at `field-end`; prose may end short. The nav's
+mark starts at `field-start` and the ticker ends at `field-end`, so the two old
+left axes become one. The footer's colophon sits at `field-start / aside-start`,
+its links at `band-start / field-end`.
+
+Deviation recorded: the source design proposed aside 3 / band 3. At 1440 a
+three-column track is ~309px and the 8rem figure "35,143" needs ~363px, so
+aside 2 / band 4 is the geometry that holds. No content sits outside the field.
+
+### Coordinate line and margin note
+
+One mono data line at measure left, above each title, exactly
+`NN / LABEL / VALUE / DATE`: Numbers 35,143; Open Source 14 REPOS; Work 1,182;
+Approach 5 STEPS; Contact OPEN. Every value is derived in
+`src/content/coordinates.ts` from committed content; the date is the committed
+snapshot date (2026-11-19), not a fresh date. The `NN` lights signal on the
+active chapter. One margin note maximum per chapter, at aside beside the head
+and folding below the body at ≤1100. The Numbers note names the committed cron
+`0 6 * * 1` from `.github/workflows/open-source-stats.yml`.
+
+Deviation recorded: the OS coordinate is 14 REPOS (featured + index rows), not
+the design note's 11. Dates derive from snapshots; all five chapters share one
+date. The Contact margin note is `contactBlock.nextStep`, printed once.
+
+### Two-beat hero, still-first
+
+`#horizon` is a wrapper. Beat one is 100vh with the singularity and HUD; beat
+two is 100vh with three cold-read lines at measure from existing copy. The
+surname crosses the disc horizon at ≥900. The still poster is the base paint,
+LCP and no-JS path. The recorded loop attaches only on `(pointer: fine)`,
+`(min-width: 1100px)`, reduced-motion no-preference and `saveData` off; it has
+no poster, `preload="none"`, and fades in over 280ms only while playing. The
+inactive master never plays.
+
+Deviation recorded: below 900 the plate stays packed at the top; anchoring the
+surname there would bury it in the media. The phone keeps labels-only in the
+top nav because five full labels and numerals do not fit 390.
+
+### Sections
+
+Open Source is one ruled tier ledger: tier A's three rows are whole-row links
+with name, claim, detail, tech, lifetime and language; tier B's eleven rows are
+one mono line each with the name as the only link. Lifetime and language appear
+in every row. Hairlines only, no boxes. Work's `1,182` sits at band left and a
+hollow zero seal at band right, the only outline figure, with `−98%` as a real
+text node in its counter. Approach places prose at measure, the five-rule table
+flush right at `aside-start / field-end`, facts and data full. Contact asks and
+mails at measure; the band stays void.
+
+### Phone spine, witness mark, motion
+
+At ≤700 a fixed left spine carries 01–05 with a 44px tap height at 24px from
+the left edge, and `--index-rail` becomes 44px. It is the only persistent phone
+chrome. The witness is one inline SVG with five hairline rings in two
+counter-rotating groups, 240s linear, at the 8% `--witness` tint; it sits behind
+beat one, beat two, Contact and the footer and stills under reduced motion.
+The cold read reveals once over 280ms on first intersection; the coordinate
+line fades over 140ms on first activation. Nothing else loops.
+
+Deviation recorded: the witness is inline rather than a separate SVG asset so
+the stamp stays a real text node and the ring groups can rotate independently.
+
+### V2 constraints
+
+Field law is normative: no component may place content outside the twelve
+tracks. Every chapter has exactly one coordinate line and at most one margin
+note. The zero seal is the only permitted outline figure; the witness is the
+only non-video perpetual motion; the still is the hero's base path and the
+video is a premium. The phone spine is the phone's only chrome. Reduced motion
+is a complete static document. V1's rules below remain in force where they do
+not conflict with this section.
 
 ## Idea
 
