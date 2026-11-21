@@ -13,14 +13,14 @@
   letter-spacing: var(--tracking-data);
 }
 
-/* Nav B — one 34px strip: 12px mark, five links, ticker at the right edge.
+/* Nav B — one token-scaled strip: mark, five links, ticker at the right edge.
    The mark keeps its own file and palette; the site only sets size/opacity. */
 .lab-nav {
   display: flex;
   align-items: center;
   gap: 20px;
-  height: 34px;
-  padding: 0 24px;
+  height: var(--nav-height);
+  padding-inline: var(--nav-pad);
   border-block-end: 1px solid var(--color-rule);
 }
 
@@ -31,7 +31,7 @@
 
 .lab-nav .mark img {
   display: block;
-  height: 12px;
+  height: var(--nav-mark);
   width: auto;
   opacity: 0.6;
 }
@@ -40,7 +40,7 @@
   display: flex;
   gap: 16px;
   font-family: var(--font-data);
-  font-size: 9px;
+  font-size: var(--text-nav);
   letter-spacing: 0.08em;
 }
 
@@ -57,7 +57,7 @@
 .lab-nav .nav-ticker {
   margin-inline-start: auto;
   font-family: var(--font-data);
-  font-size: 9px;
+  font-size: var(--text-nav);
   letter-spacing: 0.06em;
   color: var(--color-ink-muted);
   white-space: nowrap;
@@ -209,6 +209,10 @@
   :root {
     --frame-native: 96rem;
     --gutter: var(--space-48);
+    --index-rail: var(--space-64);
+    --spine-rail: 240px;
+    --measure-contact: 28ch;
+    --measure-wide: 64ch;
   }
 }
 
@@ -217,6 +221,10 @@
     --frame-native: 110rem;
     --gutter: var(--space-64);
     --text-display: clamp(4rem, 8.5vw, 13rem);
+    --index-rail: var(--space-96);
+    --spine-rail: 300px;
+    --measure-contact: 32ch;
+    --measure-wide: 72ch;
   }
 }
 
@@ -769,33 +777,34 @@
   }
 }
 
-/* 05 Contact A — one sentence, the address as the only action. */
+/* 05 Contact — the statement uses the chapter display scale; the address is
+   the mono data role with one signal hairline, the only action in the chapter. */
 .ca .line {
   font-family: var(--font-display);
-  font-size: clamp(28px, 3.3vw, 44px);
+  font-size: var(--text-chapter);
   line-height: 1.2;
-  max-width: 22ch;
+  max-width: var(--measure-contact);
   margin: 0;
   letter-spacing: -0.01em;
 }
 
 .ca .mail {
   display: inline-block;
-  margin-block-start: 34px;
+  margin-block-start: var(--space-32);
   font-family: var(--font-data);
-  font-size: clamp(15px, 1.7vw, 21px);
+  font-size: var(--text-data-lg);
   color: var(--color-signal);
   text-decoration: none;
   border-block-end: 1px solid var(--color-signal);
-  padding-block-end: 4px;
+  padding-block-end: var(--space-4);
   overflow-wrap: anywhere;
 }
 
 .ca .next {
   font-family: var(--font-data);
-  font-size: 8.5px;
+  font-size: var(--text-mono);
   color: var(--color-ink-muted);
-  margin-block-start: 14px;
+  margin-block-start: var(--space-16);
   letter-spacing: 0.04em;
 }
 
@@ -820,28 +829,41 @@
   gap: var(--space-24);
 }
 
-/* ---------- Approved lab: chapter shell + 01 Numbers (variant A) ---------- */
+/* ---------- One chapter system ----------
+   All five variants keep their content arrangement. The field, index rail,
+   header, type roles, hairlines and rhythm are shared tokens, so the page
+   scrolls as one document instead of five separate blocks. */
 .chapter {
   border-block-start: 1px solid var(--color-rule-strong);
 }
 
-.ch-head {
-  display: flex;
-  align-items: baseline;
-  gap: 18px;
-  padding: 40px 48px 6px;
+/* The content field: identical left and right edges for every chapter. */
+.chapter > .ch-head,
+.chapter > .v-body {
+  width: min(100% - (var(--gutter) * 2), var(--field));
+  margin-inline: auto;
+  padding-inline-start: var(--index-rail);
 }
 
+.ch-head {
+  position: relative;
+  padding-block: var(--space-48) var(--space-24);
+}
+
+/* The index hangs in the rail; the name and body share one left edge. */
 .ch-index {
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: var(--space-48);
   font-family: var(--font-data);
-  font-size: 10px;
+  font-size: var(--text-mono);
   letter-spacing: 0.12em;
   color: var(--color-signal);
 }
 
 .ch-name {
   font-family: var(--font-display);
-  font-size: 46px;
+  font-size: var(--text-chapter);
   margin: 0;
   line-height: 1;
   letter-spacing: -0.01em;
@@ -849,19 +871,19 @@
 }
 
 .v-body {
-  padding: 30px 48px 54px;
+  padding-block: var(--space-16) var(--space-96);
 }
 
-/* 01 Numbers A — two figures as a poster, ten packages as one strip. */
+/* 01 Numbers — two figures as a poster, ten packages as one ruled data band. */
 .sa .top {
   display: flex;
   align-items: flex-end;
-  gap: 80px;
+  gap: var(--space-64);
 }
 
 .sa .figure {
   font-family: var(--font-display);
-  font-size: clamp(72px, 8.4vw, 128px);
+  font-size: var(--text-figure);
   line-height: 0.82;
   letter-spacing: -0.02em;
   font-weight: 400;
@@ -869,10 +891,10 @@
 
 .sa .flabel {
   font-family: var(--font-data);
-  font-size: 8.5px;
+  font-size: var(--text-mono);
   letter-spacing: 0.12em;
   color: var(--color-ink-muted);
-  margin-block-start: 12px;
+  margin-block-start: var(--space-12);
   text-transform: uppercase;
 }
 
@@ -880,11 +902,11 @@
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   border-block-start: 1px solid var(--color-rule-strong);
-  margin-block-start: 46px;
+  margin-block-start: var(--space-48);
 }
 
 .sa .cell {
-  padding: 12px 12px 14px;
+  padding: var(--space-12);
   border-inline-end: 1px solid var(--color-rule);
   min-width: 0;
 }
@@ -895,7 +917,7 @@
 
 .sa .pname {
   font-family: var(--font-data);
-  font-size: 8px;
+  font-size: var(--text-mono);
   color: var(--color-ink-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -905,8 +927,8 @@
 .sa .spark {
   display: block;
   width: 100%;
-  height: 38px;
-  margin: 10px 0 8px;
+  height: var(--space-48);
+  margin: var(--space-8) 0;
 }
 
 .sa .spark polyline {
@@ -918,39 +940,39 @@
 
 .sa .pval {
   font-family: var(--font-data);
-  font-size: 10px;
+  font-size: var(--text-detail);
 }
 
 .sa .lower {
   display: flex;
-  gap: 64px;
+  gap: var(--space-64);
   align-items: flex-start;
-  margin-block-start: 34px;
+  margin-block-start: var(--space-32);
 }
 
 .sa .micros {
   display: flex;
-  gap: 40px;
+  gap: var(--space-32);
 }
 
 .sa .micro .count-up {
   display: block;
   font-family: var(--font-display);
-  font-size: 26px;
+  font-size: var(--text-figure-sm);
   font-weight: 400;
   line-height: 1;
 }
 
 .sa .micro span {
   font-family: var(--font-data);
-  font-size: 7.5px;
+  font-size: var(--text-mono);
   letter-spacing: 0.09em;
   color: var(--color-ink-muted);
   text-transform: uppercase;
 }
 
-/* At narrow widths the 30-cell strip wraps instead of widening the page;
-   at the measure and above there is room for the lab's single row. */
+/* At narrow widths the activity strip wraps instead of widening the page;
+   at the measure and above there is room for the single data band. */
 .sa .lower > div:not(.micros) {
   min-width: 0;
 }
@@ -960,7 +982,7 @@
   flex-wrap: wrap;
   max-width: 100%;
   gap: 3px;
-  margin: 8px 0 6px;
+  margin: var(--space-8) 0;
 }
 
 .sa .heat-cell {
@@ -978,21 +1000,30 @@
 .sa .hnote,
 .sa .stamp {
   font-family: var(--font-data);
-  font-size: 8px;
+  font-size: var(--text-mono);
   color: var(--color-ink-muted);
   letter-spacing: 0.04em;
 }
 
 .sa .stamp {
-  margin-block-start: 30px;
+  margin-block-start: var(--space-32);
 }
 
-/* 04 Approach A — prose left, the five rules as a ruled table right. */
+/* 04 Approach — prose 6/12, spec 4/12, one gap, on the shared field. */
 .ma {
   display: grid;
-  grid-template-columns: 1fr 380px;
-  column-gap: 64px;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--space-24);
   row-gap: 0;
+}
+
+.ma .prose {
+  grid-column: span 6;
+}
+
+.ma .spec {
+  grid-column: span 4;
+  border-block-start: 1px solid var(--color-rule-strong);
 }
 
 .ma .dl {
@@ -1000,72 +1031,69 @@
 }
 
 .ma .prose p {
-  font-size: 17px;
+  font-size: var(--text-lede);
   line-height: 1.55;
-  margin: 0 0 14px;
-  max-width: 58ch;
+  margin: 0 0 var(--space-16);
+  max-width: var(--measure);
 }
 
 .ma .facts {
   font-family: var(--font-data);
-  font-size: 8.5px;
+  font-size: var(--text-mono);
   letter-spacing: 0.08em;
   color: var(--color-ink-muted);
-  margin-block-start: 24px;
-}
-
-.ma .spec {
-  border-block-start: 1px solid var(--color-rule-strong);
+  margin-block-start: var(--space-32);
 }
 
 .ma .sline {
   display: grid;
-  grid-template-columns: 110px 1fr;
-  gap: 20px;
-  padding: 10px 0;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+  gap: var(--space-16);
+  padding: var(--space-12) 0;
   border-block-end: 1px solid var(--color-rule);
 }
 
 .ma .sk {
   font-family: var(--font-data);
-  font-size: 8.5px;
+  font-size: var(--text-mono);
   letter-spacing: 0.1em;
   color: var(--color-signal);
 }
 
 .ma .sv {
-  font-size: 13px;
+  font-size: var(--text-detail);
 }
 
 .dl {
   display: flex;
-  gap: 40px;
-  margin-block-start: 36px;
+  gap: var(--space-32);
+  margin-block-start: var(--space-48);
   font-family: var(--font-data);
-  font-size: 8px;
+  font-size: var(--text-mono);
   letter-spacing: 0.08em;
   color: var(--color-ink-muted);
 }
 
 .dl b {
   display: block;
-  font-size: 10px;
+  font-size: var(--text-variant-value);
   color: var(--color-ink);
   font-weight: 400;
-  margin-block-start: 3px;
+  margin-block-start: var(--space-4);
   letter-spacing: 0;
 }
 
-/* 03 Work C — the record as a timeline, figures as margin stamps. */
+/* 03 Work — the band spans the field; each node sets outcome beside texture. */
 .pc .band {
   display: flex;
-  gap: 64px;
-  margin-block-end: 44px;
+  justify-content: space-between;
+  gap: var(--space-64);
+  margin-block-end: var(--space-48);
 }
 
 .pc .band b {
   font-family: var(--font-display);
-  font-size: 46px;
+  font-size: var(--text-figure);
   font-weight: 400;
   display: block;
   line-height: 1;
@@ -1073,50 +1101,53 @@
 
 .pc .band span {
   font-family: var(--font-data);
-  font-size: 8px;
+  font-size: var(--text-mono);
   letter-spacing: 0.1em;
   color: var(--color-ink-muted);
 }
 
 .pc .spine {
   position: relative;
-  padding-inline-start: 180px;
+  padding-inline-start: var(--spine-rail);
 }
 
 .pc .spine::before {
   content: "";
   position: absolute;
-  inset-inline-start: 150px;
-  inset-block-start: 8px;
-  inset-block-end: 8px;
+  inset-inline-start: calc(var(--spine-rail) - var(--space-32));
+  inset-block-start: var(--space-8);
+  inset-block-end: var(--space-8);
   width: 1px;
   background: var(--color-rule-strong);
 }
 
 .pc .node {
   position: relative;
-  padding-block-end: 38px;
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  column-gap: var(--space-64);
+  padding-block-end: var(--space-48);
 }
 
 .pc .node::before {
   content: "";
   position: absolute;
-  inset-inline-start: -33px;
-  inset-block-start: 8px;
-  width: 5px;
-  height: 5px;
+  inset-inline-start: calc(-1 * var(--space-32) - 3px);
+  inset-block-start: var(--space-8);
+  width: 6px;
+  height: 6px;
   background: var(--color-signal);
   border-radius: 50%;
 }
 
 .pc .date {
   position: absolute;
-  inset-inline-start: -180px;
-  inset-block-start: 2px;
-  width: 140px;
+  inset-inline-start: calc(-1 * var(--spine-rail));
+  inset-block-start: 0;
+  width: calc(var(--spine-rail) - var(--space-48));
   text-align: right;
   font-family: var(--font-data);
-  font-size: 8.5px;
+  font-size: var(--text-mono);
   color: var(--color-ink-muted);
   letter-spacing: 0.03em;
   white-space: nowrap;
@@ -1124,38 +1155,42 @@
 
 .pc .stampfig {
   position: absolute;
-  inset-inline-start: -180px;
-  inset-block-start: 20px;
-  width: 140px;
+  inset-inline-start: calc(-1 * var(--spine-rail));
+  inset-block-start: var(--space-24);
+  width: calc(var(--spine-rail) - var(--space-48));
   text-align: right;
   font-family: var(--font-display);
-  font-size: 26px;
+  font-size: var(--text-figure-sm);
   color: var(--color-signal);
 }
 
 .pc h3 {
-  font-size: 16px;
-  margin: 0 0 4px;
+  grid-column: 1;
+  font-size: var(--text-lede);
+  margin: 0 0 var(--space-8);
   font-weight: 400;
 }
 
 .pc .out {
-  font-size: 13px;
-  margin: 0 0 5px;
+  grid-column: 1;
+  font-size: var(--text-detail);
+  margin: 0;
 }
 
 .pc .tex {
-  font-size: 11.5px;
+  grid-column: 2;
+  font-size: var(--text-detail);
   color: var(--color-ink-muted);
-  max-width: 72ch;
+  max-width: var(--measure-wide);
   line-height: 1.5;
   margin: 0;
 }
 
-/* 02 Open Source C — three cards, the rest as a two-column list. */
+/* 02 Open Source — a ruled three-column band, then a ruled two-column table.
+   No boxes: the only surfaces are the hairlines between the entries. */
 .wc .intro {
-  max-width: 64ch;
-  font-size: 16px;
+  max-width: var(--measure);
+  font-size: var(--text-lede);
   color: var(--color-ink-muted);
   margin: 0;
 }
@@ -1163,24 +1198,31 @@
 .wc .cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1px;
-  background: var(--color-rule);
-  border: 1px solid var(--color-rule);
-  margin-block-start: 28px;
+  border-block-start: 1px solid var(--color-rule-strong);
+  margin-block-start: var(--space-32);
 }
 
 .wc .card {
-  background: var(--color-ground);
-  padding: 22px 22px 18px;
+  padding: var(--space-24);
   display: flex;
   flex-direction: column;
   min-height: 236px;
+  border-inline-end: 1px solid var(--color-rule);
+}
+
+.wc .card:first-child {
+  padding-inline-start: 0;
+}
+
+.wc .card:last-child {
+  padding-inline-end: 0;
+  border-inline-end: 0;
 }
 
 .wc .card h3 {
   font-family: var(--font-display);
-  font-size: 26px;
-  margin: 0 0 6px;
+  font-size: var(--text-figure-sm);
+  margin: 0 0 var(--space-8);
   font-weight: 400;
 }
 
@@ -1190,60 +1232,75 @@
 }
 
 .wc .card .claim {
-  font-size: 14.5px;
-  margin: 0 0 8px;
+  font-size: var(--text-detail);
+  margin: 0 0 var(--space-8);
 }
 
 .wc .card .detail {
-  font-size: 12px;
+  font-size: var(--text-detail);
   line-height: 1.5;
   color: var(--color-ink-muted);
-  margin: 0 0 12px;
+  margin: 0 0 var(--space-12);
 }
 
 .wc .card .foot {
   margin-block-start: auto;
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-12);
   font-family: var(--font-data);
-  font-size: 8px;
+  font-size: var(--text-mono);
   color: var(--color-ink-muted);
   letter-spacing: 0.05em;
 }
 
 .wc .list {
   columns: 2;
-  column-gap: 48px;
-  margin-block-start: 38px;
+  column-gap: var(--space-48);
+  margin-block-start: var(--space-48);
 }
 
 .wc .item {
   break-inside: avoid;
-  padding: 9px 0;
+  padding: var(--space-12) 0;
   border-block-end: 1px solid var(--color-rule);
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  gap: 14px;
+  gap: var(--space-16);
 }
 
 .wc .item .nm {
-  font-size: 14.5px;
+  font-size: var(--text-detail);
   color: var(--color-ink);
   text-decoration: none;
 }
 
 .wc .item .cl {
-  font-size: 11.5px;
+  font-size: var(--text-detail);
   color: var(--color-ink-muted);
   text-align: right;
 }
 
+/* Below the desktop measure the spec column is too narrow to hold its rows.
+   Stack the same two blocks rather than squeezing a ruled table. */
+@media (min-width: 701px) and (max-width: 1100px) {
+  .ma {
+    grid-template-columns: 1fr;
+    row-gap: var(--space-32);
+  }
+
+  .ma .prose,
+  .ma .spec,
+  .ma .dl {
+    grid-column: 1;
+  }
+}
+
 @media (max-width: 700px) {
-  .ch-head,
-  .v-body {
-    padding-inline: 20px;
+  :root {
+    --index-rail: var(--space-24);
+    --spine-rail: 82px;
   }
 
   .ch-name {
@@ -1251,13 +1308,13 @@
   }
 
   .v-body {
-    padding-block: 24px 40px;
+    padding-block: var(--space-24) var(--space-40);
   }
 
   .sa .top {
     flex-direction: column;
     align-items: flex-start;
-    gap: 22px;
+    gap: var(--space-24);
   }
 
   .sa .figure {
@@ -1270,47 +1327,72 @@
 
   .sa .lower {
     flex-direction: column;
-    gap: 24px;
+    gap: var(--space-24);
   }
 
   .sa .micros {
     flex-wrap: wrap;
-    gap: 18px 28px;
+    gap: var(--space-16) var(--space-32);
   }
 
   .wc .cards {
     grid-template-columns: 1fr;
   }
 
+  .wc .card {
+    padding-inline: 0;
+    border-inline-end: 0;
+    border-block-end: 1px solid var(--color-rule);
+  }
+
+  .wc .card:last-child {
+    border-block-end: 0;
+  }
+
   .wc .list {
     columns: 1;
   }
 
-  .pc .spine {
-    padding-inline-start: 110px;
+  .pc .spine::before {
+    inset-inline-start: calc(var(--spine-rail) - var(--space-16));
   }
 
-  .pc .spine::before {
-    inset-inline-start: 90px;
+  .pc .node::before {
+    inset-inline-start: calc(-1 * var(--space-16) - 3px);
+  }
+
+  .pc .date,
+  .pc .stampfig {
+    width: calc(var(--spine-rail) - var(--space-24));
   }
 
   .pc .date {
-    inset-inline-start: -110px;
-    width: 82px;
     white-space: normal;
   }
 
-  .pc .stampfig {
-    inset-inline-start: -110px;
-    width: 82px;
+  .pc .node {
+    grid-template-columns: 1fr;
+    row-gap: var(--space-8);
+  }
+
+  .pc h3,
+  .pc .out,
+  .pc .tex {
+    grid-column: 1;
   }
 
   .ma {
     grid-template-columns: 1fr;
   }
 
+  .ma .prose,
+  .ma .spec,
+  .ma .dl {
+    grid-column: 1;
+  }
+
   .dl {
     flex-wrap: wrap;
-    gap: 20px;
+    gap: var(--space-24);
   }
 }

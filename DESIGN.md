@@ -109,12 +109,14 @@ blocks — figures, sparklines,
 ruled rows — with open register rows; hairline rules separate rows, never
 boxes. Rhythm: dense, open, dense; never five equal bands.
 
-Two compositions, not one reflowed: 2560x1440 is the primary canvas — the
-sky spans edge to edge, the content frame widens with the viewport (82rem
-on desktop, up to 110rem at native 1440p, never dead margins), display
-scale tuned at native. 390-430 gets a recreated compact UI — condensed
-numeral navigation on one hairline, stacked catalog rows, touch-first
-targets. Per-class art direction, never a squeezed desktop.
+One system, five arrangements: 2560x1440 is the primary canvas — the sky
+spans edge to edge, the content field widens with the viewport (82rem on
+desktop, up to 110rem at native 1440p), and display scale is tuned at
+native. All five chapters share that field, an index rail, one type scale,
+hairline rules and the same padding rhythm; only the inner arrangement
+changes. 390-430 keeps compact art direction — condensed numeral navigation
+on one hairline, stacked catalog rows, touch-first targets. Never a squeezed
+desktop, never five unrelated blocks.
 
 ## Motion
 
@@ -128,9 +130,10 @@ scroll; no interception, no snap, no scroll-driven choreography.
 ## Rules
 
 - The void is the only ground; no panel, plate, card or fill behind text; a
-  hairline is a rule, not a box. The owner-approved Open Source chapter is the
-  one exception: three hairline card cells and the Work chapter's margin spine
-  are composition, not plates behind copy; their fill is the void itself.
+  hairline is a rule, not a box. Every chapter is one system: a shared content
+  field and index rail, one type scale, the same rhythm. Numbers and Open Source
+  are ruled data bands; Open Source's three featured entries are a three-column
+  band with a top hairline and vertical separators, never boxed cards.
 - Tokens are normative; prose explains and never overrides.
 - One navigation; every chapter reachable from it.
 - Reduced motion is a complete document, not a frozen animation.

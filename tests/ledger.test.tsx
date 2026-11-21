@@ -53,10 +53,10 @@ describe("one nav, five clusters in descent order", () => {
     expect(html).toContain("colophon");
   });
 
-  test("the masthead uses the owned glyph once as a 12px imprint", () => {
+  test("the masthead uses the owned glyph once as a token-scaled imprint", () => {
     expect(html.match(/<img[^>]*brand\/signature-glyph\.svg/g) ?? []).toHaveLength(1);
     const css = read("src/styles/ledger.css");
-    expect(css).toMatch(/\.lab-nav \.mark img\s*\{[^}]*height:\s*12px/);
+    expect(css).toMatch(/\.lab-nav \.mark img\s*\{[^}]*height:\s*var\(--nav-mark\)/);
     expect(css).toMatch(/\.lab-nav \.mark img\s*\{[^}]*opacity:\s*0\.6/);
   });
 
@@ -82,9 +82,9 @@ describe("one nav, five clusters in descent order", () => {
     expect(css).toContain("width: min(100% - (var(--gutter) * 2), var(--frame-native))");
   });
 
-  test("nav B keeps the strip at 34px and hides the ticker on phone", () => {
+  test("nav B scales from tokens and hides the ticker on phone", () => {
     const css = read("src/styles/ledger.css");
-    expect(css).toMatch(/\.lab-nav \{[^}]*height:\s*34px/);
+    expect(css).toMatch(/\.lab-nav \{[^}]*height:\s*var\(--nav-height\)/);
     expect(css).toMatch(/@media \(max-width: 900px\)[\s\S]*?\.lab-nav \.nav-ticker\s*\{[^}]*display:\s*none/);
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.lab-nav \.links a\s*\{[^}]*font-size/);
     expect(css).toMatch(/\.lab-nav \.links a span\s*\{[^}]*display:\s*none/);
@@ -203,11 +203,16 @@ describe("the content survives the strip", () => {
     expect(work.match(/target="_blank"/g) ?? []).toHaveLength(14);
   });
 
-  test("the shelf uses hairline cards and list rules", () => {
+  test("the shelf is a ruled band, never boxed cards", () => {
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(/\.wc \.cards \{[^}]*grid-template-columns:\s*repeat\(3, 1fr\)/);
+    expect(css).toMatch(/\.wc \.cards \{[^}]*border-block-start:\s*1px solid/);
+    expect(css).toMatch(/\.wc \.card \{[^}]*border-inline-end:\s*1px solid/);
+    expect(css).not.toMatch(/\.wc \.card \{[^}]*background:/);
+    expect(css).not.toMatch(/\.wc \.cards \{[^}]*background:/);
     expect(css).toMatch(/\.wc \.item \{[^}]*border-block-end:\s*1px solid/);
-    expect(read("DESIGN.md")).toContain("one exception");
+    expect(read("DESIGN.md")).toContain("ruled data bands");
+    expect(read("DESIGN.md")).not.toContain("one exception");
   });
 
   test("the proof figures survive the spine composition", () => {
@@ -265,9 +270,42 @@ describe("the content survives the strip", () => {
     const colophon = html.slice(html.indexOf('class="colophon'));
     expect(colophon.match(/<a /g) ?? []).toHaveLength(5);
     const css = read("src/styles/ledger.css");
-    expect(css).toMatch(/\.ca \.line \{[^}]*max-width:\s*22ch/);
+    expect(css).toMatch(/\.ca \.line \{[^}]*max-width:\s*var\(--measure-contact\)/);
     expect(css).toMatch(/\.ca \.mail \{[^}]*border-block-end:\s*1px solid var\(--color-signal\)/);
     expect(css).toContain(".colophon-links");
+  });
+
+  test("all five chapters share one field, type scale and rhythm", () => {
+    const css = read("src/styles/ledger.css");
+    const tokens = read("src/styles/tokens.css");
+    // One content field and index rail for every chapter.
+    expect(css).toMatch(/\.chapter > \.ch-head,\s*\.chapter > \.v-body \{[^}]*width:\s*min\(100% - \(var\(--gutter\) \* 2\), var\(--field\)\)/);
+    expect(css).toMatch(/\.chapter > \.ch-head,\s*\.chapter > \.v-body \{[^}]*padding-inline-start:\s*var\(--index-rail\)/);
+    expect(css).toMatch(/\.ch-index \{[^}]*position:\s*absolute/);
+    // One type scale: the same roles across all five variants.
+    expect(css).toMatch(/\.ma \.prose p \{[^}]*font-size:\s*var\(--text-lede\)/);
+    expect(css).toMatch(/\.wc \.intro \{[^}]*font-size:\s*var\(--text-lede\)/);
+    expect(css).toMatch(/\.pc h3 \{[^}]*font-size:\s*var\(--text-lede\)/);
+    expect(css).toMatch(/\.sa \.pval \{[^}]*font-size:\s*var\(--text-detail\)/);
+    expect(css).toMatch(/\.wc \.item \.nm \{[^}]*font-size:\s*var\(--text-detail\)/);
+    expect(css).toMatch(/\.pc \.tex \{[^}]*font-size:\s*var\(--text-detail\)/);
+    expect(css).toMatch(/\.sa \.flabel \{[^}]*font-size:\s*var\(--text-mono\)/);
+    expect(css).toMatch(/\.ca \.next \{[^}]*font-size:\s*var\(--text-mono\)/);
+    // Numbers figures and the Work band share one display token; both are
+    // data bands spanning the same field.
+    expect(css).toMatch(/\.sa \.figure \{[^}]*font-size:\s*var\(--text-figure\)/);
+    expect(css).toMatch(/\.pc \.band b \{[^}]*font-size:\s*var\(--text-figure\)/);
+    expect(css).toMatch(/\.pc \.band \{[^}]*justify-content:\s*space-between/);
+    expect(css).toMatch(/\.pc \.tex \{[^}]*max-width:\s*var\(--measure-wide\)/);
+    // Contact uses the chapter display scale, not a lab clamp.
+    expect(css).toMatch(/\.ca \.line \{[^}]*font-size:\s*var\(--text-chapter\)/);
+    // The field and rail step up at the site's existing native breakpoints.
+    expect(tokens).toMatch(/--field:\s*var\(--frame-native\)/);
+    expect(tokens).toMatch(/--text-variant-value:\s*clamp\(/);
+    expect(css).toMatch(/@media \(min-width: 1600px\)[\s\S]*?--index-rail:/);
+    expect(css).toMatch(/@media \(min-width: 2200px\)[\s\S]*?--spine-rail:/);
+    // Below the measure the spec stacks instead of squeezing its ruled rows.
+    expect(css).toMatch(/@media \(min-width: 701px\) and \(max-width: 1100px\)[\s\S]*?\.ma \{[^}]*grid-template-columns:\s*1fr/);
   });
 
   test("the stats workflow calls a script that exists", () => {
