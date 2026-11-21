@@ -39,7 +39,8 @@ try {
     const root = clone.querySelector("#root");
     const rendered = document.querySelector("#root");
     if (root && rendered) root.innerHTML = rendered.innerHTML;
-    clone.querySelector("script[type=module]")?.remove();
+    // Keep the module script: React must re-evaluate matchMedia on mount so a
+    // reduced-motion visitor gets the settled still, not the baked-in videos.
     return `<!DOCTYPE html>\n${clone.outerHTML}`;
   });
   await writeFile(file, `${dom}\n`);
