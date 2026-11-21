@@ -576,6 +576,7 @@
   font-size: 0.7rem;
   font-weight: 400;
   letter-spacing: var(--tracking-data);
+  white-space: nowrap;
   color: var(--color-ink-muted);
 }
 
@@ -603,6 +604,13 @@
   .index-stats {
     grid-column: 2 / -1;
     text-align: left;
+  }
+
+  /* Keep the row's open link at the top-right, not below the stats. */
+  .featured-row > a {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: start;
   }
 }
 
