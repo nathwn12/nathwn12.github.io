@@ -1,1 +1,193 @@
-/* Custom rules were stripped with the design law. */
+/* Deep Field Ledger — component rules. The void shows through everywhere:
+   no card, panel or plate sits behind text; hairlines are rules only. */
+
+.frame {
+  width: min(100% - (var(--gutter) * 2), var(--frame));
+  margin-inline: auto;
+}
+
+.data {
+  font-family: var(--font-data);
+  font-size: var(--text-data);
+  line-height: var(--leading-data);
+  letter-spacing: var(--tracking-data);
+}
+
+/* Masthead constellation — one mark at 120, five links on one hairline. */
+.stage-nav-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16) var(--space-24);
+  padding-block: var(--space-16);
+  border-block-end: 1px solid
+    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
+}
+
+.stage-mark {
+  flex: 0 0 120px;
+  width: 120px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.stage-mark-tail {
+  color: var(--color-ink-muted);
+}
+
+.stage-nav {
+  display: flex;
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0 var(--space-8);
+  min-height: 44px;
+}
+
+.stage-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding-inline: var(--space-8);
+  color: var(--color-ink-muted);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.stage-nav a[aria-current="true"] {
+  color: var(--color-signal);
+}
+
+.stage-nav a:hover {
+  color: var(--color-ink);
+}
+
+/* One full-viewport field. Points crop at narrow widths: points-on-void. */
+.hero {
+  position: relative;
+  isolation: isolate;
+  width: 100%;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.field-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.hero-hud {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  width: min(100% - (var(--gutter) * 2), var(--frame));
+  margin-inline: auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr auto;
+  column-gap: var(--space-32);
+  row-gap: var(--space-24);
+  padding-block: var(--space-64) var(--space-32);
+  align-items: start;
+}
+
+.hud-name {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.hud-role {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  text-align: right;
+}
+
+.hud-status {
+  grid-column: 1;
+  grid-row: 2;
+  align-self: end;
+}
+
+.hud-scroll {
+  grid-column: 2;
+  grid-row: 2;
+  justify-self: end;
+  align-self: end;
+}
+
+.eyebrow {
+  margin-block-end: var(--space-16);
+  color: var(--color-signal);
+}
+
+.hud-name h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  font-weight: 500;
+  max-width: 18ch;
+  overflow-wrap: break-word;
+}
+
+.hud p {
+  max-width: 46ch;
+}
+
+.hud-role > p:not(.eyebrow),
+.hud-status > p:not(.eyebrow) {
+  color: var(--color-ink-muted);
+}
+
+.hud-scroll {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-height: 44px;
+  text-decoration: none;
+}
+
+.scroll-line {
+  width: 32px;
+  height: 1px;
+  background-color: var(--color-signal);
+}
+
+@media (max-width: 700px) {
+  :root {
+    --gutter: var(--space-16);
+  }
+
+  .hero-hud {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .hud-name,
+  .hud-role,
+  .hud-status,
+  .hud-scroll {
+    grid-column: 1;
+    grid-row: auto;
+    justify-self: start;
+    align-self: start;
+    text-align: left;
+  }
+
+  .stage-nav {
+    justify-content: flex-start;
+  }
+}

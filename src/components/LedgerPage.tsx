@@ -1,4 +1,6 @@
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
+import PointField from "./PointField";
+import { fieldCaption } from "../content/field";
 import { CountUp, Heatmap, Sparkline, Ticker } from "./Instruments";
 import { employer } from "../content/experience";
 import {
@@ -45,8 +47,26 @@ function Cluster({
 }
 
 export default function LedgerPage() {
+  const [active, setActive] = useState<string>("signal");
+
   useEffect(() => {
     document.title = `${name} — event horizon`;
+  }, []);
+
+  useEffect(() => {
+    const sections = SECTIONS.map((section) =>
+      document.getElementById(section.id),
+    ).filter((node): node is HTMLElement => node !== null);
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) setActive(entry.target.id);
+        }
+      },
+      { rootMargin: "-40% 0px -55% 0px" },
+    );
+    for (const section of sections) observer.observe(section);
+    return () => observer.disconnect();
   }, []);
 
   const mailSubject = encodeURIComponent("Role, system, or problem");
@@ -59,12 +79,16 @@ export default function LedgerPage() {
       </a>
 
       <header className="stage-nav-wrap">
-        <a className="stage-mark data" href="#horizon">
-          NNL <span>/ the record</span>
+        <a className="stage-mark" href="#horizon" aria-label="Back to the field">
+          NNL <span className="stage-mark-tail data">/ the record</span>
         </a>
         <nav className="stage-nav data" aria-label="Chapters">
           {SECTIONS.map((section) => (
-            <a key={section.id} href={`#${section.id}`}>
+            <a
+              key={section.id}
+              href={`#${section.id}`}
+              aria-current={active === section.id ? "true" : undefined}
+            >
               <span aria-hidden="true">{section.index}</span>{" "}
               {section.label.replace(/^The /, "")}
             </a>
@@ -76,6 +100,7 @@ export default function LedgerPage() {
 
       <main id="main" tabIndex={-1}>
         <section id="horizon" className="hero" aria-labelledby="hero-name">
+          <PointField />
           <div className="hero-hud">
             <div className="hud hud-name">
               <p className="eyebrow data">Event horizon / portfolio / 2026</p>
@@ -261,6 +286,7 @@ export default function LedgerPage() {
 
       <footer className="colophon frame">
         <span className="data">NNL / event horizon / 2026</span>
+        <span className="data field-caption">{fieldCaption}</span>
         <p className="colophon-links data">
           <a href="https://github.com/nathwn12" target="_blank" rel="noreferrer">GitHub</a>
           <a href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/" target="_blank" rel="noreferrer">LinkedIn</a>
