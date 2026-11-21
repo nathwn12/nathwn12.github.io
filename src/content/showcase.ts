@@ -1,5 +1,6 @@
 import { projects } from "./projects";
 import probe from "./repos.probe.json";
+import downloads from "./npm-downloads.json";
 
 /**
  * The work is the open-source record: what each tool does, why it exists, and
@@ -28,7 +29,7 @@ const CLAIMS: Readonly<Record<string, string>> = {
  *  warm on the work itself, and free of any figure another chapter owns. */
 const DETAILS: Readonly<Record<string, string>> = {
   hand:
-    "Published this week. The browser engine drives Chromium over CDP; the desktop engine works in the background without moving the pointer or stealing focus.",
+    "Published this week. The browser engine drives Chromium over CDP and the desktop engine works in the background without moving the pointer or stealing focus — 35 MCP tools his own harness calls every day.",
   puppet:
     "Six narrow tools, each target-locked to a window revalidated before every call. Clipboard writes are refused unless explicitly allowed.",
   gladius:
@@ -70,12 +71,39 @@ export interface ShowcaseRow {
   tech: string[];
   language: string;
   pushed: string;
+  lifetime: number | null;
 }
 
+/** Honesty label for the lifetime figure: it comes from the weekly snapshot. */
+export const lifetimeNote = "refreshed weekly";
+
+/** One npm name per published package; collections sum their members. Used
+ *  only for lifetime downloads, never for the daily windows signal owns. */
+const NAMES: Readonly<Record<string, readonly string[]>> = {
+  hand: ["hand-mcp"],
+  puppet: ["puppet-mcp"],
+  gladius: ["gladius-mcp"],
+  "oc-collections": [
+    "@nathwn12/oc-bifrost",
+    "oc-harness-setup",
+    "oc-flight-deck",
+    "oc-plugin-view",
+    "oc-talk",
+    "rea-shim",
+    "@nathwn12/janua",
+  ],
+};
+
 const byRepo = new Map(probe.repos.map((repo) => [repo.name, repo]));
+const byPackage = new Map(downloads.packages.map((item) => [item.name, item.downloads]));
 
 const rows: ShowcaseRow[] = projects.map((project, index) => {
   const repo = byRepo.get(project.dir);
+  const names = NAMES[project.dir] ?? [];
+  const lifetime = names.reduce(
+    (sum, name) => sum + (byPackage.get(name) ?? 0),
+    0,
+  );
   return {
     num: String(index + 1).padStart(2, "0"),
     name: project.name,
@@ -86,6 +114,7 @@ const rows: ShowcaseRow[] = projects.map((project, index) => {
     tech: project.tech.slice(0, 3),
     language: repo?.primaryLanguage ?? project.tech[0] ?? "—",
     pushed: repo ? repo.pushedAt.slice(5).replace("-", ".") : "—",
+    lifetime: names.length > 0 ? lifetime : null,
   };
 });
 

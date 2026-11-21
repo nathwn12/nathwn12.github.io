@@ -12,7 +12,7 @@ import LedgerPage from "../src/components/LedgerPage";
 import { aiPractice, figures, proofRows } from "../src/content/ledger";
 import { experience, provenance } from "../src/content/experience";
 import { signal } from "../src/content/signal";
-import { featuredRows, indexRows, workIntro } from "../src/content/showcase";
+import { featuredRows, indexRows, lifetimeNote, workIntro } from "../src/content/showcase";
 import { CONTACT_EMAIL } from "../src/lib/contact";
 
 const root = resolve(import.meta.dirname, "..");
@@ -139,6 +139,22 @@ describe("the content survives the strip", () => {
     expect(intro).toContain("export const workIntro");
     expect(intro).toContain("published this week");
     expect(intro).toContain("runs daily");
+  });
+
+  test("npm rows show lifetime downloads with a weekly honesty label", () => {
+    const work = html.slice(html.indexOf('id="work"'), html.indexOf('id="proof"'));
+    const npmRows = [...featuredRows, ...indexRows].filter(
+      (row) => row.lifetime !== null,
+    );
+    expect(npmRows).toHaveLength(4);
+    expect(work).toContain(lifetimeNote);
+    expect(work.match(/class="lifetime-figure"/g) ?? []).toHaveLength(3);
+    for (const row of npmRows) {
+      expect(work).toContain(row.lifetime!.toLocaleString("en-US"));
+    }
+    // The evidenced count is 35 in projects.ts, not the lead's suggested 40.
+    expect(featuredRows[0]!.detail).toContain("35 MCP tools");
+    expect(work).not.toContain("40 MCP tools");
   });
 
   test("the work section repeats no signal or proof figure", () => {

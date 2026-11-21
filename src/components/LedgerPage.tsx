@@ -12,7 +12,7 @@ import {
   statusLine,
 } from "../content/ledger";
 import { signal, specLines } from "../content/signal";
-import { featuredRows, indexRows, workIntro } from "../content/showcase";
+import { featuredRows, indexRows, lifetimeNote, workIntro } from "../content/showcase";
 import { projectsLede } from "../content/projects";
 import { CONTACT_EMAIL, CV_PATH, RESUME_PATH } from "../lib/contact";
 
@@ -193,6 +193,12 @@ export default function LedgerPage() {
                   <span className="tech data">{row.tech.join(" / ")}</span>
                 </div>
                 <div className="featured-stats data">
+                  {row.lifetime !== null && (
+                    <span className="lifetime-figure">
+                      {row.lifetime.toLocaleString("en-US")}
+                      <span className="lifetime-note">{lifetimeNote}</span>
+                    </span>
+                  )}
                   <span>{row.language}</span>
                   <span>pushed {row.pushed}</span>
                 </div>
@@ -217,6 +223,9 @@ export default function LedgerPage() {
                   <span className="row-detail">{row.detail}</span>
                 </div>
                 <span className="index-stats data">
+                  {row.lifetime !== null
+                    ? `${row.lifetime.toLocaleString("en-US")} lifetime · ${lifetimeNote}`
+                    : "no package"}{" · "}
                   {row.language} · pushed {row.pushed}
                 </span>
               </div>
