@@ -9,12 +9,13 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
 import LedgerPage from "../src/components/LedgerPage";
-import { aiPractice, figures, proofRows, workBand } from "../src/content/ledger";
+import { aiPractice, contactBlock, figures, proofRows, workBand } from "../src/content/ledger";
 import { experience, spineDate } from "../src/content/experience";
 import { projects } from "../src/content/projects";
 import { signal, specLines } from "../src/content/signal";
 import { featuredRows, indexRows, workShelfIntro } from "../src/content/showcase";
 import { CONTACT_EMAIL } from "../src/lib/contact";
+import { coordinates } from "../src/content/coordinates";
 
 const root = resolve(import.meta.dirname, "..");
 const read = (rel: string) => readFileSync(resolve(root, rel), "utf8");
@@ -404,6 +405,75 @@ describe("the 12-column field law", () => {
       expect(css).toContain(live);
     }
     expect(css).not.toContain("--spine-rail:");
+  });
+});
+
+describe("the coordinate and margin lines", () => {
+  const stamps = [
+    ["signal", "01", "Numbers", signal.allTime.toLocaleString("en-US")],
+    ["work", "02", "Open Source", `${featuredRows.length + indexRows.length} REPOS`],
+    ["proof", "03", "Work", figures.commits ?? ""],
+    ["method", "04", "Approach", `${specLines.length} STEPS`],
+    ["contact", "05", "Contact", "OPEN"],
+  ] as const;
+
+  test("each chapter carries one coordinate line with derived values", () => {
+    for (const [id, num, label, value] of stamps) {
+      const at = html.indexOf(`id="${id}"`);
+      const next = html.indexOf('<section id="', at + 8);
+      const section = html.slice(at, next === -1 ? undefined : next);
+      expect(section.match(/class="ch-coordinate"/g) ?? []).toHaveLength(1);
+      const head = section.slice(
+        section.indexOf('<span class="ch-coordinate">'),
+        section.indexOf("<h2"),
+      );
+      expect(head.replace(/<[^>]+>/g, "")).toBe(
+        `${num} / ${label.toUpperCase()} / ${value} / ${signal.snapshotDate}`,
+      );
+      expect(coordinates[id].value).toBe(value);
+      expect(coordinates[id].date).toBe(signal.snapshotDate);
+    }
+    expect(html).not.toContain('class="ch-index"');
+  });
+
+  test("the coordinate role is mono data, uppercase, with a signal NN", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.ch-coordinate \{[^}]*font-family:\s*var\(--font-data\)/);
+    expect(css).toMatch(/\.ch-coordinate \{[^}]*font-size:\s*var\(--text-data\)/);
+    expect(css).toMatch(/\.ch-coordinate \{[^}]*font-weight:\s*500/);
+    expect(css).toMatch(/\.ch-coordinate \{[^}]*text-transform:\s*uppercase/);
+    expect(css).toMatch(/\.ch-num \{[^}]*color:\s*var\(--color-ink-muted\)/);
+    expect(css).toMatch(/\.ch-num\.is-active \{[^}]*color:\s*var\(--color-signal\)/);
+    expect(html.match(/class="ch-num is-active"/g) ?? []).toHaveLength(1);
+  });
+
+  test("exactly one margin note per chapter, qualified from content", () => {
+    expect(html.match(/class="chapter-margin"/g) ?? []).toHaveLength(5);
+    for (const [id] of stamps) {
+      const at = html.indexOf(`id="${id}"`);
+      const next = html.indexOf('<section id="', at + 8);
+      const section = html.slice(at, next === -1 ? undefined : next);
+      expect(section.match(/class="chapter-margin"/g) ?? []).toHaveLength(1);
+      expect(section).toContain(coordinates[id].margin);
+    }
+    expect(coordinates.proof.margin).toContain("Xentra");
+    expect(coordinates.method.margin).toBe(aiPractice.facts.join(" · "));
+    expect(coordinates.contact.margin).toBe(contactBlock.nextStep);
+  });
+
+  test("the Numbers caveat names the committed snapshot cron", () => {
+    expect(coordinates.signal.margin).toContain("0 6 * * 1");
+    expect(read(".github/workflows/open-source-stats.yml")).toMatch(
+      /cron:\s*'0 6 \* \* 1'/,
+    );
+  });
+
+  test("the margin sits beside the head and folds below at 1100", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.chapter-margin \{[^}]*grid-column:\s*aside-start \/ band-start/);
+    expect(css).toMatch(/\.chapter-margin \{[^}]*grid-row:\s*1/);
+    expect(css).toMatch(/\.chapter-margin \{[^}]*max-width:\s*22ch/);
+    expect(css).toMatch(/@media \(max-width: 1100px\)[\s\S]*?\.chapter-margin \{[^}]*grid-column:\s*measure-start \/ field-end/);
   });
 });
 

@@ -16,6 +16,7 @@ import {
   statusLine,
   workBand,
 } from "../content/ledger";
+import { coordinates, type CoordinateKey } from "../content/coordinates";
 import { signal, specLines } from "../content/signal";
 import {
   featuredRows,
@@ -38,14 +39,17 @@ function Cluster({
   index,
   label,
   variant,
+  active,
   children,
 }: {
-  id: string;
+  id: CoordinateKey;
   index: string;
   label: string;
   variant: string;
+  active: string;
   children: ReactNode;
 }) {
+  const coord = coordinates[id];
   return (
     <section
       id={id}
@@ -54,12 +58,18 @@ function Cluster({
     >
       <div className="field">
         <div className="ch-head">
-          <span className="ch-index">{index}</span>
+          <span className="ch-coordinate">
+            <span className={active === id ? "ch-num is-active" : "ch-num"}>
+              {index}
+            </span>
+            {` / ${label.toUpperCase()} / ${coord.value} / ${coord.date}`}
+          </span>
           <h2 id={`${id}-title`} className="ch-name">
             {label}
           </h2>
         </div>
         <div className={`v-body ${variant}`}>{children}</div>
+        <p className="chapter-margin">{coord.margin}</p>
       </div>
     </section>
   );
@@ -163,7 +173,7 @@ export default function LedgerPage() {
           </div>
         </section>
 
-        <Cluster id="signal" index="01" label="Numbers" variant="sa">
+        <Cluster id="signal" index="01" label="Numbers" variant="sa" active={active}>
           <div className="top">
             <div>
               <CountUp value={signal.allTime} className="figure" />
@@ -218,7 +228,7 @@ export default function LedgerPage() {
           <div className="stamp">{signal.stamp}</div>
         </Cluster>
 
-        <Cluster id="work" index="02" label="Open Source" variant="wc">
+        <Cluster id="work" index="02" label="Open Source" variant="wc" active={active}>
           <p className="intro">{workShelfIntro}</p>
           <div className="cards">
             {featuredRows.map((row) => (
@@ -254,7 +264,7 @@ export default function LedgerPage() {
           </div>
         </Cluster>
 
-        <Cluster id="proof" index="03" label="Work" variant="pc">
+        <Cluster id="proof" index="03" label="Work" variant="pc" active={active}>
           <div className="band">
             {workBand.map((item) => (
               <div key={item.label}>
@@ -278,7 +288,7 @@ export default function LedgerPage() {
           </div>
         </Cluster>
 
-        <Cluster id="method" index="04" label="Approach" variant="ma">
+        <Cluster id="method" index="04" label="Approach" variant="ma" active={active}>
           <div className="prose">
             {aiPractice.sentences.map((sentence) => (
               <p key={sentence}>{sentence}</p>
@@ -306,7 +316,7 @@ export default function LedgerPage() {
           </div>
         </Cluster>
 
-        <Cluster id="contact" index="05" label="Contact" variant="ca">
+        <Cluster id="contact" index="05" label="Contact" variant="ca" active={active}>
           <p className="line">{contactBlock.line}</p>
           <a
             className="mail"

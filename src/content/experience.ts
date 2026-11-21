@@ -20,6 +20,8 @@ import { ExperienceSchema } from "../types/models";
 export const employer = {
   role: "Backend Developer",
   company: "Xentra Infotech Solutions Inc.",
+  /** The short form the Work chapter's margin note uses. */
+  shortName: "Xentra",
   location: "Remote",
   period: "March 2023 to May 2026",
 };

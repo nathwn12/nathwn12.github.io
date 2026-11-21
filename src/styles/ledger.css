@@ -459,12 +459,44 @@
   grid-column: measure-start / aside-start;
 }
 
-/* The index stamp holds the measure line until the coordinate line lands. */
-.ch-index {
+/* The coordinate stamp: one derived line, mono data, above the title. */
+.ch-coordinate {
+  font-family: var(--font-data);
+  font-size: var(--text-data);
+  line-height: var(--leading-data);
+  letter-spacing: var(--tracking-data);
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.ch-num {
+  color: var(--color-ink-muted);
+}
+
+.ch-num.is-active {
+  color: var(--color-signal);
+}
+
+/* The one qualifying note, beside the head on wide screens. */
+.chapter-margin {
+  grid-row: 1;
+  grid-column: aside-start / band-start;
+  align-self: start;
+  max-width: 22ch;
+  margin: 0;
   font-family: var(--font-data);
   font-size: var(--text-mono);
-  letter-spacing: 0.12em;
-  color: var(--color-signal);
+  line-height: 1.5;
+  color: var(--color-ink-muted);
+}
+
+@media (max-width: 1100px) {
+  .chapter-margin {
+    grid-row: auto;
+    grid-column: measure-start / field-end;
+    margin-block-start: var(--space-32);
+  }
 }
 
 .ch-name {
