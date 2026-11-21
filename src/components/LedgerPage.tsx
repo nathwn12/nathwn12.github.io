@@ -12,7 +12,7 @@ import {
   statusLine,
 } from "../content/ledger";
 import { signal, specLines } from "../content/signal";
-import { featuredRows, indexRows } from "../content/showcase";
+import { featuredRows, indexRows, workIntro } from "../content/showcase";
 import { projectsLede } from "../content/projects";
 import { CONTACT_EMAIL, CV_PATH, RESUME_PATH } from "../lib/contact";
 
@@ -181,6 +181,7 @@ export default function LedgerPage() {
         </Cluster>
 
         <Cluster id="work" index="02" label="The work">
+          <p className="work-intro">{workIntro}</p>
           <div className="featured-list">
             {featuredRows.map((row) => (
               <div className="featured-row" key={row.dir}>
@@ -188,6 +189,7 @@ export default function LedgerPage() {
                 <div className="featured-main">
                   <h3>{row.name}</h3>
                   <p className="claim">{row.claim}</p>
+                  <p className="row-detail">{row.detail}</p>
                   <span className="tech data">{row.tech.join(" / ")}</span>
                 </div>
                 <div className="featured-stats data">
@@ -210,7 +212,10 @@ export default function LedgerPage() {
                 <a href={row.url} target="_blank" rel="noreferrer">
                   {row.name}
                 </a>
-                <span className="index-claim">{row.claim}</span>
+                <div className="index-copy">
+                  <span className="index-claim">{row.claim}</span>
+                  <span className="row-detail">{row.detail}</span>
+                </div>
                 <span className="index-stats data">
                   {row.language} · pushed {row.pushed}
                 </span>

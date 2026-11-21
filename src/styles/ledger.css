@@ -502,12 +502,29 @@
   transform: scaleX(1);
 }
 
+/* The open-source lead-in: prose at the measure, no plate behind it. */
+.work-intro {
+  max-width: var(--measure);
+  margin-block-end: var(--space-48);
+  color: var(--color-ink-muted);
+}
+
+/* The second line lives inside the copy column, inside the same hairline row. */
+.row-detail {
+  display: block;
+  max-width: 64ch;
+  margin-block-start: var(--space-8);
+  font-family: var(--font-text);
+  line-height: var(--leading-body);
+  color: var(--color-ink-muted);
+}
+
 .featured-row {
-  grid-template-columns: 3ch minmax(0, 2fr) minmax(0, 1fr) 12ch 2ch;
+  grid-template-columns: 3ch minmax(0, 3fr) minmax(0, 1fr) 2ch;
 }
 
 .index-row {
-  grid-template-columns: 3ch minmax(0, 2fr) minmax(0, 2fr) auto;
+  grid-template-columns: 3ch minmax(0, 2fr) minmax(0, 3fr) auto;
 }
 
 .featured-num,
@@ -558,7 +575,7 @@
   }
 
   .featured-main,
-  .index-claim {
+  .index-copy {
     grid-column: 2 / -1;
   }
 

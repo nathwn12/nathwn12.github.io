@@ -12,7 +12,7 @@ import LedgerPage from "../src/components/LedgerPage";
 import { aiPractice, figures, proofRows } from "../src/content/ledger";
 import { experience, provenance } from "../src/content/experience";
 import { signal } from "../src/content/signal";
-import { featuredRows, indexRows } from "../src/content/showcase";
+import { featuredRows, indexRows, workIntro } from "../src/content/showcase";
 import { CONTACT_EMAIL } from "../src/lib/contact";
 
 const root = resolve(import.meta.dirname, "..");
@@ -154,6 +154,13 @@ describe("the content survives the strip", () => {
       expect(work).not.toContain(figure);
     }
     expect(work).not.toContain("class=\"spark\"");
+  });
+
+  test("the work lead-in and second lines render on the hairline rows", () => {
+    const work = html.slice(html.indexOf('id="work"'), html.indexOf('id="proof"'));
+    expect(work).toContain('class="work-intro"');
+    expect(work.match(/class="row-detail"/g) ?? []).toHaveLength(13);
+    expect(html).toContain(workIntro);
   });
 
   test("the register draws a signal rule on hover, never a box", () => {
