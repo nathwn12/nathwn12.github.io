@@ -238,11 +238,13 @@
     text-align: left;
   }
 
-  /* One masthead, one hairline: the mark above, all five links in one row. */
+  /* One masthead, one hairline: the mark above, all five links in one row.
+     The nav's inline inset matches the content gutter. */
   .stage-nav-wrap {
     flex-direction: column;
     align-items: stretch;
     gap: var(--space-8);
+    padding-inline: var(--gutter);
   }
 
   .stage-mark {
