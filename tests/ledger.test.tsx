@@ -597,8 +597,12 @@ describe("one-time motion", () => {
     expect(css).toMatch(/translateY\(8px\)/);
     expect(css).toMatch(/\.cold-read\.is-armed\.is-shown p \{[^}]*transition:/);
     expect(css).toMatch(/\.ch-coordinate \{[^}]*transition:\s*opacity var\(--motion-quick\)/);
+    expect(css).not.toMatch(/\.ch-coordinate \{[^}]*opacity:\s*0\.6/);
     expect(css).toMatch(/\.chapter\.is-active \.ch-coordinate \{[^}]*opacity:\s*1/);
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.cold-read p,[\s\S]*?transition:\s*none/);
+    // The prerendered DOM bakes `is-armed`; with scripting off the noscript
+    // override keeps the About beat in the static document.
+    expect(indexHtml).toContain(".cold-read.is-armed p{opacity:1!important;transform:none!important}");
   });
 });
 
@@ -620,6 +624,7 @@ describe("the phone spine", () => {
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.spine \{[^}]*position:\s*fixed/);
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.spine \{[^}]*left:\s*24px/);
     expect(css).toMatch(/\.spine a \{[^}]*height:\s*44px/);
+    expect(css).toMatch(/\.spine a \{[^}]*transition:\s*color var\(--motion-quick\)/);
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?--index-rail:\s*44px/);
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.hero-hud \{[^}]*padding-inline-start:\s*40px/);
     expect(css).toMatch(/\.lab-nav \.links a span\s*\{[^}]*display:\s*none/);
