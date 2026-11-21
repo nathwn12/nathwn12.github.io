@@ -168,11 +168,20 @@
   background-color: var(--color-signal);
 }
 
-@media (max-width: 700px) {
+/* The gutter widens at 900px. */
+@media (max-width: 899px) {
   :root {
     --gutter: var(--space-16);
   }
+}
 
+@media (min-width: 900px) {
+  :root {
+    --gutter: var(--space-32);
+  }
+}
+
+@media (max-width: 700px) {
   .hero-hud {
     grid-template-columns: 1fr;
     grid-template-rows: auto;
