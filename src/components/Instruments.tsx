@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { fmt, signal } from "../content/signal";
 
 /** The final value lives in the markup. */
@@ -51,25 +50,19 @@ export function Heatmap() {
   );
 }
 
-/** Two identical runs make the 50% translate seamless. */
+/** One clipped line of live readouts; no marquee loop. */
 export function Ticker({ items }: { items: readonly string[] }) {
-  const run = (key: string): ReactNode => (
-    <div className="ticker-run" key={key}>
-      {items.map((item, index) => (
-        <span key={`${key}-${index}`}>
-          {item}
-          <span className="ticker-dot" aria-hidden="true">
-            ·
-          </span>
-        </span>
-      ))}
-    </div>
-  );
   return (
     <div className="ticker" aria-hidden="true">
       <div className="ticker-track">
-        {run("a")}
-        {run("b")}
+        {items.map((item, index) => (
+          <span key={index}>
+            {item}
+            <span className="ticker-dot" aria-hidden="true">
+              ·
+            </span>
+          </span>
+        ))}
       </div>
     </div>
   );

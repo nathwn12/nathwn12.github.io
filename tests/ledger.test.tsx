@@ -51,6 +51,14 @@ describe("one nav, five clusters in descent order", () => {
     expect(html.match(/aria-current="true"/g) ?? []).toHaveLength(1);
     expect(html.indexOf("field-canvas")).toBeLessThan(html.indexOf("hero-hud"));
   });
+
+  test("sparklines are stroked rules, never black fills", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.spark polyline\s*\{[^}]*fill:\s*none/);
+    expect(css).toMatch(/\.spark\.measure polyline/);
+    expect(css).toContain("font-variant-numeric: tabular-nums");
+    expect(html.match(/class="ticker-run"/g) ?? []).toHaveLength(0);
+  });
 });
 
 describe("the content survives the strip", () => {
