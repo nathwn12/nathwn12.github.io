@@ -255,7 +255,8 @@ describe("the stripped floor", () => {
       );
     }
     expect(existsSync(resolve(root, "public/horizon-a-desktop.mp4"))).toBe(false);
-    expect(existsSync(resolve(root, "src/lib/blackhole"))).toBe(false);
+    expect(existsSync(resolve(root, "src/lib/blackhole/renderer.ts"))).toBe(true);
+    expect(existsSync(resolve(root, "src/lib/blackhole/shaders.ts"))).toBe(true);
     expect(existsSync(resolve(root, "src/components/HorizonVideo.tsx"))).toBe(false);
   });
 

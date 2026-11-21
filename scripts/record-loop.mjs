@@ -82,12 +82,12 @@ function encoders(master) {
       ],
     },
     {
+      // AV1 first: SVT-AV1 preset 6 at CRF 34, the measured prior-wave choice.
       name: "webm",
       args: [
         "-y", "-loglevel", "error", "-f", "image2pipe", "-framerate", String(FPS),
-        "-vcodec", "png", "-i", "-", "-an", "-c:v", "libvpx-vp9", "-b:v", "0",
-        "-crf", "30", "-deadline", "good", "-cpu-used", "4", "-row-mt", "1",
-        "-pix_fmt", "yuv420p", out(`horizon-${master.name}.webm`),
+        "-vcodec", "png", "-i", "-", "-an", "-c:v", "libsvtav1", "-preset", "6",
+        "-crf", "34", "-pix_fmt", "yuv420p", out(`horizon-${master.name}.webm`),
       ],
     },
   ].map((encoder) => {
