@@ -46,6 +46,14 @@ describe("one nav, five clusters in descent order", () => {
     expect(html).toContain("colophon");
   });
 
+  test("the masthead uses the owned mark once at width 120", () => {
+    expect(html.match(/<img[^>]*brand\/signature\.svg/g) ?? []).toHaveLength(1);
+    expect(html).toContain('width="120"');
+    expect(html).not.toContain("stage-mark-tail");
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.stage-mark img\s*\{[^}]*width:\s*120px/);
+  });
+
   test("the field is behind the plate and one chapter is active", () => {
     expect(html).toContain('class="field-canvas"');
     expect(html).toContain(`data-point-count="${fieldPoints.length}"`);
