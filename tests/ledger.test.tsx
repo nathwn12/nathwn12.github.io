@@ -345,6 +345,8 @@ describe("the stripped floor", () => {
     expect(html).toContain("/horizon-phone.webm");
     expect(html).toContain('poster="/horizon-poster-desktop.webp"');
     const media = read("src/components/HorizonVideo.tsx");
+    expect(html).not.toMatch(/<video[^>]*\bautoPlay\b/);
+    expect(media).toContain("inactive?.pause()");
     expect(media).toContain('(max-aspect-ratio: 3/4)');
     expect(media).toContain("prefers-reduced-motion: reduce");
     expect(media).toContain("IntersectionObserver");

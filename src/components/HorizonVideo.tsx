@@ -5,8 +5,16 @@ import { useEffect, useRef, useState } from "react";
 export default function HorizonVideo() {
   const desktopRef = useRef<HTMLVideoElement>(null);
   const phoneRef = useRef<HTMLVideoElement>(null);
-  const [phone, setPhone] = useState(false);
-  const [reduce, setReduce] = useState(false);
+  // Resolve the aspect before first paint so only the right master is ever
+  // selected. Guarded for the static-markup test, where matchMedia is absent.
+  const matches = (query: string): boolean =>
+    typeof window !== "undefined" &&
+    typeof window.matchMedia === "function" &&
+    window.matchMedia(query).matches;
+  const [phone, setPhone] = useState(() => matches("(max-aspect-ratio: 3/4)"));
+  const [reduce, setReduce] = useState(() =>
+    matches("(prefers-reduced-motion: reduce)"),
+  );
 
   useEffect(() => {
     const aspect = window.matchMedia("(max-aspect-ratio: 3/4)");
@@ -25,26 +33,34 @@ export default function HorizonVideo() {
   }, []);
 
   useEffect(() => {
-    const video = (phone ? phoneRef : desktopRef).current;
-    if (!video || reduce) return;
+    const active = (phone ? phoneRef : desktopRef).current;
+    const inactive = (phone ? desktopRef : phoneRef).current;
+    // The inactive master never decodes: no autoPlay in the markup, so this
+    // is the only place a stream can start or stop.
+    inactive?.pause();
+    if (!active || reduce) {
+      active?.pause();
+      return;
+    }
     const play = (): void => {
-      if (!document.hidden && video.getBoundingClientRect().bottom > 0) {
-        void video.play().catch(() => {});
+      if (!document.hidden && active.getBoundingClientRect().bottom > 0) {
+        void active.play().catch(() => {});
       } else {
-        video.pause();
+        active.pause();
       }
     };
     const observer = new IntersectionObserver((entries) => {
       if (entries.some((entry) => entry.isIntersecting)) play();
-      else video.pause();
+      else active.pause();
     });
-    observer.observe(video);
+    observer.observe(active);
     document.addEventListener("visibilitychange", play);
     play();
     return () => {
       observer.disconnect();
       document.removeEventListener("visibilitychange", play);
-      video.pause();
+      active.pause();
+      inactive?.pause();
     };
   }, [phone, reduce]);
 
@@ -65,7 +81,6 @@ export default function HorizonVideo() {
         ref={desktopRef}
         className="horizon-media horizon-desktop"
         poster="/horizon-poster-desktop.webp"
-        autoPlay
         muted
         loop
         playsInline
@@ -79,7 +94,6 @@ export default function HorizonVideo() {
         ref={phoneRef}
         className="horizon-media horizon-phone"
         poster="/horizon-poster-phone.webp"
-        autoPlay
         muted
         loop
         playsInline
