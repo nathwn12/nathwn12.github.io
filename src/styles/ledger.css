@@ -216,8 +216,14 @@
     display: none;
   }
 
+  /* Media band geometry: drop and stretch the phone master so the disc's
+     upper glow sits below the corner copy, never across it. */
   .horizon-phone {
     display: block;
+    top: 7%;
+    bottom: auto;
+    height: 112%;
+    object-position: 50% 50%;
   }
 }
 
@@ -225,6 +231,11 @@
   .hero-hud {
     grid-template-columns: 1fr;
     grid-template-rows: auto;
+    /* Plate offset: pack the corner copy to the top so the disc owns the
+       lower band; stretched rows used to put Status on the glow. */
+    align-content: start;
+    padding-block-start: var(--space-16);
+    row-gap: var(--space-16);
   }
 
   .hud-name,
