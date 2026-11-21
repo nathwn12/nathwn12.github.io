@@ -210,9 +210,9 @@
     --frame-native: 96rem;
     --gutter: var(--space-48);
     --index-rail: var(--space-64);
-    --spine-rail: 240px;
     --measure-contact: 28ch;
     --measure-wide: 64ch;
+    --text-date-margin: 0.5625rem;
   }
 }
 
@@ -222,9 +222,10 @@
     --gutter: var(--space-64);
     --text-display: clamp(4rem, 8.5vw, 13rem);
     --index-rail: var(--space-96);
-    --spine-rail: 300px;
     --measure-contact: 32ch;
     --measure-wide: 72ch;
+    --date-gap: var(--space-16);
+    --text-date-margin: 0.6875rem;
   }
 }
 
@@ -1108,13 +1109,14 @@
 
 .pc .spine {
   position: relative;
-  padding-inline-start: var(--spine-rail);
+  /* The body starts on the shared field edge, like the other four chapters. */
+  padding-inline-start: 0;
 }
 
 .pc .spine::before {
   content: "";
   position: absolute;
-  inset-inline-start: calc(var(--spine-rail) - var(--space-32));
+  inset-inline-start: calc(-1 * var(--space-16));
   inset-block-start: var(--space-8);
   inset-block-end: var(--space-8);
   width: 1px;
@@ -1132,7 +1134,7 @@
 .pc .node::before {
   content: "";
   position: absolute;
-  inset-inline-start: calc(-1 * var(--space-32) - 3px);
+  inset-inline-start: calc(-1 * var(--space-16) - 3px);
   inset-block-start: var(--space-8);
   width: 6px;
   height: 6px;
@@ -1140,28 +1142,50 @@
   border-radius: 50%;
 }
 
-.pc .date {
-  position: absolute;
-  inset-inline-start: calc(-1 * var(--spine-rail));
-  inset-block-start: 0;
-  width: calc(var(--spine-rail) - var(--space-48));
-  text-align: right;
+/* Below the margin threshold the stamps sit above their node. */
+.pc .date,
+.pc .stampfig {
+  grid-column: 1 / -1;
   font-family: var(--font-data);
-  font-size: var(--text-mono);
   color: var(--color-ink-muted);
+}
+
+.pc .date {
+  font-size: var(--text-mono);
   letter-spacing: 0.03em;
-  white-space: nowrap;
+  margin-block-end: var(--space-4);
 }
 
 .pc .stampfig {
-  position: absolute;
-  inset-inline-start: calc(-1 * var(--spine-rail));
-  inset-block-start: var(--space-24);
-  width: calc(var(--spine-rail) - var(--space-48));
-  text-align: right;
   font-family: var(--font-display);
   font-size: var(--text-figure-sm);
   color: var(--color-signal);
+  margin-block-end: var(--space-8);
+}
+
+/* At the measure and above they hang in the left margin, right-aligned. */
+@media (min-width: 1200px) {
+  .pc .date,
+  .pc .stampfig {
+    position: absolute;
+    inset-inline-start: calc(-1 * var(--date-offset));
+    width: calc(var(--date-offset) - var(--date-gap));
+    padding-inline-end: var(--date-gap);
+    text-align: right;
+    white-space: nowrap;
+    font-size: var(--text-date-margin);
+  }
+
+  .pc .date {
+    inset-block-start: 0;
+    margin-block-end: 0;
+  }
+
+  .pc .stampfig {
+    inset-block-start: var(--space-24);
+    margin-block-end: 0;
+    font-size: var(--text-figure-sm);
+  }
 }
 
 .pc h3 {
@@ -1351,23 +1375,6 @@
 
   .wc .list {
     columns: 1;
-  }
-
-  .pc .spine::before {
-    inset-inline-start: calc(var(--spine-rail) - var(--space-16));
-  }
-
-  .pc .node::before {
-    inset-inline-start: calc(-1 * var(--space-16) - 3px);
-  }
-
-  .pc .date,
-  .pc .stampfig {
-    width: calc(var(--spine-rail) - var(--space-24));
-  }
-
-  .pc .date {
-    white-space: normal;
   }
 
   .pc .node {

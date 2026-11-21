@@ -224,6 +224,14 @@ describe("the content survives the strip", () => {
     expect(html).toContain(figures.commits!);
   });
 
+  test("Work body sits on the field edge; margin dates never push it right", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.pc \.spine \{[^}]*padding-inline-start:\s*0/);
+    expect(css).toMatch(/\.pc \.spine::before \{[^}]*inset-inline-start:\s*calc\(-1 \* var\(--space-16\)\)/);
+    expect(css).toMatch(/@media \(min-width: 1200px\)[\s\S]*?\.pc \.date,\s*\.pc \.stampfig \{[^}]*position:\s*absolute/);
+    expect(css).toMatch(/\.pc \.stampfig \{[^}]*white-space:\s*nowrap/);
+  });
+
   test("the Work band and spine derive from the measured record", () => {
     const proof = html.slice(html.indexOf('id="proof"'), html.indexOf('id="method"'));
     expect(proof).toContain('class="band"');
@@ -303,7 +311,7 @@ describe("the content survives the strip", () => {
     expect(tokens).toMatch(/--field:\s*var\(--frame-native\)/);
     expect(tokens).toMatch(/--text-variant-value:\s*clamp\(/);
     expect(css).toMatch(/@media \(min-width: 1600px\)[\s\S]*?--index-rail:/);
-    expect(css).toMatch(/@media \(min-width: 2200px\)[\s\S]*?--spine-rail:/);
+    expect(css).toMatch(/@media \(min-width: 2200px\)[\s\S]*?--text-date-margin:/);
     // Below the measure the spec stacks instead of squeezing its ruled rows.
     expect(css).toMatch(/@media \(min-width: 701px\) and \(max-width: 1100px\)[\s\S]*?\.ma \{[^}]*grid-template-columns:\s*1fr/);
   });

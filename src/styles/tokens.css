@@ -51,9 +51,12 @@
   /* ONE content field and index rail for all five chapters. */
   --field: var(--frame-native);
   --index-rail: var(--space-32);
-  --spine-rail: 180px;
   --measure-contact: 22ch;
   --measure-wide: 56ch;
+  /* The Work margin stamps hang left of the body, never inside its measure. */
+  --date-offset: clamp(112px, 6.9vw, 176px);
+  --date-gap: var(--space-8);
+  --text-date-margin: 0.40625rem;
 
   /* Spacing — unit 4px; scale [0,4,8,12,16,24,32,48,64,96,128]. */
   --spacing: 4px;
