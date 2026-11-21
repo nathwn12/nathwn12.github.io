@@ -81,12 +81,21 @@
   overflow: hidden;
 }
 
-.field-canvas {
+/* The recorded singularity: full-bleed, behind the plate, never a wallpaper
+   behind text — the plate copy sits in the open void above and below it. */
+.horizon-media {
   position: absolute;
   inset: 0;
   z-index: 0;
   display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   pointer-events: none;
+}
+
+.horizon-phone {
+  display: none;
 }
 
 .hero-hud {
@@ -177,6 +186,16 @@
 @media (min-width: 900px) {
   :root {
     --gutter: var(--space-32);
+  }
+}
+
+@media (max-aspect-ratio: 3/4) {
+  .horizon-desktop {
+    display: none;
+  }
+
+  .horizon-phone {
+    display: block;
   }
 }
 

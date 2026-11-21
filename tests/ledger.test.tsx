@@ -253,7 +253,26 @@ describe("the stripped floor", () => {
     expect(existsSync(resolve(root, "public/horizon-a-desktop.mp4"))).toBe(false);
     expect(existsSync(resolve(root, "src/lib/blackhole/renderer.ts"))).toBe(true);
     expect(existsSync(resolve(root, "src/lib/blackhole/shaders.ts"))).toBe(true);
-    expect(existsSync(resolve(root, "src/components/HorizonVideo.tsx"))).toBe(false);
+    expect(existsSync(resolve(root, "src/components/HorizonVideo.tsx"))).toBe(true);
+  });
+
+  test("the hero plays an AV1-first recorded loop with a still fallback", () => {
+    expect(html).toContain("<video");
+    expect(html).toContain("/horizon-desktop.webm");
+    expect(html).toContain("/horizon-desktop.mp4");
+    expect(html).toContain("/horizon-phone.webm");
+    expect(html).toContain('poster="/horizon-poster-desktop.webp"');
+    const media = read("src/components/HorizonVideo.tsx");
+    expect(media).toContain('(max-aspect-ratio: 3/4)');
+    expect(media).toContain("prefers-reduced-motion: reduce");
+    expect(media).toContain("IntersectionObserver");
+    expect(media).toContain("document.hidden");
+    for (const asset of [
+      "horizon-desktop.webm", "horizon-desktop.mp4", "horizon-phone.webm",
+      "horizon-phone.mp4", "horizon-poster-desktop.webp", "horizon-poster-phone.webp",
+    ]) {
+      expect(existsSync(resolve(root, `public/${asset}`))).toBe(true);
+    }
   });
 
   test("the hero has no runtime field loop", () => {
