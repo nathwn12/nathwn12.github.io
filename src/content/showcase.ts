@@ -1,5 +1,4 @@
 import { projects } from "./projects";
-import { signal, fmt } from "./signal";
 import probe from "./repos.probe.json";
 
 /**
@@ -61,22 +60,6 @@ const DETAILS: Readonly<Record<string, string>> = {
 export const workIntro =
   "The public repositories are the argument. A driver published this week gives an agent a bounded way into a browser and a Windows desktop. The OpenCode packages in that family are the ones he runs daily — the harness is his own, opened up rather than demonstrated. Every tool below ships publicly, with its case notes attached.";
 
-/** One npm name per package-bearing project; collections sum their members. */
-const NAMES: Readonly<Record<string, readonly string[]>> = {
-  hand: ["hand-mcp"],
-  puppet: ["puppet-mcp"],
-  gladius: ["gladius-mcp"],
-  "oc-collections": [
-    "@nathwn12/oc-bifrost",
-    "oc-harness-setup",
-    "oc-flight-deck",
-    "oc-plugin-view",
-    "oc-talk",
-    "rea-shim",
-    "@nathwn12/janua",
-  ],
-};
-
 export interface ShowcaseRow {
   num: string;
   name: string;
@@ -87,25 +70,12 @@ export interface ShowcaseRow {
   tech: string[];
   language: string;
   pushed: string;
-  month: number | null;
-  monthLabel: string;
-  daily: number[] | null;
 }
 
 const byRepo = new Map(probe.repos.map((repo) => [repo.name, repo]));
-const byPackage = new Map(signal.packages.map((item) => [item.name, item]));
 
 const rows: ShowcaseRow[] = projects.map((project, index) => {
   const repo = byRepo.get(project.dir);
-  const names = NAMES[project.dir] ?? [];
-  const measured = names.map((name) => byPackage.get(name)).filter(Boolean);
-  const daily =
-    measured.length > 0
-      ? measured[0]!.daily.map((_, day) =>
-          measured.reduce((sum, item) => sum + (item!.daily[day] ?? 0), 0),
-        )
-      : null;
-  const month = measured.length > 0 ? measured.reduce((sum, item) => sum + item!.month, 0) : null;
   return {
     num: String(index + 1).padStart(2, "0"),
     name: project.name,
@@ -116,9 +86,6 @@ const rows: ShowcaseRow[] = projects.map((project, index) => {
     tech: project.tech.slice(0, 3),
     language: repo?.primaryLanguage ?? project.tech[0] ?? "—",
     pushed: repo ? repo.pushedAt.slice(5).replace("-", ".") : "—",
-    month,
-    monthLabel: month === null ? "no package" : `${fmt(month)} / 30d`,
-    daily,
   };
 });
 

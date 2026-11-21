@@ -141,6 +141,21 @@ describe("the content survives the strip", () => {
     expect(intro).toContain("runs daily");
   });
 
+  test("the work section repeats no signal or proof figure", () => {
+    const work = html.slice(html.indexOf('id="work"'), html.indexOf('id="proof"'));
+    const repeats = [
+      ...signal.packages.map((item) => item.month.toLocaleString("en-US")),
+      signal.allTime.toLocaleString("en-US"),
+      signal.month.toLocaleString("en-US"),
+      figures.commits!,
+      "/ 30d",
+    ];
+    for (const figure of repeats) {
+      expect(work).not.toContain(figure);
+    }
+    expect(work).not.toContain("class=\"spark\"");
+  });
+
   test("the register draws a signal rule on hover, never a box", () => {
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(/\.featured-row:hover::after/);

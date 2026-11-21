@@ -191,11 +191,9 @@ export default function LedgerPage() {
                   <span className="tech data">{row.tech.join(" / ")}</span>
                 </div>
                 <div className="featured-stats data">
-                  <span>{row.monthLabel}</span>
                   <span>{row.language}</span>
                   <span>pushed {row.pushed}</span>
                 </div>
-                {row.daily && <Sparkline values={row.daily} tone="measure" />}
                 <a href={row.url} target="_blank" rel="noreferrer" aria-label={`Open ${row.name} on GitHub`}>
                   <span aria-hidden="true">↗</span>
                 </a>
@@ -214,7 +212,7 @@ export default function LedgerPage() {
                 </a>
                 <span className="index-claim">{row.claim}</span>
                 <span className="index-stats data">
-                  {row.language} · {row.monthLabel} · pushed {row.pushed}
+                  {row.language} · pushed {row.pushed}
                 </span>
               </div>
             ))}
