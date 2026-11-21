@@ -56,6 +56,8 @@
 .stage-nav a {
   display: inline-flex;
   align-items: center;
+  flex: 0 0 92px;
+  width: 92px;
   min-height: 44px;
   padding-inline: var(--space-8);
   color: var(--color-ink-muted);
@@ -202,21 +204,14 @@
 }
 
 .ticker-track {
-  display: flex;
-  width: max-content;
-  max-width: 100%;
+  display: block;
+  width: 100%;
   overflow: hidden;
-  gap: var(--space-16);
   font-family: var(--font-data);
   font-size: var(--text-data);
   letter-spacing: var(--tracking-data);
   color: var(--color-ink-muted);
   white-space: nowrap;
-}
-
-.ticker-dot {
-  margin-inline-start: var(--space-16);
-  color: var(--color-signal);
 }
 
 /* Chapters alternate a dense catalog with an open register. */
