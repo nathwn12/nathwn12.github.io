@@ -11,6 +11,7 @@ import { describe, expect, test } from "vitest";
 import LedgerPage from "../src/components/LedgerPage";
 import { fieldPoints } from "../src/content/field";
 import { figures, proofRows } from "../src/content/ledger";
+import { experience, provenance } from "../src/content/experience";
 import { signal } from "../src/content/signal";
 import { featuredRows, indexRows } from "../src/content/showcase";
 import { CONTACT_EMAIL } from "../src/lib/contact";
@@ -111,6 +112,19 @@ describe("the content survives the strip", () => {
     expect(html).toContain("−98%");
     expect(figures.commits).toBe("1,182");
     expect(html).toContain(figures.commits!);
+  });
+
+  test("the proof carries provenance and measured experience rows", () => {
+    expect(html).toContain(provenance);
+    expect(html.match(/class="experience-row/g) ?? []).toHaveLength(
+      experience.length,
+    );
+    expect(html.match(/class="experience-figure"/g) ?? []).toHaveLength(
+      experience.filter((entry) => entry.metric).length,
+    );
+    for (const entry of experience) {
+      expect(html).toContain(entry.outcome);
+    }
   });
 
   test("the method is a spec sheet with no prose paragraphs", () => {

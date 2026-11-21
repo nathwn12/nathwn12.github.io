@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import PointField from "./PointField";
 import { fieldCaption } from "../content/field";
 import { CountUp, Heatmap, Sparkline, Ticker } from "./Instruments";
-import { employer } from "../content/experience";
+import { employer, experience, provenance } from "../content/experience";
 import {
   contactBlock,
   figures,
@@ -237,6 +237,26 @@ export default function LedgerPage() {
                   <span className="proof-note data">
                     {String(i + 1).padStart(2, "0")} / measured
                   </span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="provenance data">{provenance}</p>
+
+          <div className="experience-register">
+            {experience.map((entry) => (
+              <div
+                className={`experience-row${entry.metric ? "" : " experience-row-plain"}`}
+                key={entry.id}
+              >
+                {entry.metric && (
+                  <span className="experience-figure">{entry.metric}</span>
+                )}
+                <div className="experience-copy">
+                  <h3>{entry.name}</h3>
+                  <p>{entry.outcome}</p>
+                  <span className="data">{entry.date} · {entry.status}</span>
                 </div>
               </div>
             ))}
