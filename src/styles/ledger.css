@@ -666,6 +666,7 @@
   font-size: var(--text-body);
   line-height: var(--leading-body);
   font-optical-sizing: auto;
+  text-wrap: pretty;
 }
 
 .method-prose p + p {
