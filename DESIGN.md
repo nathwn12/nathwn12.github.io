@@ -58,16 +58,19 @@ mode and no `prefers-color-scheme` branch.
 - `ink` `#E9E6E1` — warm paper starlight: headings and body.
 - `ink-muted` `#9A968E` — dim points: descriptions, meta lines.
 - `signal` `#C68E74` — the burnt-orange lensed arcs, the one hot accent:
-  section numerals, links, the active hairline, live stat points.
+  section numerals, links, the active hairline, live stat points. Live =
+  the three packages with the most downloads in the last 30 days, read
+  from the committed content, never hardcoded.
 - `measure` `#627AC2` — the steel-blue diffraction spikes: giant figures and
   point art only, never body text.
 - `on-signal` `#1A1512` and `selection` — ink on signal fills, and the
   text-selection tint.
 
 Floors, asserted by `tests/design-floors.test.ts` computed from the live
-token values: ink ≥ 7:1, ink-muted ≥ 4.5:1, signal ≥ 4.5:1, on-signal ≥
-4.5:1 against ground; measure ≥ 3:1, non-text and large text only. A mismatch
-between this file and the test is a defect in both.
+token values: ink ≥ 7:1, ink-muted ≥ 4.5:1 and signal ≥ 4.5:1 against
+ground; on-signal ≥ 4.5:1 on its signal fill; measure ≥ 3:1, non-text and
+large text only. A mismatch between this file and the test is a defect in
+both.
 
 ## Type
 
@@ -87,9 +90,11 @@ text optical sizes; display scale only through the display role.
 
 ## Space
 
-One masthead: the mark at width 120 once, then the five chapter links on one
-hairline — the constellation line; the active chapter carries the signal
-tint. The hero is one full-viewport field; its plate content sits in the
+One masthead: the author mark `public/brand/signature.svg` at width 120
+once — the owned mark keeps its own file, format and palette; site tokens
+bind site surfaces, never the brand mark — then the five chapter links on
+one hairline — the constellation line; the active chapter carries the
+signal tint. The hero is one full-viewport field; its plate content sits in the
 corners. Chapters alternate dense catalog blocks — figures, sparklines,
 ruled rows — with open register rows; hairline rules separate rows, never
 boxes. Rhythm: dense, open, dense; never five equal bands. Content frame
