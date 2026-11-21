@@ -100,9 +100,10 @@ One masthead: the author mark at width 120 once — the glyph variant
 tiled `signature.svg` by removing the ground tile and tightening the
 viewBox to the glyph, with the strokes untouched; the canonical tiled file
 stays in the brand kit. The owned mark keeps its own file, format and
-palette; site tokens bind site surfaces, never the brand mark — then the
-five chapter links on one hairline — the constellation line; the active
-chapter carries the signal tint. The hero is one full-viewport singularity — a recorded loop
+palette; site tokens bind site surfaces, never the brand mark. The site
+renders it as a quiet imprint at 0.6 opacity — a CSS treatment only; the
+SVG file is untouched. Then the five chapter links on one hairline — the
+constellation line; the active chapter carries the signal tint. The hero is one full-viewport singularity — a recorded loop
 with its plate content in the corners. Chapters alternate dense catalog
 blocks — figures, sparklines,
 ruled rows — with open register rows; hairline rules separate rows, never

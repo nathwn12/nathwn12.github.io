@@ -40,6 +40,8 @@
   display: block;
   width: 120px;
   height: 120px;
+  /* Quiet imprint: the site dims the rendered mark, never the brand file. */
+  opacity: 0.6;
 }
 
 .stage-nav {
