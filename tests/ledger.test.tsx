@@ -77,6 +77,8 @@ describe("one nav, five clusters in descent order", () => {
 
   test("the ticker is a bounded strip that yields at phone class", () => {
     const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.ticker \{[^}]*padding-inline:\s*var\(--gutter\)/);
+    expect(html).not.toContain("ticker-track frame");
     expect(css).toMatch(/\.ticker-track \{[^}]*white-space:\s*nowrap/);
     expect(css).toMatch(/@media \(max-width: 900px\)[\s\S]*?\.ticker\s*\{[^}]*display:\s*none/);
     expect(css).not.toMatch(/@keyframes/);

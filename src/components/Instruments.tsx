@@ -54,7 +54,7 @@ export function Heatmap() {
 export function Ticker({ items }: { items: readonly string[] }) {
   return (
     <div className="ticker" aria-hidden="true">
-      <span className="ticker-track frame">{items.join(" · ")}</span>
+      <span className="ticker-track">{items.join(" · ")}</span>
     </div>
   );
 }

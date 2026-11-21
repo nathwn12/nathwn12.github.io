@@ -267,7 +267,9 @@
 .ticker {
   width: 100%;
   overflow: hidden;
+  /* The rule spans the viewport; the readout starts on the content gutter. */
   padding-block: var(--space-8);
+  padding-inline: var(--gutter);
   border-block-end: 1px solid
     color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
 }
