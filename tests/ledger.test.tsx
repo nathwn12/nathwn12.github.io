@@ -89,7 +89,18 @@ describe("the content survives the strip", () => {
     expect(indexRows).toHaveLength(10);
     expect(html.match(/class="featured-row"/g) ?? []).toHaveLength(3);
     expect(html.match(/class="index-row"/g) ?? []).toHaveLength(10);
+    expect(
+      (html.match(/class="featured-row"/g) ?? []).length +
+        (html.match(/class="index-row"/g) ?? []).length,
+    ).toBe(13);
     expect(html).not.toMatch(/class="[^"]*\bcard\b/);
+  });
+
+  test("the register draws a signal rule on hover, never a box", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.featured-row:hover::after/);
+    expect(css).toMatch(/\.index-row:focus-within::after/);
+    expect(css).toContain("border-block-end: 1px solid");
   });
 
   test("the proof keeps its four measured rows and their figures", () => {
