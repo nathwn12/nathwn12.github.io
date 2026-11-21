@@ -117,15 +117,15 @@ describe("the content survives the strip", () => {
     expect(html).toContain('class="ticker"');
   });
 
-  test("three number-led features and ten compact index entries", () => {
+  test("three featured and eleven compact index entries", () => {
     expect(featuredRows).toHaveLength(3);
-    expect(indexRows).toHaveLength(10);
+    expect(indexRows).toHaveLength(11);
     expect(html.match(/class="featured-row"/g) ?? []).toHaveLength(3);
-    expect(html.match(/class="index-row"/g) ?? []).toHaveLength(10);
+    expect(html.match(/class="index-row"/g) ?? []).toHaveLength(11);
     expect(
       (html.match(/class="featured-row"/g) ?? []).length +
         (html.match(/class="index-row"/g) ?? []).length,
-    ).toBe(13);
+    ).toBe(14);
     expect(html).not.toMatch(/class="[^"]*\bcard\b/);
   });
 
@@ -175,8 +175,10 @@ describe("the content survives the strip", () => {
   test("the work lead-in and second lines render on the hairline rows", () => {
     const work = html.slice(html.indexOf('id="work"'), html.indexOf('id="proof"'));
     expect(work).toContain('class="work-intro"');
-    expect(work.match(/class="row-detail"/g) ?? []).toHaveLength(13);
+    expect(work.match(/class="row-detail"/g) ?? []).toHaveLength(14);
     expect(html).toContain(workIntro);
+    expect(html).toContain("opencode-harness");
+    expect(html).toContain("Doctrine-guarded and self-policing");
   });
 
   test("the register draws a signal rule on hover, never a box", () => {

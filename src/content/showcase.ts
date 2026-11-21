@@ -118,5 +118,24 @@ const rows: ShowcaseRow[] = projects.map((project, index) => {
   };
 });
 
-export const featuredRows = rows.slice(0, 3);
-export const indexRows = rows.slice(3);
+/** Lead addition, for the owner's veto: the public harness he drives daily.
+ *  Grounded in the harness atlas, not in repos.probe.json — so it carries no
+ *  probe-derived language or pushed date and no npm lifetime figure. */
+const harnessRow: ShowcaseRow = {
+  num: String(rows.length + 1).padStart(2, "0"),
+  name: "OpenCode Harness",
+  dir: "opencode-harness",
+  url: "https://github.com/nathwn12/opencode-harness",
+  claim: "The public harness he drives every day.",
+  detail:
+    "Doctrine-guarded and self-policing: nine seats, a verify allowlist, and the Atlas as the only channel into live configuration. The rules are written down because the loop is the asset.",
+  tech: ["OpenCode"],
+  language: "—",
+  pushed: "—",
+  lifetime: null,
+};
+
+const allRows: ShowcaseRow[] = [...rows, harnessRow];
+
+export const featuredRows = allRows.slice(0, 3);
+export const indexRows = allRows.slice(3);
