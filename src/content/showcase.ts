@@ -25,11 +25,18 @@ const CLAIMS: Readonly<Record<string, string>> = {
   bytefry: "Offline image crush, entirely on the machine.",
 };
 
+/** One owner for the tool count: the hand case note in projects.ts. */
+const handTools =
+  projects
+    .find((project) => project.dir === "hand")
+    ?.stats.find((stat) => stat.label === "tools")?.value ?? "";
+if (!handTools) throw new Error("showcase.ts: hand tool count is missing");
+
 /** A second line per row: the technical texture behind the claim. Specific,
  *  warm on the work itself, and free of any figure another chapter owns. */
 const DETAILS: Readonly<Record<string, string>> = {
   hand:
-    "Published this week. The browser engine drives Chromium over CDP and the desktop engine works in the background without moving the pointer or stealing focus — 35 MCP tools his own harness calls every day.",
+    `Published this week. The browser engine drives Chromium over CDP and the desktop engine works in the background without moving the pointer or stealing focus — ${handTools} his own harness calls every day.`,
   puppet:
     "Six narrow tools, each target-locked to a window revalidated before every call. Clipboard writes are refused unless explicitly allowed.",
   gladius:

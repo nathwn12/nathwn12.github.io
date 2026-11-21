@@ -11,6 +11,7 @@ import { describe, expect, test } from "vitest";
 import LedgerPage from "../src/components/LedgerPage";
 import { aiPractice, figures, proofRows } from "../src/content/ledger";
 import { experience, provenance } from "../src/content/experience";
+import { projects } from "../src/content/projects";
 import { signal } from "../src/content/signal";
 import {
   featuredRows,
@@ -162,7 +163,11 @@ describe("the content survives the strip", () => {
       expect(work).toContain(row.lifetime!.toLocaleString("en-US"));
     }
     // The evidenced count is 35 in projects.ts, not the lead's suggested 40.
-    expect(featuredRows[0]!.detail).toContain("35 MCP tools");
+    const toolCount = projects
+      .find((project) => project.dir === "hand")
+      ?.stats.find((stat) => stat.label === "tools")?.value;
+    expect(toolCount).toBeTruthy();
+    expect(featuredRows[0]!.detail).toContain(toolCount!);
     expect(work).not.toContain("40 MCP tools");
   });
 
