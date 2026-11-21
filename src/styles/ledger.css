@@ -74,6 +74,38 @@
   text-overflow: ellipsis;
 }
 
+/* The phone's only chrome: a fixed 01-05 spine. Hidden wherever the top nav
+   still has room for the numerals. */
+.spine {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .spine {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    left: 24px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+  }
+
+  .spine a {
+    display: grid;
+    place-items: center;
+    height: 44px;
+    font-family: var(--font-data);
+    font-size: 0.6875rem;
+    color: var(--color-ink-muted);
+    text-decoration: none;
+  }
+
+  .spine a[aria-current="true"] {
+    color: var(--color-signal);
+  }
+}
+
 /* One full-viewport field. Points crop at narrow widths: points-on-void. */
 .hero {
   position: relative;
@@ -1131,7 +1163,7 @@ video.horizon-media.is-playing {
 
 @media (max-width: 700px) {
   :root {
-    --index-rail: var(--space-24);
+    --index-rail: 44px;
   }
 
   .ch-name {

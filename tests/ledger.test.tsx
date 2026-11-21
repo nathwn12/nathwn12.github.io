@@ -26,8 +26,8 @@ const ORDER = ["signal", "work", "proof", "method", "contact"];
 
 describe("one nav, five clusters in descent order", () => {
   test("the nav lists the five stages in descent order", () => {
-    expect(html.match(/<nav\b/g) ?? []).toHaveLength(1);
-    const nav = html.match(/<nav\b[^>]*>[\s\S]*?<\/nav>/)?.[0] ?? "";
+    expect(html.match(/<nav\b/g) ?? []).toHaveLength(2);
+    const nav = html.match(/<nav class="links"[\s\S]*?<\/nav>/)?.[0] ?? "";
     const links = [...nav.matchAll(/href="#([a-z]+)"/g)].map((match) => match[1]);
     expect(links).toEqual(ORDER);
   });
@@ -79,8 +79,8 @@ describe("one nav, five clusters in descent order", () => {
     }
   });
 
-  test("one chapter is active in the single navigation", () => {
-    expect(html.match(/aria-current="true"/g) ?? []).toHaveLength(1);
+  test("one chapter is active in each navigation", () => {
+    expect(html.match(/aria-current="true"/g) ?? []).toHaveLength(2);
   });
 
   test("the frame widens for the native 2560 composition", () => {
@@ -576,6 +576,29 @@ describe("chapter placement on the field", () => {
     expect(css).toContain(".ch-head > *,");
     expect(css).toMatch(/\.ca \.line,[\s\S]*?grid-column:\s*measure-start \/ field-end/);
     expect(css).toMatch(/\.chapter-margin \{[^}]*max-width:\s*none/);
+  });
+});
+
+describe("the phone spine", () => {
+  test("one fixed spine carries 01-05 with a single active item", () => {
+    expect(html.match(/<nav class="spine" aria-label="Chapters, phone">/g) ?? []).toHaveLength(1);
+    const spine = html.match(/<nav class="spine"[\s\S]*?<\/nav>/)?.[0] ?? "";
+    expect(spine.match(/href="#[a-z]+"/g) ?? []).toHaveLength(5);
+    expect(spine.match(/aria-current="true"/g) ?? []).toHaveLength(1);
+    for (const [id, num] of [
+      ["signal", "01"], ["work", "02"], ["proof", "03"],
+      ["method", "04"], ["contact", "05"],
+    ]) {
+      expect(spine).toContain(`href="#${id}"`);
+      expect(spine).toContain(`<span>${num}</span>`);
+    }
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.spine \{[^}]*display:\s*none/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.spine \{[^}]*position:\s*fixed/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.spine \{[^}]*left:\s*24px/);
+    expect(css).toMatch(/\.spine a \{[^}]*height:\s*44px/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?--index-rail:\s*44px/);
+    expect(css).toMatch(/\.lab-nav \.links a span\s*\{[^}]*display:\s*none/);
   });
 });
 

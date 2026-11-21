@@ -159,6 +159,18 @@ export default function LedgerPage() {
         </div>
       </header>
 
+      <nav className="spine" aria-label="Chapters, phone">
+        {SECTIONS.map((section) => (
+          <a
+            key={section.id}
+            href={`#${section.id}`}
+            aria-current={active === section.id ? "true" : undefined}
+          >
+            <span>{section.index}</span>
+          </a>
+        ))}
+      </nav>
+
       <main id="main" tabIndex={-1}>
         <section id="horizon" className="hero" aria-labelledby="hero-name">
           <div className="beat beat-one">
