@@ -260,10 +260,13 @@
   }
 }
 
-/* Live readout: complete text, wrapped. No clip, no marquee, no second nav. */
+/* Live readout: one bounded line on wide screens. Curated content fits the
+   strip, so no clip and never a wrapped paragraph wall. No marquee: the
+   static document shows the whole wording once. The phone class drops it —
+   the chapters carry the numbers. */
 .ticker {
   width: 100%;
-  overflow: visible;
+  overflow: hidden;
   padding-block: var(--space-8);
   border-block-end: 1px solid
     color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
@@ -272,13 +275,20 @@
 .ticker-track {
   display: block;
   width: 100%;
-  overflow: visible;
+  overflow: hidden;
   font-family: var(--font-data);
   font-size: var(--text-data);
   letter-spacing: var(--tracking-data);
   color: var(--color-ink-muted);
-  white-space: normal;
-  overflow-wrap: normal;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* Compact class: the ticker yields entirely; no fourth line above the plate. */
+@media (max-width: 900px) {
+  .ticker {
+    display: none;
+  }
 }
 
 /* Chapters alternate a dense catalog with an open register. */

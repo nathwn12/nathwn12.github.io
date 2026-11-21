@@ -52,22 +52,12 @@ const packages: SignalPackage[] = downloads.packages.map((item) => {
   };
 });
 
-/** Fixed-bottom readout: measured pushes and milestones, then plain claims. */
-const pushes = [...probe.repos]
-  .sort((a, b) => b.pushedAt.localeCompare(a.pushedAt))
-  .slice(0, 4)
-  .map((repo) => `pushed ${repo.name} / ${repo.pushedAt.slice(5)}`);
+/** The wide strip's curated line: two measured milestones from the
+ *  committed snapshots. The chapters carry the other figures. */
 const milestones = [...packages]
   .sort((a, b) => b.month - a.month)
-  .slice(0, 3)
+  .slice(0, 2)
   .map((item) => `${item.name} ${fmt(item.month)} in 30 days`);
-const voices = [
-  "one binary, two engines",
-  "the real screen, no cursor moved",
-  "spec in, tests out, then review",
-  "bounded tools for a real browser",
-  "built and maintained solo",
-];
 
 export const signal = {
   snapshotDate: downloads.snapshotDate,
@@ -85,7 +75,8 @@ export const signal = {
   },
   repos: probe.repos.length,
   packageCount: npmPackages.length,
-  ticker: [...pushes, ...milestones, ...voices],
+  /** One line that fits the wide strip; the chapters carry the rest. */
+  ticker: milestones.slice(0, 2),
 } as const;
 
 /** The method as a spec sheet: short imperatives, no lede over one line. */
