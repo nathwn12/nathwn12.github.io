@@ -49,16 +49,18 @@ function Cluster({
   return (
     <section
       id={id}
-      className="chapter lab-chapter"
+      className="chapter"
       aria-labelledby={`${id}-title`}
     >
-      <div className="ch-head">
-        <span className="ch-index">{index}</span>
-        <h2 id={`${id}-title`} className="ch-name">
-          {label}
-        </h2>
+      <div className="field">
+        <div className="ch-head">
+          <span className="ch-index">{index}</span>
+          <h2 id={`${id}-title`} className="ch-name">
+            {label}
+          </h2>
+        </div>
+        <div className={`v-body ${variant}`}>{children}</div>
       </div>
-      <div className={`v-body ${variant}`}>{children}</div>
     </section>
   );
 }
@@ -113,24 +115,26 @@ export default function LedgerPage() {
       </a>
 
       <header className="lab-nav" aria-label="Site">
-        <a className="mark" href="#horizon" aria-label="Back to the top">
-          <img src="/brand/signature-glyph.svg" alt="" width={300} height={252} />
-        </a>
-        <nav className="links" aria-label="Chapters">
-          {SECTIONS.map((section) => (
-            <a
-              key={section.id}
-              href={`#${section.id}`}
-              aria-current={active === section.id ? "true" : undefined}
-            >
-              <span aria-hidden="true">{section.index}</span>{" "}
-              {section.label}
-            </a>
-          ))}
-        </nav>
-        <span className="nav-ticker" aria-hidden="true">
-          {signal.ticker.join(" · ")}
-        </span>
+        <div className="field">
+          <a className="mark" href="#horizon" aria-label="Back to the top">
+            <img src="/brand/signature-glyph.svg" alt="" width={300} height={252} />
+          </a>
+          <nav className="links" aria-label="Chapters">
+            {SECTIONS.map((section) => (
+              <a
+                key={section.id}
+                href={`#${section.id}`}
+                aria-current={active === section.id ? "true" : undefined}
+              >
+                <span aria-hidden="true">{section.index}</span>{" "}
+                {section.label}
+              </a>
+            ))}
+          </nav>
+          <span className="nav-ticker" aria-hidden="true">
+            {signal.ticker.join(" · ")}
+          </span>
+        </div>
       </header>
 
       <main id="main" tabIndex={-1}>
@@ -314,15 +318,17 @@ export default function LedgerPage() {
         </Cluster>
       </main>
 
-      <footer className="colophon frame">
-        <span className="data">NNL / event horizon / 2026</span>
-        <p className="colophon-links data">
-          <a href="https://github.com/nathwn12" target="_blank" rel="noreferrer">GitHub</a>
-          <a href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/" target="_blank" rel="noreferrer">LinkedIn</a>
-          <a href={RESUME_PATH}>Résumé</a>
-          <a href={CV_PATH}>CV</a>
-          <a href="https://github.com/nathwn12/nathwn12.github.io" target="_blank" rel="noreferrer">Source</a>
-        </p>
+      <footer className="colophon">
+        <div className="field">
+          <span className="data">NNL / event horizon / 2026</span>
+          <p className="colophon-links data">
+            <a href="https://github.com/nathwn12" target="_blank" rel="noreferrer">GitHub</a>
+            <a href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/" target="_blank" rel="noreferrer">LinkedIn</a>
+            <a href={RESUME_PATH}>Résumé</a>
+            <a href={CV_PATH}>CV</a>
+            <a href="https://github.com/nathwn12/nathwn12.github.io" target="_blank" rel="noreferrer">Source</a>
+          </p>
+        </div>
       </footer>
     </>
   );

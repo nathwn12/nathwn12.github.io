@@ -10,6 +10,8 @@
   --color-on-signal: #1A1512;
   --color-measure: #627AC2;
   --color-selection: #C68E7428;
+  /* The witness tint: reserved for the phase-2 witness mark. */
+  --color-witness: #C68E7414;
   /* Lab-parity hairlines: the approved lab's two rule weights. */
   --color-rule: #1b1b1d;
   --color-rule-strong: #2a2a2d;

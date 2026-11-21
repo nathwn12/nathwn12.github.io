@@ -311,10 +311,10 @@ describe("the content survives the strip", () => {
   test("all five chapters share one field, type scale and rhythm", () => {
     const css = read("src/styles/ledger.css");
     const tokens = read("src/styles/tokens.css");
-    // One content field and index rail for every chapter.
-    expect(css).toMatch(/\.chapter > \.ch-head,\s*\.chapter > \.v-body \{[^}]*width:\s*min\(100% - \(var\(--gutter\) \* 2\), var\(--field\)\)/);
-    expect(css).toMatch(/\.chapter > \.ch-head,\s*\.chapter > \.v-body \{[^}]*padding-inline-start:\s*var\(--index-rail\)/);
-    expect(css).toMatch(/\.ch-index \{[^}]*position:\s*absolute/);
+    // One 12-track field inside every chapter, with subgrid children.
+    expect(css).toMatch(/\.field \{[^}]*width:\s*min\(100% - \(var\(--gutter\) \* 2\), var\(--field\)\)/);
+    expect(css).toMatch(/\.chapter > \.field \{[^}]*display:\s*grid/);
+    expect(css).toMatch(/\.ch-head,\s*\.v-body,\s*\.chapter-margin \{[^}]*grid-column:\s*field-start \/ field-end/);
     // One type scale: the same roles across all five variants.
     expect(css).toMatch(/\.ma \.prose p \{[^}]*font-size:\s*var\(--text-lede\)/);
     expect(css).toMatch(/\.wc \.intro \{[^}]*font-size:\s*var\(--text-lede\)/);
@@ -337,8 +337,8 @@ describe("the content survives the strip", () => {
     expect(tokens).toMatch(/--text-variant-value:\s*clamp\(/);
     expect(css).toMatch(/@media \(min-width: 1600px\)[\s\S]*?--index-rail:/);
     expect(css).toMatch(/@media \(min-width: 2200px\)[\s\S]*?--text-date-margin:/);
-    // Below the measure the spec stacks instead of squeezing its ruled rows.
-    expect(css).toMatch(/@media \(min-width: 701px\) and \(max-width: 1100px\)[\s\S]*?\.ma \{[^}]*grid-template-columns:\s*1fr/);
+    // Below the measure the spec stacks on the measure line, not in the rail.
+    expect(css).toMatch(/@media \(min-width: 701px\) and \(max-width: 1100px\)[\s\S]*?\.ma \.prose,[\s\S]*?grid-column:\s*measure-start \/ field-end/);
   });
 
   test("the stats workflow calls a script that exists", () => {
@@ -357,6 +357,53 @@ describe("the content survives the strip", () => {
     expect(script).toContain("horizon-poster-desktop.webp");
     expect(indexHtml).not.toContain("og-image-2026-11-21.png");
     expect(indexHtml).toMatch(/og-image-\d{4}-\d{2}-\d{2}-singularity\.png/);
+  });
+});
+
+describe("the 12-column field law", () => {
+  test("every chapter and both strips share one centred field", () => {
+    expect(html.match(/class="field"/g) ?? []).toHaveLength(7);
+    expect(html).toMatch(/<header class="lab-nav" aria-label="Site"><div class="field">/);
+    expect(html).toMatch(/<footer class="colophon"><div class="field">/);
+    for (const id of ORDER) {
+      const at = html.indexOf(`id="${id}"`);
+      expect(html.slice(at, at + 400)).toContain('class="field"');
+    }
+  });
+
+  test("the chapter field declares twelve tracks and four named lines", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.chapter > \.field \{[^}]*column-gap:\s*var\(--gutter\)/);
+    expect(css).toMatch(/grid-template-columns:\s*\[field-start\]\s*calc\(var\(--index-rail\) - var\(--gutter\)\)\s*\[measure-start\]\s*repeat\(5,\s*minmax\(0,\s*1fr\)\)\s*\[aside-start\]\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)\s*\[band-start\]\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)\s*\[field-end\]/);
+  });
+
+  test("head, body and margin ride the same subgrid lines", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.ch-head,\s*\.v-body,\s*\.chapter-margin \{[^}]*display:\s*grid/);
+    expect(css).toMatch(/\.ch-head,\s*\.v-body,\s*\.chapter-margin \{[^}]*grid-template-columns:\s*subgrid/);
+    expect(css).toMatch(/\.ch-head > \* \{[^}]*grid-column:\s*measure-start \/ aside-start/);
+    expect(css).toMatch(/\.v-body > \* \{[^}]*grid-column:\s*measure-start \/ field-end/);
+  });
+
+  test("the orphaned lab blocks are gone and the live islands remain", () => {
+    const css = read("src/styles/ledger.css");
+    for (const dead of [
+      ".cluster {", ".cluster-corner {", ".section-index {",
+      ".signal-pair {", ".signal-figure {", ".spark-bank {",
+      ".signal-lower {", ".micro-figures {", ".featured-list {",
+      ".featured-row {", ".work-intro {", ".proof-table {",
+      ".proof-row {", ".experience-register {", ".practice-list {",
+      ".spec-grid {", ".data-line {",
+    ]) {
+      expect(css).not.toContain(dead);
+    }
+    for (const live of [
+      ".spark {", ".spark polyline {", ".spark.measure polyline {",
+      ".heatmap {", ".heat-cell {", ".stamp {", ".claim,",
+    ]) {
+      expect(css).toContain(live);
+    }
+    expect(css).not.toContain("--spine-rail:");
   });
 });
 

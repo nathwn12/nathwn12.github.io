@@ -6,6 +6,12 @@
   margin-inline: auto;
 }
 
+/* One field: every full-bleed strip centres the same geometry. */
+.field {
+  width: min(100% - (var(--gutter) * 2), var(--field));
+  margin-inline: auto;
+}
+
 .data {
   font-family: var(--font-data);
   font-size: var(--text-data);
@@ -13,15 +19,18 @@
   letter-spacing: var(--tracking-data);
 }
 
-/* Nav B — one token-scaled strip: mark, five links, ticker at the right edge.
-   The mark keeps its own file and palette; the site only sets size/opacity. */
+/* Nav B — one token-scaled strip on the field: mark, five links, ticker.
+   The strip stays full-bleed with its hairline; the field owns both edges. */
 .lab-nav {
+  height: var(--nav-height);
+  border-block-end: 1px solid var(--color-rule);
+}
+
+.lab-nav .field {
   display: flex;
   align-items: center;
   gap: 20px;
-  height: var(--nav-height);
-  padding-inline: var(--nav-pad);
-  border-block-end: 1px solid var(--color-rule);
+  height: 100%;
 }
 
 .lab-nav .mark {
@@ -268,8 +277,7 @@
   }
 
   /* Phone nav: the strip keeps one hairline; the ticker yields entirely. */
-  .lab-nav {
-    padding: 0 16px;
+  .lab-nav .field {
     gap: 12px;
   }
 
@@ -295,87 +303,11 @@
   }
 }
 
-/* Chapters alternate a dense catalog with an open register. */
-.cluster {
-  padding-block: var(--space-96) var(--space-64);
-}
 
-.cluster-corner {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-16);
-  padding-block-start: var(--space-16);
-  margin-block-end: var(--space-48);
-  border-block-start: 1px solid
-    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
-}
-
-.section-index {
-  font-family: var(--font-data);
-  font-size: var(--text-data);
-  letter-spacing: var(--tracking-data);
-  color: var(--color-signal);
-}
-
-.cluster h2 {
-  font-family: var(--font-display);
-  font-size: clamp(2rem, 6vw, 4.5rem);
-  line-height: var(--leading-display);
-  letter-spacing: var(--tracking-display);
-  font-weight: 500;
-}
-
-/* Signal — giant mono figures in measure, tabular and decimal-aligned. */
-.signal-pair {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--space-32);
-  margin-block-end: var(--space-64);
-}
-
-.signal-figure {
-  display: block;
-  font-family: var(--font-data);
-  font-size: clamp(2.5rem, 9vw, 7rem);
-  line-height: 1;
-  font-weight: 500;
-  color: var(--color-measure);
-  font-variant-numeric: tabular-nums lining-nums;
-  text-align: right;
-}
-
-.figure-label {
-  display: block;
-  margin-block-start: var(--space-8);
-  color: var(--color-ink-muted);
-  text-align: right;
-}
-
-.spark-bank {
-  border-block-start: 1px solid
-    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
-}
-
-.spark-cell {
-  display: grid;
-  grid-template-columns: minmax(10ch, 1fr) minmax(0, 3fr) auto;
-  align-items: center;
-  gap: var(--space-16);
-  padding-block: var(--space-12);
-  border-block-end: 1px solid
-    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
-}
-
-.spark-name {
-  overflow-wrap: anywhere;
-}
-
-.spark-value {
-  font-variant-numeric: tabular-nums;
-  color: var(--color-ink-muted);
-  text-align: right;
-}
-
+/* Chapters alternate a dense catalog with an open register.
+   These are the live islands of the old catalog layer: sparklines and the
+   heatmap are rendered by Instruments.tsx; stamp and claim are read by
+   the chapters. Every other rule in that layer was orphaned. */
 .spark {
   display: block;
   width: 100%;
@@ -391,18 +323,6 @@
 
 .spark.measure polyline {
   stroke: var(--color-measure);
-}
-
-.signal-lower {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  gap: var(--space-48);
-  margin-block-start: var(--space-64);
-}
-
-.micro-label {
-  display: block;
-  color: var(--color-ink-muted);
 }
 
 .heatmap {
@@ -423,115 +343,9 @@
 .heat-cell[data-level="3"] { opacity: 0.75; }
 .heat-cell[data-level="4"] { opacity: 1; }
 
-.micro-figures {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(12ch, 1fr));
-  gap: var(--space-24);
-  align-content: start;
-}
-
-.micro-number {
-  display: block;
-  font-family: var(--font-data);
-  font-size: 1.5rem;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
-
 .stamp {
   margin-block-start: var(--space-48);
   color: var(--color-ink-muted);
-}
-
-@media (max-width: 700px) {
-  .signal-pair,
-  .signal-lower {
-    grid-template-columns: 1fr;
-  }
-
-  .spark-cell {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-
-  .spark {
-    grid-column: 1 / -1;
-    grid-row: 2;
-  }
-}
-
-/* Work — the open register: three led rows, ten compact rows, one rule. */
-.featured-list,
-.index-grid {
-  border-block-start: 1px solid
-    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
-}
-
-.featured-row,
-.index-row {
-  position: relative;
-  display: grid;
-  align-items: baseline;
-  gap: var(--space-16);
-  padding-block: var(--space-24);
-  border-block-end: 1px solid
-    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
-}
-
-.featured-row::after,
-.index-row::after {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  inset-block-end: -1px;
-  height: 1px;
-  background-color: var(--color-signal);
-  transform: scaleX(0);
-  transform-origin: inline-start;
-  transition: transform var(--motion-quick) var(--motion-easing);
-}
-
-.featured-row:hover::after,
-.featured-row:focus-within::after,
-.index-row:hover::after,
-.index-row:focus-within::after {
-  transform: scaleX(1);
-}
-
-/* The open-source lead-in: prose at the measure, no plate behind it. */
-.work-intro {
-  max-width: var(--measure);
-  margin-block-end: var(--space-48);
-  color: var(--color-ink-muted);
-}
-
-/* The second line lives inside the copy column, inside the same hairline row. */
-.row-detail {
-  display: block;
-  max-width: 64ch;
-  margin-block-start: var(--space-8);
-  font-family: var(--font-text);
-  line-height: var(--leading-body);
-  color: var(--color-ink-muted);
-}
-
-.featured-row {
-  grid-template-columns: 3ch minmax(0, 3fr) minmax(0, 1fr) 2ch;
-}
-
-.index-row {
-  grid-template-columns: 3ch minmax(0, 2fr) minmax(0, 3fr) auto;
-}
-
-.featured-num,
-.index-num {
-  color: var(--color-signal);
-}
-
-.featured-main h3 {
-  font-family: var(--font-display);
-  font-size: 1.75rem;
-  font-weight: 500;
-  line-height: 1.1;
 }
 
 .claim,
@@ -539,229 +353,6 @@
   max-width: 52ch;
   margin-block-start: var(--space-8);
   color: var(--color-ink-muted);
-}
-
-.tech,
-.featured-stats,
-.index-stats {
-  color: var(--color-ink-muted);
-}
-
-.featured-stats {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-  text-align: right;
-}
-
-/* Lifetime downloads: a figure signal's daily windows never print. */
-.lifetime-figure {
-  display: block;
-  font-family: var(--font-data);
-  font-size: 1.75rem;
-  font-weight: 600;
-  line-height: 1;
-  font-variant-numeric: tabular-nums lining-nums;
-  color: var(--color-measure);
-}
-
-.lifetime-note {
-  display: block;
-  margin-block-start: var(--space-4);
-  font-size: 0.7rem;
-  font-weight: 400;
-  letter-spacing: var(--tracking-data);
-  white-space: nowrap;
-  color: var(--color-ink-muted);
-}
-
-.index-stats {
-  text-align: right;
-}
-
-.index-head {
-  margin-block: var(--space-64) var(--space-16);
-  color: var(--color-ink-muted);
-}
-
-@media (max-width: 700px) {
-  .featured-row,
-  .index-row {
-    grid-template-columns: 3ch minmax(0, 1fr) auto;
-  }
-
-  .featured-main,
-  .index-copy {
-    grid-column: 2 / -1;
-  }
-
-  .featured-stats,
-  .index-stats {
-    grid-column: 2 / -1;
-    text-align: left;
-  }
-
-  /* Keep the row's open link at the top-right, not below the stats. */
-  .featured-row > a {
-    grid-column: 3;
-    grid-row: 1;
-    align-self: start;
-  }
-}
-
-/* Proof — the record's own figures, with their provenance beside them. */
-.proof-table {
-  border-block-start: 1px solid
-    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
-}
-
-.proof-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
-  gap: var(--space-32);
-  align-items: start;
-  padding-block: var(--space-48);
-  border-block-end: 1px solid
-    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
-}
-
-.proof-figure {
-  font-family: var(--font-data);
-  font-size: clamp(3rem, 11vw, 9rem);
-  line-height: 0.9;
-  font-weight: 600;
-  color: var(--color-measure);
-  font-variant-numeric: tabular-nums lining-nums;
-}
-
-.proof-text h3,
-.experience-copy h3 {
-  font-family: var(--font-display);
-  font-size: 1.5rem;
-  font-weight: 500;
-  line-height: 1.15;
-}
-
-.proof-text p,
-.experience-copy p {
-  max-width: 56ch;
-  margin-block-start: var(--space-12);
-}
-
-.proof-note,
-.provenance,
-.experience-copy .data {
-  display: block;
-  margin-block-start: var(--space-16);
-  color: var(--color-ink-muted);
-}
-
-.provenance {
-  margin-block-start: var(--space-48);
-}
-
-.experience-register {
-  margin-block-start: var(--space-96);
-  border-block-start: 1px solid
-    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
-}
-
-.experience-row {
-  display: grid;
-  grid-template-columns: max-content minmax(0, 1fr);
-  gap: var(--space-32);
-  align-items: start;
-  padding-block: var(--space-32);
-  border-block-end: 1px solid
-    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
-}
-
-.experience-row-plain {
-  grid-template-columns: minmax(0, 1fr);
-}
-
-.experience-figure {
-  font-family: var(--font-data);
-  font-size: clamp(2rem, 5vw, 3.5rem);
-  line-height: 1;
-  font-weight: 600;
-  color: var(--color-measure);
-  font-variant-numeric: tabular-nums;
-}
-
-.experience-copy p {
-  color: var(--color-ink-muted);
-}
-
-@media (max-width: 700px) {
-  .proof-row,
-  .experience-row {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-16);
-  }
-}
-
-.practice-list {
-  list-style: none;
-  margin: var(--space-64) 0 0;
-  padding: 0;
-  border-block-start: 1px solid
-    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
-}
-
-.practice-list li {
-  padding-block: var(--space-12);
-  border-block-end: 1px solid
-    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
-  font-family: var(--font-data);
-  font-size: var(--text-data);
-  letter-spacing: var(--tracking-data);
-}
-
-.spec-grid {
-  margin-block-start: var(--space-96);
-  border-block-start: 1px solid
-    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
-}
-
-.spec-line {
-  display: grid;
-  grid-template-columns: 14ch minmax(0, 1fr);
-  gap: var(--space-16);
-  padding-block: var(--space-16);
-  border-block-end: 1px solid
-    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
-}
-
-.spec-key {
-  color: var(--color-signal);
-}
-
-.spec-value {
-  color: var(--color-ink-muted);
-}
-
-.data-line {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-32);
-  margin-block-start: var(--space-48);
-}
-
-.data-line dt {
-  color: var(--color-signal);
-}
-
-.data-line dd {
-  margin-inline-start: 0;
-  color: var(--color-ink-muted);
-}
-
-@media (max-width: 700px) {
-  .spec-line {
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-4);
-  }
 }
 
 /* 05 Contact — the statement uses the chapter display scale; the address is
@@ -797,18 +388,30 @@
 }
 
 .colophon {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-16) var(--space-32);
-  padding-block: var(--space-32) var(--space-64);
   border-block-start: 1px solid
     color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
 }
 
-.colophon .data {
+.colophon > .field {
+  display: grid;
+  column-gap: var(--gutter);
+  grid-template-columns:
+    [field-start] calc(var(--index-rail) - var(--gutter))
+    [measure-start] repeat(5, minmax(0, 1fr))
+    [aside-start] repeat(2, minmax(0, 1fr))
+    [band-start] repeat(4, minmax(0, 1fr))
+    [field-end];
+  padding-block: var(--space-32) var(--space-64);
+}
+
+.colophon > .field > .data {
+  grid-column: field-start / aside-start;
   color: var(--color-ink-muted);
+}
+
+.colophon > .field > .colophon-links {
+  grid-column: band-start / field-end;
+  justify-self: end;
 }
 
 .colophon-links {
@@ -825,24 +428,39 @@
   border-block-start: 1px solid var(--color-rule-strong);
 }
 
-/* The content field: identical left and right edges for every chapter. */
-.chapter > .ch-head,
-.chapter > .v-body {
-  width: min(100% - (var(--gutter) * 2), var(--field));
-  margin-inline: auto;
-  padding-inline-start: var(--index-rail);
+/* One chapter field: twelve tracks, four named lines, one right edge. The
+   fixed rail track minus its gap lands content exactly on the old rail offset. */
+.chapter > .field {
+  display: grid;
+  column-gap: var(--gutter);
+  grid-template-columns:
+    [field-start] calc(var(--index-rail) - var(--gutter))
+    [measure-start] repeat(5, minmax(0, 1fr))
+    [aside-start] repeat(2, minmax(0, 1fr))
+    [band-start] repeat(4, minmax(0, 1fr))
+    [field-end];
+}
+
+.ch-head,
+.v-body,
+.chapter-margin {
+  grid-column: field-start / field-end;
+  display: grid;
+  grid-template-columns: subgrid;
+  row-gap: 0;
 }
 
 .ch-head {
-  position: relative;
+  grid-row: 1;
   padding-block: var(--space-48) var(--space-24);
 }
 
-/* The index hangs in the rail; the name and body share one left edge. */
+.ch-head > * {
+  grid-column: measure-start / aside-start;
+}
+
+/* The index stamp holds the measure line until the coordinate line lands. */
 .ch-index {
-  position: absolute;
-  inset-inline-start: 0;
-  inset-block-start: var(--space-48);
   font-family: var(--font-data);
   font-size: var(--text-mono);
   letter-spacing: 0.12em;
@@ -859,7 +477,12 @@
 }
 
 .v-body {
+  grid-row: 2;
   padding-block: var(--space-16) var(--space-96);
+}
+
+.v-body > * {
+  grid-column: measure-start / field-end;
 }
 
 /* 01 Numbers — two figures as a poster, ten packages as one ruled data band. */
@@ -875,6 +498,7 @@
   line-height: 0.82;
   letter-spacing: -0.02em;
   font-weight: 400;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 .sa .flabel {
@@ -997,25 +621,18 @@
   margin-block-start: var(--space-32);
 }
 
-/* 04 Approach — prose 6/12, spec 4/12, one gap, on the shared field. */
-.ma {
-  display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  column-gap: var(--space-24);
-  row-gap: 0;
-}
-
+/* 04 Approach — prose, spec and data place on the chapter subgrid. */
 .ma .prose {
-  grid-column: span 6;
+  grid-column: measure-start / aside-start;
 }
 
 .ma .spec {
-  grid-column: span 4;
+  grid-column: aside-start / field-end;
   border-block-start: 1px solid var(--color-rule-strong);
 }
 
 .ma .dl {
-  grid-column: 1 / -1;
+  grid-column: measure-start / field-end;
 }
 
 .ma .prose p {
@@ -1086,6 +703,7 @@
   font-weight: 400;
   display: block;
   line-height: 1;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 
 .pc .band span {
@@ -1298,24 +916,22 @@
 }
 
 /* Below the desktop measure the spec column is too narrow to hold its rows.
-   Stack the same two blocks rather than squeezing a ruled table. */
+   Stack the same three blocks on the measure line, never in the rail. */
 @media (min-width: 701px) and (max-width: 1100px) {
-  .ma {
-    grid-template-columns: 1fr;
+  .v-body.ma {
     row-gap: var(--space-32);
   }
 
   .ma .prose,
   .ma .spec,
   .ma .dl {
-    grid-column: 1;
+    grid-column: measure-start / field-end;
   }
 }
 
 @media (max-width: 700px) {
   :root {
     --index-rail: var(--space-24);
-    --spine-rail: 82px;
   }
 
   .ch-name {
@@ -1379,14 +995,10 @@
     grid-column: 1;
   }
 
-  .ma {
-    grid-template-columns: 1fr;
-  }
-
   .ma .prose,
   .ma .spec,
   .ma .dl {
-    grid-column: 1;
+    grid-column: measure-start / field-end;
   }
 
   .dl {
