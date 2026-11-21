@@ -1,15 +1,20 @@
 import { useEffect, useState, type ReactNode } from "react";
 import HorizonVideo from "./HorizonVideo";
 import { CountUp, Heatmap, Sparkline } from "./Instruments";
-import { employer, experience, provenance } from "../content/experience";
+import {
+  employer,
+  experience,
+  spineDate,
+} from "../content/experience";
 import {
   aiPractice,
   contactBlock,
   figures,
   locatedIn,
   name,
-  proofRows,
+  spineStamp,
   statusLine,
+  workBand,
 } from "../content/ledger";
 import { signal, specLines } from "../content/signal";
 import {
@@ -227,43 +232,24 @@ export default function LedgerPage() {
         </Cluster>
 
         <Cluster id="proof" index="03" label="Work" variant="pc">
-          <div className="proof-table">
-            {proofRows.map((row, i) => (
-              <div className="proof-row" key={row.claim}>
-                <span
-                  className="proof-figure"
-                  data-figure-hang={row.figure.endsWith("%") ? "percent" : undefined}
-                >
-                  {row.figure}
-                </span>
-                <div className="proof-text">
-                  <h3>{row.claim}</h3>
-                  <p>{row.detail}</p>
-                  <span className="proof-note data">
-                    {String(i + 1).padStart(2, "0")} / measured
-                  </span>
-                </div>
+          <div className="band">
+            {workBand.map((item) => (
+              <div key={item.label}>
+                <b>{item.figure}</b>
+                <span>{item.label}</span>
               </div>
             ))}
           </div>
-
-          <p className="provenance data">{provenance}</p>
-
-          <div className="experience-register">
+          <div className="spine">
             {experience.map((entry) => (
-              <div
-                className={`experience-row${entry.metric ? "" : " experience-row-plain"}`}
-                key={entry.id}
-              >
-                {entry.metric && (
-                  <span className="experience-figure">{entry.metric}</span>
+              <div className="node" key={entry.id}>
+                <span className="date">{spineDate(entry.date)}</span>
+                {spineStamp(entry.id) && (
+                  <span className="stampfig">{spineStamp(entry.id)}</span>
                 )}
-                <div className="experience-copy">
-                  <h3>{entry.name}</h3>
-                  <p>{entry.outcome}</p>
-                  <p className="row-detail">{entry.texture}</p>
-                  <span className="data">{entry.date} · {entry.status}</span>
-                </div>
+                <h3>{entry.name}</h3>
+                <p className="out">{entry.outcome}</p>
+                <p className="tex">{entry.texture}</p>
               </div>
             ))}
           </div>

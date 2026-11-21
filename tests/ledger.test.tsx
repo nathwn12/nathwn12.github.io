@@ -9,8 +9,8 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
 import LedgerPage from "../src/components/LedgerPage";
-import { aiPractice, figures, proofRows } from "../src/content/ledger";
-import { experience, provenance } from "../src/content/experience";
+import { aiPractice, figures, proofRows, workBand } from "../src/content/ledger";
+import { experience, spineDate } from "../src/content/experience";
 import { projects } from "../src/content/projects";
 import { signal } from "../src/content/signal";
 import { featuredRows, indexRows, workShelfIntro } from "../src/content/showcase";
@@ -197,30 +197,30 @@ describe("the content survives the strip", () => {
     expect(read("DESIGN.md")).toContain("one exception");
   });
 
-  test("the proof keeps its four measured rows and their figures", () => {
-    for (const row of proofRows) {
-      expect(html).toContain(row.figure);
-      expect(html).toContain(row.claim);
-    }
+  test("the proof figures survive the spine composition", () => {
     expect(html).toContain("−98%");
     expect(html).not.toContain("−40%+");
     expect(html).toContain("−40%");
-    expect(html).toContain("cut latency by over 40%");
+    expect(html).toContain("over 40%");
     expect(figures.commits).toBe("1,182");
     expect(html).toContain(figures.commits!);
   });
 
-  test("the proof carries provenance and measured experience rows", () => {
-    expect(html).toContain(provenance);
-    expect(html.match(/class="experience-row/g) ?? []).toHaveLength(
-      experience.length,
-    );
-    expect(html.match(/class="experience-figure"/g) ?? []).toHaveLength(
-      experience.filter((entry) => entry.metric).length,
-    );
+  test("the Work band and spine derive from the measured record", () => {
+    const proof = html.slice(html.indexOf('id="proof"'), html.indexOf('id="method"'));
+    expect(proof).toContain('class="band"');
+    expect(proof).toContain('class="spine"');
+    expect(proof.match(/class="node"/g) ?? []).toHaveLength(experience.length);
+    for (const item of workBand) {
+      expect(proof).toContain(item.figure);
+      expect(proof).toContain(item.label);
+    }
+    expect(proof.match(/class="stampfig"/g) ?? []).toHaveLength(2);
     for (const entry of experience) {
-      expect(html).toContain(entry.outcome);
-      expect(html).toContain(entry.texture.replace(/'/g, "&#x27;"));
+      expect(proof).toContain(spineDate(entry.date));
+      expect(proof).toContain(entry.name);
+      expect(proof).toContain(entry.outcome);
+      expect(proof).toContain(entry.texture.replace(/'/g, "&#x27;"));
     }
   });
 

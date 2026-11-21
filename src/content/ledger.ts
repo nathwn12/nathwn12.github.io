@@ -217,6 +217,27 @@ export const proofRows: RecordRow[] = [
 ].filter((row): row is RecordRow => row !== null);
 
 
+/** The Work chapter's band: every figure read from the measured record. */
+export const workBand = [
+  {
+    figure: figures.commits,
+    label: `commits recovered · ${figures.repositories} repos · ${figures.scanned} scanned`,
+  },
+  {
+    figure: proofRows.find((row) => row.claim.startsWith("Security"))?.figure ?? "0",
+    label: "high or critical snyk findings",
+  },
+] as const;
+
+/** The spine's margin stamps come from the proof figures, not new copy. */
+export function spineStamp(entryId: string): string | null {
+  const byId: Record<string, string | undefined> = {
+    "03": proofRows[0]?.figure,
+    "02": proofRows[1]?.figure,
+  };
+  return byId[entryId] ?? null;
+}
+
 export interface WorkRow {
   name: string;
   line: string;

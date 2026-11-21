@@ -112,6 +112,23 @@ export const experience: ExperienceEntry[] = [
 export const provenance =
   "1,182 commits across 17 repositories from 2023 to 2026; 21 scanned repositories.";
 
+/** "June 2024 – May 2026" -> "JUN 2024 — MAY 2026" for the spine's margin. */
+const SHORT_MONTHS: Record<string, string> = {
+  january: "JAN", february: "FEB", march: "MAR", april: "APR",
+  may: "MAY", june: "JUN", july: "JUL", august: "AUG",
+  september: "SEP", october: "OCT", november: "NOV", december: "DEC",
+};
+
+export function spineDate(date: string): string {
+  return date
+    .split(" – ")
+    .map((part) => {
+      const [month, year] = part.trim().split(" ");
+      return `${SHORT_MONTHS[month!.toLowerCase()] ?? month} ${year}`;
+    })
+    .join(" — ");
+}
+
 /** Tenure end, read off the one period string — never typed twice. */
 export const tenureEnd = employer.period.split(" to ")[1] ?? employer.period;
 
