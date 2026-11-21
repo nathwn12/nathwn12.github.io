@@ -1,30 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- One sky. The dark ground and its chrome colour are fixed; only motion
-         is resolved before first paint. -->
-    <meta name="theme-color" content="#0a0d0b" />
-    <script>
-      (function () {
-        /* The only pre-paint work: motion, resolved before first paint so a
-           visitor whose OS asks for less never sees the page animate for one
-           frame. There is no theme to resolve: the page is dark always. */
-        var motion = "on";
-        try {
-          if (
-            window.matchMedia &&
-            window.matchMedia("(prefers-reduced-motion: reduce)").matches
-          ) {
-            motion = "off";
-          }
-        } catch {
-          /* no media query support — motion stays on */
-        }
-        document.documentElement.dataset.motion = motion;
-      })();
-    </script>
     <link rel="canonical" href="https://nathwn12.github.io/" />
     <meta name="description" content="Software developer in the Philippines with three years of production C#/.NET backend experience. Now building solo public projects, frontend apps, and practical tools for AI-assisted development." />
     <meta property="og:title" content="Nathaniel Nikolai Ladero — software developer, C# and .NET" />

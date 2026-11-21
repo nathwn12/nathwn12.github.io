@@ -1,5 +1,4 @@
 import { useEffect, type ReactNode } from "react";
-import HorizonVideo from "./HorizonVideo";
 import { CountUp, Heatmap, Sparkline, Ticker, useInstrumentMotion } from "./Instruments";
 import { employer } from "../content/experience";
 import {
@@ -101,7 +100,6 @@ export default function LedgerPage() {
 
       <main id="main" tabIndex={-1} className="outline-none">
         <section id="horizon" className="hero" aria-labelledby="hero-name">
-          <HorizonVideo />
           <div className="hero-hud">
             <div className="hud hud-name">
               <p className="eyebrow data">Event horizon / portfolio / 2026</p>
