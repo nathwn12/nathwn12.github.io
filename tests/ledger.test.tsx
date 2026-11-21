@@ -526,6 +526,8 @@ describe("the Work zero seal", () => {
     expect(css).toMatch(/@supports \([-a-z]*-webkit-text-stroke/);
     expect(css.match(/-webkit-text-stroke/g) ?? []).toHaveLength(2);
     expect(css).toMatch(/\.seal-stamp \{[^}]*font-size:\s*var\(--text-mono\)/);
+    expect(css).toMatch(/\.pc \.band > div > span \{/);
+    expect(css).not.toMatch(/\.pc \.band span \{[^}]*font-size/);
   });
 });
 
@@ -571,6 +573,9 @@ describe("chapter placement on the field", () => {
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.sa \.top \{[^}]*grid-column:\s*measure-start \/ field-end/);
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.pc \.band \{[^}]*grid-column:\s*measure-start \/ field-end/);
+    expect(css).toContain(".ch-head > *,");
+    expect(css).toMatch(/\.ca \.line,[\s\S]*?grid-column:\s*measure-start \/ field-end/);
+    expect(css).toMatch(/\.chapter-margin \{[^}]*max-width:\s*none/);
   });
 });
 

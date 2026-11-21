@@ -743,7 +743,9 @@
   font-variant-numeric: tabular-nums lining-nums;
 }
 
-.pc .band span {
+/* Scope the figure label to the commit figure. A bare descendant selector
+   would shrink the seal's zero and stamp to mono size. */
+.pc .band > div > span {
   font-family: var(--font-data);
   font-size: var(--text-mono);
   letter-spacing: 0.1em;
@@ -1040,6 +1042,19 @@
 
   .pc .band {
     grid-column: measure-start / field-end;
+  }
+
+  /* At phone the field is one column: measure spans to the field edge, so
+     the coordinate line, the ask and the prose never wrap word by word. */
+  .ch-head > *,
+  .ca .line,
+  .ca .mail,
+  .ma .prose {
+    grid-column: measure-start / field-end;
+  }
+
+  .chapter-margin {
+    max-width: none;
   }
 
   .sa .figure {
