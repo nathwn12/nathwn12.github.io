@@ -1,50 +1,35 @@
 import { useEffect, useRef, useState } from "react";
 
-/** The hero's one kinetic moment: a recorded singularity loop, decoded as
- *  video — no runtime shader cost. AV1 first, H.264 fallback, poster first. */
+type SaveDataNavigator = Navigator & { connection?: { saveData?: boolean } };
+
+/** The still is the base paint and the LCP. The recorded loop is an opt-in
+ *  premium: it attaches only on a fine pointer at desktop width with motion
+ *  allowed and saveData off, and fades in only while it is actually playing. */
 export default function HorizonVideo() {
   const desktopRef = useRef<HTMLVideoElement>(null);
   const phoneRef = useRef<HTMLVideoElement>(null);
-  // Resolve the aspect before first paint so only the right master is ever
-  // selected. Guarded for the static-markup test, where matchMedia is absent.
-  const matches = (query: string): boolean =>
-    typeof window !== "undefined" &&
-    typeof window.matchMedia === "function" &&
-    window.matchMedia(query).matches;
-  const [phone, setPhone] = useState(() => matches("(max-aspect-ratio: 3/4)"));
-  const [reduce, setReduce] = useState(() =>
-    matches("(prefers-reduced-motion: reduce)"),
-  );
+  const [playing, setPlaying] = useState(false);
 
   useEffect(() => {
-    const aspect = window.matchMedia("(max-aspect-ratio: 3/4)");
-    const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const sync = (): void => {
-      setPhone(aspect.matches);
-      setReduce(motion.matches);
-    };
-    sync();
-    aspect.addEventListener("change", sync);
-    motion.addEventListener("change", sync);
-    return () => {
-      aspect.removeEventListener("change", sync);
-      motion.removeEventListener("change", sync);
-    };
-  }, []);
+    const eligible =
+      window.matchMedia("(pointer: fine)").matches &&
+      window.matchMedia("(min-width: 1100px)").matches &&
+      window.matchMedia("(prefers-reduced-motion: no-preference)").matches &&
+      (navigator as SaveDataNavigator).connection?.saveData !== true;
+    if (!eligible) return;
 
-  useEffect(() => {
-    const active = (phone ? phoneRef : desktopRef).current;
-    const inactive = (phone ? desktopRef : phoneRef).current;
-    // The inactive master never decodes: no autoPlay in the markup, so this
-    // is the only place a stream can start or stop.
+    const active = desktopRef.current;
+    const inactive = phoneRef.current;
+    if (!active) return;
     inactive?.pause();
-    if (!active || reduce) {
-      active?.pause();
-      return;
-    }
+    const onPlay = () => setPlaying(true);
+    const onPause = () => setPlaying(false);
+    active.addEventListener("play", onPlay);
+    active.addEventListener("pause", onPause);
+
     const play = (): void => {
       if (!document.hidden && active.getBoundingClientRect().bottom > 0) {
-        void active.play().catch(() => {});
+        void active.play().catch(() => setPlaying(false));
       } else {
         active.pause();
       }
@@ -56,31 +41,40 @@ export default function HorizonVideo() {
     observer.observe(active);
     document.addEventListener("visibilitychange", play);
     play();
+
     return () => {
       observer.disconnect();
       document.removeEventListener("visibilitychange", play);
+      active.removeEventListener("play", onPlay);
+      active.removeEventListener("pause", onPause);
       active.pause();
       inactive?.pause();
     };
-  }, [phone, reduce]);
+  }, []);
 
-  /** The settled still is always in the markup. CSS picks it before paint
-   *  under reduced motion — no hydration flash, and it works with JS off. */
   return (
     <>
       <img
-        className="horizon-media horizon-still"
-        src={phone ? "/horizon-poster-phone.webp" : "/horizon-poster-desktop.webp"}
+        className="horizon-media horizon-still horizon-desktop"
+        src="/horizon-poster-desktop.webp"
         alt="A stellar singularity on true black, with a thin photon ring and a resolved accretion disc"
+        loading="eager"
+        fetchPriority="high"
+      />
+      <img
+        className="horizon-media horizon-still horizon-phone"
+        src="/horizon-poster-phone.webp"
+        alt=""
+        loading="eager"
+        fetchPriority="high"
       />
       <video
         ref={desktopRef}
-        className="horizon-media horizon-desktop"
-        poster="/horizon-poster-desktop.webp"
+        className={`horizon-media horizon-desktop${playing ? " is-playing" : ""}`}
         muted
         loop
         playsInline
-        preload="metadata"
+        preload="none"
         aria-hidden="true"
       >
         <source src="/horizon-desktop.webm" type="video/webm; codecs=av1" />
@@ -89,11 +83,10 @@ export default function HorizonVideo() {
       <video
         ref={phoneRef}
         className="horizon-media horizon-phone"
-        poster="/horizon-poster-phone.webp"
         muted
         loop
         playsInline
-        preload="metadata"
+        preload="none"
         aria-hidden="true"
       >
         <source src="/horizon-phone.webm" type="video/webm; codecs=av1" />

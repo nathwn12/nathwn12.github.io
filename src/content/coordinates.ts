@@ -1,6 +1,6 @@
 import { employer } from "./experience";
-import { availability } from "./hero";
-import { aiPractice, contactBlock, figures } from "./ledger";
+import { availability, recordOpener } from "./hero";
+import { aiPractice, contactBlock, figures, standfirst } from "./ledger";
 import { signal, specLines } from "./signal";
 import { featuredRows, indexRows } from "./showcase";
 
@@ -22,6 +22,10 @@ export interface Coordinate {
 }
 
 const date = signal.snapshotDate;
+
+/** The hero's second beat: the opening claim, then the standfirst's two
+ *  sentences. All three lines come from existing copy; nothing is new prose. */
+export const coldRead = [recordOpener, ...standfirst.split(/(?<=\.)\s+/)];
 
 export const coordinates: Record<CoordinateKey, Coordinate> = {
   signal: {

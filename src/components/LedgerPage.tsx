@@ -17,7 +17,7 @@ import {
   statusLine,
   workBand,
 } from "../content/ledger";
-import { coordinates, type CoordinateKey } from "../content/coordinates";
+import { coldRead, coordinates, type CoordinateKey } from "../content/coordinates";
 import { signal, specLines } from "../content/signal";
 import {
   featuredRows,
@@ -120,6 +120,9 @@ export default function LedgerPage() {
     };
   }, []);
 
+  const nameParts = name.split(" ");
+  const firstName = nameParts.slice(0, -1).join(" ");
+  const lastName = nameParts[nameParts.length - 1] ?? "";
   const mailSubject = encodeURIComponent("Role, system, or problem");
   const mailBody = encodeURIComponent(contactBlock.line);
 
@@ -154,11 +157,15 @@ export default function LedgerPage() {
 
       <main id="main" tabIndex={-1}>
         <section id="horizon" className="hero" aria-labelledby="hero-name">
-          <HorizonVideo />
-          <div className="hero-hud">
+          <div className="beat beat-one">
+            <HorizonVideo />
+            <div className="hero-hud">
             <div className="hud hud-name">
               <p className="eyebrow data">Event horizon / portfolio / 2026</p>
-              <h1 id="hero-name">{name}</h1>
+              <h1 id="hero-name">
+                <span className="name-first">{firstName}</span>{" "}
+                <span className="name-last">{lastName}</span>
+              </h1>
             </div>
             <div className="hud hud-role">
               <p className="eyebrow data">Role</p>
@@ -175,6 +182,16 @@ export default function LedgerPage() {
               <span>Descend to the record</span>
               <span aria-hidden="true">↓</span>
             </a>
+            </div>
+          </div>
+          <div className="beat beat-cold">
+            <div className="field">
+              <div className="cold-read" data-cold>
+                {coldRead.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 

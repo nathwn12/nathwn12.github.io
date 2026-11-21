@@ -79,8 +79,42 @@
   position: relative;
   isolation: isolate;
   width: 100%;
-  min-height: 100vh;
   overflow: hidden;
+}
+
+.beat {
+  position: relative;
+  min-height: 100vh;
+}
+
+.beat-cold {
+  display: grid;
+  align-items: center;
+}
+
+.beat-cold > .field {
+  display: grid;
+  column-gap: var(--gutter);
+  grid-template-columns:
+    [field-start] calc(var(--index-rail) - var(--gutter))
+    [measure-start] repeat(5, minmax(0, 1fr))
+    [aside-start] repeat(2, minmax(0, 1fr))
+    [band-start] repeat(4, minmax(0, 1fr))
+    [field-end];
+  padding-block: var(--space-96);
+}
+
+.cold-read {
+  grid-column: measure-start / aside-start;
+}
+
+.cold-read p {
+  font-family: var(--font-text);
+  font-size: var(--text-lede);
+  line-height: 1.55;
+  max-width: var(--measure-wide);
+  margin: 0 0 var(--space-16);
+  text-wrap: pretty;
 }
 
 /* The recorded singularity: full-bleed, behind the plate, never a wallpaper
@@ -100,17 +134,21 @@
   display: none;
 }
 
-/* The still is in the prerendered markup; CSS selects it before first paint.
-   This is the no-JS reduced-motion path: no script, no hydration flash. */
+/* The still is the base paint and the LCP — always in the markup, no flash. */
 .horizon-still {
-  display: none;
+  display: block;
+}
+
+video.horizon-media {
+  opacity: 0;
+  transition: opacity var(--motion-base) var(--motion-easing);
+}
+
+video.horizon-media.is-playing {
+  opacity: 1;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .horizon-still {
-    display: block;
-  }
-
   video.horizon-media {
     display: none !important;
   }
@@ -169,6 +207,24 @@
   font-weight: 500;
   max-width: 18ch;
   overflow-wrap: break-word;
+}
+
+/* At desktop the surname crosses the disc horizon; below 900 the plate stays
+   packed at the top, where anchoring would bury it in the media. */
+@media (min-width: 900px) {
+  .name-last {
+    position: absolute;
+    left: 53%;
+    top: 46%;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 2200px) {
+  .name-last {
+    left: 35%;
+    top: 47%;
+  }
 }
 
 .hud p {

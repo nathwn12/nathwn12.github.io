@@ -15,7 +15,7 @@ import { projects } from "../src/content/projects";
 import { signal, specLines } from "../src/content/signal";
 import { featuredRows, indexRows, workShelfIntro } from "../src/content/showcase";
 import { CONTACT_EMAIL } from "../src/lib/contact";
-import { coordinates } from "../src/content/coordinates";
+import { coldRead, coordinates } from "../src/content/coordinates";
 
 const root = resolve(import.meta.dirname, "..");
 const read = (rel: string) => readFileSync(resolve(root, rel), "utf8");
@@ -387,7 +387,7 @@ describe("the content survives the strip", () => {
 
 describe("the 12-column field law", () => {
   test("every chapter and both strips share one centred field", () => {
-    expect(html.match(/class="field"/g) ?? []).toHaveLength(7);
+    expect(html.match(/class="field"/g) ?? []).toHaveLength(8);
     expect(html).toMatch(/<header class="lab-nav" aria-label="Site"><div class="field">/);
     expect(html).toMatch(/<footer class="colophon"><div class="field">/);
     for (const id of ORDER) {
@@ -649,25 +649,51 @@ describe("the stripped floor", () => {
     expect(existsSync(resolve(root, "src/components/HorizonVideo.tsx"))).toBe(true);
   });
 
-  test("the hero plays an AV1-first recorded loop with a still fallback", () => {
+  test("the hero is still-first and the video is opt-in", () => {
+    expect(html.match(/class="horizon-media horizon-still/g) ?? []).toHaveLength(2);
+    expect(html).toContain('src="/horizon-poster-desktop.webp"');
+    expect(html).toContain('src="/horizon-poster-phone.webp"');
+    expect(html.match(/loading="eager"/g) ?? []).toHaveLength(2);
+    // React hoists two matching image preloads, so two stills emit four marks.
+    expect(html.match(/fetchPriority="high"/g) ?? []).toHaveLength(4);
+    expect(html.match(/<img[^>]*fetchPriority="high"/g) ?? []).toHaveLength(2);
     expect(html).toContain("<video");
     expect(html).toContain("/horizon-desktop.webm");
     expect(html).toContain("/horizon-desktop.mp4");
     expect(html).toContain("/horizon-phone.webm");
-    expect(html).toContain('poster="/horizon-poster-desktop.webp"');
+    expect(html.match(/preload="none"/g) ?? []).toHaveLength(2);
+    expect(html).not.toMatch(/<video[^>]*\bposter=/);
     const media = read("src/components/HorizonVideo.tsx");
     expect(html).not.toMatch(/<video[^>]*\bautoPlay\b/);
     expect(media).toContain("inactive?.pause()");
-    expect(media).toContain('(max-aspect-ratio: 3/4)');
-    expect(media).toContain("prefers-reduced-motion: reduce");
-    expect(media).toContain("IntersectionObserver");
-    expect(media).toContain("document.hidden");
+    for (const token of [
+      "(pointer: fine)", "(min-width: 1100px)",
+      "(prefers-reduced-motion: no-preference)", "saveData",
+      "IntersectionObserver", "document.hidden",
+    ]) {
+      expect(media).toContain(token);
+    }
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.horizon-still \{[^}]*display:\s*block/);
+    expect(css).toMatch(/video\.horizon-media \{[^}]*opacity:\s*0/);
+    expect(css).toMatch(/video\.horizon-media\.is-playing \{[^}]*opacity:\s*1/);
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*?video\.horizon-media \{[^}]*display:\s*none/);
     for (const asset of [
       "horizon-desktop.webm", "horizon-desktop.mp4", "horizon-phone.webm",
       "horizon-phone.mp4", "horizon-poster-desktop.webp", "horizon-poster-phone.webp",
     ]) {
       expect(existsSync(resolve(root, `public/${asset}`))).toBe(true);
     }
+  });
+
+  test("the hero has two beats and an anchored surname at desktop", () => {
+    expect(html).toContain('class="beat beat-one"');
+    expect(html).toContain('class="beat beat-cold"');
+    for (const line of coldRead) expect(html).toContain(line);
+    expect(html).toContain('class="name-first"');
+    expect(html).toContain('class="name-last"');
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/@media \(min-width: 900px\)[\s\S]*?\.name-last \{[^}]*position:\s*absolute/);
   });
 
   test("the hero has no runtime field loop", () => {
