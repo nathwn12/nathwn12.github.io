@@ -12,7 +12,7 @@ import LedgerPage from "../src/components/LedgerPage";
 import { aiPractice, figures, proofRows, workBand } from "../src/content/ledger";
 import { experience, spineDate } from "../src/content/experience";
 import { projects } from "../src/content/projects";
-import { signal } from "../src/content/signal";
+import { signal, specLines } from "../src/content/signal";
 import { featuredRows, indexRows, workShelfIntro } from "../src/content/showcase";
 import { CONTACT_EMAIL } from "../src/lib/contact";
 
@@ -224,19 +224,19 @@ describe("the content survives the strip", () => {
     }
   });
 
-  test("the method is prose at the measure, then a ruled spec", () => {
+  test("Approach is prose left, five ruled lines right, facts and data below", () => {
     const from = html.indexOf('id="method"');
     const to = html.indexOf('id="contact"');
     const method = html.slice(from, to);
-    expect(method.match(/class="method-prose"/g) ?? []).toHaveLength(1);
+    expect(method).toContain('class="prose"');
     expect(method.match(/<p>/g) ?? []).toHaveLength(aiPractice.sentences.length);
     for (const sentence of aiPractice.sentences) {
       expect(method).toContain(sentence);
     }
-    expect(method.match(/class="practice-list"/g) ?? []).toHaveLength(1);
-    expect(method.match(/<li>/g) ?? []).toHaveLength(aiPractice.facts.length);
-    expect(method).toContain("spec-line");
-    expect(read("src/styles/ledger.css")).toContain("max-width: var(--measure)");
+    expect(method).toContain(aiPractice.facts.join(" · "));
+    expect(method.match(/class="sline"/g) ?? []).toHaveLength(specLines.length);
+    expect(method).toContain('class="spec"');
+    expect(method).toContain('class="dl"');
   });
 
   test("the contact is a mailto, with no form", () => {

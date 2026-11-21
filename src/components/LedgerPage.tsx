@@ -256,38 +256,31 @@ export default function LedgerPage() {
         </Cluster>
 
         <Cluster id="method" index="04" label="Approach" variant="ma">
-          <div className="method-prose">
+          <div className="prose">
             {aiPractice.sentences.map((sentence) => (
               <p key={sentence}>{sentence}</p>
             ))}
+            <div className="facts">{aiPractice.facts.join(" · ")}</div>
           </div>
-          <ul className="practice-list">
-            {aiPractice.facts.map((term) => (
-              <li key={term}>{term}</li>
-            ))}
-          </ul>
-          <div className="spec-grid">
+          <div className="spec">
             {specLines.map((line) => (
-              <div className="spec-line" key={line.key}>
-                <span className="spec-key data">{line.key}</span>
-                <span className="spec-value">{line.value}</span>
+              <div className="sline" key={line.key}>
+                <span className="sk">{line.key}</span>
+                <span className="sv">{line.value}</span>
               </div>
             ))}
           </div>
-          <dl className="data-line">
+          <div className="dl">
             <div>
-              <dt className="data">tenure</dt>
-              <dd className="data">{figures.tenure}</dd>
+              tenure<b>{figures.tenure}</b>
             </div>
             <div>
-              <dt className="data">period</dt>
-              <dd className="data">{employer.period}</dd>
+              period<b>{employer.period}</b>
             </div>
             <div>
-              <dt className="data">base</dt>
-              <dd className="data">{locatedIn}</dd>
+              base<b>{locatedIn}</b>
             </div>
-          </dl>
+          </div>
         </Cluster>
 
         <Cluster id="contact" index="05" label="Contact" variant="ca">
