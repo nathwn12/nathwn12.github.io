@@ -655,3 +655,45 @@
     gap: var(--space-4);
   }
 }
+
+/* Contact — the address is the display line; the colophon is a set of links. */
+.contact-line {
+  max-width: 46ch;
+  color: var(--color-ink-muted);
+}
+
+.mailto {
+  display: inline-block;
+  margin-block: var(--space-32);
+  font-family: var(--font-display);
+  font-size: clamp(1.75rem, 6vw, 4.5rem);
+  line-height: var(--leading-display);
+  letter-spacing: var(--tracking-display);
+  overflow-wrap: anywhere;
+}
+
+.section-lede {
+  max-width: var(--measure);
+  color: var(--color-ink-muted);
+}
+
+.colophon {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-16) var(--space-32);
+  padding-block: var(--space-32) var(--space-64);
+  border-block-start: 1px solid
+    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
+}
+
+.colophon .data {
+  color: var(--color-ink-muted);
+}
+
+.colophon-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-24);
+}

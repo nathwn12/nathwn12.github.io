@@ -146,6 +146,15 @@ describe("the content survives the strip", () => {
     expect(html).toContain(`mailto:${CONTACT_EMAIL}`);
     expect(html).not.toContain("<form");
   });
+
+  test("the address is a display link and the colophon is links", () => {
+    expect(html).toContain('class="mailto"');
+    const colophon = html.slice(html.indexOf('class="colophon'));
+    expect(colophon.match(/<a /g) ?? []).toHaveLength(5);
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.mailto\s*\{[^}]*var\(--font-display\)/);
+    expect(css).toContain(".colophon-links");
+  });
 });
 
 describe("the stripped floor", () => {
