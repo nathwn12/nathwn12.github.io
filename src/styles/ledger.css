@@ -254,7 +254,8 @@
   .stage-nav {
     flex-wrap: nowrap;
     justify-content: space-between;
-    gap: 0;
+    /* An explicit gap cannot collapse, and equal-basis links make it even. */
+    gap: var(--space-8);
     width: 100%;
   }
 
@@ -264,6 +265,9 @@
     min-width: 0;
     padding-inline: 0;
     justify-content: center;
+    /* Five numerals and labels fit the 390 frame only at the compact step. */
+    font-size: 0.6875rem;
+    letter-spacing: 0.02em;
   }
 }
 
