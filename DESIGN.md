@@ -128,7 +128,9 @@ scroll; no interception, no snap, no scroll-driven choreography.
 ## Rules
 
 - The void is the only ground; no panel, plate, card or fill behind text; a
-  hairline is a rule, not a box.
+  hairline is a rule, not a box. The owner-approved Open Source chapter is the
+  one exception: three hairline card cells and the Work chapter's margin spine
+  are composition, not plates behind copy; their fill is the void itself.
 - Tokens are normative; prose explains and never overrides.
 - One navigation; every chapter reachable from it.
 - Reduced motion is a complete document, not a frozen animation.

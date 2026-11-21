@@ -13,13 +13,7 @@ import { aiPractice, figures, proofRows } from "../src/content/ledger";
 import { experience, provenance } from "../src/content/experience";
 import { projects } from "../src/content/projects";
 import { signal } from "../src/content/signal";
-import {
-  featuredRows,
-  indexRows,
-  lifetimeNote,
-  workIndexLede,
-  workIntro,
-} from "../src/content/showcase";
+import { featuredRows, indexRows, workShelfIntro } from "../src/content/showcase";
 import { CONTACT_EMAIL } from "../src/lib/contact";
 
 const root = resolve(import.meta.dirname, "..");
@@ -142,40 +136,28 @@ describe("the content survives the strip", () => {
     expect(html).toContain(signal.ticker.join(" · "));
   });
 
-  test("three featured and eleven compact index entries", () => {
+  test("three cards and eleven two-column list entries", () => {
     expect(featuredRows).toHaveLength(3);
     expect(indexRows).toHaveLength(11);
-    expect(html.match(/class="featured-row"/g) ?? []).toHaveLength(3);
-    expect(html.match(/class="index-row"/g) ?? []).toHaveLength(11);
-    expect(
-      (html.match(/class="featured-row"/g) ?? []).length +
-        (html.match(/class="index-row"/g) ?? []).length,
-    ).toBe(14);
-    expect(html).not.toMatch(/class="[^"]*\bcard\b/);
+    expect(html.match(/class="card"/g) ?? []).toHaveLength(3);
+    expect(html.match(/class="item"/g) ?? []).toHaveLength(11);
   });
 
-  test("every work row carries a second line of technical texture", () => {
-    for (const row of [...featuredRows, ...indexRows]) {
-      expect(row.claim.length).toBeGreaterThan(20);
+  test("the shelf intro and card detail come from content", () => {
+    for (const row of featuredRows) {
       expect(row.detail.length).toBeGreaterThan(60);
       expect(row.detail).not.toBe(row.claim);
     }
+    expect(html).toContain(workShelfIntro);
     const intro = read("src/content/showcase.ts");
-    expect(intro).toContain("export const workIntro");
-    expect(intro).toContain("published this week");
-    expect(intro).toContain("runs daily");
+    expect(intro).toContain("export const workShelfIntro");
   });
 
-  test("npm rows show lifetime downloads with a weekly honesty label", () => {
+  test("the cards keep lifetime downloads and language in the foot", () => {
     const work = html.slice(html.indexOf('id="work"'), html.indexOf('id="proof"'));
-    const npmRows = [...featuredRows, ...indexRows].filter(
-      (row) => row.lifetime !== null,
-    );
-    expect(npmRows).toHaveLength(4);
-    expect(work).toContain(lifetimeNote);
-    expect(work.match(/class="lifetime-figure"/g) ?? []).toHaveLength(3);
-    for (const row of npmRows) {
+    for (const row of featuredRows) {
       expect(work).toContain(row.lifetime!.toLocaleString("en-US"));
+      expect(work).toContain(row.language);
     }
     // The evidenced count is 35 in projects.ts, not the lead's suggested 40.
     const toolCount = projects
@@ -201,24 +183,18 @@ describe("the content survives the strip", () => {
     expect(work).not.toContain("class=\"spark\"");
   });
 
-  test("the work lead-in and second lines render on the hairline rows", () => {
+  test("the shelf keeps every real repository link", () => {
     const work = html.slice(html.indexOf('id="work"'), html.indexOf('id="proof"'));
-    expect(work).toContain('class="work-intro"');
-    expect(work.match(/class="row-detail"/g) ?? []).toHaveLength(14);
-    expect(html).toContain(workIntro);
-    expect(html).toContain("opencode-harness");
-    expect(html).toContain("Doctrine-guarded and self-policing");
-    expect(workIndexLede).toContain("Fourteen projects");
-    expect(html).toContain(workIndexLede);
-    expect(work.match(/pushed \d/g) ?? []).toHaveLength(0);
-    expect((work.match(/Probe captured/g) ?? []).length).toBe(1);
+    expect(work).toContain("opencode-harness");
+    expect(work).toContain("The public harness he drives every day.");
+    expect(work.match(/target="_blank"/g) ?? []).toHaveLength(14);
   });
 
-  test("the register draws a signal rule on hover, never a box", () => {
+  test("the shelf uses hairline cards and list rules", () => {
     const css = read("src/styles/ledger.css");
-    expect(css).toMatch(/\.featured-row:hover::after/);
-    expect(css).toMatch(/\.index-row:focus-within::after/);
-    expect(css).toContain("border-block-end: 1px solid");
+    expect(css).toMatch(/\.wc \.cards \{[^}]*grid-template-columns:\s*repeat\(3, 1fr\)/);
+    expect(css).toMatch(/\.wc \.item \{[^}]*border-block-end:\s*1px solid/);
+    expect(read("DESIGN.md")).toContain("one exception");
   });
 
   test("the proof keeps its four measured rows and their figures", () => {

@@ -144,6 +144,11 @@ const harnessRow: ShowcaseRow = {
 
 const allRows: ShowcaseRow[] = [...rows, harnessRow];
 
+/** The shelf intro for the approved Open Source variant. */
+export const workShelfIntro =
+  "The public repositories are the argument. Three are worth opening first; " +
+  "the rest sit below with their case notes.";
+
 /** Derived from the rows actually rendered, so the count cannot drift. */
 const rowCountWord = countWords(allRows.length);
 export const workIndexLede =

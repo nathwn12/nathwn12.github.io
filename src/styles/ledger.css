@@ -970,6 +970,94 @@
   margin-block-start: 30px;
 }
 
+/* 02 Open Source C — three cards, the rest as a two-column list. */
+.wc .intro {
+  max-width: 64ch;
+  font-size: 16px;
+  color: var(--color-ink-muted);
+  margin: 0;
+}
+
+.wc .cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--color-rule);
+  border: 1px solid var(--color-rule);
+  margin-block-start: 28px;
+}
+
+.wc .card {
+  background: var(--color-ground);
+  padding: 22px 22px 18px;
+  display: flex;
+  flex-direction: column;
+  min-height: 236px;
+}
+
+.wc .card h3 {
+  font-family: var(--font-display);
+  font-size: 26px;
+  margin: 0 0 6px;
+  font-weight: 400;
+}
+
+.wc .card h3 a {
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.wc .card .claim {
+  font-size: 14.5px;
+  margin: 0 0 8px;
+}
+
+.wc .card .detail {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-ink-muted);
+  margin: 0 0 12px;
+}
+
+.wc .card .foot {
+  margin-block-start: auto;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-family: var(--font-data);
+  font-size: 8px;
+  color: var(--color-ink-muted);
+  letter-spacing: 0.05em;
+}
+
+.wc .list {
+  columns: 2;
+  column-gap: 48px;
+  margin-block-start: 38px;
+}
+
+.wc .item {
+  break-inside: avoid;
+  padding: 9px 0;
+  border-block-end: 1px solid var(--color-rule);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 14px;
+}
+
+.wc .item .nm {
+  font-size: 14.5px;
+  color: var(--color-ink);
+  text-decoration: none;
+}
+
+.wc .item .cl {
+  font-size: 11.5px;
+  color: var(--color-ink-muted);
+  text-align: right;
+}
+
 @media (max-width: 700px) {
   .ch-head,
   .v-body {
@@ -1006,5 +1094,13 @@
   .sa .micros {
     flex-wrap: wrap;
     gap: 18px 28px;
+  }
+
+  .wc .cards {
+    grid-template-columns: 1fr;
+  }
+
+  .wc .list {
+    columns: 1;
   }
 }

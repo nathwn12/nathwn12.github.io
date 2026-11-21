@@ -15,9 +15,7 @@ import { signal, specLines } from "../content/signal";
 import {
   featuredRows,
   indexRows,
-  lifetimeNote,
-  workIndexLede,
-  workIntro,
+  workShelfIntro,
 } from "../content/showcase";
 import { CONTACT_EMAIL, CV_PATH, RESUME_PATH } from "../lib/contact";
 
@@ -193,52 +191,36 @@ export default function LedgerPage() {
         </Cluster>
 
         <Cluster id="work" index="02" label="Open Source" variant="wc">
-          <p className="work-intro">{workIntro}</p>
-          <div className="featured-list">
+          <p className="intro">{workShelfIntro}</p>
+          <div className="cards">
             {featuredRows.map((row) => (
-              <div className="featured-row" key={row.dir}>
-                <span className="featured-num">{row.num}</span>
-                <div className="featured-main">
-                  <h3>{row.name}</h3>
-                  <p className="claim">{row.claim}</p>
-                  <p className="row-detail">{row.detail}</p>
-                  <span className="tech data">{row.tech.join(" / ")}</span>
+              <div className="card" key={row.dir}>
+                <h3>
+                  <a href={row.url} target="_blank" rel="noreferrer">
+                    {row.name}
+                  </a>
+                </h3>
+                <p className="claim">{row.claim}</p>
+                <p className="detail">{row.detail}</p>
+                <div className="foot">
+                  <span>{row.tech.join(" / ")}</span>
+                  <span>
+                    {row.lifetime !== null
+                      ? row.lifetime.toLocaleString("en-US")
+                      : "no package"}{" · "}
+                    {row.language}
+                  </span>
                 </div>
-                <div className="featured-stats data">
-                  {row.lifetime !== null && (
-                    <span className="lifetime-figure">
-                      {row.lifetime.toLocaleString("en-US")}
-                      <span className="lifetime-note">{lifetimeNote}</span>
-                    </span>
-                  )}
-                  <span>{row.language}</span>
-                </div>
-                <a href={row.url} target="_blank" rel="noreferrer" aria-label={`Open ${row.name} on GitHub`}>
-                  <span aria-hidden="true">↗</span>
-                </a>
               </div>
             ))}
           </div>
-          <p className="index-head data">
-            {workIndexLede}
-          </p>
-          <div className="index-grid">
+          <div className="list">
             {indexRows.map((row) => (
-              <div className="index-row" key={row.dir}>
-                <span className="index-num data">{row.num}</span>
-                <a href={row.url} target="_blank" rel="noreferrer">
+              <div className="item" key={row.dir}>
+                <a className="nm" href={row.url} target="_blank" rel="noreferrer">
                   {row.name}
                 </a>
-                <div className="index-copy">
-                  <span className="index-claim">{row.claim}</span>
-                  <span className="row-detail">{row.detail}</span>
-                </div>
-                <span className="index-stats data">
-                  {row.lifetime !== null
-                    ? `${row.lifetime.toLocaleString("en-US")} lifetime · ${lifetimeNote}`
-                    : "no package"}{" · "}
-                  {row.language}
-                </span>
+                <span className="cl">{row.claim}</span>
               </div>
             ))}
           </div>
