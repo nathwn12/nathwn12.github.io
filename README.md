@@ -9,8 +9,8 @@ the server on `http://127.0.0.1:5277`.
 
 ## Checks
 
-`bun run check` runs the typecheck, the 28-pair contrast audit, the production build and 372
-tests. `bun run probe:repos` fails when `src/content/projects.ts` stops matching what GitHub publishes.
+`bun run check` runs the typecheck, the production build and the behavior tests.
+`bun run probe:repos` fails when `src/content/projects.ts` stops matching what GitHub publishes.
 
 ## Deploy
 
@@ -20,5 +20,4 @@ Push to `main`. `.github/workflows/deploy.yml` builds and publishes `dist` to Gi
 
 - Issues: https://github.com/nathwn12/nathwn12.github.io/issues
 - Live: https://nathwn12.github.io
-- Design: [docs/DESIGN.md](docs/DESIGN.md)
 - Licence: [LICENSE](LICENSE)
