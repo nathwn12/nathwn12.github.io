@@ -37,8 +37,6 @@ motion:
 
 # Deep Field Ledger
 
-[skip ci]
-
 ## V2 — the field law
 
 The v1 arrangement below still holds for identity, palette, typefaces, stack
