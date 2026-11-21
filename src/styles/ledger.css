@@ -13,65 +13,56 @@
   letter-spacing: var(--tracking-data);
 }
 
-/* Masthead constellation — one mark at 120, five links on one hairline. */
-.stage-nav-wrap {
+/* Nav B — one 34px strip: 12px mark, five links, ticker at the right edge.
+   The mark keeps its own file and palette; the site only sets size/opacity. */
+.lab-nav {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-16) var(--space-24);
-  padding-block: var(--space-16);
-  border-block-end: 1px solid
-    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
+  gap: 20px;
+  height: 34px;
+  padding: 0 24px;
+  border-block-end: 1px solid var(--color-rule);
 }
 
-/* The owned mark keeps its own file, format and palette; site tokens do not
-   bind it. Rendered once at width 120. */
-.stage-mark {
-  flex: 0 0 120px;
-  width: 120px;
-  min-height: 44px;
-  display: inline-flex;
-  align-items: center;
-  text-decoration: none;
-}
-
-.stage-mark img {
+.lab-nav .mark {
   display: block;
-  width: 120px;
-  height: 120px;
-  /* Quiet imprint: the site dims the rendered mark, never the brand file. */
+  line-height: 0;
+}
+
+.lab-nav .mark img {
+  display: block;
+  height: 12px;
+  width: auto;
   opacity: 0.6;
 }
 
-.stage-nav {
+.lab-nav .links {
   display: flex;
-  flex: 1 1 auto;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0 var(--space-8);
-  min-height: 44px;
+  gap: 16px;
+  font-family: var(--font-data);
+  font-size: 9px;
+  letter-spacing: 0.08em;
 }
 
-.stage-nav a {
-  display: inline-flex;
-  align-items: center;
-  flex: 0 0 92px;
-  width: 92px;
-  min-height: 44px;
-  padding-inline: var(--space-8);
-  color: var(--color-ink-muted);
+.lab-nav .links a {
+  color: var(--color-ink);
   text-decoration: none;
   white-space: nowrap;
 }
 
-.stage-nav a[aria-current="true"] {
+.lab-nav .links a[aria-current="true"] {
   color: var(--color-signal);
 }
 
-.stage-nav a:hover {
-  color: var(--color-ink);
+.lab-nav .nav-ticker {
+  margin-inline-start: auto;
+  font-family: var(--font-data);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  color: var(--color-ink-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* One full-viewport field. Points crop at narrow widths: points-on-void. */
@@ -267,68 +258,30 @@
     text-align: left;
   }
 
-  /* One masthead, one hairline: the mark above, all five links in one row.
-     The nav's inline inset matches the content gutter. */
-  .stage-nav-wrap {
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-8);
-    padding-inline: var(--gutter);
+  /* Phone nav: the strip keeps one hairline; the ticker yields entirely. */
+  .lab-nav {
+    padding: 0 16px;
+    gap: 12px;
   }
 
-  .stage-mark {
-    flex: 0 0 auto;
-  }
-
-  .stage-nav {
-    flex-wrap: nowrap;
+  .lab-nav .links {
+    flex: 1;
     justify-content: space-between;
-    /* An explicit gap cannot collapse, and equal-basis links make it even. */
-    gap: var(--space-8);
-    width: 100%;
+    gap: 8px;
   }
 
-  .stage-nav a {
-    flex: 1 1 0;
-    width: auto;
-    min-width: 0;
-    padding-inline: 0;
-    justify-content: center;
-    /* Five numerals and labels fit the 390 frame only at the compact step. */
+  .lab-nav .links a {
     font-size: 0.6875rem;
-    letter-spacing: 0.02em;
+  }
+
+  /* The final labels are longer; the numerals yield so all five fit. */
+  .lab-nav .links a span {
+    display: none;
   }
 }
 
-/* Live readout: one bounded line on wide screens. Curated content fits the
-   strip, so no clip and never a wrapped paragraph wall. No marquee: the
-   static document shows the whole wording once. The phone class drops it —
-   the chapters carry the numbers. */
-.ticker {
-  width: 100%;
-  overflow: hidden;
-  /* The rule spans the viewport; the readout starts on the content gutter. */
-  padding-block: var(--space-8);
-  padding-inline: var(--gutter);
-  border-block-end: 1px solid
-    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
-}
-
-.ticker-track {
-  display: block;
-  width: 100%;
-  overflow: hidden;
-  font-family: var(--font-data);
-  font-size: var(--text-data);
-  letter-spacing: var(--tracking-data);
-  color: var(--color-ink-muted);
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-/* Compact class: the ticker yields entirely; no fourth line above the plate. */
 @media (max-width: 900px) {
-  .ticker {
+  .lab-nav .nav-ticker {
     display: none;
   }
 }

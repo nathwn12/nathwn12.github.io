@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import HorizonVideo from "./HorizonVideo";
-import { CountUp, Heatmap, Sparkline, Ticker } from "./Instruments";
+import { CountUp, Heatmap, Sparkline } from "./Instruments";
 import { employer, experience, provenance } from "../content/experience";
 import {
   aiPractice,
@@ -21,11 +21,12 @@ import {
 } from "../content/showcase";
 import { CONTACT_EMAIL, CV_PATH, RESUME_PATH } from "../lib/contact";
 
+/** The ids stay stable; the labels are the owner's final visible copy. */
 const SECTIONS = [
-  { id: "signal", index: "01", label: "The signal" },
-  { id: "work", index: "02", label: "The work" },
-  { id: "proof", index: "03", label: "The proof" },
-  { id: "method", index: "04", label: "The method" },
+  { id: "signal", index: "01", label: "Numbers" },
+  { id: "work", index: "02", label: "Open Source" },
+  { id: "proof", index: "03", label: "Work" },
+  { id: "method", index: "04", label: "Approach" },
   { id: "contact", index: "05", label: "Contact" },
 ] as const;
 
@@ -83,11 +84,11 @@ export default function LedgerPage() {
         Skip to content
       </a>
 
-      <header className="stage-nav-wrap">
-        <a className="stage-mark" href="#horizon" aria-label="Back to the top">
-          <img src="/brand/signature-glyph.svg" alt="" width="120" height="120" />
+      <header className="lab-nav" aria-label="Site">
+        <a className="mark" href="#horizon" aria-label="Back to the top">
+          <img src="/brand/signature-glyph.svg" alt="" />
         </a>
-        <nav className="stage-nav data" aria-label="Chapters">
+        <nav className="links" aria-label="Chapters">
           {SECTIONS.map((section) => (
             <a
               key={section.id}
@@ -95,13 +96,12 @@ export default function LedgerPage() {
               aria-current={active === section.id ? "true" : undefined}
             >
               <span aria-hidden="true">{section.index}</span>{" "}
-              {section.label.replace(/^The /, "")}
+              {section.label}
             </a>
           ))}
         </nav>
+        <span className="nav-ticker">{signal.ticker.join(" · ")}</span>
       </header>
-
-      <Ticker items={signal.ticker} />
 
       <main id="main" tabIndex={-1}>
         <section id="horizon" className="hero" aria-labelledby="hero-name">
@@ -129,7 +129,7 @@ export default function LedgerPage() {
           </div>
         </section>
 
-        <Cluster id="signal" index="01" label="The signal">
+        <Cluster id="signal" index="01" label="Numbers">
           <div className="signal-pair">
             <div>
               <CountUp value={signal.allTime} className="signal-figure" />
@@ -185,7 +185,7 @@ export default function LedgerPage() {
           </p>
         </Cluster>
 
-        <Cluster id="work" index="02" label="The work">
+        <Cluster id="work" index="02" label="Open Source">
           <p className="work-intro">{workIntro}</p>
           <div className="featured-list">
             {featuredRows.map((row) => (
@@ -237,7 +237,7 @@ export default function LedgerPage() {
           </div>
         </Cluster>
 
-        <Cluster id="proof" index="03" label="The proof">
+        <Cluster id="proof" index="03" label="Work">
           <div className="proof-table">
             {proofRows.map((row, i) => (
               <div className="proof-row" key={row.claim}>
@@ -280,7 +280,7 @@ export default function LedgerPage() {
           </div>
         </Cluster>
 
-        <Cluster id="method" index="04" label="The method">
+        <Cluster id="method" index="04" label="Approach">
           <div className="method-prose">
             {aiPractice.sentences.map((sentence) => (
               <p key={sentence}>{sentence}</p>

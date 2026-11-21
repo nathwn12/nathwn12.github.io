@@ -10,6 +10,9 @@
   --color-on-signal: #1A1512;
   --color-measure: #627AC2;
   --color-selection: #C68E7428;
+  /* Lab-parity hairlines: the approved lab's two rule weights. */
+  --color-rule: #1b1b1d;
+  --color-rule-strong: #2a2a2d;
 
   /* Type roles — three OFL faces; no sans-serif in the catalog. */
   --font-display: "Libre Bodoni", Georgia, "Times New Roman", serif;

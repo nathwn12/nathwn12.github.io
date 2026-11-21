@@ -40,7 +40,7 @@ describe("one nav, five clusters in descent order", () => {
   test("the sections render after the hero in the same order", () => {
     expect(html.match(/<main\b/g) ?? []).toHaveLength(1);
     expect(html.match(/<header\b/g) ?? []).toHaveLength(1);
-    expect(html.indexOf("skip-link")).toBeLessThan(html.indexOf("stage-nav"));
+    expect(html.indexOf("skip-link")).toBeLessThan(html.indexOf("lab-nav"));
     const ids = [...html.matchAll(/<section id="([a-z]+)"/g)].map((match) => match[1]);
     expect(ids.slice(0, 6)).toEqual(["horizon", ...ORDER]);
     for (const id of ORDER) {
@@ -52,12 +52,21 @@ describe("one nav, five clusters in descent order", () => {
     expect(html).toContain("colophon");
   });
 
-  test("the masthead uses the owned mark once at width 120", () => {
+  test("the masthead uses the owned glyph once as a 12px imprint", () => {
     expect(html.match(/<img[^>]*brand\/signature-glyph\.svg/g) ?? []).toHaveLength(1);
-    expect(html).toContain('width="120"');
-    expect(html).not.toContain("stage-mark-tail");
     const css = read("src/styles/ledger.css");
-    expect(css).toMatch(/\.stage-mark img\s*\{[^}]*width:\s*120px/);
+    expect(css).toMatch(/\.lab-nav \.mark img\s*\{[^}]*height:\s*12px/);
+    expect(css).toMatch(/\.lab-nav \.mark img\s*\{[^}]*opacity:\s*0\.6/);
+  });
+
+  test("the final labels are visible with stable ids", () => {
+    for (const [id, label] of [
+      ["signal", "Numbers"], ["work", "Open Source"], ["proof", "Work"],
+      ["method", "Approach"], ["contact", "Contact"],
+    ]) {
+      expect(html).toContain(`id="${id}"`);
+      expect(html).toContain(`>${label}</h2>`);
+    }
   });
 
   test("one chapter is active in the single navigation", () => {
@@ -72,23 +81,17 @@ describe("one nav, five clusters in descent order", () => {
     expect(css).toContain("width: min(100% - (var(--gutter) * 2), var(--frame-native))");
   });
 
-  test("the narrow constellation keeps five links on one row", () => {
+  test("nav B keeps the strip at 34px and hides the ticker on phone", () => {
     const css = read("src/styles/ledger.css");
-    expect(css).toMatch(
-      /@media \(max-width: 700px\)[\s\S]*?\.stage-nav\s*\{[^}]*flex-wrap:\s*nowrap/,
-    );
-    expect(css).toMatch(
-      /@media \(max-width: 700px\)[\s\S]*?\.stage-nav a\s*\{[^}]*min-width:\s*0/,
-    );
+    expect(css).toMatch(/\.lab-nav \{[^}]*height:\s*34px/);
+    expect(css).toMatch(/@media \(max-width: 900px\)[\s\S]*?\.lab-nav \.nav-ticker\s*\{[^}]*display:\s*none/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.lab-nav \.links a\s*\{[^}]*font-size/);
+    expect(css).toMatch(/\.lab-nav \.links a span\s*\{[^}]*display:\s*none/);
   });
 
-  test("the ticker is a bounded strip that yields at phone class", () => {
-    const css = read("src/styles/ledger.css");
-    expect(css).toMatch(/\.ticker \{[^}]*padding-inline:\s*var\(--gutter\)/);
-    expect(html).not.toContain("ticker-track frame");
-    expect(css).toMatch(/\.ticker-track \{[^}]*white-space:\s*nowrap/);
-    expect(css).toMatch(/@media \(max-width: 900px\)[\s\S]*?\.ticker\s*\{[^}]*display:\s*none/);
-    expect(css).not.toMatch(/@keyframes/);
+  test("the readout lives in the nav, free of figures", () => {
+    expect(html.match(/class="nav-ticker"/g) ?? []).toHaveLength(1);
+    expect(html).not.toContain('class="ticker"');
     expect(signal.ticker.length).toBeLessThanOrEqual(2);
     for (const note of signal.ticker) {
       expect(note).not.toMatch(/\d/);
@@ -123,8 +126,8 @@ describe("the content survives the strip", () => {
     expect(html).toContain(signal.snapshotDate);
   });
 
-  test("the ticker still renders its readout", () => {
-    expect(html).toContain('class="ticker"');
+  test("the nav carries the readout text", () => {
+    expect(html).toContain(signal.ticker.join(" · "));
   });
 
   test("three featured and eleven compact index entries", () => {
