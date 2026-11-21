@@ -1,4 +1,94 @@
-/* Neutral reset. No design values survive the strip. */
+/* Base — the void is the only ground. No panel, plate or card behind text.
+   Everything here reads a token from tokens.css; no color literal is written. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
 body {
-  font-family: sans-serif;
+  margin: 0;
+  background-color: var(--color-ground);
+  color: var(--color-ink);
+}
+
+body {
+  font-family: var(--font-text);
+  font-size: var(--text-body);
+  line-height: var(--leading-body);
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p,
+dl,
+dd,
+dt,
+figure {
+  margin: 0;
+}
+
+a {
+  color: var(--color-signal);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  text-decoration-color: var(--color-ink);
+}
+
+/* A hairline is a rule, not a box. Derived from the ink-muted token. */
+.hairline,
+hr {
+  border: 0;
+  border-block-start: 1px solid
+    color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
+  margin: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-signal);
+  outline-offset: 3px;
+  border-radius: 0;
+}
+
+/* The skip link uses the page ground, never a raised plate. */
+.skip-link {
+  position: fixed;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  z-index: 100;
+  padding: var(--space-8) var(--space-16);
+  transform: translateY(-160%);
+  background-color: var(--color-ground);
+  border-block-end: 1px solid var(--color-signal);
+  font-family: var(--font-data);
+  font-size: var(--text-data);
+  letter-spacing: var(--tracking-data);
+  text-decoration: none;
+}
+
+.skip-link:focus-visible {
+  transform: none;
+}
+
+::selection {
+  background-color: var(--color-selection);
+  color: var(--color-ink);
+}
+
+/* State motion only; reduced motion stays a complete, static document. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
 }

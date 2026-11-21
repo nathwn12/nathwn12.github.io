@@ -130,9 +130,13 @@ describe("the stripped floor", () => {
     expect(tokens).not.toMatch(/color-scheme\s*:/);
   });
 
-  test("the neutral reset uses a generic body font and no custom hex", () => {
+  test("the base ground reads tokens and writes no color literal", () => {
     const base = read("src/styles/base.css");
-    expect(base).toContain("font-family: sans-serif");
+    expect(base).toContain("background-color: var(--color-ground)");
+    expect(base).toContain("font-family: var(--font-text)");
+    expect(base).toContain(":focus-visible");
+    expect(base).toContain("color-mix(in srgb, var(--color-ink-muted)");
+    expect(base).toContain("::selection");
     expect(base).not.toMatch(/#[0-9a-f]{3,8}\b/i);
   });
 
