@@ -34,6 +34,10 @@ const SECTIONS = [
   { id: "contact", index: "05", label: "Contact" },
 ] as const;
 
+/** Lifetime downloads as the ledger prints them: a figure, or no package. */
+const lifetimeOf = (row: { lifetime: number | null }): string =>
+  row.lifetime !== null ? row.lifetime.toLocaleString("en-US") : "no package";
+
 function Cluster({
   id,
   index,
@@ -230,35 +234,32 @@ export default function LedgerPage() {
 
         <Cluster id="work" index="02" label="Open Source" variant="wc" active={active}>
           <p className="intro">{workShelfIntro}</p>
-          <div className="cards">
+          <div className="ledger">
             {featuredRows.map((row) => (
-              <div className="card" key={row.dir}>
-                <h3>
-                  <a href={row.url} target="_blank" rel="noreferrer">
-                    {row.name}
-                  </a>
-                </h3>
-                <p className="claim">{row.claim}</p>
-                <p className="detail">{row.detail}</p>
-                <div className="foot">
+              <a
+                className="tier-a"
+                key={row.dir}
+                href={row.url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <span className="a-head">
+                  <span className="a-name">{row.name}</span>
+                  <span className="claim a-claim">{row.claim}</span>
+                </span>
+                <span className="a-detail">{row.detail}</span>
+                <span className="a-foot">
                   <span>{row.tech.join(" / ")}</span>
-                  <span>
-                    {row.lifetime !== null
-                      ? row.lifetime.toLocaleString("en-US")
-                      : "no package"}{" · "}
-                    {row.language}
-                  </span>
-                </div>
-              </div>
+                  <span>{`${lifetimeOf(row)} · ${row.language}`}</span>
+                </span>
+              </a>
             ))}
-          </div>
-          <div className="list">
             {indexRows.map((row) => (
-              <div className="item" key={row.dir}>
-                <a className="nm" href={row.url} target="_blank" rel="noreferrer">
+              <div className="tier-b" key={row.dir}>
+                <a href={row.url} target="_blank" rel="noreferrer">
                   {row.name}
                 </a>
-                <span className="cl">{row.claim}</span>
+                {` · ${row.claim} · ${lifetimeOf(row)} · ${row.language}`}
               </div>
             ))}
           </div>

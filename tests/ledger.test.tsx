@@ -58,7 +58,7 @@ describe("one nav, five clusters in descent order", () => {
     expect(html).toMatch(/class="nav-ticker" aria-hidden="true"/);
     expect(html).toMatch(/<img[^>]*brand\/signature-glyph\.svg[^>]*width="300"[^>]*height="252"/);
     const css = read("src/styles/ledger.css");
-    expect(css).toMatch(/\.wc \.card h3 \{[^}]*text-wrap:\s*balance/);
+    expect(css).toMatch(/\.wc \.a-name \{[^}]*text-wrap:\s*balance/);
     expect(css).toMatch(/\.wc \.intro \{[^}]*text-wrap:\s*pretty/);
   });
 
@@ -158,11 +158,13 @@ describe("the content survives the strip", () => {
     expect(html).toContain(signal.ticker.join(" · "));
   });
 
-  test("three cards and eleven two-column list entries", () => {
+  test("the ledger has three tier-A rows and eleven tier-B rows", () => {
     expect(featuredRows).toHaveLength(3);
     expect(indexRows).toHaveLength(11);
-    expect(html.match(/class="card"/g) ?? []).toHaveLength(3);
-    expect(html.match(/class="item"/g) ?? []).toHaveLength(11);
+    expect(html.match(/class="tier-a"/g) ?? []).toHaveLength(3);
+    expect(html.match(/class="tier-b"/g) ?? []).toHaveLength(11);
+    expect(html.match(/class="card"/g) ?? []).toHaveLength(0);
+    expect(html.match(/class="item"/g) ?? []).toHaveLength(0);
   });
 
   test("the shelf intro and card detail come from content", () => {
@@ -212,16 +214,40 @@ describe("the content survives the strip", () => {
     expect(work.match(/target="_blank"/g) ?? []).toHaveLength(14);
   });
 
-  test("the shelf is a ruled band, never boxed cards", () => {
+  test("the shelf is one ruled ledger, never boxed cards", () => {
     const css = read("src/styles/ledger.css");
-    expect(css).toMatch(/\.wc \.cards \{[^}]*grid-template-columns:\s*repeat\(3, 1fr\)/);
-    expect(css).toMatch(/\.wc \.cards \{[^}]*border-block-start:\s*1px solid/);
-    expect(css).toMatch(/\.wc \.card \{[^}]*border-inline-end:\s*1px solid/);
-    expect(css).not.toMatch(/\.wc \.card \{[^}]*background:/);
-    expect(css).not.toMatch(/\.wc \.cards \{[^}]*background:/);
-    expect(css).toMatch(/\.wc \.item \{[^}]*border-block-end:\s*1px solid/);
+    expect(css).toMatch(/\.wc \.ledger \{[^}]*border-block-start:\s*1px solid/);
+    expect(css).toMatch(/\.wc \.tier-a,\s*\.wc \.tier-b \{[^}]*border-block-end:\s*1px solid/);
+    expect(css).not.toMatch(/\.wc \.tier-a \{[^}]*background:/);
+    expect(css).not.toMatch(/\.wc \.tier-b \{[^}]*background:/);
+    expect(css).toMatch(/\.wc \.tier-a \{[^}]*min-height:\s*96px/);
+    expect(css).toMatch(/\.wc \.tier-b \{[^}]*min-height:\s*48px/);
     expect(read("DESIGN.md")).toContain("ruled data bands");
     expect(read("DESIGN.md")).not.toContain("one exception");
+  });
+
+  test("tier A is one whole-row link; tier B links only the name", () => {
+    const work = html.slice(html.indexOf('id="work"'), html.indexOf('id="proof"'));
+    const anchors = work.match(/<a class="tier-a"[^>]*>[\s\S]*?<\/a>/g) ?? [];
+    for (const row of featuredRows) {
+      const anchor = anchors.find((part) => part.includes(row.name)) ?? "";
+      expect(anchor).toContain(row.claim);
+      expect(anchor).toContain(row.detail);
+      expect(anchor).toContain(row.tech[0]!);
+      expect(anchor).toContain(row.language);
+      expect(anchor.match(/<a /g) ?? []).toHaveLength(1);
+    }
+    for (const row of indexRows) {
+      const line = work.match(/<div class="tier-b">[\s\S]*?<\/div>/g) ?? [];
+      const entry = line.find((part) => part.includes(row.name)) ?? "";
+      const lifetime =
+        row.lifetime !== null
+          ? row.lifetime.toLocaleString("en-US")
+          : "no package";
+      expect(entry).toBe(
+        `<div class="tier-b"><a href="${row.url}" target="_blank" rel="noreferrer">${row.name}</a> · ${row.claim} · ${lifetime} · ${row.language}</div>`,
+      );
+    }
   });
 
   test("the proof figures survive the spine composition", () => {
@@ -321,7 +347,7 @@ describe("the content survives the strip", () => {
     expect(css).toMatch(/\.wc \.intro \{[^}]*font-size:\s*var\(--text-lede\)/);
     expect(css).toMatch(/\.pc h3 \{[^}]*font-size:\s*var\(--text-lede\)/);
     expect(css).toMatch(/\.sa \.pval \{[^}]*font-size:\s*var\(--text-detail\)/);
-    expect(css).toMatch(/\.wc \.item \.nm \{[^}]*font-size:\s*var\(--text-detail\)/);
+    expect(css).toMatch(/\.wc \.tier-b \{[^}]*font-size:\s*var\(--text-mono\)/);
     expect(css).toMatch(/\.pc \.tex \{[^}]*font-size:\s*var\(--text-detail\)/);
     expect(css).toMatch(/\.sa \.flabel \{[^}]*font-size:\s*var\(--text-mono\)/);
     expect(css).toMatch(/\.ca \.next \{[^}]*font-size:\s*var\(--text-mono\)/);
