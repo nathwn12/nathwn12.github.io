@@ -389,10 +389,10 @@ describe("the 12-column field law", () => {
   test("every chapter and both strips share one centred field", () => {
     expect(html.match(/class="field"/g) ?? []).toHaveLength(8);
     expect(html).toMatch(/<header class="lab-nav" aria-label="Site"><div class="field">/);
-    expect(html).toMatch(/<footer class="colophon"><div class="field">/);
+    expect(html).toMatch(/<footer class="colophon">[\s\S]*?<div class="field">/);
     for (const id of ORDER) {
       const at = html.indexOf(`id="${id}"`);
-      expect(html.slice(at, at + 400)).toContain('class="field"');
+      expect(html.slice(at, at + 900)).toContain('class="field"');
     }
   });
 
@@ -696,7 +696,7 @@ describe("the stripped floor", () => {
     expect(css).toMatch(/@media \(min-width: 900px\)[\s\S]*?\.name-last \{[^}]*position:\s*absolute/);
   });
 
-  test("the hero has no runtime field loop", () => {
+  test("only the witness rotates; there is no runtime field loop", () => {
     const sources = [
       "src/components/LedgerPage.tsx",
       "src/components/Instruments.tsx",
@@ -704,10 +704,31 @@ describe("the stripped floor", () => {
       "src/styles/ledger.css",
       "src/styles/tokens.css",
     ];
+    const css = read("src/styles/ledger.css");
+    expect(css.match(/@keyframes/g) ?? []).toHaveLength(2);
+    expect(css.replace(/@keyframes witness-(spin|spin-reverse)/g, "")).not.toMatch(/@keyframes/);
     for (const source of sources) {
-      expect(read(source)).not.toMatch(/data-reveal|data-motion|@keyframes|requestAnimationFrame/);
+      const text = read(source);
+      expect(text).not.toMatch(/data-reveal|data-motion|requestAnimationFrame/);
     }
     expect(existsSync(resolve(root, "src/components/PointField.tsx"))).toBe(false);
     expect(existsSync(resolve(root, "src/content/field.ts"))).toBe(false);
+  });
+
+  test("the witness mark is the one stilled ornament", () => {
+    expect(html.match(/class="witness /g) ?? []).toHaveLength(4);
+    expect(html).toContain('class="witness witness-hero"');
+    expect(html).toContain('class="witness witness-cold"');
+    expect(html).toContain('class="witness witness-contact"');
+    expect(html).toContain('class="witness witness-footer"');
+    expect(html.match(/<circle /g) ?? []).toHaveLength(20);
+    expect(html.match(/class="witness-outer"/g) ?? []).toHaveLength(4);
+    expect(html.match(/class="witness-inner"/g) ?? []).toHaveLength(4);
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.witness circle \{[^}]*stroke:\s*currentColor/);
+    expect(css).toMatch(/\.witness \{[^}]*color:\s*var\(--color-witness\)/);
+    expect(css).toMatch(/\.witness-outer \{[^}]*witness-spin 240s linear infinite/);
+    expect(css).toMatch(/\.witness-inner \{[^}]*witness-spin-reverse 240s linear infinite/);
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.witness-outer,[\s\S]*?animation:\s*none/);
   });
 });

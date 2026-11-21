@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import HorizonVideo from "./HorizonVideo";
 import ZeroSeal from "./ZeroSeal";
+import WitnessMark from "./WitnessMark";
 import { CountUp, Heatmap, Sparkline } from "./Instruments";
 import {
   employer,
@@ -45,6 +46,7 @@ function Cluster({
   label,
   variant,
   active,
+  ornament,
   children,
 }: {
   id: CoordinateKey;
@@ -52,6 +54,7 @@ function Cluster({
   label: string;
   variant: string;
   active: string;
+  ornament?: ReactNode;
   children: ReactNode;
 }) {
   const coord = coordinates[id];
@@ -61,6 +64,7 @@ function Cluster({
       className="chapter"
       aria-labelledby={`${id}-title`}
     >
+      {ornament}
       <div className="field">
         <div className="ch-head">
           <span className="ch-coordinate">
@@ -158,6 +162,7 @@ export default function LedgerPage() {
       <main id="main" tabIndex={-1}>
         <section id="horizon" className="hero" aria-labelledby="hero-name">
           <div className="beat beat-one">
+            <WitnessMark className="witness-hero" />
             <HorizonVideo />
             <div className="hero-hud">
             <div className="hud hud-name">
@@ -185,6 +190,7 @@ export default function LedgerPage() {
             </div>
           </div>
           <div className="beat beat-cold">
+            <WitnessMark className="witness-cold" />
             <div className="field">
               <div className="cold-read" data-cold>
                 {coldRead.map((line) => (
@@ -336,7 +342,7 @@ export default function LedgerPage() {
           </div>
         </Cluster>
 
-        <Cluster id="contact" index="05" label="Contact" variant="ca" active={active}>
+        <Cluster id="contact" index="05" label="Contact" variant="ca" active={active} ornament={<WitnessMark className="witness-contact" />}>
           <p className="line">{contactBlock.line}</p>
           <a
             className="mail"
@@ -348,6 +354,7 @@ export default function LedgerPage() {
       </main>
 
       <footer className="colophon">
+        <WitnessMark className="witness-footer" />
         <div className="field">
           <span className="data">NNL / event horizon / 2026</span>
           <p className="colophon-links data">

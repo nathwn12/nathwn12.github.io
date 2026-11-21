@@ -117,6 +117,59 @@
   text-wrap: pretty;
 }
 
+/* The witness is the only perpetual motion: five hairline rings, two groups
+   turning against each other. Reduced motion keeps the still composition. */
+.witness {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: min(80vh, 80vw);
+  height: min(80vh, 80vw);
+  pointer-events: none;
+  color: var(--color-witness);
+  z-index: 0;
+  fill: none;
+}
+
+.witness circle {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1;
+}
+
+.witness-outer,
+.witness-inner {
+  transform-origin: 100px 100px;
+}
+
+.witness-outer {
+  animation: witness-spin 240s linear infinite;
+}
+
+.witness-inner {
+  animation: witness-spin-reverse 240s linear infinite;
+}
+
+@keyframes witness-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes witness-spin-reverse {
+  to { transform: rotate(-360deg); }
+}
+
+.witness-hero { opacity: 1; }
+.witness-cold { opacity: 0.9; }
+.witness-contact,
+.witness-footer { opacity: 0.66; }
+
+@media (prefers-reduced-motion: reduce) {
+  .witness-outer,
+  .witness-inner {
+    animation: none;
+  }
+}
+
 /* The recorded singularity: full-bleed, behind the plate, never a wallpaper
    behind text — the plate copy sits in the open void above and below it. */
 .horizon-media {
@@ -439,6 +492,7 @@ video.horizon-media.is-playing {
 }
 
 .colophon {
+  position: relative;
   border-block-start: 1px solid
     color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
 }
@@ -476,6 +530,7 @@ video.horizon-media.is-playing {
    header, type roles, hairlines and rhythm are shared tokens, so the page
    scrolls as one document instead of five separate blocks. */
 .chapter {
+  position: relative;
   border-block-start: 1px solid var(--color-rule-strong);
 }
 
