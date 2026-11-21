@@ -9,7 +9,6 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
 import LedgerPage from "../src/components/LedgerPage";
-import { fieldPoints } from "../src/content/field";
 import { aiPractice, figures, proofRows } from "../src/content/ledger";
 import { experience, provenance } from "../src/content/experience";
 import { signal } from "../src/content/signal";
@@ -54,11 +53,8 @@ describe("one nav, five clusters in descent order", () => {
     expect(css).toMatch(/\.stage-mark img\s*\{[^}]*width:\s*120px/);
   });
 
-  test("the field is behind the plate and one chapter is active", () => {
-    expect(html).toContain('class="field-canvas"');
-    expect(html).toContain(`data-point-count="${fieldPoints.length}"`);
+  test("one chapter is active in the single navigation", () => {
     expect(html.match(/aria-current="true"/g) ?? []).toHaveLength(1);
-    expect(html.indexOf("field-canvas")).toBeLessThan(html.indexOf("hero-hud"));
   });
 
   test("the narrow constellation keeps five links on one row", () => {
@@ -260,7 +256,7 @@ describe("the stripped floor", () => {
     expect(existsSync(resolve(root, "src/components/HorizonVideo.tsx"))).toBe(false);
   });
 
-  test("the only loop is the one settle field", () => {
+  test("the hero has no runtime field loop", () => {
     const sources = [
       "src/components/LedgerPage.tsx",
       "src/components/Instruments.tsx",
@@ -271,10 +267,7 @@ describe("the stripped floor", () => {
     for (const source of sources) {
       expect(read(source)).not.toMatch(/data-reveal|data-motion|@keyframes|requestAnimationFrame/);
     }
-    const field = read("src/components/PointField.tsx");
-    expect(field).toContain("requestAnimationFrame");
-    expect(field).toContain("IntersectionObserver");
-    expect(field).toContain("prefers-reduced-motion");
-    expect(field).toContain("Math.min(window.devicePixelRatio || 1, 2)");
+    expect(existsSync(resolve(root, "src/components/PointField.tsx"))).toBe(false);
+    expect(existsSync(resolve(root, "src/content/field.ts"))).toBe(false);
   });
 });

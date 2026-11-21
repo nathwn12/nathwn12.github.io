@@ -1,6 +1,4 @@
 import { useEffect, useState, type ReactNode } from "react";
-import PointField from "./PointField";
-import { fieldCaption } from "../content/field";
 import { CountUp, Heatmap, Sparkline, Ticker } from "./Instruments";
 import { employer, experience, provenance } from "../content/experience";
 import {
@@ -80,7 +78,7 @@ export default function LedgerPage() {
       </a>
 
       <header className="stage-nav-wrap">
-        <a className="stage-mark" href="#horizon" aria-label="Back to the field">
+        <a className="stage-mark" href="#horizon" aria-label="Back to the top">
           <img src="/brand/signature.svg" alt="" width="120" height="120" />
         </a>
         <nav className="stage-nav data" aria-label="Chapters">
@@ -101,7 +99,6 @@ export default function LedgerPage() {
 
       <main id="main" tabIndex={-1}>
         <section id="horizon" className="hero" aria-labelledby="hero-name">
-          <PointField />
           <div className="hero-hud">
             <div className="hud hud-name">
               <p className="eyebrow data">Event horizon / portfolio / 2026</p>
@@ -317,7 +314,6 @@ export default function LedgerPage() {
 
       <footer className="colophon frame">
         <span className="data">NNL / event horizon / 2026</span>
-        <span className="data field-caption">{fieldCaption}</span>
         <p className="colophon-links data">
           <a href="https://github.com/nathwn12" target="_blank" rel="noreferrer">GitHub</a>
           <a href="https://www.linkedin.com/in/nathaniel-nikolai-l-184181261/" target="_blank" rel="noreferrer">LinkedIn</a>
