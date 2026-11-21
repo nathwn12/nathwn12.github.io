@@ -293,7 +293,6 @@ export default function LedgerPage() {
           <a href={CV_PATH}>CV</a>
           <a href="https://github.com/nathwn12/nathwn12.github.io" target="_blank" rel="noreferrer">Source</a>
         </p>
-        <span className="data">Shader: glsl-black-hole · MIT · sayed1145</span>
       </footer>
     </>
   );
