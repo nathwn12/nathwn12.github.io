@@ -162,6 +162,11 @@
   color: var(--color-ink-muted);
 }
 
+/* Keep the Role copy from stranding a word on its own last line. */
+.hud-role > p:not(.eyebrow) {
+  text-wrap: pretty;
+}
+
 .hud-scroll {
   display: inline-flex;
   align-items: center;
