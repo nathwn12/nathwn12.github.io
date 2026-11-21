@@ -197,11 +197,12 @@ describe("the content survives the strip", () => {
 });
 
 describe("the stripped floor", () => {
-  test("index.html preloads one display cut and carries no theme law", () => {
+  test("index.html preloads the three shipped cuts and carries no theme law", () => {
     expect(indexHtml).not.toContain("data-theme");
     expect(indexHtml).not.toContain("theme-color");
-    expect(indexHtml.match(/rel="preload"/g) ?? []).toHaveLength(1);
+    expect(indexHtml.match(/rel="preload"/g) ?? []).toHaveLength(3);
     expect(indexHtml).toContain('href="/fonts/libre-bodoni-latin-var.woff2"');
+    expect(indexHtml).toContain('href="/fonts/newsreader-latin-var.woff2"');
     expect(indexHtml).toContain('as="font"');
     expect(indexHtml).toContain("crossorigin");
     expect(indexHtml).toContain("<title>Nathaniel Nikolai Ladero — event horizon</title>");
