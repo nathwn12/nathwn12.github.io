@@ -810,3 +810,201 @@
   flex-wrap: wrap;
   gap: var(--space-24);
 }
+
+/* ---------- Approved lab: chapter shell + 01 Numbers (variant A) ---------- */
+.chapter {
+  border-block-start: 1px solid var(--color-rule-strong);
+}
+
+.ch-head {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  padding: 40px 48px 6px;
+}
+
+.ch-index {
+  font-family: var(--font-data);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--color-signal);
+}
+
+.ch-name {
+  font-family: var(--font-display);
+  font-size: 46px;
+  margin: 0;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  font-weight: 400;
+}
+
+.v-body {
+  padding: 30px 48px 54px;
+}
+
+/* 01 Numbers A — two figures as a poster, ten packages as one strip. */
+.sa .top {
+  display: flex;
+  align-items: flex-end;
+  gap: 80px;
+}
+
+.sa .figure {
+  font-family: var(--font-display);
+  font-size: clamp(72px, 8.4vw, 128px);
+  line-height: 0.82;
+  letter-spacing: -0.02em;
+  font-weight: 400;
+}
+
+.sa .flabel {
+  font-family: var(--font-data);
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  color: var(--color-ink-muted);
+  margin-block-start: 12px;
+  text-transform: uppercase;
+}
+
+.sa .strip {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  border-block-start: 1px solid var(--color-rule-strong);
+  margin-block-start: 46px;
+}
+
+.sa .cell {
+  padding: 12px 12px 14px;
+  border-inline-end: 1px solid var(--color-rule);
+  min-width: 0;
+}
+
+.sa .cell:last-child {
+  border-inline-end: 0;
+}
+
+.sa .pname {
+  font-family: var(--font-data);
+  font-size: 8px;
+  color: var(--color-ink-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sa .spark {
+  display: block;
+  width: 100%;
+  height: 38px;
+  margin: 10px 0 8px;
+}
+
+.sa .spark polyline {
+  fill: none;
+  stroke: var(--color-signal);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.sa .pval {
+  font-family: var(--font-data);
+  font-size: 10px;
+}
+
+.sa .lower {
+  display: flex;
+  gap: 64px;
+  align-items: flex-start;
+  margin-block-start: 34px;
+}
+
+.sa .micros {
+  display: flex;
+  gap: 40px;
+}
+
+.sa .micro .count-up {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.sa .micro span {
+  font-family: var(--font-data);
+  font-size: 7.5px;
+  letter-spacing: 0.09em;
+  color: var(--color-ink-muted);
+  text-transform: uppercase;
+}
+
+.sa .heat .heatmap {
+  display: flex;
+  gap: 3px;
+  margin: 8px 0 6px;
+}
+
+.sa .heat-cell {
+  width: 9px;
+  height: 9px;
+  background-color: var(--color-signal);
+  opacity: 0.14;
+}
+
+.sa .heat-cell[data-level="1"] { opacity: 0.28; }
+.sa .heat-cell[data-level="2"] { opacity: 0.45; }
+.sa .heat-cell[data-level="3"] { opacity: 0.62; }
+.sa .heat-cell[data-level="4"] { opacity: 0.85; }
+
+.sa .hnote,
+.sa .stamp {
+  font-family: var(--font-data);
+  font-size: 8px;
+  color: var(--color-ink-muted);
+  letter-spacing: 0.04em;
+}
+
+.sa .stamp {
+  margin-block-start: 30px;
+}
+
+@media (max-width: 700px) {
+  .ch-head,
+  .v-body {
+    padding-inline: 20px;
+  }
+
+  .ch-name {
+    font-size: 34px;
+  }
+
+  .v-body {
+    padding-block: 24px 40px;
+  }
+
+  .sa .top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 22px;
+  }
+
+  .sa .figure {
+    font-size: 64px;
+  }
+
+  .sa .strip {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .sa .lower {
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .sa .micros {
+    flex-wrap: wrap;
+    gap: 18px 28px;
+  }
+}

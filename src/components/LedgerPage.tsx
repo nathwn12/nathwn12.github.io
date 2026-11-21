@@ -34,20 +34,28 @@ function Cluster({
   id,
   index,
   label,
+  variant,
   children,
 }: {
   id: string;
   index: string;
   label: string;
+  variant: string;
   children: ReactNode;
 }) {
   return (
-    <section id={id} className="cluster frame" aria-labelledby={`${id}-title`}>
-      <div className="cluster-corner">
-        <span className="section-index">{index}</span>
-        <h2 id={`${id}-title`}>{label}</h2>
+    <section
+      id={id}
+      className="chapter lab-chapter"
+      aria-labelledby={`${id}-title`}
+    >
+      <div className="ch-head">
+        <span className="ch-index">{index}</span>
+        <h2 id={`${id}-title`} className="ch-name">
+          {label}
+        </h2>
       </div>
-      <div className="cluster-body">{children}</div>
+      <div className={`v-body ${variant}`}>{children}</div>
     </section>
   );
 }
@@ -129,63 +137,62 @@ export default function LedgerPage() {
           </div>
         </section>
 
-        <Cluster id="signal" index="01" label="Numbers">
-          <div className="signal-pair">
+        <Cluster id="signal" index="01" label="Numbers" variant="sa">
+          <div className="top">
             <div>
-              <CountUp value={signal.allTime} className="signal-figure" />
-              <span className="figure-label data">npm downloads / all time</span>
+              <CountUp value={signal.allTime} className="figure" />
+              <div className="flabel">npm downloads / all time</div>
             </div>
             <div>
-              <CountUp value={signal.month} className="signal-figure" />
-              <span className="figure-label data">npm downloads / last 30 days</span>
+              <CountUp value={signal.month} className="figure" />
+              <div className="flabel">npm downloads / last 30 days</div>
             </div>
           </div>
 
-          <div className="spark-bank">
+          <div className="strip">
             {signal.packages.map((item) => (
-              <div className="spark-cell" key={item.name}>
-                <span className="spark-name data">{item.name}</span>
+              <div className="cell" key={item.name}>
+                <div className="pname">{item.name}</div>
                 <Sparkline values={item.daily} />
-                <span className="spark-value data">{item.month.toLocaleString("en-US")}</span>
+                <div className="pval">{item.month.toLocaleString("en-US")}</div>
               </div>
             ))}
           </div>
 
-          <div className="signal-lower">
-            <div className="activity-block">
-              <span className="micro-label data">github activity / 30 days</span>
-              <Heatmap />
-              <span className="heat-note data">{signal.activityText}</span>
+          <div className="lower">
+            <div className="micros">
+              <div className="micro">
+                <CountUp value={signal.github.commits} />
+                <span>commits / 12 mo</span>
+              </div>
+              <div className="micro">
+                <CountUp value={signal.repos} />
+                <span>public repos</span>
+              </div>
+              <div className="micro">
+                <CountUp value={signal.github.contributions} />
+                <span>contributions / 12 mo</span>
+              </div>
+              <div className="micro">
+                <CountUp value={signal.github.pullRequests} />
+                <span>pull requests / 12 mo</span>
+              </div>
+              <div className="micro">
+                <CountUp value={signal.packageCount} />
+                <span>npm packages</span>
+              </div>
             </div>
-            <div className="micro-figures">
-              <div>
-                <CountUp value={signal.github.commits} className="micro-number" />
-                <span className="micro-label data">commits / 12 mo</span>
+            <div>
+              <div className="heat">
+                <Heatmap />
               </div>
-              <div>
-                <CountUp value={signal.repos} className="micro-number" />
-                <span className="micro-label data">public repos</span>
-              </div>
-              <div>
-                <CountUp value={signal.github.contributions} className="micro-number" />
-                <span className="micro-label data">contributions / 12 mo</span>
-              </div>
-              <div>
-                <CountUp value={signal.github.pullRequests} className="micro-number" />
-                <span className="micro-label data">pull requests / 12 mo</span>
-              </div>
-              <div>
-                <CountUp value={signal.packageCount} className="micro-number" />
-                <span className="micro-label data">npm packages</span>
-              </div>
+              <div className="hnote">{signal.activityText}</div>
             </div>
           </div>
-          <p className="stamp data">
-            {signal.stamp}
-          </p>
+          <div className="stamp">{signal.stamp}</div>
         </Cluster>
 
-        <Cluster id="work" index="02" label="Open Source">
+        <Cluster id="work" index="02" label="Open Source" variant="wc">
           <p className="work-intro">{workIntro}</p>
           <div className="featured-list">
             {featuredRows.map((row) => (
@@ -237,7 +244,7 @@ export default function LedgerPage() {
           </div>
         </Cluster>
 
-        <Cluster id="proof" index="03" label="Work">
+        <Cluster id="proof" index="03" label="Work" variant="pc">
           <div className="proof-table">
             {proofRows.map((row, i) => (
               <div className="proof-row" key={row.claim}>
@@ -280,7 +287,7 @@ export default function LedgerPage() {
           </div>
         </Cluster>
 
-        <Cluster id="method" index="04" label="Approach">
+        <Cluster id="method" index="04" label="Approach" variant="ma">
           <div className="method-prose">
             {aiPractice.sentences.map((sentence) => (
               <p key={sentence}>{sentence}</p>
@@ -315,7 +322,7 @@ export default function LedgerPage() {
           </dl>
         </Cluster>
 
-        <Cluster id="contact" index="05" label="Contact">
+        <Cluster id="contact" index="05" label="Contact" variant="ca">
           <p className="contact-line">
             {contactBlock.line}
           </p>

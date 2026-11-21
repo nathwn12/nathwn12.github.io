@@ -109,11 +109,23 @@ describe("one nav, five clusters in descent order", () => {
 
 describe("the content survives the strip", () => {
   test("every committed package draws one sparkline cell", () => {
-    expect(html.match(/class="spark-cell"/g) ?? []).toHaveLength(
+    expect(html.match(/class="cell"/g) ?? []).toHaveLength(
       signal.packages.length,
     );
     expect(signal.packages.length).toBeGreaterThanOrEqual(9);
     expect(html).toContain(signal.allTime.toLocaleString("en-US"));
+  });
+
+  test("Numbers uses the approved variant A shell", () => {
+    const signalSection = html.slice(
+      html.indexOf('id="signal"'),
+      html.indexOf('id="work"'),
+    );
+    expect(signalSection).toContain('class="v-body sa"');
+    expect(signalSection).toContain('class="top"');
+    expect(signalSection).toContain('class="strip"');
+    expect(signalSection).toContain('class="lower"');
+    expect(signalSection).toContain('class="stamp"');
   });
 
   test("the activity strip is thirty measured cells with a text alternative", () => {
