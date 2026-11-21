@@ -270,6 +270,14 @@ describe("the content survives the strip", () => {
     expect(html).not.toContain("<form");
   });
 
+  test("display statements balance and prose avoids lone-word orphans", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.ca \.line \{[^}]*text-wrap:\s*balance/);
+    expect(css).toMatch(/\.ma \.prose p \{[^}]*text-wrap:\s*pretty/);
+    const tokens = read("src/styles/tokens.css");
+    expect(tokens).toMatch(/--measure-wide:\s*(6[0-9]|7[0-5])ch/);
+  });
+
   test("Contact uses the approved variant A structure", () => {
     const contact = html.slice(html.indexOf('id="contact"'));
     expect(contact).toContain('class="line"');

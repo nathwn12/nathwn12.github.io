@@ -211,7 +211,7 @@
     --gutter: var(--space-48);
     --index-rail: var(--space-64);
     --measure-contact: 28ch;
-    --measure-wide: 64ch;
+    --measure-wide: 72ch;
     --text-date-margin: 0.5625rem;
   }
 }
@@ -223,7 +223,7 @@
     --text-display: clamp(4rem, 8.5vw, 13rem);
     --index-rail: var(--space-96);
     --measure-contact: 32ch;
-    --measure-wide: 72ch;
+    --measure-wide: 75ch;
     --date-gap: var(--space-16);
     --text-date-margin: 0.6875rem;
   }
@@ -787,6 +787,7 @@
   max-width: var(--measure-contact);
   margin: 0;
   letter-spacing: -0.01em;
+  text-wrap: balance;
 }
 
 .ca .mail {
@@ -1035,7 +1036,8 @@
   font-size: var(--text-lede);
   line-height: 1.55;
   margin: 0 0 var(--space-16);
-  max-width: var(--measure);
+  max-width: var(--measure-wide);
+  text-wrap: pretty;
 }
 
 .ma .facts {

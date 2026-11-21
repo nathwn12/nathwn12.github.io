@@ -52,7 +52,7 @@
   --field: var(--frame-native);
   --index-rail: var(--space-32);
   --measure-contact: 22ch;
-  --measure-wide: 56ch;
+  --measure-wide: 68ch;
   /* The Work margin stamps hang left of the body, never inside its measure. */
   --date-offset: clamp(112px, 6.9vw, 176px);
   --date-gap: var(--space-8);
