@@ -1,8 +1,16 @@
 import { useEffect, useRef } from "react";
-import { fieldPoints } from "../content/field";
+import {
+  fieldPoints,
+  maskPoint,
+  type ExclusionZone,
+} from "../content/field";
 
 /** One settle pass, then hold. No loop after the points reach their place. */
 const SETTLE_MS = 640;
+const PLATE = ".hud-name, .hud-role, .hud-status, .hud-scroll";
+const PLATE_PAD = 16;
+
+type Placement = ReturnType<typeof maskPoint>;
 
 export default function PointField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -16,6 +24,8 @@ export default function PointField() {
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let dims = { w: 1, h: 1 };
+    let zones: ExclusionZone[] = [];
+    let placed: Placement[] = [];
     let raf = 0;
     let elapsed = 0;
     let last = 0;
@@ -33,6 +43,17 @@ export default function PointField() {
       canvas.style.height = `${h}px`;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       dims = { w, h };
+
+      zones = [...host.querySelectorAll<HTMLElement>(PLATE)].map((node) => {
+        const box = node.getBoundingClientRect();
+        return {
+          left: box.left - rect.left - PLATE_PAD,
+          right: box.right - rect.left + PLATE_PAD,
+          top: box.top - rect.top - PLATE_PAD,
+          bottom: box.bottom - rect.top + PLATE_PAD,
+        };
+      });
+      placed = fieldPoints.map((point) => maskPoint(point, w, h, zones));
       if (settled) draw(1);
     };
 
@@ -44,18 +65,19 @@ export default function PointField() {
       const signal = root.getPropertyValue("--color-signal").trim();
       const measure = root.getPropertyValue("--color-measure").trim();
 
-      for (const point of fieldPoints) {
-        const x = w / 2 + (point.x * w - w / 2) * progress;
-        const y = h / 2 + (point.y * h - h / 2) * progress;
-        const radius = 0.6 + point.size * 2.6;
-        ctx.globalAlpha = point.brightness * (0.55 + 0.45 * progress);
+      for (const [index, point] of fieldPoints.entries()) {
+        const spot = placed[index]!;
+        if (spot.blocked) continue;
+        const radius = spot.radius * (0.35 + 0.65 * progress);
+        const { x, y } = spot;
+        ctx.globalAlpha = point.brightness * progress;
         ctx.fillStyle = point.live ? signal : ink;
         ctx.beginPath();
         ctx.arc(x, y, radius, 0, Math.PI * 2);
         ctx.fill();
 
         if (point.spike) {
-          const ray = radius * 6;
+          const ray = spot.radius * 5 * progress;
           ctx.globalAlpha = 0.45 * point.brightness;
           ctx.strokeStyle = measure;
           ctx.lineWidth = 1;

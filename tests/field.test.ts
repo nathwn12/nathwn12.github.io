@@ -1,8 +1,10 @@
 import { describe, expect, test } from "vitest";
 import {
+  FIELD_EDGE,
   fieldCaption,
   fieldPointById,
   fieldPoints,
+  maskPoint,
   placePoint,
 } from "../src/content/field";
 import npmPackages from "../src/content/npm-packages.json";
@@ -69,6 +71,36 @@ describe("the deep field is the record", () => {
       .map((point) => point.id)
       .sort();
     expect(spikes.map((point) => point.id).sort()).toEqual(largest);
+  });
+
+  test("copy and edge exclusions are deterministic and keep points clear", () => {
+    const zone = { left: 100, right: 700, top: 100, bottom: 400 };
+    const width = 1440;
+    const height = 900;
+    let placed = 0;
+    for (const point of fieldPoints) {
+      const spot = maskPoint(point, width, height, [zone]);
+      expect(spot).toEqual(maskPoint(point, width, height, [zone]));
+      if (spot.blocked) continue;
+      placed += 1;
+      const margin = spot.radius + (point.spike ? spot.radius * 5 : 0) + 2;
+      expect(
+        spot.x > zone.left - margin &&
+          spot.x < zone.right + margin &&
+          spot.y > zone.top - margin &&
+          spot.y < zone.bottom + margin,
+      ).toBe(false);
+      expect(spot.x - margin).toBeGreaterThanOrEqual(FIELD_EDGE);
+      expect(spot.x + margin).toBeLessThanOrEqual(width - FIELD_EDGE);
+      expect(spot.y - margin).toBeGreaterThanOrEqual(FIELD_EDGE);
+      expect(spot.y + margin).toBeLessThanOrEqual(height - FIELD_EDGE);
+    }
+    expect(placed).toBeGreaterThan(20);
+    const radii = fieldPoints.map(
+      (point) => maskPoint(point, width, height, [zone]).radius,
+    );
+    expect(Math.max(...radii)).toBeGreaterThanOrEqual(6);
+    expect(Math.max(...radii) - Math.min(...radii)).toBeGreaterThan(4);
   });
 
   test("the caption counts the field from its sources", () => {

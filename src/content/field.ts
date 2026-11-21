@@ -133,6 +133,52 @@ export const fieldPointById: ReadonlyMap<string, FieldPoint> = new Map(
   fieldPoints.map((point) => [point.id, point]),
 );
 
+/** Canvas render path: keep every point and spike clear of plate copy and
+ *  viewport edges. Placement is still a pure function of the id hash and the
+ *  zone geometry — no clock, no random state. */
+export interface ExclusionZone {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+}
+
+export const FIELD_EDGE = 16;
+export const FIELD_BASE_RADIUS = 1;
+export const FIELD_AMPLITUDE = 5.5;
+
+export function maskPoint(
+  point: FieldPoint,
+  width: number,
+  height: number,
+  zones: readonly ExclusionZone[],
+): { x: number; y: number; radius: number; blocked: boolean } {
+  const radius = FIELD_BASE_RADIUS + point.size * FIELD_AMPLITUDE;
+  const margin = radius + (point.spike ? radius * 5 : 0) + 2;
+  const hits = (x: number, y: number): boolean =>
+    x - margin < FIELD_EDGE ||
+    x + margin > width - FIELD_EDGE ||
+    y - margin < FIELD_EDGE ||
+    y + margin > height - FIELD_EDGE ||
+    zones.some(
+      (zone) =>
+        x > zone.left - margin &&
+        x < zone.right + margin &&
+        y > zone.top - margin &&
+        y < zone.bottom + margin,
+    );
+
+  let x = point.x * width;
+  let y = point.y * height;
+  for (let attempt = 0; attempt < 12 && hits(x, y); attempt += 1) {
+    const spanX = Math.max(1, width - 2 * (FIELD_EDGE + margin));
+    const spanY = Math.max(1, height - 2 * (FIELD_EDGE + margin));
+    x = FIELD_EDGE + margin + (hash32(`${point.id}:x:${attempt}`) / 0xffffffff) * spanX;
+    y = FIELD_EDGE + margin + (hash32(`${point.id}:y:${attempt}`) / 0xffffffff) * spanY;
+  }
+  return { x, y, radius, blocked: hits(x, y) };
+}
+
 /** The visible corner caption is derived, never retyped. */
 export const fieldCaption =
   `${fieldPoints.length} points / ${packagePoints.length} npm packages` +
