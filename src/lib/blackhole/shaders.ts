@@ -284,8 +284,12 @@ void main() {
   vec2 p = (gl_FragCoord.xy - uCenter * uResolution) / uResolution.y / uFov;
   float co = cos(uTilt), si = sin(uTilt);
   vec2 q = mat2(co, -si, si, co) * p;
-  float blue = dot(b2, vec3(0.3, 0.5, 0.2)) * 0.085 + dot(b3, vec3(0.3, 0.5, 0.2)) * 0.18;
-  blue += 0.205 * exp(-dot(q / vec2(0.235, 0.16), q / vec2(0.235, 0.16)));
+  // The shadow interior grades to near-black: the blue haze is annular, with
+  // a slight radial falloff from the centre rather than a painted flat disc.
+  float coreFalloff = smoothstep(0.015, 0.19, length(q));
+  float blue = (dot(b2, vec3(0.3, 0.5, 0.2)) * 0.085 +
+                dot(b3, vec3(0.3, 0.5, 0.2)) * 0.18) * coreFalloff;
+  blue += 0.205 * exp(-dot(q / vec2(0.235, 0.16), q / vec2(0.235, 0.16))) * coreFalloff;
   float planeHaze = 0.35 * exp(-pow(q.x / 0.35, 4.0) - pow(q.y / 0.068, 2.0));
   planeHaze *= (1.0 - exp(-pow(q.x / 0.14, 2.0))) * (0.7 + 0.4 * tanh(q.x * 6.0));
   blue += planeHaze;
