@@ -1,2 +1,57 @@
-/* Design tokens were stripped with the old look; no custom values remain. */
-@theme static {}
+/* Deep Field Ledger — the only place a color is written.
+   Every value below is transcribed from DESIGN.md's normative frontmatter.
+   Components read these tokens; no component writes a hex, rgb() or hsl(). */
+@theme static {
+  /* Color — the void is the only ground; dark only, no color-scheme branch. */
+  --color-ground: #121214;
+  --color-ink: #E9E6E1;
+  --color-ink-muted: #9A968E;
+  --color-signal: #C68E74;
+  --color-on-signal: #1A1512;
+  --color-measure: #627AC2;
+  --color-selection: #C68E7428;
+
+  /* Type roles — three OFL faces; no sans-serif in the catalog. */
+  --font-display: "Libre Bodoni", Georgia, "Times New Roman", serif;
+  --font-text: "Newsreader", Georgia, serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  /* Display role: clamp(3.25rem, 12vw, 14rem) / 0.92 / -0.01em */
+  --text-display: clamp(3.25rem, 12vw, 14rem);
+  --leading-display: 0.92;
+  --tracking-display: -0.01em;
+  /* Text role: 1.0625rem / 1.6 */
+  --text-body: 1.0625rem;
+  --leading-body: 1.6;
+  /* Data role: 0.75rem / 1.45 / 0.06em */
+  --text-data: 0.75rem;
+  --leading-data: 1.45;
+  --tracking-data: 0.06em;
+  /* The prose measure. */
+  --measure: 56ch;
+
+  /* Spacing — unit 4px; scale [0,4,8,12,16,24,32,48,64,96,128]. */
+  --spacing: 4px;
+  --space-0: 0px;
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-24: 24px;
+  --space-32: 32px;
+  --space-48: 48px;
+  --space-64: 64px;
+  --space-96: 96px;
+  --space-128: 128px;
+  /* Content frame and the gutter that widens at 900px. */
+  --frame: 82rem;
+  --gutter: var(--space-24);
+
+  /* Radius — none, everywhere. */
+  --radius-none: 0px;
+
+  /* Motion — one kinetic moment plus state motion. */
+  --motion-quick: 140ms;
+  --motion-base: 280ms;
+  --motion-easing: cubic-bezier(0.25, 0.8, 0.35, 1);
+}

@@ -109,11 +109,23 @@ describe("the stripped floor", () => {
     expect(indexHtml).toContain("<title>Nathaniel Nikolai Ladero — event horizon</title>");
   });
 
-  test("tokens have no custom values and the @theme block is empty", () => {
+  test("tokens carry the committed palette, space scale and motion", () => {
     const tokens = read("src/styles/tokens.css");
-    expect(tokens).toContain("@theme static {}");
-    expect(tokens).not.toContain("--rec-");
-    expect(tokens).not.toContain("color-scheme");
+    for (const [name, hex] of Object.entries({
+      ground: "#121214", ink: "#E9E6E1", "ink-muted": "#9A968E",
+      signal: "#C68E74", "on-signal": "#1A1512", measure: "#627AC2",
+      selection: "#C68E7428",
+    })) {
+      expect(tokens).toContain(`--color-${name}: ${hex}`);
+    }
+    expect(tokens).toContain("@theme static");
+    for (const step of [0, 4, 8, 12, 16, 24, 32, 48, 64, 96, 128]) {
+      expect(tokens).toContain(`--space-${step}:`);
+    }
+    expect(tokens).toContain("--motion-quick: 140ms");
+    expect(tokens).toContain("--motion-base: 280ms");
+    expect(tokens).toContain("--radius-none: 0px");
+    expect(tokens).not.toMatch(/color-scheme\s*:/);
   });
 
   test("the neutral reset uses a generic body font and no custom hex", () => {
