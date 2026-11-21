@@ -949,8 +949,16 @@
   text-transform: uppercase;
 }
 
+/* At narrow widths the 30-cell strip wraps instead of widening the page;
+   at the measure and above there is room for the lab's single row. */
+.sa .lower > div:not(.micros) {
+  min-width: 0;
+}
+
 .sa .heat .heatmap {
   display: flex;
+  flex-wrap: wrap;
+  max-width: 100%;
   gap: 3px;
   margin: 8px 0 6px;
 }

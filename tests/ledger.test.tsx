@@ -42,6 +42,13 @@ describe("one nav, five clusters in descent order", () => {
     }
   });
 
+  test("the scroll-spy marks the last chapter active at the page end", () => {
+    const src = read("src/components/LedgerPage.tsx");
+    expect(src).toMatch(/const atEnd = \(\) =>/);
+    expect(src).toMatch(/window\.addEventListener\("scroll", onScroll/);
+    expect(src).toMatch(/if \(atEnd\(\) && lastId\) setActive\(lastId\)/);
+  });
+
   test("the footer is a colophon, not a second nav", () => {
     expect(html).toContain("colophon");
   });
@@ -120,6 +127,12 @@ describe("the content survives the strip", () => {
     expect(signalSection).toContain('class="strip"');
     expect(signalSection).toContain('class="lower"');
     expect(signalSection).toContain('class="stamp"');
+  });
+
+  test("the heat strip wraps at narrow widths instead of widening the page", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.sa \.lower > div:not\(\.micros\) \{[^}]*min-width:\s*0/);
+    expect(css).toMatch(/\.sa \.heat \.heatmap \{[^}]*flex-wrap:\s*wrap/);
   });
 
   test("the activity strip is thirty measured cells with a text alternative", () => {

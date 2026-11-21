@@ -74,8 +74,18 @@ export default function LedgerPage() {
     const sections = SECTIONS.map((section) =>
       document.getElementById(section.id),
     ).filter((node): node is HTMLElement => node !== null);
+    const lastId = sections[sections.length - 1]?.id;
+    // The narrow 40–45% band cannot reach the final chapter when the page
+    // bottoms out above it, so the end of the page belongs to the last section.
+    const atEnd = () =>
+      window.scrollY + window.innerHeight >=
+      document.documentElement.scrollHeight - 2;
     const observer = new IntersectionObserver(
       (entries) => {
+        if (atEnd() && lastId) {
+          setActive(lastId);
+          return;
+        }
         for (const entry of entries) {
           if (entry.isIntersecting) setActive(entry.target.id);
         }
@@ -83,7 +93,14 @@ export default function LedgerPage() {
       { rootMargin: "-40% 0px -55% 0px" },
     );
     for (const section of sections) observer.observe(section);
-    return () => observer.disconnect();
+    const onScroll = () => {
+      if (atEnd() && lastId) setActive(lastId);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", onScroll);
+    };
   }, []);
 
   const mailSubject = encodeURIComponent("Role, system, or problem");
