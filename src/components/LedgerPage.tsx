@@ -71,7 +71,8 @@ function Cluster({
             <span className={active === id ? "ch-num is-active" : "ch-num"}>
               {index}
             </span>
-            {` / ${label.toUpperCase()} / ${coord.value} / ${coord.date}`}
+            {` / ${label.toUpperCase()}`}
+            <span className="coord-tail">{` / ${coord.value} / ${coord.date}`}</span>
           </span>
           <h2 id={`${id}-title`} className="ch-name">
             {label}

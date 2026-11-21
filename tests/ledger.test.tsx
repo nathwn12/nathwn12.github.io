@@ -470,6 +470,8 @@ describe("the coordinate and margin lines", () => {
     expect(css).toMatch(/\.ch-num \{[^}]*color:\s*var\(--color-ink-muted\)/);
     expect(css).toMatch(/\.ch-num\.is-active \{[^}]*color:\s*var\(--color-signal\)/);
     expect(html.match(/class="ch-num is-active"/g) ?? []).toHaveLength(1);
+    expect(html.match(/class="coord-tail"/g) ?? []).toHaveLength(5);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.coord-tail \{[^}]*display:\s*none/);
   });
 
   test("exactly one margin note per chapter, qualified from content", () => {
@@ -499,6 +501,9 @@ describe("the coordinate and margin lines", () => {
     expect(css).toMatch(/\.chapter-margin \{[^}]*grid-row:\s*1/);
     expect(css).toMatch(/\.chapter-margin \{[^}]*max-width:\s*22ch/);
     expect(css).toMatch(/@media \(max-width: 1100px\)[\s\S]*?\.chapter-margin \{[^}]*grid-column:\s*measure-start \/ field-end/);
+    expect(css).toMatch(/@media \(min-width: 1101px\)[\s\S]*?\.chapter-margin \{[^}]*padding-block-start:\s*var\(--space-48\)/);
+    expect(css).toMatch(/@media \(max-width: 1100px\)[\s\S]*?\.chapter-margin \{[^}]*padding-block-start:\s*0/);
+    expect(css).toMatch(/\.chapter-margin \{[^}]*display:\s*block[^}]*grid-column:\s*1 \/ -1[^}]*max-width:\s*none/);
   });
 });
 
@@ -616,6 +621,7 @@ describe("the phone spine", () => {
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.spine \{[^}]*left:\s*24px/);
     expect(css).toMatch(/\.spine a \{[^}]*height:\s*44px/);
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?--index-rail:\s*44px/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.hero-hud \{[^}]*padding-inline-start:\s*40px/);
     expect(css).toMatch(/\.lab-nav \.links a span\s*\{[^}]*display:\s*none/);
   });
 });
@@ -716,6 +722,11 @@ describe("the stripped floor", () => {
     }
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(/\.horizon-still \{[^}]*display:\s*block/);
+    // At 1440 the phone still must stay hidden: its display:none rule has to
+    // come after the still rule, since the phone <img> carries both classes.
+    expect(css.indexOf(".horizon-still {")).toBeLessThan(
+      css.indexOf(".horizon-phone {"),
+    );
     expect(css).toMatch(/video\.horizon-media \{[^}]*opacity:\s*0/);
     expect(css).toMatch(/video\.horizon-media\.is-playing \{[^}]*opacity:\s*1/);
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*?video\.horizon-media \{[^}]*display:\s*none/);

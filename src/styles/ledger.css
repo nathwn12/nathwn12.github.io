@@ -249,13 +249,15 @@
   pointer-events: none;
 }
 
-.horizon-phone {
-  display: none;
-}
-
 /* The still is the base paint and the LCP — always in the markup, no flash. */
 .horizon-still {
   display: block;
+}
+
+/* Must follow the still rule: the phone <img> carries both classes and would
+   otherwise win at equal specificity on a wide viewport. */
+.horizon-phone {
+  display: none;
 }
 
 video.horizon-media {
@@ -663,11 +665,19 @@ video.horizon-media.is-playing {
   color: var(--color-ink-muted);
 }
 
+/* The head carries 48px of top padding; the note must start on that same line. */
+@media (min-width: 1101px) {
+  .chapter-margin {
+    padding-block-start: var(--space-48);
+  }
+}
+
 @media (max-width: 1100px) {
   .chapter-margin {
     grid-row: auto;
     grid-column: measure-start / field-end;
     margin-block-start: var(--space-32);
+    padding-block-start: 0;
   }
 }
 
@@ -1200,6 +1210,17 @@ video.horizon-media.is-playing {
     --index-rail: 44px;
   }
 
+  /* The fixed spine owns the left 24px; the plate clears it. */
+  .hero-hud {
+    padding-inline-start: 40px;
+    padding-inline-end: var(--space-16);
+  }
+
+  /* DESIGN v2: the phone coordinate is NN / LABEL only. */
+  .coord-tail {
+    display: none;
+  }
+
   .ch-name {
     font-size: 34px;
   }
@@ -1230,8 +1251,12 @@ video.horizon-media.is-playing {
     grid-column: measure-start / field-end;
   }
 
+  /* Break out of the subgrid: as a grid item the paragraph wrapped per column. */
   .chapter-margin {
+    display: block;
+    grid-column: 1 / -1;
     max-width: none;
+    padding-block-start: var(--space-16);
   }
 
   .sa .figure {
