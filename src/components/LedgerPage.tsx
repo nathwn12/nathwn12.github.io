@@ -74,7 +74,7 @@ export default function LedgerPage() {
 
       <Ticker items={signal.ticker} />
 
-      <main id="main" tabIndex={-1} className="outline-none">
+      <main id="main" tabIndex={-1}>
         <section id="horizon" className="hero" aria-labelledby="hero-name">
           <div className="hero-hud">
             <div className="hud hud-name">
