@@ -53,6 +53,16 @@ describe("one nav, five clusters in descent order", () => {
     expect(html.indexOf("field-canvas")).toBeLessThan(html.indexOf("hero-hud"));
   });
 
+  test("the narrow constellation keeps five links on one row", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(
+      /@media \(max-width: 700px\)[\s\S]*?\.stage-nav\s*\{[^}]*flex-wrap:\s*nowrap/,
+    );
+    expect(css).toMatch(
+      /@media \(max-width: 700px\)[\s\S]*?\.stage-nav a\s*\{[^}]*min-width:\s*0/,
+    );
+  });
+
   test("sparklines are stroked rules, never black fills", () => {
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(/\.spark polyline\s*\{[^}]*fill:\s*none/);
