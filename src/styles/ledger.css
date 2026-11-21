@@ -225,10 +225,10 @@
   }
 }
 
-/* Live readout: one clipped line, never a second navigation or a loop. */
+/* Live readout: complete text, wrapped. No clip, no marquee, no second nav. */
 .ticker {
   width: 100%;
-  overflow: hidden;
+  overflow: visible;
   padding-block: var(--space-8);
   border-block-end: 1px solid
     color-mix(in srgb, var(--color-ink-muted) 24%, transparent);
@@ -237,12 +237,13 @@
 .ticker-track {
   display: block;
   width: 100%;
-  overflow: hidden;
+  overflow: visible;
   font-family: var(--font-data);
   font-size: var(--text-data);
   letter-spacing: var(--tracking-data);
   color: var(--color-ink-muted);
-  white-space: nowrap;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 /* Chapters alternate a dense catalog with an open register. */

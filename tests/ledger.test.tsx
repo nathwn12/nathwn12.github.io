@@ -63,6 +63,13 @@ describe("one nav, five clusters in descent order", () => {
     );
   });
 
+  test("the ticker shows complete text without a clip or marquee", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.ticker \{[^}]*overflow:\s*visible/);
+    expect(css).toMatch(/\.ticker-track \{[^}]*white-space:\s*normal/);
+    expect(css).not.toMatch(/@keyframes/);
+  });
+
   test("sparklines are stroked rules, never black fills", () => {
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(/\.spark polyline\s*\{[^}]*fill:\s*none/);
