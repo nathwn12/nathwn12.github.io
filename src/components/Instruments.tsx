@@ -50,11 +50,3 @@ export function Heatmap() {
   );
 }
 
-/** One clipped line of live readouts; no marquee loop, no per-item boxes. */
-export function Ticker({ items }: { items: readonly string[] }) {
-  return (
-    <div className="ticker" aria-hidden="true">
-      <span className="ticker-track">{items.join(" · ")}</span>
-    </div>
-  );
-}

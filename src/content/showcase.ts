@@ -1,4 +1,4 @@
-import { countWords, projects } from "./projects";
+import { projects } from "./projects";
 import probe from "./repos.probe.json";
 import downloads from "./npm-downloads.json";
 
@@ -63,14 +63,6 @@ const DETAILS: Readonly<Record<string, string>> = {
     "A WinForms window around WebView2 with the page's network policy closed; save and copy refuse while a render is still in flight.",
 };
 
-/** The open-source thread, in the owner's register. It names the work and the
- *  habit behind it without restating counts that signal and proof already own. */
-const probeStamp = probe.measuredAt.slice(5).replace("-", ".");
-export const workIntro =
-  "The public repositories are the argument. A driver published this week gives an agent a bounded way into a browser and a Windows desktop. The OpenCode packages in that family are the ones he runs daily — the harness is his own, opened up rather than demonstrated. Every tool below ships publicly, with its case notes attached. Probe captured " +
-  probeStamp +
-  ".";
-
 export interface ShowcaseRow {
   num: string;
   name: string;
@@ -82,9 +74,6 @@ export interface ShowcaseRow {
   language: string;
   lifetime: number | null;
 }
-
-/** Honesty label for the lifetime figure: it comes from the weekly snapshot. */
-export const lifetimeNote = "refreshed weekly";
 
 /** One npm name per published package; collections sum their members. Used
  *  only for lifetime downloads, never for the daily windows signal owns. */
@@ -148,13 +137,6 @@ const allRows: ShowcaseRow[] = [...rows, harnessRow];
 export const workShelfIntro =
   "The public repositories are the argument. Three are worth opening first; " +
   "the rest sit below with their case notes.";
-
-/** Derived from the rows actually rendered, so the count cannot drift. */
-const rowCountWord = countWords(allRows.length);
-export const workIndexLede =
-  `${rowCountWord.charAt(0).toUpperCase()}${rowCountWord.slice(1)} projects ` +
-  "published under github.com/nathwn12 — featured work first, then the " +
-  "supporting tools, forks last.";
 
 export const featuredRows = allRows.slice(0, 3);
 export const indexRows = allRows.slice(3);

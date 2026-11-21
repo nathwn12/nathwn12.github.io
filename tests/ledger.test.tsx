@@ -53,6 +53,14 @@ describe("one nav, five clusters in descent order", () => {
     expect(html).toContain("colophon");
   });
 
+  test("the banner ticker is decorative and the mark reserves its box", () => {
+    expect(html).toMatch(/class="nav-ticker" aria-hidden="true"/);
+    expect(html).toMatch(/<img[^>]*brand\/signature-glyph\.svg[^>]*width="300"[^>]*height="252"/);
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.wc \.card h3 \{[^}]*text-wrap:\s*balance/);
+    expect(css).toMatch(/\.wc \.intro \{[^}]*text-wrap:\s*pretty/);
+  });
+
   test("the masthead uses the owned glyph once as a token-scaled imprint", () => {
     expect(html.match(/<img[^>]*brand\/signature-glyph\.svg/g) ?? []).toHaveLength(1);
     const css = read("src/styles/ledger.css");

@@ -114,7 +114,7 @@ export default function LedgerPage() {
 
       <header className="lab-nav" aria-label="Site">
         <a className="mark" href="#horizon" aria-label="Back to the top">
-          <img src="/brand/signature-glyph.svg" alt="" />
+          <img src="/brand/signature-glyph.svg" alt="" width={300} height={252} />
         </a>
         <nav className="links" aria-label="Chapters">
           {SECTIONS.map((section) => (
@@ -128,7 +128,9 @@ export default function LedgerPage() {
             </a>
           ))}
         </nav>
-        <span className="nav-ticker">{signal.ticker.join(" · ")}</span>
+        <span className="nav-ticker" aria-hidden="true">
+          {signal.ticker.join(" · ")}
+        </span>
       </header>
 
       <main id="main" tabIndex={-1}>

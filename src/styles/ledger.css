@@ -701,20 +701,6 @@
   }
 }
 
-/* Method — Newsreader prose at the measure, then ruled terms and spec. */
-.method-prose {
-  max-width: var(--measure);
-  font-family: var(--font-text);
-  font-size: var(--text-body);
-  line-height: var(--leading-body);
-  font-optical-sizing: auto;
-  text-wrap: pretty;
-}
-
-.method-prose p + p {
-  margin-block-start: var(--space-24);
-}
-
 .practice-list {
   list-style: none;
   margin: var(--space-64) 0 0;
@@ -1220,6 +1206,7 @@
   font-size: var(--text-lede);
   color: var(--color-ink-muted);
   margin: 0;
+  text-wrap: pretty;
 }
 
 .wc .cards {
@@ -1251,6 +1238,7 @@
   font-size: var(--text-figure-sm);
   margin: 0 0 var(--space-8);
   font-weight: 400;
+  text-wrap: balance;
 }
 
 .wc .card h3 a {
