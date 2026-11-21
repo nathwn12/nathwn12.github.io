@@ -52,12 +52,14 @@ const packages: SignalPackage[] = downloads.packages.map((item) => {
   };
 });
 
-/** The wide strip's curated line: two measured milestones from the
- *  committed snapshots. The chapters carry the other figures. */
-const milestones = [...packages]
-  .sort((a, b) => b.month - a.month)
-  .slice(0, 2)
-  .map((item) => `${item.name} ${fmt(item.month)} in 30 days`);
+/** The wide strip's curated line: non-figure milestones only. A number here
+ *  would restate signal's own daily windows, so the notes name the work —
+ *  hand-mcp's release week and the harness he drives daily, both from the
+ *  committed content record. */
+const milestones = [
+  "hand-mcp published this week",
+  "the OpenCode harness, driven daily",
+];
 
 export const signal = {
   snapshotDate: downloads.snapshotDate,

@@ -89,6 +89,9 @@ describe("one nav, five clusters in descent order", () => {
     expect(css).toMatch(/@media \(max-width: 900px\)[\s\S]*?\.ticker\s*\{[^}]*display:\s*none/);
     expect(css).not.toMatch(/@keyframes/);
     expect(signal.ticker.length).toBeLessThanOrEqual(2);
+    for (const note of signal.ticker) {
+      expect(note).not.toMatch(/\d/);
+    }
   });
 
   test("sparklines are stroked rules, never black fills", () => {
