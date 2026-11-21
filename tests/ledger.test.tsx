@@ -129,6 +129,18 @@ describe("the content survives the strip", () => {
     expect(html).not.toMatch(/class="[^"]*\bcard\b/);
   });
 
+  test("every work row carries a second line of technical texture", () => {
+    for (const row of [...featuredRows, ...indexRows]) {
+      expect(row.claim.length).toBeGreaterThan(20);
+      expect(row.detail.length).toBeGreaterThan(60);
+      expect(row.detail).not.toBe(row.claim);
+    }
+    const intro = read("src/content/showcase.ts");
+    expect(intro).toContain("export const workIntro");
+    expect(intro).toContain("published this week");
+    expect(intro).toContain("runs daily");
+  });
+
   test("the register draws a signal rule on hover, never a box", () => {
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(/\.featured-row:hover::after/);
