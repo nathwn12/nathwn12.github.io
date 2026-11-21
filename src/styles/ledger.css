@@ -149,6 +149,40 @@
   text-wrap: pretty;
 }
 
+/* No-JS and prerender show the lines in place. Only a mounted, motion-allowed
+   page arms the one-time group reveal. */
+@media (prefers-reduced-motion: no-preference) {
+  .cold-read.is-armed p {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  .cold-read.is-armed.is-shown p {
+    opacity: 1;
+    transform: translateY(0);
+    transition: opacity var(--motion-base) var(--motion-easing),
+      transform var(--motion-base) var(--motion-easing);
+  }
+}
+
+.ch-coordinate {
+  opacity: 0.6;
+  transition: opacity var(--motion-quick) var(--motion-easing);
+}
+
+.chapter.is-active .ch-coordinate {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cold-read p,
+  .ch-coordinate {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
 /* The witness is the only perpetual motion: five hairline rings, two groups
    turning against each other. Reduced motion keeps the still composition. */
 .witness {

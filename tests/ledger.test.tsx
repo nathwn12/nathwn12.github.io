@@ -579,6 +579,23 @@ describe("chapter placement on the field", () => {
   });
 });
 
+describe("one-time motion", () => {
+  test("the cold read is armed after mount and reveals once", () => {
+    const src = read("src/components/LedgerPage.tsx");
+    expect(src).toContain('classList.add("is-armed")');
+    expect(src).toContain('classList.add("is-shown")');
+    expect(src).toContain("observer.disconnect()");
+    expect(src).toContain("prefers-reduced-motion: reduce");
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.cold-read\.is-armed p \{[^}]*opacity:\s*0/);
+    expect(css).toMatch(/translateY\(8px\)/);
+    expect(css).toMatch(/\.cold-read\.is-armed\.is-shown p \{[^}]*transition:/);
+    expect(css).toMatch(/\.ch-coordinate \{[^}]*transition:\s*opacity var\(--motion-quick\)/);
+    expect(css).toMatch(/\.chapter\.is-active \.ch-coordinate \{[^}]*opacity:\s*1/);
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.cold-read p,[\s\S]*?transition:\s*none/);
+  });
+});
+
 describe("the phone spine", () => {
   test("one fixed spine carries 01-05 with a single active item", () => {
     expect(html.match(/<nav class="spine" aria-label="Chapters, phone">/g) ?? []).toHaveLength(1);

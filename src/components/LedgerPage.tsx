@@ -61,7 +61,7 @@ function Cluster({
   return (
     <section
       id={id}
-      className="chapter"
+      className={active === id ? "chapter is-active" : "chapter"}
       aria-labelledby={`${id}-title`}
     >
       {ornament}
@@ -89,6 +89,24 @@ export default function LedgerPage() {
 
   useEffect(() => {
     document.title = `${name} — event horizon`;
+  }, []);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const cold = document.querySelector<HTMLElement>(".cold-read");
+    if (!cold) return;
+    cold.classList.add("is-armed");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          cold.classList.add("is-shown");
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.2 },
+    );
+    observer.observe(cold);
+    return () => observer.disconnect();
   }, []);
 
   useEffect(() => {
