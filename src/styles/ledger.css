@@ -355,9 +355,10 @@
   color: var(--color-ink-muted);
 }
 
-/* 05 Contact — the statement uses the chapter display scale; the address is
-   the mono data role with one signal hairline, the only action in the chapter. */
+/* 05 Contact — the ask and the one mailto sit at measure; the next step is
+   the chapter's single margin note at aside. The band stays intentionally void. */
 .ca .line {
+  grid-column: measure-start / aside-start;
   font-family: var(--font-display);
   font-size: var(--text-chapter);
   line-height: 1.2;
@@ -368,6 +369,8 @@
 }
 
 .ca .mail {
+  grid-column: measure-start / aside-start;
+  justify-self: start;
   display: inline-block;
   margin-block-start: var(--space-32);
   font-family: var(--font-data);
@@ -377,14 +380,6 @@
   border-block-end: 1px solid var(--color-signal);
   padding-block-end: var(--space-4);
   overflow-wrap: anywhere;
-}
-
-.ca .next {
-  font-family: var(--font-data);
-  font-size: var(--text-mono);
-  color: var(--color-ink-muted);
-  margin-block-start: var(--space-16);
-  letter-spacing: 0.04em;
 }
 
 .colophon {
@@ -517,11 +512,13 @@
   grid-column: measure-start / field-end;
 }
 
-/* 01 Numbers — two figures as a poster, ten packages as one ruled data band. */
+/* 01 Numbers — the figure pair is the right band; the strip is the full band. */
 .sa .top {
+  grid-column: band-start / field-end;
   display: flex;
+  flex-direction: column;
   align-items: flex-end;
-  gap: var(--space-64);
+  gap: var(--space-32);
 }
 
 .sa .figure {
@@ -531,6 +528,7 @@
   letter-spacing: -0.02em;
   font-weight: 400;
   font-variant-numeric: tabular-nums lining-nums;
+  text-align: right;
 }
 
 .sa .flabel {
@@ -543,6 +541,7 @@
 }
 
 .sa .strip {
+  grid-column: measure-start / field-end;
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   border-block-start: 1px solid var(--color-rule-strong);
@@ -653,14 +652,19 @@
   margin-block-start: var(--space-32);
 }
 
-/* 04 Approach — prose, spec and data place on the chapter subgrid. */
+/* 04 Approach — prose at measure, spec flush right, facts and data full. */
 .ma .prose {
   grid-column: measure-start / aside-start;
 }
 
 .ma .spec {
   grid-column: aside-start / field-end;
+  grid-row: 1;
   border-block-start: 1px solid var(--color-rule-strong);
+}
+
+.ma .facts {
+  grid-column: measure-start / field-end;
 }
 
 .ma .dl {
@@ -1004,9 +1008,11 @@
   }
 
   .ma .prose,
+  .ma .facts,
   .ma .spec,
   .ma .dl {
     grid-column: measure-start / field-end;
+    grid-row: auto;
   }
 }
 
@@ -1023,10 +1029,17 @@
     padding-block: var(--space-24) var(--space-40);
   }
 
+  /* The four-track band is too narrow for a 64px figure at phone width; the
+     pair still ends flush at the field right, on the full measure span. */
   .sa .top {
+    grid-column: measure-start / field-end;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: flex-end;
     gap: var(--space-24);
+  }
+
+  .pc .band {
+    grid-column: measure-start / field-end;
   }
 
   .sa .figure {
@@ -1074,9 +1087,11 @@
   }
 
   .ma .prose,
+  .ma .facts,
   .ma .spec,
   .ma .dl {
     grid-column: measure-start / field-end;
+    grid-row: auto;
   }
 
   .dl {

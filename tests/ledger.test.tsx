@@ -323,7 +323,8 @@ describe("the content survives the strip", () => {
     const contact = html.slice(html.indexOf('id="contact"'));
     expect(contact).toContain('class="line"');
     expect(contact).toContain('class="mail"');
-    expect(contact).toContain('class="next"');
+    expect(contact).toContain(contactBlock.nextStep);
+    expect(contact.match(new RegExp(contactBlock.nextStep, "g")) ?? []).toHaveLength(1);
     const colophon = html.slice(html.indexOf('class="colophon'));
     expect(colophon.match(/<a /g) ?? []).toHaveLength(5);
     const css = read("src/styles/ledger.css");
@@ -347,7 +348,7 @@ describe("the content survives the strip", () => {
     expect(css).toMatch(/\.wc \.tier-b \{[^}]*font-size:\s*var\(--text-mono\)/);
     expect(css).toMatch(/\.pc \.tex \{[^}]*font-size:\s*var\(--text-detail\)/);
     expect(css).toMatch(/\.sa \.flabel \{[^}]*font-size:\s*var\(--text-mono\)/);
-    expect(css).toMatch(/\.ca \.next \{[^}]*font-size:\s*var\(--text-mono\)/);
+    expect(css).toMatch(/\.chapter-margin \{[^}]*font-size:\s*var\(--text-mono\)/);
     // Numbers figures and the Work band share one display token; both are
     // data bands spanning the same field.
     expect(css).toMatch(/\.sa \.figure \{[^}]*font-size:\s*var\(--text-figure\)/);
@@ -525,6 +526,51 @@ describe("the Work zero seal", () => {
     expect(css).toMatch(/@supports \([-a-z]*-webkit-text-stroke/);
     expect(css.match(/-webkit-text-stroke/g) ?? []).toHaveLength(2);
     expect(css).toMatch(/\.seal-stamp \{[^}]*font-size:\s*var\(--text-mono\)/);
+  });
+});
+
+describe("chapter placement on the field", () => {
+  test("Numbers stacks its figures in the right band; the strip is full", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.sa \.top \{[^}]*grid-column:\s*band-start \/ field-end/);
+    expect(css).toMatch(/\.sa \.top \{[^}]*flex-direction:\s*column/);
+    expect(css).toMatch(/\.sa \.figure \{[^}]*text-align:\s*right/);
+    expect(css).toMatch(/\.sa \.strip \{[^}]*grid-column:\s*measure-start \/ field-end/);
+    const signalSection = html.slice(
+      html.indexOf('id="signal"'),
+      html.indexOf('id="work"'),
+    );
+    expect(signalSection.match(/class="count-up figure"/g) ?? []).toHaveLength(2);
+    expect(signalSection.indexOf('class="top"')).toBeLessThan(
+      signalSection.indexOf('class="strip"'),
+    );
+  });
+
+  test("Approach puts prose at measure, spec flush right, facts full", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.ma \.prose \{[^}]*grid-column:\s*measure-start \/ aside-start/);
+    expect(css).toMatch(/\.ma \.spec \{[^}]*grid-column:\s*aside-start \/ field-end/);
+    expect(css).toMatch(/\.ma \.facts \{[^}]*grid-column:\s*measure-start \/ field-end/);
+    expect(css).toMatch(/\.ma \.dl \{[^}]*grid-column:\s*measure-start \/ field-end/);
+    const method = html.slice(html.indexOf('id="method"'), html.indexOf('id="contact"'));
+    const body = method.match(/<div class="v-body ma">([\s\S]*?)<p class="chapter-margin">/)?.[1] ?? "";
+    expect(body.indexOf('class="prose"')).toBeLessThan(body.indexOf('class="facts"'));
+    expect(body).toMatch(/<\/div><div class="facts">/);
+  });
+
+  test("Contact asks and mails at measure; the aside carries the next step", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.ca \.line \{[^}]*grid-column:\s*measure-start \/ aside-start/);
+    expect(css).toMatch(/\.ca \.mail \{[^}]*grid-column:\s*measure-start \/ aside-start/);
+    const contact = html.slice(html.indexOf('id="contact"'));
+    expect(contact).not.toContain('class="next"');
+    expect(contact).toMatch(/<p class="chapter-margin">The address opens a message in your mail app\.<\/p>/);
+  });
+
+  test("the narrow field keeps both bands inside the field", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.sa \.top \{[^}]*grid-column:\s*measure-start \/ field-end/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.pc \.band \{[^}]*grid-column:\s*measure-start \/ field-end/);
   });
 });
 

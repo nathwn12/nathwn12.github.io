@@ -296,8 +296,8 @@ export default function LedgerPage() {
             {aiPractice.sentences.map((sentence) => (
               <p key={sentence}>{sentence}</p>
             ))}
-            <div className="facts">{aiPractice.facts.join(" · ")}</div>
           </div>
+          <div className="facts">{aiPractice.facts.join(" · ")}</div>
           <div className="spec">
             {specLines.map((line) => (
               <div className="sline" key={line.key}>
@@ -327,7 +327,6 @@ export default function LedgerPage() {
           >
             {CONTACT_EMAIL}
           </a>
-          <p className="next">{contactBlock.nextStep}</p>
         </Cluster>
       </main>
 
