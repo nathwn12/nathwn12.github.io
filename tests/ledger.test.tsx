@@ -205,7 +205,7 @@ describe("the stripped floor", () => {
   test("tokens carry the committed palette, space scale and motion", () => {
     const tokens = read("src/styles/tokens.css");
     for (const [name, hex] of Object.entries({
-      ground: "#121214", ink: "#E9E6E1", "ink-muted": "#9A968E",
+      ground: "#000000", ink: "#E9E6E1", "ink-muted": "#9A968E",
       signal: "#C68E74", "on-signal": "#1A1512", measure: "#627AC2",
       selection: "#C68E7428",
     })) {

@@ -3,7 +3,7 @@
    Components read these tokens; no component writes a hex, rgb() or hsl(). */
 @theme static {
   /* Color — the void is the only ground; dark only, no color-scheme branch. */
-  --color-ground: #121214;
+  --color-ground: #000000;
   --color-ink: #E9E6E1;
   --color-ink-muted: #9A968E;
   --color-signal: #C68E74;
