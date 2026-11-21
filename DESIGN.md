@@ -95,11 +95,14 @@ text optical sizes; display scale only through the display role.
 
 ## Space
 
-One masthead: the author mark `public/brand/signature.svg` at width 120
-once — the owned mark keeps its own file, format and palette; site tokens
-bind site surfaces, never the brand mark — then the five chapter links on
-one hairline — the constellation line; the active chapter carries the
-signal tint. The hero is one full-viewport singularity — a recorded loop
+One masthead: the author mark at width 120 once — the glyph variant
+`public/brand/signature-glyph.svg`, surgically derived from the canonical
+tiled `signature.svg` by removing the ground tile and tightening the
+viewBox to the glyph, with the strokes untouched; the canonical tiled file
+stays in the brand kit. The owned mark keeps its own file, format and
+palette; site tokens bind site surfaces, never the brand mark — then the
+five chapter links on one hairline — the constellation line; the active
+chapter carries the signal tint. The hero is one full-viewport singularity — a recorded loop
 with its plate content in the corners. Chapters alternate dense catalog
 blocks — figures, sparklines,
 ruled rows — with open register rows; hairline rules separate rows, never

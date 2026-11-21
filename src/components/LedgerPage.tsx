@@ -80,7 +80,7 @@ export default function LedgerPage() {
 
       <header className="stage-nav-wrap">
         <a className="stage-mark" href="#horizon" aria-label="Back to the top">
-          <img src="/brand/signature.svg" alt="" width="120" height="120" />
+          <img src="/brand/signature-glyph.svg" alt="" width="120" height="120" />
         </a>
         <nav className="stage-nav data" aria-label="Chapters">
           {SECTIONS.map((section) => (
