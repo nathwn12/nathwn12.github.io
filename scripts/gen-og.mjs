@@ -67,7 +67,7 @@ h1{font-family:"Libre Bodoni",serif;font-size:76px;font-weight:500;line-height:.
 </div>
 </div></body></html>`;
 
-const filename = `og-image-2026-11-21-singularity.png`;
+const filename = `og-image-2026-11-22-singularity.png`;
 const outFile = join(root, "public", filename);
 mkdirSync(dirname(outFile), { recursive: true });
 

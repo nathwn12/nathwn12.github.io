@@ -380,8 +380,9 @@ describe("the content survives the strip", () => {
     expect(script).toContain("DESIGN.md");
     expect(script).toContain("src/content/ledger.ts");
     expect(script).toContain("horizon-poster-desktop.webp");
-    expect(indexHtml).not.toContain("og-image-2026-11-21.png");
-    expect(indexHtml).toMatch(/og-image-\d{4}-\d{2}-\d{2}-singularity\.png/);
+    expect(indexHtml).not.toContain("og-image-2026-11-21-singularity.png");
+    expect(indexHtml).toContain("og-image-2026-11-22-singularity.png");
+    expect(existsSync(resolve(root, "public/og-image-2026-11-22-singularity.png"))).toBe(true);
   });
 });
 
