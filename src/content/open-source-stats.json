@@ -1,70 +1,66 @@
 {
   "source": "npm download-count API and GitHub GraphQL, measured by scripts/open-source-stats.mjs",
-  "generatedAt": "2026-11-20T15:08:30.160Z",
-  "snapshotDate": "2026-11-17",
-  "npmMonth": 22309,
-  "npmAllTime": 34603,
+  "generatedAt": "2026-11-21T14:27:17.176Z",
+  "snapshotDate": "2026-11-18",
+  "npmMonth": 21998,
+  "npmAllTime": 34716,
   "packages": [
     {
       "name": "puppet-mcp",
-      "month": 3718,
-      "allTime": 4303
+      "month": 3310,
+      "allTime": 4307
     },
     {
       "name": "gladius-mcp",
-      "month": 2587,
-      "allTime": 3218
+      "month": 2349,
+      "allTime": 3223
     },
     {
       "name": "@nathwn12/janua",
-      "month": 2664,
-      "allTime": 2657
+      "month": 2666,
+      "allTime": 2663
     },
     {
       "name": "@nathwn12/oc-bifrost",
-      "month": 1812,
-      "allTime": 5966
+      "month": 1752,
+      "allTime": 5987
     },
     {
       "name": "oc-flight-deck",
-      "month": 3581,
-      "allTime": 8992
+      "month": 3851,
+      "allTime": 9028
     },
     {
       "name": "oc-harness-setup",
-      "month": 1672,
-      "allTime": 2957
+      "month": 1616,
+      "allTime": 2959
     },
     {
       "name": "oc-plugin-view",
       "month": 742,
-      "allTime": 734
+      "allTime": 738
     },
     {
       "name": "oc-talk",
-      "month": 3734,
-      "allTime": 3690
+      "month": 3942,
+      "allTime": 3716
     },
     {
       "name": "rea-shim",
-      "month": 1799,
-      "allTime": 2086
+      "month": 1770,
+      "allTime": 2095
     }
   ],
   "github": {
-    "contributions": 7261,
-    "commits": 2929,
+    "contributions": 7439,
+    "commits": 3023,
     "pullRequests": 489,
     "calendarRange": [
       "2025-11-16",
-      "2026-11-20"
+      "2026-11-21"
     ]
   },
   "activity": [
-    {
-      "date": "2026-10-22",
-      "value": 24
-    },
     {
       "date": "2026-10-23",
       "value": 78
@@ -179,7 +175,11 @@
     },
     {
       "date": "2026-11-20",
-      "value": 148
+      "value": 199
+    },
+    {
+      "date": "2026-11-21",
+      "value": 127
     }
   ]
 }
