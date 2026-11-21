@@ -262,6 +262,14 @@ describe("the content survives the strip", () => {
     expect(css).toContain(".colophon-links");
   });
 
+  test("the stats workflow calls a script that exists", () => {
+    const pkg = JSON.parse(read("package.json"));
+    expect(pkg.scripts["check:refresh"]).toContain("vitest run");
+    expect(read(".github/workflows/open-source-stats.yml")).toContain(
+      "bun run check:refresh",
+    );
+  });
+
   test("the og card depicts the singularity from the law and the record", () => {
     const script = read("scripts/gen-og.mjs");
     expect(script).toContain("src/styles/tokens.css");
