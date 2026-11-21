@@ -4,6 +4,7 @@ import { fieldCaption } from "../content/field";
 import { CountUp, Heatmap, Sparkline, Ticker } from "./Instruments";
 import { employer, experience, provenance } from "../content/experience";
 import {
+  aiPractice,
   contactBlock,
   figures,
   locatedIn,
@@ -264,6 +265,16 @@ export default function LedgerPage() {
         </Cluster>
 
         <Cluster id="method" index="04" label="The method">
+          <div className="method-prose">
+            {aiPractice.sentences.map((sentence) => (
+              <p key={sentence}>{sentence}</p>
+            ))}
+          </div>
+          <ul className="practice-list">
+            {aiPractice.facts.map((term) => (
+              <li key={term}>{term}</li>
+            ))}
+          </ul>
           <div className="spec-grid">
             {specLines.map((line) => (
               <div className="spec-line" key={line.key}>

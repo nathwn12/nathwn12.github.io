@@ -10,7 +10,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
 import LedgerPage from "../src/components/LedgerPage";
 import { fieldPoints } from "../src/content/field";
-import { figures, proofRows } from "../src/content/ledger";
+import { aiPractice, figures, proofRows } from "../src/content/ledger";
 import { experience, provenance } from "../src/content/experience";
 import { signal } from "../src/content/signal";
 import { featuredRows, indexRows } from "../src/content/showcase";
@@ -127,12 +127,19 @@ describe("the content survives the strip", () => {
     }
   });
 
-  test("the method is a spec sheet with no prose paragraphs", () => {
+  test("the method is prose at the measure, then a ruled spec", () => {
     const from = html.indexOf('id="method"');
     const to = html.indexOf('id="contact"');
     const method = html.slice(from, to);
-    expect(method).not.toMatch(/<p\b/);
+    expect(method.match(/class="method-prose"/g) ?? []).toHaveLength(1);
+    expect(method.match(/<p>/g) ?? []).toHaveLength(aiPractice.sentences.length);
+    for (const sentence of aiPractice.sentences) {
+      expect(method).toContain(sentence);
+    }
+    expect(method.match(/class="practice-list"/g) ?? []).toHaveLength(1);
+    expect(method.match(/<li>/g) ?? []).toHaveLength(aiPractice.facts.length);
     expect(method).toContain("spec-line");
+    expect(read("src/styles/ledger.css")).toContain("max-width: var(--measure)");
   });
 
   test("the contact is a mailto, with no form", () => {
