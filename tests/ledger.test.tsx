@@ -155,6 +155,15 @@ describe("the content survives the strip", () => {
     expect(css).toMatch(/\.mailto\s*\{[^}]*var\(--font-display\)/);
     expect(css).toContain(".colophon-links");
   });
+
+  test("the og card is generated from the law and the record", () => {
+    const script = read("scripts/gen-og.mjs");
+    expect(script).toContain("src/styles/tokens.css");
+    expect(script).toContain("DESIGN.md");
+    expect(script).toContain("src/content/open-source-stats.json");
+    expect(indexHtml).not.toContain("og-image-2026-11-13.png");
+    expect(indexHtml).toMatch(/og-image-\d{4}-\d{2}-\d{2}\.png/);
+  });
 });
 
 describe("the stripped floor", () => {
