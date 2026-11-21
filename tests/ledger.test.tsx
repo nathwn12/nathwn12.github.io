@@ -57,6 +57,14 @@ describe("one nav, five clusters in descent order", () => {
     expect(html.match(/aria-current="true"/g) ?? []).toHaveLength(1);
   });
 
+  test("the frame widens for the native 2560 composition", () => {
+    const tokens = read("src/styles/tokens.css");
+    const css = read("src/styles/ledger.css");
+    expect(tokens).toContain("--frame-native: 82rem");
+    expect(css).toMatch(/@media \(min-width: 2200px\)[\s\S]*?--frame-native:\s*110rem/);
+    expect(css).toContain("width: min(100% - (var(--gutter) * 2), var(--frame-native))");
+  });
+
   test("the narrow constellation keeps five links on one row", () => {
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(

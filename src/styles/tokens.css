@@ -43,8 +43,9 @@
   --space-64: 64px;
   --space-96: 96px;
   --space-128: 128px;
-  /* Content frame and the gutter that widens at 900px. */
+  /* Content frame: 82rem desktop, up to 110rem at native 1440p. */
   --frame: 82rem;
+  --frame-native: 82rem;
   --gutter: var(--space-24);
 
   /* Radius — none, everywhere. */
