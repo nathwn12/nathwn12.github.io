@@ -123,14 +123,10 @@
 }
 
 @theme static {
-  /* Cinematic editorial display, a reading serif, and an instrument mono.
-     Chosen from the ui-ux-pro-max typography search; no grotesk by habit. */
-  --font-display: "Playfair Display", Georgia, "Times New Roman", serif;
-  --font-voice: "Source Serif 4", Georgia, "Times New Roman", serif;
-  --font-sans: "Source Serif 4", "Inter", "Inter Fallback", Arial, system-ui,
-    sans-serif;
-  --font-mono: "Space Mono", ui-monospace, SFMono-Regular, Menlo, Consolas,
-    monospace;
+  --font-display: Georgia, serif;
+  --font-voice: Georgia, serif;
+  --font-sans: sans-serif;
+  --font-mono: monospace;
 
   --color-bg: var(--rec-ground);
   --color-text: var(--rec-ink);
