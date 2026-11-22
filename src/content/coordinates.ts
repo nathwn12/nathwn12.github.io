@@ -19,11 +19,14 @@ export interface Coordinate {
   date: string;
   /** The single caveat that sits beside the claim. */
   margin: string;
+  /** The fuller form, shown only where it holds one line. */
+  marginLong?: string;
   /** The measured cron, kept whole in its own nowrap span. */
   cron?: string;
 }
 
 const date = signal.snapshotDate;
+const periodYears = employer.period.match(/\d{4}/g) ?? [];
 
 /** The hero's second beat: the opening claim, then the standfirst's two
  *  sentences. All three lines come from existing copy; nothing is new prose. */
@@ -33,7 +36,8 @@ export const coordinates: Record<CoordinateKey, Coordinate> = {
   work: {
     value: `${experience.length} ENGAGEMENTS`,
     date,
-    margin: `${employer.shortName} · ${spineDate(tenureSpan)}`,
+    margin: `${employer.shortName} · ${periodYears.join(" – ")}`,
+    marginLong: `${employer.shortName} · ${spineDate(tenureSpan)}`,
   },
   oss: {
     value: `${featuredRows.length + indexRows.length} REPOS`,

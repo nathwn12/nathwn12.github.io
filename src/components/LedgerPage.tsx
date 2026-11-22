@@ -91,7 +91,14 @@ function Cluster({
         <div className={`v-body ${variant}`}>{children}</div>
         {coord.margin && (
           <p className="chapter-margin">
-            {coord.margin}
+            {coord.marginLong ? (
+              <>
+                <span className="margin-short">{coord.margin}</span>
+                <span className="margin-long">{coord.marginLong}</span>
+              </>
+            ) : (
+              coord.margin
+            )}
             {coord.cron && <> <span className="cron-value">{coord.cron}</span></>}
           </p>
         )}

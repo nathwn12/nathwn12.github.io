@@ -31,6 +31,8 @@
   align-items: center;
   gap: 20px;
   height: 100%;
+  /* The masthead starts on the same axis as the name and every chapter. */
+  padding-inline-start: calc(var(--gutter) + var(--index-rail));
 }
 
 .lab-nav .mark {
@@ -64,6 +66,14 @@
 
 .lab-nav .links a[aria-current="true"] {
   color: var(--color-signal);
+}
+
+/* Above the phone dock the numeral and its label are both visible and need a
+   word of space between them. */
+@media (min-width: 701px) {
+  .lab-nav .links a {
+    gap: 0.4em;
+  }
 }
 
 .lab-nav .nav-ticker {
@@ -693,6 +703,21 @@ video.horizon-media.is-playing {
   max-width: 34ch;
 }
 
+/* The short range is the default; the fuller one appears only where it fits. */
+.margin-long {
+  display: none;
+}
+
+@media (min-width: 2200px) {
+  .margin-short {
+    display: none;
+  }
+
+  .margin-long {
+    display: inline;
+  }
+}
+
 /* The measured cron is one indivisible token inside the chapter's note. */
 .cron-value {
   white-space: nowrap;
@@ -1008,6 +1033,9 @@ video.horizon-media.is-playing {
   font-size: var(--text-mono);
   letter-spacing: var(--tracking-data);
   color: var(--color-ink-muted);
+  /* One derived caption, never stacked under a narrowed figure. */
+  width: max-content;
+  white-space: nowrap;
 }
 
 /* The caption keeps its shortest form; the recovered form appears only where
@@ -1031,13 +1059,30 @@ video.horizon-media.is-playing {
    two-line label so nothing crosses the field edge. */
 @media (min-width: 1100px) and (max-width: 1600px) {
   .pc .band {
-    grid-column: measure-start / field-end;
+    grid-column: band-start / field-end;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
     column-gap: var(--space-24);
   }
 
+  .pc .band > div {
+    display: contents;
+  }
+
+  .pc .band > div > span {
+    grid-column: 1 / -1;
+  }
+
   .pc .zero-seal {
+    grid-column: 2;
+    grid-row: 1;
     flex: 0 0 auto;
     min-width: 150px;
+  }
+
+  .pc .band b {
+    font-size: clamp(2rem, calc(13.2vw - 114px), 7rem);
   }
 }
 
@@ -1241,6 +1286,25 @@ video.horizon-media.is-playing {
      step so the seal stays inside the field. */
   .pc .band {
     grid-column: measure-start / field-end;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: start;
+  }
+
+  .pc .band > div {
+    display: contents;
+  }
+
+  .pc .band > div > span {
+    grid-column: 1 / -1;
+    width: max-content;
+    max-width: 100%;
+    white-space: nowrap;
+  }
+
+  .pc .zero-seal {
+    grid-column: 2;
+    grid-row: 1;
   }
 
   .pc .band > * {

@@ -747,10 +747,30 @@ describe("one-time motion", () => {
   });
 });
 
+describe("the restored nav and band pair", () => {
+  test("the masthead sits on the content axis with a word gap", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.lab-nav \.field \{[^}]*padding-inline-start:\s*calc\(var\(--gutter\) \+ var\(--index-rail\)\)/);
+    expect(css).toMatch(/@media \(min-width: 701px\)[\s\S]*?\.lab-nav \.links a \{\s*gap:\s*0\.4em/);
+    expect(css).toMatch(/\.lab-nav \.links a \{[^}]*min-height:\s*44px/);
+  });
+
+  test("the figure and seal are a pair at the field right", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/@media \(min-width: 1100px\) and \(max-width: 1600px\)[\s\S]*?\.pc \.band \{[^}]*grid-column:\s*band-start \/ field-end/);
+    expect(css).toMatch(/@media \(min-width: 1100px\) and \(max-width: 1600px\)[\s\S]*?\.pc \.band b \{[^}]*font-size:\s*clamp\(2rem, calc\(13\.2vw - 114px\), 7rem\)/);
+  });
+
+  test("the phone caption spans the band, not the figure column", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/@media \(max-width: 1099px\)[\s\S]*?\.pc \.band > div \{\s*display:\s*contents/);
+    expect(css).toMatch(/@media \(max-width: 1099px\)[\s\S]*?\.pc \.band > div > span \{[^}]*white-space:\s*nowrap/);
+  });
+});
+
 describe("the breathing band", () => {
   test("the desktop band gives the seal room inside the field", () => {
     const css = read("src/styles/ledger.css");
-    expect(css).toMatch(/@media \(min-width: 1100px\) and \(max-width: 1600px\)[\s\S]*?\.pc \.band \{[^}]*grid-column:\s*measure-start \/ field-end/);
     expect(css).toMatch(/@media \(min-width: 1100px\) and \(max-width: 1600px\)[\s\S]*?\.pc \.zero-seal \{[^}]*min-width:\s*150px/);
   });
 
@@ -764,9 +784,11 @@ describe("the breathing band", () => {
     expect(css).toMatch(/@media \(min-width: 2200px\)[\s\S]*?\.pc \.band-caption-long \{\s*display:\s*inline/);
   });
 
-  test("the Work margin note is the short derived range", () => {
-    expect(coordinates.work.margin).toBe("Xentra · MAR 2023 – MAY 2026");
-    expect(html).toContain("Xentra · MAR 2023 – MAY 2026");
+  test("the Work margin note is the short range by default", () => {
+    expect(coordinates.work.margin).toBe("Xentra · 2023 – 2026");
+    expect(coordinates.work.marginLong).toBe("Xentra · MAR 2023 – MAY 2026");
+    expect(html).toContain('class="margin-short">Xentra · 2023 – 2026');
+    expect(html).toContain('class="margin-long">Xentra · MAR 2023 – MAY 2026');
     expect(read("src/styles/ledger.css")).toMatch(/#work \.chapter-margin \{[^}]*display:\s*block[^}]*max-width:\s*34ch/);
   });
 
