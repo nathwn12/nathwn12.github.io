@@ -129,7 +129,7 @@ export default function LedgerPage() {
           observer.disconnect();
         }
       },
-      { threshold: 0.2 },
+      { threshold: 0.9 },
     );
     observer.observe(cold);
     return () => observer.disconnect();

@@ -163,7 +163,9 @@ nav.spine {
 
 .beat-cold {
   display: grid;
-  align-items: center;
+  /* The second beat earns the whole screen: the block is centred on both
+     axes, not parked on the measure like a footnote. */
+  place-items: center;
 }
 
 .beat-cold > .field {
@@ -176,18 +178,29 @@ nav.spine {
     [band-start] repeat(4, minmax(0, 1fr))
     [field-end];
   padding-block: var(--space-96);
+  /* Lift the centred copy above the witness rings behind it. */
+  position: relative;
+  z-index: 1;
 }
 
 .cold-read {
-  grid-column: measure-start / aside-start;
+  grid-column: field-start / field-end;
+  display: grid;
+  gap: var(--space-24);
+  justify-self: center;
+  /* The measure is set on the block so 42ch resolves at the cold-read's own
+     size, not the 17px body size — otherwise the bigger type gets a footnote
+     column. Paragraphs inherit it. */
+  font-size: clamp(1.5rem, 0.8rem + 1.2vw, 2.25rem);
+  width: min(100%, 42ch);
+  text-align: center;
 }
 
 .cold-read p {
   font-family: var(--font-text);
-  font-size: var(--text-lede);
   line-height: 1.55;
-  max-width: var(--measure-wide);
-  margin: 0 0 var(--space-16);
+  max-width: 42ch;
+  margin: 0;
   text-wrap: pretty;
 }
 
