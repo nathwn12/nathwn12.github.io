@@ -1,6 +1,6 @@
 import { employer, experience } from "./experience";
 import { availability, recordOpener } from "./hero";
-import { aiPractice, contactBlock, standfirst } from "./ledger";
+import { contactBlock, standfirst } from "./ledger";
 import { signal, specLines } from "./signal";
 import { featuredRows, indexRows } from "./showcase";
 
@@ -46,10 +46,8 @@ export const coordinates: Record<CoordinateKey, Coordinate> = {
   method: {
     value: `${specLines.length} STEPS`,
     date,
-    // The note is the short tag; the facts line keeps the full noun forms.
-    margin: aiPractice.facts
-      .map((fact) => fact.replace(/\s+(servers|builds)$/, ""))
-      .join(" · "),
+    // Intentionally bare: the facts line below the prose already says this.
+    margin: "",
   },
   contact: {
     value: availability.split(" ")[0]!.toUpperCase(),

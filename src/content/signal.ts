@@ -63,7 +63,7 @@ const milestones = [
 
 export const signal = {
   snapshotDate: downloads.snapshotDate,
-  stamp: `npm measured ${through} · github annual through ${githubThrough}`,
+  stamp: `npm measured ${through} · GitHub annual through ${githubThrough}`,
   allTime: downloads.total,
   month,
   packages,

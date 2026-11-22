@@ -122,7 +122,9 @@ that chapter.
 Deviation recorded: the all-time npm figure stays as evidence in Open Source's
 figure band while the coordinate counts repositories; it is no longer a chapter
 of its own. Dates derive from snapshots; all four chapters share one date. The
-Contact margin note is `contactBlock.nextStep`, printed once.
+Contact margin note is `contactBlock.nextStep`, printed once. Approach is
+intentionally bare: its facts line below the prose already carries what a
+margin note would repeat.
 
 ### Two-beat hero, still-first
 

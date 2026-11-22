@@ -226,7 +226,7 @@ describe("the content survives the strip", () => {
   test("the shelf keeps every real repository link", () => {
     const work = html.slice(html.indexOf('id="oss"'), html.indexOf('id="method"'));
     expect(work).toContain("opencode-harness");
-    expect(work).toContain("The public harness he drives every day.");
+    expect(work).toContain("The public harness I drive every day.");
     expect(work.match(/target="_blank"/g) ?? []).toHaveLength(14);
   });
 
@@ -503,18 +503,20 @@ describe("the coordinate and margin lines", () => {
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.coord-tail \{[^}]*display:\s*none/);
   });
 
-  test("exactly one margin note per chapter, qualified from content", () => {
-    expect(html.match(/class="chapter-margin"/g) ?? []).toHaveLength(4);
+  test("one margin note per chapter, with Approach intentionally bare", () => {
+    expect(html.match(/class="chapter-margin"/g) ?? []).toHaveLength(3);
     for (const [id] of stamps) {
       const at = html.indexOf(`id="${id}"`);
       const next = html.indexOf('<section id="', at + 8);
       const section = html.slice(at, next === -1 ? undefined : next);
-      expect(section.match(/class="chapter-margin"/g) ?? []).toHaveLength(1);
-      expect(section).toContain(coordinates[id].margin);
+      expect(section.match(/class="chapter-margin"/g) ?? []).toHaveLength(
+        id === "method" ? 0 : 1,
+      );
+      if (id !== "method") expect(section).toContain(coordinates[id].margin);
     }
     expect(coordinates.work.margin).toContain("Xentra");
-    expect(coordinates.method.margin).toBe("MCP · local models · spec-driven");
-    expect(coordinates.method.margin).not.toBe(aiPractice.facts.join(" · "));
+    expect(coordinates.method.margin).toBe("");
+    expect(read("DESIGN.md")).toContain("intentionally bare");
     expect(coordinates.contact.margin).toBe(contactBlock.nextStep);
   });
 
@@ -536,6 +538,43 @@ describe("the coordinate and margin lines", () => {
     expect(css).toMatch(/@media \(max-width: 1100px\)[\s\S]*?\.chapter-margin \{[^}]*padding-block-start:\s*0/);
     expect(css).toMatch(/@media \(max-width: 1100px\)[\s\S]*?\.chapter-margin \{[^}]*display:\s*block[^}]*max-width:\s*none/);
     expect(css).toMatch(/\.chapter-margin \{[^}]*display:\s*block[^}]*grid-column:\s*measure-start \/ field-end[^}]*max-width:\s*none/);
+  });
+});
+
+describe("the corrected record", () => {
+  test("derived data uses the committed casing", () => {
+    expect(signal.stamp).toContain("GitHub annual");
+    expect(signal.stamp).not.toContain("github annual");
+    expect(workBand[1].label).toBe("high or critical Snyk findings");
+    expect(html).toContain(signal.stamp);
+    expect(html).toContain("high or critical Snyk findings");
+  });
+
+  test("Open Source speaks in the first person and names its rows", () => {
+    expect(workShelfIntro).toContain("one line each");
+    expect(workShelfIntro).not.toContain("case notes");
+    expect(html).toContain(workShelfIntro);
+    expect(html).not.toContain("his own harness");
+    expect(html).toContain("my own harness");
+    expect(html).toContain("The public harness I drive every day.");
+  });
+
+  test("the Work dates and prose use typographic punctuation", () => {
+    expect(spineDate("June 2024 – May 2026")).toBe("JUN 2024 – MAY 2026");
+    expect(html).toContain("JUN 2024 – MAY 2026");
+    expect(html).not.toContain("JUN 2024 — MAY 2026");
+    expect(html).toContain("team’s review workflow");
+    expect(html).not.toContain("team's review workflow");
+  });
+
+  test("the redirect stubs point at live chapters", () => {
+    const stubs = read("scripts/prerender-routes.mjs");
+    expect(stubs).not.toContain("#record");
+    for (const target of ["/#work", "/#oss", "/#method", "/#contact"]) {
+      expect(stubs).toContain(`"${target}"`);
+    }
+    expect(stubs).toContain("chapter 01.");
+    expect(stubs).toContain("chapter 04.");
   });
 });
 
@@ -663,7 +702,7 @@ describe("chapter placement on the field", () => {
     expect(css).toMatch(/\.ma \.facts \{[^}]*grid-column:\s*measure-start \/ field-end/);
     expect(css).toMatch(/\.ma \.dl \{[^}]*grid-column:\s*measure-start \/ field-end/);
     const method = html.slice(html.indexOf('id="method"'), html.indexOf('id="contact"'));
-    const body = method.match(/<div class="v-body ma">([\s\S]*?)<p class="chapter-margin">/)?.[1] ?? "";
+    const body = method.slice(method.indexOf('<div class="v-body ma">'));
     expect(body.indexOf('class="prose"')).toBeLessThan(body.indexOf('class="facts"'));
     expect(body).toMatch(/<\/div><div class="facts">/);
   });

@@ -12,14 +12,14 @@ import { routeFileFor } from "./route-path.mjs";
 const distDir = fileURLToPath(new URL("../dist/", import.meta.url));
 
 const RETIRED = [
-  ["/experience", "/#record", "The experience record is now chapter 04."],
-  ["/projects", "/#work", "The projects are now chapter 03."],
-  ["/skills", "/#method", "The method is now chapter 02."],
-  ["/contact", "/#contact", "Contact is now chapter 05."],
+  ["/experience", "/#work", "The experience record is now chapter 01."],
+  ["/projects", "/#oss", "The projects are now chapter 02."],
+  ["/skills", "/#method", "The method is now chapter 03."],
+  ["/contact", "/#contact", "Contact is now chapter 04."],
   ["/thanks", "/#contact", "The ledger has one contact chapter."],
   ["/about", "/", "The record is now one page."],
-  ["/education", "/#record", "The record is now chapter 04."],
-  ["/footprint", "/#method", "The method is now chapter 02."],
+  ["/education", "/#work", "The record is now chapter 01."],
+  ["/footprint", "/#method", "The method is now chapter 03."],
 ];
 
 const escape = (value) =>

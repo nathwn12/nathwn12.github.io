@@ -230,7 +230,7 @@ export const workBand = [
   },
   {
     figure: proofRows.find((row) => row.claim.startsWith("Security"))?.figure ?? "0",
-    label: "high or critical snyk findings",
+    label: "high or critical Snyk findings",
   },
 ] as const;
 

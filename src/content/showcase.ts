@@ -36,7 +36,7 @@ if (!handTools) throw new Error("showcase.ts: hand tool count is missing");
  *  warm on the work itself, and free of any figure another chapter owns. */
 const DETAILS: Readonly<Record<string, string>> = {
   hand:
-    `Published this week. The browser engine drives Chromium over CDP and the desktop engine works in the background without moving the pointer or stealing focus — ${handTools} his own harness calls every day.`,
+    `Published this week. The browser engine drives Chromium over CDP and the desktop engine works in the background without moving the pointer or stealing focus — ${handTools} tools my own harness calls every day.`,
   puppet:
     "Six narrow tools, each target-locked to a window revalidated before every call. Clipboard writes are refused unless explicitly allowed.",
   gladius:
@@ -123,7 +123,7 @@ const harnessRow: ShowcaseRow = {
   name: "OpenCode Harness",
   dir: "opencode-harness",
   url: "https://github.com/nathwn12/opencode-harness",
-  claim: "The public harness he drives every day.",
+  claim: "The public harness I drive every day.",
   detail:
     "Doctrine-guarded and self-policing: nine seats, a verify allowlist, and the Atlas as the only channel into live configuration. The rules are written down because the loop is the asset.",
   tech: ["OpenCode"],
@@ -136,7 +136,7 @@ const allRows: ShowcaseRow[] = [...rows, harnessRow];
 /** The shelf intro for the approved Open Source variant. */
 export const workShelfIntro =
   "The public repositories are the argument. Three are worth opening first; " +
-  "the rest sit below with their case notes.";
+  "the rest sit below, one line each.";
 
 export const featuredRows = allRows.slice(0, 3);
 export const indexRows = allRows.slice(3);

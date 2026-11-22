@@ -89,10 +89,12 @@ function Cluster({
           </h2>
         </div>
         <div className={`v-body ${variant}`}>{children}</div>
-        <p className="chapter-margin">
-          {coord.margin}
-          {coord.cron && <> <span className="cron-value">{coord.cron}</span></>}
-        </p>
+        {coord.margin && (
+          <p className="chapter-margin">
+            {coord.margin}
+            {coord.cron && <> <span className="cron-value">{coord.cron}</span></>}
+          </p>
+        )}
       </div>
     </section>
   );

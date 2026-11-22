@@ -101,10 +101,10 @@ export const experience: ExperienceEntry[] = [
     description:
       "Worked from existing controllers, services, and SQL to isolate defects in assigned modules.",
     texture:
-      "Worked from existing controllers and services rather than a greenfield scaffold: isolate the defect, write the endpoint test, then carry the change through the team's review workflow.",
+      "Worked from existing controllers and services rather than a greenfield scaffold: isolate the defect, write the endpoint test, then carry the change through the team’s review workflow.",
     highlights: [
       "Prepared small ASP.NET Core and MySQL fixes with endpoint tests.",
-      "Carried changes through the team's Git and code-review workflow.",
+      "Carried changes through the team’s Git and code-review workflow.",
     ],
     tech: ["ASP.NET Core", "MySQL", "Endpoint tests", "Git"],
   },
@@ -114,7 +114,7 @@ export const experience: ExperienceEntry[] = [
 export const provenance =
   "1,182 commits across 17 repositories from 2023 to 2026; 21 scanned repositories.";
 
-/** "June 2024 – May 2026" -> "JUN 2024 — MAY 2026" for the spine's margin. */
+/** "June 2024 – May 2026" -> "JUN 2024 – MAY 2026" for the spine's margin. */
 const SHORT_MONTHS: Record<string, string> = {
   january: "JAN", february: "FEB", march: "MAR", april: "APR",
   may: "MAY", june: "JUN", july: "JUL", august: "AUG",
@@ -128,7 +128,7 @@ export function spineDate(date: string): string {
       const [month, year] = part.trim().split(" ");
       return `${SHORT_MONTHS[month!.toLowerCase()] ?? month} ${year}`;
     })
-    .join(" — ");
+    .join(" – ");
 }
 
 /** Tenure end, read off the one period string — never typed twice. */
