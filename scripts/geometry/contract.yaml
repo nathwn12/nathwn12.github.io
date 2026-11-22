@@ -1,0 +1,93 @@
+# Frozen geometry contract for the ledger dist build.
+# Read-only probe contract. No page code is changed by this file.
+# Calibration slice: INV1/INV2/INV4/INV5 re-specified to remove false positives.
+
+widths: [320, 360, 390, 430, 640, 768, 900, 1024, 1200, 1440, 1680, 1920, 2200, 2560, 3440, 3840]
+
+height_by_width:
+  - { max: 430, height: 800 }
+  - { max: 900, height: 1024 }
+  - { max: 1440, height: 900 }
+  - { max: 1920, height: 1080 }
+  - { max: 2560, height: 1440 }
+  - { max: null, height: 2160 }
+
+modes: [no-preference, reduce]
+
+tolerances:
+  ink_overlap_px: 1.0
+  box_px: 1.0
+  divergence_px: 1.5
+  clearance_large_px: 12   # width >= 701
+  clearance_small_px: 10   # width <= 700
+  stack_overlap_ratio: 0.5 # INV4: horizontal ink overlap / narrower ink width
+
+anchor_targets:
+  - '.lab-nav .links a'
+  - 'nav.spine a'
+anchor_rule: >-
+  Click every visible anchor in the two selector groups, wait for scroll to settle, then assert
+  the target section's heading ink does not intersect .lab-nav or nav.spine. The target heading
+  is the first .ch-name, else the first h1/h2/h3 inside the linked section.
+
+invariants:
+  INV1:
+    name: no overlap
+    rule: >-
+      No two text ink rects intersect. Ink is measured per line box: Range.getClientRects() on
+      each direct text node, narrowed vertically to glyph ink using canvas font metrics
+      (actualBoundingBoxAscent/Descent around the line baseline). Element bounding boxes are
+      never compared. Compare only leaf text containers, never a node against its own ancestor
+      or descendant. Ignore zero-size and hidden elements. Count an intersection only when the
+      vertical overlap exceeds 1px and the horizontal overlap exceeds 0.5px.
+    measured: glyph-ink overlap depth in px
+    expected: 0 glyph-ink overlap (vertical tol 1px)
+
+  INV2:
+    name: no overshoot
+    rule: >-
+      Measure the visible box, not the layout box: intersect each element rect with every
+      ancestor whose computed overflow-x/y is hidden or clip (padding box). Only a visible box
+      that intersects the document and then escapes it is a violation; a box clipped to nothing
+      (for example a focus-only skip link) is not. The offsetParent layout box is not the host:
+      an ancestor clip may legitimately extend beyond it. scrollWidth overflow counts only when
+      the element's overflow-x is visible. Every .chapter .field content box lies inside its parent.
+    measured: visible overflow in px past the document box
+    expected: 0 visible overflow (tol 1px)
+
+  INV3:
+    name: no divergence
+    rule: >-
+      At each width, the left edges of .lab-nav .mark, #horizon h1, every .ch-coordinate and
+      every .ch-name agree within 1.5px. The right edge of every .band, .ledger, .spec,
+      .colophon-links, .nav-ticker and .hud-role p equals the .chapter .field content right
+      edge within 1.5px.
+    measured: max left spread in px, or |right edge - field content right| in px
+    expected: <= 1.5px
+
+  INV4:
+    name: no mixing
+    rule: >-
+      Ink clearance between vertically adjacent text blocks is >= 12px at width >= 701 and
+      >= 10px at width <= 700. Only pairs whose glyph-ink horizontal ranges overlap by at
+      least 50% of the narrower range count as vertical stacking; adjacent inline runs on one
+      baseline are excluded. Use glyph ink, not element boxes, and exclude ancestor/descendant
+      pairs.
+    measured: vertical glyph-ink clearance in px
+    expected: >= 12px (>= 701) or >= 10px (<= 700)
+
+  INV5:
+    name: no occlusion
+    rule: >-
+      For every visible anchor in .lab-nav .links a and nav.spine a: click it, wait for scroll
+      to settle, and assert the target heading's glyph ink does not intersect the sticky
+      .lab-nav box or the fixed nav.spine box. Mid-scroll transit is not a violation; a landed
+      anchor with the heading hidden is. Text inside the obstacle itself is excluded.
+    measured: glyph-ink overlap depth in px with the obstacle box
+    expected: 0 glyph-ink overlap (tol 0.5px)
+
+# Documented INV1 exceptions. A pair is skipped only when both own-selectors
+# match exactly; no other pair is exempt.
+exempt:
+  - selectors: [span.seal-zero, span.seal-stamp]
+    reason: The -98% stamp is composed inside the hollow zero; this ink overlap is the intended seal, not a collision.
