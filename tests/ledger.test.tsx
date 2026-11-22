@@ -8,7 +8,7 @@ import { resolve } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
-import LedgerPage from "../src/components/LedgerPage";
+import LedgerPage, { figureOf } from "../src/components/LedgerPage";
 import { aiPractice, consequenceHeadline, consequenceLede, contactBlock, displayName, figures, heroRoleLine, name, proofRows, spineStamp, statusLine, systemArea, teamSize, teamWord, workBand, workFacts } from "../src/content/ledger";
 import { experience, formerRoleLine, spineDate, teamLine } from "../src/content/experience";
 import { projects } from "../src/content/projects";
@@ -271,17 +271,29 @@ describe("the content survives the strip", () => {
     for (const row of indexRows) {
       const lines = work.match(/<div class="tier-b">[\s\S]*?<\/div>/g) ?? [];
       const entry = lines.find((part) => part.includes(row.name)) ?? "";
-      const lifetime =
-        row.lifetime !== null
-          ? row.lifetime.toLocaleString("en-US")
-          : "no package";
       expect(entry).toContain(
         `<a href="${row.url}" target="_blank" rel="noreferrer">${row.name}</a>`,
       );
       expect(entry).toContain(` · ${row.claim}</span>`);
-      expect(entry).toContain(`<span class="b-life">${lifetime}</span>`);
-      expect(entry).toContain(`<span class="b-lang">${row.language}</span>`);
+      const figure = figureOf(row);
+      if (figure) expect(entry).toContain(`<span class="b-life">${figure}</span>`);
+      else expect(entry).not.toContain('class="b-life"');
+      if (row.language) expect(entry).toContain(`<span class="b-lang">${row.language}</span>`);
+      else expect(entry).not.toContain('class="b-lang"');
     }
+  });
+
+  test("the built page has no placeholder-only cells", () => {
+    const built = read("dist/index.html");
+    const work = built.slice(built.indexOf('id="oss"'), built.indexOf('id="method"'));
+    const text = work.replace(/<[^>]*>/g, " ").toLowerCase();
+    for (const banned of ["no package", "n/a", "unknown"]) {
+      expect(text).not.toContain(banned);
+    }
+    const placeholders = (built.match(/<(span|div|p)\b[^>]*>([^<]*)<\/\1>/g) ?? [])
+      .map((cell) => cell.replace(/<[^>]*>/g, "").trim())
+      .filter((inner) => ["—", "–", "-", "N/A", "unknown", "no package"].includes(inner));
+    expect(placeholders).toEqual([]);
   });
 
   test("the proof figures survive the spine composition", () => {
@@ -366,7 +378,8 @@ describe("the content survives the strip", () => {
     expect(contact).toContain(contactBlock.nextStep);
     expect(contact.match(new RegExp(contactBlock.nextStep, "g")) ?? []).toHaveLength(1);
     const colophon = html.slice(html.indexOf('class="colophon'));
-    expect(colophon.match(/<a /g) ?? []).toHaveLength(5);
+    expect(colophon.match(/<a /g) ?? []).toHaveLength(6);
+    expect(colophon).toContain('href="/llms.txt"');
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(/\.ca \.line \{[^}]*max-width:\s*var\(--measure-contact\)/);
     expect(css).toMatch(/\.ca \.mail \{[^}]*border-block-end:\s*1px solid var\(--color-signal\)/);
@@ -579,7 +592,8 @@ describe("the corrected record", () => {
   });
 
   test("Open Source speaks in the first person and names its rows", () => {
-    expect(workShelfIntro).toContain("one line each");
+    expect(workShelfIntro).toContain("each in its own words");
+    expect(workShelfIntro).not.toContain("one line each");
     expect(workShelfIntro).not.toContain("case notes");
     expect(html).toContain(workShelfIntro);
     expect(html).not.toContain("his own harness");

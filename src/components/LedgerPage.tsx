@@ -42,9 +42,16 @@ const SECTIONS = [
   { id: "contact", index: "04", label: "Contact" },
 ] as const;
 
-/** Lifetime downloads as the ledger prints them: a figure, or no package. */
-const lifetimeOf = (row: { lifetime: number | null }): string =>
-  row.lifetime !== null ? row.lifetime.toLocaleString("en-US") : "no package";
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const;
+
+/** The numbers cell: a real download count, else the probe's last push. */
+export const figureOf = (row: { lifetime: number | null; pushedAt: string | null }): string | null => {
+  if (row.lifetime !== null) return row.lifetime.toLocaleString("en-US");
+  if (!row.pushedAt) return null;
+  const [, month, day] = row.pushedAt.split("-");
+  const label = MONTHS[Number(month) - 1];
+  return label && day ? `pushed ${Number(day)} ${label}` : `pushed ${row.pushedAt}`;
+};
 
 function Cluster({
   id,
@@ -358,7 +365,7 @@ export default function LedgerPage() {
                 <span className="a-detail">{row.detail}</span>
                 <span className="a-foot">
                   <span>{row.tech.join(" / ")}</span>
-                  <span>{`${lifetimeOf(row)} · ${row.language}`}</span>
+                  <span>{[figureOf(row), row.language].filter(Boolean).join(" · ")}</span>
                 </span>
               </a>
             ))}
@@ -374,8 +381,8 @@ export default function LedgerPage() {
                   )}
                   {` · ${row.claim}`}
                 </span>
-                <span className="b-life">{lifetimeOf(row)}</span>
-                <span className="b-lang">{row.language}</span>
+                {figureOf(row) && <span className="b-life">{figureOf(row)}</span>}
+                {row.language && <span className="b-lang">{row.language}</span>}
               </div>
             ))}
           </div>
@@ -462,6 +469,7 @@ export default function LedgerPage() {
             <a href={RESUME_PATH}>Résumé</a>
             <a href={CV_PATH}>CV</a>
             <a href="https://github.com/nathwn12/nathwn12.github.io" target="_blank" rel="noreferrer">Source</a>
+            <a href="/llms.txt" className="machine-summary">llms.txt</a>
           </p>
         </div>
       </footer>

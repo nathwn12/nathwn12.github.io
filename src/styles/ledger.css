@@ -1541,7 +1541,7 @@ video.horizon-media.is-playing {
 /* 02 Open Source — the npm evidence above one continuous ledger. Tier is a
    height, not a section:
    the whole tier-A row is the link; tier B links only the name. Hairlines
-   are the only surface, and every row carries lifetime and language. */
+   are the only surface; a cell is omitted when it has no real figure. */
 .wc .intro {
   max-width: var(--measure);
   font-size: var(--text-lede);
@@ -1690,6 +1690,13 @@ video.horizon-media.is-playing {
      row of links clears its top edge and the safe-area inset. */
   .colophon {
     padding-block-end: calc(44px + env(safe-area-inset-bottom) + 5vh + var(--space-16));
+  }
+
+  /* The machine-summary link keeps a 44px tap target on touch, without a box. */
+  .colophon-links .machine-summary {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
   }
 
   /* The spine sits at 6vw; the plate keeps the same gutter + rail origin as

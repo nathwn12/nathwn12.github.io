@@ -72,8 +72,11 @@ export interface ShowcaseRow {
   claim: string;
   detail: string;
   tech: string[];
-  language: string;
+  /** Null when neither the probe nor the machine summary names one. */
+  language: string | null;
   lifetime: number | null;
+  /** The probe's last-push date, when the repo is in the probe. */
+  pushedAt: string | null;
   /** The row speaks from the repo's own machine summary when one exists. */
   seeded: boolean;
   /** The summary's own `draft` flag, carried as a quiet `seed` token. */
@@ -135,8 +138,9 @@ const rows: ShowcaseRow[] = projects.map((project, index) => {
       : (CLAIMS[project.dir] ?? project.description),
     detail: DETAILS[project.dir] ?? project.description,
     tech: project.tech.slice(0, 3),
-    language: repo?.primaryLanguage ?? project.tech[0] ?? "—",
+    language: repo?.primaryLanguage ?? summary?.stack?.find(Boolean) ?? project.tech[0] ?? null,
     lifetime: names.length > 0 ? lifetime : null,
+    pushedAt: repo?.pushedAt ?? null,
     seeded: Boolean(summary),
     seed: summary?.draft ?? false,
     stale: summary?.stale ?? false,
@@ -157,8 +161,9 @@ const harnessRow: ShowcaseRow = {
   detail:
     "Doctrine-guarded and self-policing: nine seats, a verify allowlist, and the Atlas as the only channel into live configuration. The rules are written down because the loop is the asset.",
   tech: ["OpenCode"],
-  language: "—",
+  language: null,
   lifetime: null,
+  pushedAt: null,
   // The harness is the lead's own addition, not one of the 16 public repos,
   // so it has no machine summary and keeps its authored claim.
   seeded: false,
@@ -173,7 +178,7 @@ const allRows: ShowcaseRow[] = [...rows, harnessRow];
 /** The shelf intro for the approved Open Source variant. */
 export const workShelfIntro =
   "The public repositories are the argument. Three are worth opening first; " +
-  "the rest sit below, one line each.";
+  "the rest sit below, each in its own words.";
 
 export const featuredRows = allRows.slice(0, 3);
 export const indexRows = allRows.slice(3);
