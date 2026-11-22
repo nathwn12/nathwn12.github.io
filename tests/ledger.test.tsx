@@ -601,6 +601,13 @@ describe("the Work consequence", () => {
   });
 });
 
+describe("the one-line coordinate", () => {
+  test("the tablet measure gives the coordinate the full field", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/@media \(min-width: 701px\) and \(max-width: 1100px\)[\s\S]*?\.ch-coordinate \{[^}]*grid-column:\s*measure-start \/ field-end/);
+  });
+});
+
 describe("the Work zero seal", () => {
   test("the band is flush to the field right, with the seal at its end", () => {
     const css = read("src/styles/ledger.css");
