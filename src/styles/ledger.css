@@ -76,12 +76,12 @@
 
 /* The phone's only chrome: a fixed 01-05 spine. Hidden wherever the top nav
    still has room for the numerals. */
-.spine {
+nav.spine {
   display: none;
 }
 
 @media (max-width: 700px) {
-  .spine {
+  nav.spine {
     display: flex;
     flex-direction: column;
     position: fixed;
@@ -91,7 +91,7 @@
     z-index: 10;
   }
 
-  .spine a {
+  nav.spine a {
     display: grid;
     place-items: center;
     height: 44px;
@@ -102,7 +102,7 @@
     transition: color var(--motion-quick) var(--motion-easing);
   }
 
-  .spine a[aria-current="true"] {
+  nav.spine a[aria-current="true"] {
     color: var(--color-signal);
   }
 }
@@ -679,6 +679,8 @@ video.horizon-media.is-playing {
 
 @media (max-width: 1100px) {
   .chapter-margin {
+    display: block;
+    max-width: none;
     grid-row: auto;
     grid-column: measure-start / field-end;
     margin-block-start: var(--space-32);
@@ -730,6 +732,7 @@ video.horizon-media.is-playing {
   color: var(--color-ink-muted);
   margin-block-start: var(--space-12);
   text-transform: uppercase;
+  text-align: right;
 }
 
 .sa .strip {
@@ -1093,20 +1096,17 @@ video.horizon-media.is-playing {
 }
 
 .pc h3 {
-  grid-column: 1;
   font-size: var(--text-lede);
   margin: 0 0 var(--space-8);
   font-weight: 400;
 }
 
 .pc .out {
-  grid-column: 1;
   font-size: var(--text-detail);
   margin: 0;
 }
 
 .pc .tex {
-  grid-column: 2;
   font-size: var(--text-detail);
   color: var(--color-ink-muted);
   max-width: var(--measure-wide);
@@ -1296,7 +1296,7 @@ video.horizon-media.is-playing {
   /* Break out of the subgrid: as a grid item the paragraph wrapped per column. */
   .chapter-margin {
     display: block;
-    grid-column: 1 / -1;
+    grid-column: measure-start / field-end;
     max-width: none;
     padding-block-start: var(--space-16);
   }

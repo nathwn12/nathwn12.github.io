@@ -361,6 +361,7 @@ describe("the content survives the strip", () => {
     expect(css).toMatch(/\.wc \.tier-b \{[^}]*font-size:\s*var\(--text-mono\)/);
     expect(css).toMatch(/\.pc \.tex \{[^}]*font-size:\s*var\(--text-detail\)/);
     expect(css).toMatch(/\.sa \.flabel \{[^}]*font-size:\s*var\(--text-mono\)/);
+    expect(css).toMatch(/\.sa \.flabel \{[^}]*text-align:\s*right/);
     expect(css).toMatch(/\.chapter-margin \{[^}]*font-size:\s*var\(--text-mono\)/);
     // Numbers figures and the Work band share one display token; both are
     // data bands spanning the same field.
@@ -497,7 +498,8 @@ describe("the coordinate and margin lines", () => {
       expect(section).toContain(coordinates[id].margin);
     }
     expect(coordinates.proof.margin).toContain("Xentra");
-    expect(coordinates.method.margin).toBe(aiPractice.facts.join(" · "));
+    expect(coordinates.method.margin).toBe("MCP · local models · spec-driven");
+    expect(coordinates.method.margin).not.toBe(aiPractice.facts.join(" · "));
     expect(coordinates.contact.margin).toBe(contactBlock.nextStep);
   });
 
@@ -516,7 +518,8 @@ describe("the coordinate and margin lines", () => {
     expect(css).toMatch(/@media \(max-width: 1100px\)[\s\S]*?\.chapter-margin \{[^}]*grid-column:\s*measure-start \/ field-end/);
     expect(css).toMatch(/@media \(min-width: 1101px\)[\s\S]*?\.chapter-margin \{[^}]*padding-block-start:\s*var\(--space-48\)/);
     expect(css).toMatch(/@media \(max-width: 1100px\)[\s\S]*?\.chapter-margin \{[^}]*padding-block-start:\s*0/);
-    expect(css).toMatch(/\.chapter-margin \{[^}]*display:\s*block[^}]*grid-column:\s*1 \/ -1[^}]*max-width:\s*none/);
+    expect(css).toMatch(/@media \(max-width: 1100px\)[\s\S]*?\.chapter-margin \{[^}]*display:\s*block[^}]*max-width:\s*none/);
+    expect(css).toMatch(/\.chapter-margin \{[^}]*display:\s*block[^}]*grid-column:\s*measure-start \/ field-end[^}]*max-width:\s*none/);
   });
 });
 
@@ -633,10 +636,10 @@ describe("the phone spine", () => {
       expect(spine).toContain(`<span>${num}</span>`);
     }
     const css = read("src/styles/ledger.css");
-    expect(css).toMatch(/\.spine \{[^}]*display:\s*none/);
-    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.spine \{[^}]*position:\s*fixed/);
-    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.spine \{[^}]*left:\s*24px/);
-    expect(css).toMatch(/\.spine a \{[^}]*height:\s*44px/);
+    expect(css).toMatch(/nav\.spine \{[^}]*display:\s*none/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*position:\s*fixed/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*left:\s*24px/);
+    expect(css).toMatch(/nav\.spine a \{[^}]*height:\s*44px/);
     expect(css).toMatch(/\.spine a \{[^}]*transition:\s*color var\(--motion-quick\)/);
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?--index-rail:\s*44px/);
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.hero-hud \{[^}]*padding-inline-start:\s*var\(--index-rail\)/);

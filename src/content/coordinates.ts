@@ -46,7 +46,10 @@ export const coordinates: Record<CoordinateKey, Coordinate> = {
   method: {
     value: `${specLines.length} STEPS`,
     date,
-    margin: aiPractice.facts.join(" · "),
+    // The note is the short tag; the facts line keeps the full noun forms.
+    margin: aiPractice.facts
+      .map((fact) => fact.replace(/\s+(servers|builds)$/, ""))
+      .join(" · "),
   },
   contact: {
     value: availability.split(" ")[0]!.toUpperCase(),
