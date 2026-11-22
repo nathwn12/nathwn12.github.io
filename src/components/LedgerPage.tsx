@@ -10,9 +10,12 @@ import {
 } from "../content/experience";
 import {
   aiPractice,
+  consequenceHeadline,
+  consequenceLede,
   contactBlock,
   displayName,
   figures,
+  heroRoleLine,
   locatedIn,
   name,
   spineStamp,
@@ -212,7 +215,7 @@ export default function LedgerPage() {
             </div>
             <div className="hud hud-role">
               <p className="eyebrow data">Role</p>
-              <p>Backend systems, then the tools around them.</p>
+              <p>{heroRoleLine}</p>
               <p className="data">{locatedIn} · Remote</p>
             </div>
             <div className="hud hud-status">
@@ -240,6 +243,8 @@ export default function LedgerPage() {
         </section>
 
         <Cluster id="work" index="01" label="Work" variant="pc" active={active}>
+          <p className="consequence">{consequenceHeadline}</p>
+          <p className="consequence-lede">{consequenceLede}</p>
           <div className="band">
             <div>
               <b>{workBand[0].figure}</b>
@@ -268,6 +273,10 @@ export default function LedgerPage() {
           <p className="intro">{workShelfIntro}</p>
 
           <div className="top">
+            <div>
+              <CountUp value={signal.allTime} className="figure" />
+              <div className="flabel">npm downloads / all time</div>
+            </div>
             <div>
               <CountUp value={signal.month} className="figure" />
               <div className="flabel">npm downloads / last 30 days</div>

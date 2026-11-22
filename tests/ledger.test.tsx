@@ -9,7 +9,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
 import LedgerPage from "../src/components/LedgerPage";
-import { aiPractice, contactBlock, displayName, figures, name, proofRows, spineStamp, workBand } from "../src/content/ledger";
+import { aiPractice, consequenceHeadline, consequenceLede, contactBlock, displayName, figures, heroRoleLine, name, proofRows, spineStamp, statusLine, systemArea, workBand } from "../src/content/ledger";
 import { experience, spineDate } from "../src/content/experience";
 import { projects } from "../src/content/projects";
 import { signal, specLines } from "../src/content/signal";
@@ -465,8 +465,8 @@ describe("the 12-column field law", () => {
 
 describe("the coordinate and margin lines", () => {
   const stamps = [
-    ["work", "01", "Work", figures.commits ?? ""],
-    ["oss", "02", "Open Source", signal.allTime.toLocaleString("en-US")],
+    ["work", "01", "Work", `${experience.length} ENGAGEMENTS`],
+    ["oss", "02", "Open Source", `${featuredRows.length + indexRows.length} REPOS`],
     ["method", "03", "Approach", `${specLines.length} STEPS`],
     ["contact", "04", "Contact", "OPEN"],
   ] as const;
@@ -538,6 +538,44 @@ describe("the coordinate and margin lines", () => {
   });
 });
 
+describe("the Work consequence", () => {
+  test("the headline is parsed from the newest outcome, not retyped", () => {
+    expect(experience[0]!.outcome).toContain(
+      "from about 60 seconds to under one second",
+    );
+    expect(consequenceHeadline).toBe("60 seconds → under 1 second");
+  });
+
+  test("the chapter opens with the outcome, then the lede, then the band", () => {
+    const work = html.slice(html.indexOf('id="work"'), html.indexOf('id="oss"'));
+    expect(work).toContain(`<p class="consequence">${consequenceHeadline}</p>`);
+    expect(work).toContain(`<p class="consequence-lede">${consequenceLede}</p>`);
+    expect(work.indexOf('class="consequence"')).toBeLessThan(
+      work.indexOf('class="consequence-lede"'),
+    );
+    expect(work.indexOf('class="consequence-lede"')).toBeLessThan(
+      work.indexOf('class="band"'),
+    );
+    for (const system of [
+      "payment and cash-management services",
+      "ASP.NET Core", "SQL", "Redis", "AWS",
+    ]) {
+      expect(consequenceLede.toLowerCase()).toContain(system.toLowerCase());
+    }
+    expect(consequenceLede.endsWith(".")).toBe(true);
+  });
+
+  test("the hero role names the work and keeps the status line", () => {
+    expect(systemArea).toBe("payment and cash-management services");
+    expect(heroRoleLine).toBe(
+      "Backend developer · payment and cash-management services",
+    );
+    expect(html).toContain(`<p>${heroRoleLine}</p>`);
+    expect(html).not.toContain("Backend systems, then the tools around them.");
+    expect(html).toContain(statusLine);
+  });
+});
+
 describe("the Work zero seal", () => {
   test("the band is flush to the field right, with the seal at its end", () => {
     const css = read("src/styles/ledger.css");
@@ -579,8 +617,8 @@ describe("chapter placement on the field", () => {
       html.indexOf('id="oss"'),
       html.indexOf('id="method"'),
     );
-    // The all-time total is now the coordinate; only the month stays in-band.
-    expect(ossSection.match(/class="count-up figure"/g) ?? []).toHaveLength(1);
+    // Both npm figures stay in-band; the coordinate now counts repositories.
+    expect(ossSection.match(/class="count-up figure"/g) ?? []).toHaveLength(2);
     expect(ossSection.indexOf('class="top"')).toBeLessThan(
       ossSection.indexOf('class="strip"'),
     );

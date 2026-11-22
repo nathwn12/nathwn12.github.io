@@ -1,7 +1,8 @@
-import { employer } from "./experience";
+import { employer, experience } from "./experience";
 import { availability, recordOpener } from "./hero";
-import { aiPractice, contactBlock, figures, standfirst } from "./ledger";
+import { aiPractice, contactBlock, standfirst } from "./ledger";
 import { signal, specLines } from "./signal";
+import { featuredRows, indexRows } from "./showcase";
 
 /**
  * The chapter stamps. One owner for each coordinate value and the one margin
@@ -28,12 +29,12 @@ export const coldRead = [recordOpener, ...standfirst.split(/(?<=\.)\s+/)];
 
 export const coordinates: Record<CoordinateKey, Coordinate> = {
   work: {
-    value: figures.commits ?? "",
+    value: `${experience.length} ENGAGEMENTS`,
     date,
     margin: `${employer.shortName}, ${employer.period}`,
   },
   oss: {
-    value: signal.allTime.toLocaleString("en-US"),
+    value: `${featuredRows.length + indexRows.length} REPOS`,
     date,
     // Display-only: non-breaking hyphens keep the snapshot date whole in the
     // narrow margin. The underlying coordinate `date` stays the raw ISO value.

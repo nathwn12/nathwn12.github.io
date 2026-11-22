@@ -52,17 +52,19 @@ third, the ask last. Four chapters carry that order, ids included:
 
 | NN | Chapter | Id | Coordinate |
 |---|---|---|---|
-| 01 | Work | `work` | the measured record |
-| 02 | Open Source | `oss` | the all-time npm installs |
+| 01 | Work | `work` | the engagement count |
+| 02 | Open Source | `oss` | the public repositories |
 | 03 | Approach | `method` | the spec steps |
 | 04 | Contact | `contact` | open |
 
-Numbers is evidence, not a chapter. Its all-time total becomes Open Source's
-coordinate figure; the last-30-day count and the per-package sparkline strip
-sit under the Open Source intro, and the GitHub activity row (contributions and
-heat strip) closes that chapter as the public record. The commit band —
-1,182 commits · 17 repos · 21 scanned — stays in Work beside the engagements.
-Every moved figure still derives from `src/content/`; no claim is retyped.
+Numbers is evidence, not a chapter. Its all-time and last-30-day figures and
+the per-package sparkline strip sit under the Open Source intro, and the GitHub
+activity row (contributions and heat strip) closes that chapter as the public
+record. Work opens with its one measured outcome, `60 seconds → under 1 second`,
+parsed from the engagement's own outcome sentence, then one lede naming the
+systems from the record. The commit band — 1,182 commits · 17 repos · 21
+scanned — stays in Work beside the engagements. Every moved figure still
+derives from `src/content/`; no claim is retyped.
 
 ### Fluid geometry (supersedes the 82/96/110rem field and the 32/64/96px rail)
 
@@ -108,18 +110,19 @@ aside 2 / band 4 is the geometry that holds. No content sits outside the field.
 ### Coordinate line and margin note
 
 One mono data line at measure left, above each title, exactly
-`NN / LABEL / VALUE / DATE`: Work 1,182; Open Source 35,143; Approach 5 STEPS;
-Contact OPEN. Every value is derived in `src/content/coordinates.ts` from
-committed content; the date is the committed snapshot date (2026-11-19), not a
-fresh date. The `NN` lights signal on the active chapter. One margin note
+`NN / LABEL / VALUE / DATE`: Work 3 ENGAGEMENTS; Open Source 14 REPOS; Approach
+5 STEPS; Contact OPEN. Every value is derived in `src/content/coordinates.ts`
+from committed content; the date is the committed snapshot date (2026-11-19),
+not a fresh date. The `NN` lights signal on the active chapter. One margin note
 maximum per chapter, at aside beside the head and folding below the body at
 ≤1100. The Open Source note names the committed cron `0 6 * * 1` from
-`.github/workflows/open-source-stats.yml`, which qualifies its all-time figure.
+`.github/workflows/open-source-stats.yml`, which qualifies the npm evidence in
+that chapter.
 
-Deviation recorded: the all-time npm figure is now the Open Source coordinate
-rather than a chapter of its own. Dates derive from snapshots; all four
-chapters share one date. The Contact margin note is `contactBlock.nextStep`,
-printed once.
+Deviation recorded: the all-time npm figure stays as evidence in Open Source's
+figure band while the coordinate counts repositories; it is no longer a chapter
+of its own. Dates derive from snapshots; all four chapters share one date. The
+Contact margin note is `contactBlock.nextStep`, printed once.
 
 ### Two-beat hero, still-first
 
@@ -140,9 +143,10 @@ top nav because four full labels and numerals do not fit 390.
 
 ### Sections
 
-Work opens with the engagement record; its `1,182` sits at band left and a
-hollow zero seal at band right, the only outline figure, with `−98%` as a real
-text node in its counter. Open Source carries the npm evidence first — the
+Work opens with its measured outcome as the headline and the one system lede,
+then the engagement record; its `1,182` sits at band left and a hollow zero
+seal at band right, the only outline figure, with `−98%` as a real text node in
+its counter. Open Source carries the npm evidence first — the
 monthly figure at band right, the per-package sparkline strip at measure, the
 GitHub activity row at the end — then one ruled tier ledger: tier A's three
 rows are whole-row links with name, claim, detail, tech, lifetime and language;

@@ -243,6 +243,49 @@ export function spineStamp(entryId: string): string | null {
   return byId[entryId] ?? null;
 }
 
+/** The system area named by the hero and the Work lede. Read off the payments
+    entry's own name — "Payments and cash-management endpoints" — so the area is
+    not typed a second time. "Services" is the word the platform entry uses. */
+const cashEntry = experience.find((entry) => entry.id === "02");
+export const systemArea = cashEntry
+  ? cashEntry.name
+      .replace(/^Payments\b/, "payment")
+      .replace(/\bendpoints$/, "services")
+  : "";
+
+/** The hero's role line: the committed role, sentence-cased, over the system
+    area. It names the work instead of the attitude; the status line is separate. */
+export const heroRoleLine = systemArea
+  ? `${employer.role.charAt(0)}${employer.role.slice(1).toLowerCase()} · ${systemArea}`
+  : employer.role;
+
+/** The Work chapter's one measured outcome. The before and after come from the
+    newest entry's own outcome sentence through the same parser the panel uses:
+    "from about 60 seconds to under one second" → "60 seconds → under 1 second". */
+export const consequenceHeadline = (() => {
+  const times = queryTimes(experience[0]?.outcome ?? "");
+  if (!times.before || !times.after) return "";
+  return `${times.before.replace(/\s+s$/, "")} seconds → ${times.after.replace(/\bone\b/, "1")}`;
+})();
+
+/** One lede sentence, assembled only from the record's own strings: the system
+    area above, then the four systems as named in the payments entries. No claim
+    is added; a missing token drops the sentence rather than being filled in. */
+export const consequenceLede = (() => {
+  const newest = experience[0];
+  const cash = cashEntry;
+  if (!newest || !cash || !systemArea) return "";
+  const systems = [
+    cash.tech.find((token) => token === "ASP.NET Core"),
+    cash.tech.find((token) => token === "SQL"),
+    cash.description.match(/\bRedis\b/)?.[0],
+    newest.tech.find((token) => token === "AWS"),
+  ].filter((token): token is string => Boolean(token));
+  if (systems.length !== 4) return "";
+  const area = systemArea.charAt(0).toUpperCase() + systemArea.slice(1);
+  return `${area}: ${systems.join(", ")}.`;
+})();
+
 export interface WorkRow {
   name: string;
   line: string;
