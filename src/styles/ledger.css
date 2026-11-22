@@ -418,6 +418,12 @@ video.horizon-media.is-playing {
   text-wrap: pretty;
 }
 
+/* The role/status lines and their data footers stack; give the pair enough
+   glyph-ink clearance at both the phone and the desktop bar. */
+.hud p + p.data {
+  margin-block-start: var(--space-4);
+}
+
 .hud-scroll {
   display: inline-flex;
   align-items: center;
@@ -499,6 +505,10 @@ video.horizon-media.is-playing {
   .hud-role > p {
     margin-inline-start: 0;
     max-width: none;
+  }
+
+  .hud-name h1 {
+    line-height: 1.2;
   }
 
   /* Phone nav: the strip keeps one hairline; the ticker yields entirely. */
@@ -861,7 +871,7 @@ video.horizon-media.is-playing {
   font-size: var(--text-mono);
   letter-spacing: var(--tracking-data);
   color: var(--color-ink-muted);
-  margin-block-start: var(--space-12);
+  margin-block-start: var(--space-16);
   text-transform: uppercase;
   text-align: right;
   /* The label is its own width; it never stretches to the figure's box. */
@@ -886,14 +896,16 @@ video.horizon-media.is-playing {
   border-inline-end: 0;
 }
 
+/* Real inline constraint: the full package name wraps inside its own cell.
+   A nowrap+ellipsis box only clips the glyphs; the laid-out ink still crossed
+   into the neighbour cell and collided with the next name at narrow measures. */
 .sa .pname {
   font-family: var(--font-data);
   font-size: var(--text-mono);
   letter-spacing: var(--tracking-data);
   color: var(--color-ink-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .sa .spark {
@@ -937,6 +949,8 @@ video.horizon-media.is-playing {
 }
 
 .sa .micro span:not(.count-up) {
+  display: block;
+  margin-block-start: var(--space-12);
   font-family: var(--font-data);
   font-size: var(--text-mono);
   letter-spacing: var(--tracking-data);
@@ -1027,6 +1041,13 @@ video.horizon-media.is-playing {
   gap: var(--space-16);
   padding: var(--space-12) 0;
   border-block-end: 1px solid var(--color-rule);
+}
+
+@media (max-width: 360px) {
+  .ma .sline {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 2fr);
+    gap: var(--space-8);
+  }
 }
 
 .ma .sk {
@@ -1153,6 +1174,8 @@ video.horizon-media.is-playing {
 /* Scope the figure label to the commit figure. A bare descendant selector
    would shrink the seal's zero and stamp to mono size. */
 .pc .band > div > span {
+  display: block;
+  margin-block-start: var(--space-12);
   font-family: var(--font-data);
   font-size: var(--text-mono);
   letter-spacing: var(--tracking-data);
@@ -1241,13 +1264,20 @@ video.horizon-media.is-playing {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-8);
 }
 
 .zero-seal .seal-counter {
   position: relative;
   display: inline-grid;
   place-items: center;
+}
+
+/* Zero and stamp share one grid cell: the track sizes to the wider stamp, so
+   the counter's layout box contains its own ink instead of overhanging it. */
+.zero-seal .seal-zero,
+.zero-seal .seal-stamp {
+  grid-area: 1 / 1;
 }
 
 .zero-seal .seal-zero {
@@ -1267,8 +1297,6 @@ video.horizon-media.is-playing {
 }
 
 .zero-seal .seal-stamp {
-  position: absolute;
-  inset: 0;
   display: grid;
   place-items: center;
   font-family: var(--font-data);
@@ -1542,6 +1570,9 @@ video.horizon-media.is-playing {
   display: block;
   min-height: 48px;
   padding-block: var(--space-12);
+  /* Below the grid margin the three spans wrap as inline runs; a taller line
+     box keeps the wrapped ink clear of the next line's ink. */
+  line-height: 1.9;
   font-family: var(--font-data);
   font-size: var(--text-mono);
   letter-spacing: var(--tracking-data);
