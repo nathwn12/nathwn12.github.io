@@ -346,9 +346,10 @@ export default function LedgerPage() {
               <a
                 className="tier-a"
                 key={row.dir}
-                href={row.url}
-                target="_blank"
-                rel="noreferrer"
+                href={row.vanished ? undefined : row.url}
+                target={row.vanished ? undefined : "_blank"}
+                rel={row.vanished ? undefined : "noreferrer"}
+                aria-disabled={row.vanished ? "true" : undefined}
               >
                 <span className="a-head">
                   <span className="a-name">{row.name}</span>
@@ -364,9 +365,13 @@ export default function LedgerPage() {
             {indexRows.map((row) => (
               <div className="tier-b" key={row.dir}>
                 <span className="b-main">
-                  <a href={row.url} target="_blank" rel="noreferrer">
-                    {row.name}
-                  </a>
+                  {row.vanished ? (
+                    <span className="b-name">{row.name}</span>
+                  ) : (
+                    <a href={row.url} target="_blank" rel="noreferrer">
+                      {row.name}
+                    </a>
+                  )}
                   {` · ${row.claim}`}
                 </span>
                 <span className="b-life">{lifetimeOf(row)}</span>

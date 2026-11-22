@@ -111,16 +111,54 @@ export function isoDate(today = new Date()) {
   return today.toISOString().slice(0, 10);
 }
 
-/** Measure every repo. `fetchText` seeds a 404 or a malformed file in tests.
- *  A non-404 fetch failure rejects the whole measurement: the caller keeps
- *  the last committed snapshot instead of inventing a fresh one. */
-export async function measure({ fetchText = defaultFetchText, today } = {}) {
-  const record = JSON.parse(readFileSync(REPOS, "utf8"));
-  const pushed = new Map(record.repos.map((repo) => [repo.name, repo.pushedAt]));
-  const measuredAt = today ?? isoDate();
+/** Normalize a committed row so an older snapshot without the vanish fields
+ *  still compares, marks and restores cleanly. */
+export function normalizeRow(row) {
+  return {
+    ...row,
+    pushedAt: row.pushedAt ?? "",
+    vanished: row.vanished ?? false,
+    lastSeen: row.lastSeen ?? null,
+  };
+}
+
+/** A vanished row keeps its last summary and the first date it was missed.
+ *  A row that comes back is restored in place: no silent deletion, ever. */
+function keepLast(row, today) {
+  return {
+    ...row,
+    vanished: true,
+    lastSeen: row.vanished ? row.lastSeen : today,
+  };
+}
+
+/** Measure every known repo: the current account plus every prior summary.
+ *  A 404 or a repo that left the account marks and keeps the last row; a
+ *  successful fetch clears the mark. A non-404 fetch failure rejects the whole
+ *  measurement so the caller keeps the last committed snapshot. */
+export async function measure({
+  fetchText = defaultFetchText,
+  today = isoDate(),
+  previous = null,
+  repos,
+} = {}) {
+  const source = repos ?? JSON.parse(readFileSync(REPOS, "utf8")).repos;
+  const account = new Map(source.map((repo) => [repo.name, repo.pushedAt]));
+  const prior = new Map(
+    (previous?.summaries ?? []).map((row) => [row.repo, normalizeRow(row)]),
+  );
+  const names = [...new Set([...account.keys(), ...prior.keys()])].sort();
   const notes = [];
   const results = await Promise.all(
-    [...pushed.keys()].sort().map(async (repo) => {
+    names.map(async (repo) => {
+      const last = prior.get(repo);
+      if (!account.has(repo)) {
+        if (!last) return null;
+        const kept = keepLast(last, today);
+        notes.push(`vanished ${repo}: no longer in the public account; kept last summary ${last.updated}`);
+        return kept;
+      }
+      const pushedAt = account.get(repo);
       let response;
       try {
         response = await fetchText(repo);
@@ -129,26 +167,40 @@ export async function measure({ fetchText = defaultFetchText, today } = {}) {
         throw new Error(`fetch failed for ${repo}: ${reason}`);
       }
       if (response.status === 404) {
-        notes.push(`skip ${repo}: ai/llms.txt not found (404)`);
-        return null;
+        if (!last) {
+          notes.push(`skip ${repo}: ai/llms.txt not found (404)`);
+          return null;
+        }
+        const kept = keepLast(last, today);
+        notes.push(`vanished ${repo}: ai/llms.txt not found (404); kept last summary ${last.updated}`);
+        return kept;
       }
       let front;
       try {
         front = parseFrontMatter(response.text);
       } catch (error) {
-        notes.push(`skip ${repo}: ${String(error.message || error).split("\n")[0]}`);
-        return null;
+        if (!last) {
+          notes.push(`skip ${repo}: ${String(error.message || error).split("\n")[0]}`);
+          return null;
+        }
+        notes.push(`kept ${repo}: ${String(error.message || error).split("\n")[0]}; kept last summary ${last.updated}`);
+        return last;
+      }
+      if (last?.vanished) {
+        notes.push(`returned ${repo}: cleared unavailable marker from ${last.lastSeen}`);
       }
       return {
         repo,
         ...front,
-        pushedAt: pushed.get(repo),
-        stale: computeStale(front.updated, pushed.get(repo)),
+        pushedAt,
+        stale: computeStale(front.updated, pushedAt),
+        vanished: false,
+        lastSeen: null,
       };
     }),
   );
   return {
-    record: { measuredAt, summaries: results.filter(Boolean) },
+    record: { measuredAt: today, summaries: results.filter(Boolean) },
     notes,
   };
 }
@@ -165,7 +217,7 @@ const isMain =
 if (isMain) {
   const committed = readCommitted();
   try {
-    const { record, notes } = await measure();
+    const { record, notes } = await measure({ previous: committed });
     for (const note of notes) console.log(`probe-summaries: ${note}`);
     const changed = writeRecordIfChanged(OUT, record);
     console.log(

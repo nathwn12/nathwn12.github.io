@@ -16,6 +16,7 @@ import { execFileSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
+import { writeRecordIfChanged } from "./probe-repos.mjs";
 
 export const FLOOR_DAYS = 7;
 const root = process.env.LEDGER_ROOT
@@ -95,15 +96,52 @@ function keep(record, label, reason) {
   );
 }
 
+/** Deletion is a human decision: name every row first, act only on --yes.
+ *  A normal refresh and the weekly action never reach this path. */
+export function pruneVanished(record) {
+  const removed = record.summaries.filter((row) => row.vanished);
+  return {
+    removed,
+    kept: record.summaries.filter((row) => !row.vanished),
+  };
+}
+
 export function main({
   today = process.env.LEDGER_TODAY || isoDate(),
   force = process.argv.includes("--force"),
+  prune = process.argv.includes("--prune"),
+  yes = process.argv.includes("--yes"),
 } = {}) {
   const repos = readSnapshot(repoFile, "repos.probe.json", REPO_KEYS);
   const summaries = readSnapshot(summaryFile, "ai-summaries.json", SUMMARY_KEYS, {
     key: "summaries",
     keys: SUMMARY_ROW_KEYS,
   });
+
+  if (prune) {
+    const { removed, kept } = pruneVanished(summaries);
+    if (removed.length === 0) {
+      console.log("prune: no vanished rows; no change");
+      return;
+    }
+    console.log(`prune would remove ${removed.length} row(s):`);
+    for (const row of removed) {
+      console.log(`  ${row.repo} (unavailable since ${row.lastSeen})`);
+    }
+    if (!yes) {
+      console.log("prune: no change; re-run with --prune --yes to remove exactly these rows");
+      return;
+    }
+    const changed = writeRecordIfChanged(summaryFile, {
+      ...summaries,
+      summaries: kept,
+    });
+    console.log(
+      `prune: removed ${removed.length} named row(s)${changed ? " -> ai-summaries.json" : "; no change"}`,
+    );
+    return;
+  }
+
   const days = ageDays(summaries.measuredAt, today);
 
   if (!shouldRefresh(summaries, { today, force })) {

@@ -15,7 +15,9 @@
       "updated": "2026-11-22",
       "draft": true,
       "pushedAt": "2026-11-22",
-      "stale": false
+      "stale": false,
+      "vanished": false,
+      "lastSeen": null
     },
     {
       "repo": "arc-installer",
@@ -31,7 +33,9 @@
       "updated": "2026-11-22",
       "draft": true,
       "pushedAt": "2026-11-22",
-      "stale": false
+      "stale": false,
+      "vanished": false,
+      "lastSeen": null
     },
     {
       "repo": "bytefry",
@@ -47,7 +51,9 @@
       "updated": "2026-11-22",
       "draft": true,
       "pushedAt": "2026-11-22",
-      "stale": false
+      "stale": false,
+      "vanished": false,
+      "lastSeen": null
     },
     {
       "repo": "gladius",
@@ -63,7 +69,9 @@
       "updated": "2026-11-22",
       "draft": true,
       "pushedAt": "2026-11-22",
-      "stale": false
+      "stale": false,
+      "vanished": false,
+      "lastSeen": null
     },
     {
       "repo": "hand",
@@ -79,7 +87,9 @@
       "updated": "2026-11-22",
       "draft": true,
       "pushedAt": "2026-11-22",
-      "stale": false
+      "stale": false,
+      "vanished": false,
+      "lastSeen": null
     },
     {
       "repo": "my-chromium-extensions",
@@ -95,7 +105,9 @@
       "updated": "2026-11-22",
       "draft": true,
       "pushedAt": "2026-11-22",
-      "stale": false
+      "stale": false,
+      "vanished": false,
+      "lastSeen": null
     },
     {
       "repo": "nathwn12",
@@ -111,7 +123,9 @@
       "updated": "2026-11-22",
       "draft": true,
       "pushedAt": "2026-11-22",
-      "stale": false
+      "stale": false,
+      "vanished": false,
+      "lastSeen": null
     },
     {
       "repo": "nathwn12.github.io",
@@ -127,7 +141,9 @@
       "updated": "2026-11-22",
       "draft": true,
       "pushedAt": "2026-11-22",
-      "stale": false
+      "stale": false,
+      "vanished": false,
+      "lastSeen": null
     },
     {
       "repo": "oc-collections",
@@ -143,7 +159,9 @@
       "updated": "2026-11-22",
       "draft": true,
       "pushedAt": "2026-11-22",
-      "stale": false
+      "stale": false,
+      "vanished": false,
+      "lastSeen": null
     },
     {
       "repo": "oc-templates",
@@ -159,7 +177,9 @@
       "updated": "2026-11-22",
       "draft": true,
       "pushedAt": "2026-11-22",
-      "stale": false
+      "stale": false,
+      "vanished": false,
+      "lastSeen": null
     },
     {
       "repo": "pear-slowed-reverb",
@@ -175,7 +195,9 @@
       "updated": "2026-11-22",
       "draft": true,
       "pushedAt": "2026-11-22",
-      "stale": false
+      "stale": false,
+      "vanished": false,
+      "lastSeen": null
     },
     {
       "repo": "potflix",
@@ -191,7 +213,9 @@
       "updated": "2026-11-22",
       "draft": true,
       "pushedAt": "2026-11-22",
-      "stale": false
+      "stale": false,
+      "vanished": false,
+      "lastSeen": null
     },
     {
       "repo": "puppet",
@@ -207,7 +231,9 @@
       "updated": "2026-11-22",
       "draft": true,
       "pushedAt": "2026-11-22",
-      "stale": false
+      "stale": false,
+      "vanished": false,
+      "lastSeen": null
     },
     {
       "repo": "slowburn",
@@ -223,7 +249,9 @@
       "updated": "2026-11-22",
       "draft": true,
       "pushedAt": "2026-11-22",
-      "stale": false
+      "stale": false,
+      "vanished": false,
+      "lastSeen": null
     },
     {
       "repo": "spotify-playlist-to-youtube",
@@ -239,7 +267,9 @@
       "updated": "2026-11-22",
       "draft": true,
       "pushedAt": "2026-11-22",
-      "stale": false
+      "stale": false,
+      "vanished": false,
+      "lastSeen": null
     },
     {
       "repo": "vencord-bootstrap",
@@ -255,7 +285,9 @@
       "updated": "2026-11-22",
       "draft": true,
       "pushedAt": "2026-11-22",
-      "stale": false
+      "stale": false,
+      "vanished": false,
+      "lastSeen": null
     }
   ]
 }

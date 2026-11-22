@@ -80,6 +80,10 @@ export interface ShowcaseRow {
   seed: boolean;
   /** The summary's `updated` date precedes the repo's last push. */
   stale: boolean;
+  /** The repo 404'd or left the account; its last summary is kept. */
+  vanished: boolean;
+  /** First date the repo was missed, kept until it returns. */
+  lastSeen: string | null;
 }
 
 /** One npm name per published package; collections sum their members. Used
@@ -119,6 +123,7 @@ const rows: ShowcaseRow[] = projects.map((project, index) => {
   const tokens = [
     summary?.draft ? "seed" : null,
     summary?.stale ? "stale" : null,
+    summary?.vanished ? `unavailable since ${summary.lastSeen}` : null,
   ].filter(Boolean);
   return {
     num: String(index + 1).padStart(2, "0"),
@@ -135,6 +140,8 @@ const rows: ShowcaseRow[] = projects.map((project, index) => {
     seeded: Boolean(summary),
     seed: summary?.draft ?? false,
     stale: summary?.stale ?? false,
+    vanished: summary?.vanished ?? false,
+    lastSeen: summary?.lastSeen ?? null,
   };
 });
 
@@ -157,6 +164,8 @@ const harnessRow: ShowcaseRow = {
   seeded: false,
   seed: false,
   stale: false,
+  vanished: false,
+  lastSeen: null,
 };
 
 const allRows: ShowcaseRow[] = [...rows, harnessRow];
