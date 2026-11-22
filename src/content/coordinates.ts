@@ -40,11 +40,13 @@ export const coordinates: Record<CoordinateKey, Coordinate> = {
     marginLong: `${employer.shortName} · ${spineDate(tenureSpan)}`,
   },
   oss: {
-    value: `${featuredRows.length + indexRows.length} REPOS`,
-    date,
+    // The account's public count, not the curated rows. The shelf shows fewer;
+    // the margin names the gap so the list is never implied to be complete.
+    value: `${signal.publicRepos} REPOS`,
+    date: signal.repoMeasuredAt,
     // Display-only: non-breaking hyphens keep the snapshot date whole in the
     // narrow margin. The underlying coordinate `date` stays the raw ISO value.
-    margin: `measured ${date.replace(/-/g, "\u2011")} · npm weekly cron`,
+    margin: `measured ${signal.repoMeasuredAt.replace(/-/g, "\u2011")} · ${signal.publicRepos} public, ${featuredRows.length + indexRows.length} shown · npm weekly cron`,
     cron: "0 6 * * 1",
   },
   method: {

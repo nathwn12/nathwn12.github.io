@@ -8,6 +8,11 @@
  *   node scripts/probe-repos.mjs            measure, write src/content/repos.probe.json
  *   node scripts/probe-repos.mjs --check    assert the record and the content still agree
  *
+ * The record also carries `publicRepos`: the account's own count from
+ * `gh api users/nathwn12 --jq .public_repos`. That is the figure the ledger's
+ * Open Source coordinate prints. `repos.length` is the measured list used for
+ * coverage and must never stand in for the account count.
+ *
  * `--check` fails when the live account has moved since the record (a repo
  * appeared, left public, or changed language or description), when a recorded
  * repository is missing from the content file, or when the content file still
@@ -89,11 +94,19 @@ function measure() {
     };
   });
 
+  const rawCount = gh(["api", "users/nathwn12", "--jq", ".public_repos"]).trim();
+  const publicRepos = Number(rawCount);
+  if (!Number.isInteger(publicRepos) || publicRepos < 0) {
+    throw new Error(`probe-repos: invalid public_repos from the account: ${JSON.stringify(rawCount)}`);
+  }
+
   const measuredAt = new Date().toISOString().slice(0, 10);
   return {
     measuredAt,
     command:
       "gh repo list nathwn12 --limit 200 --json " + FIELDS.join(","),
+    accountCommand: "gh api users/nathwn12 --jq .public_repos",
+    publicRepos,
     repos,
   };
 }
@@ -126,7 +139,16 @@ function check() {
   const problems = [];
   const record = JSON.parse(readFileSync(OUT, "utf8"));
 
+  if (!Number.isInteger(record.publicRepos) || record.publicRepos < 0) {
+    console.error("probe check failed: the record has no valid publicRepos field");
+    process.exitCode = 1;
+    return;
+  }
+
   const live = measure();
+  if (record.publicRepos !== live.publicRepos) {
+    problems.push(`publicRepos ${record.publicRepos} -> ${live.publicRepos} on the account`);
+  }
   const drift = diff("record", "live", record.repos.map((r) => r.name), live.repos.map((r) => r.name));
   for (const name of drift.onlyB) problems.push(`public now, missing from the record: ${name}`);
   for (const name of drift.onlyA) problems.push(`in the record, no longer public: ${name}`);
@@ -157,7 +179,7 @@ function check() {
     return;
   }
   console.log(
-    `probe check ok: ${record.repos.length} public repositories, measured ${record.measuredAt}, all covered by projects.ts (${omitted.length} declared omission${omitted.length === 1 ? "" : "s"})`,
+    `probe check ok: account reports ${record.publicRepos} public, ${record.repos.length} measured, ${record.measuredAt}, all covered by projects.ts (${omitted.length} declared omission${omitted.length === 1 ? "" : "s"})`,
   );
 }
 
@@ -172,7 +194,7 @@ if (isMain) {
     const record = measure();
     writeFileSync(OUT, JSON.stringify(record, null, 2) + "\n", "utf8");
     console.log(
-      `measured ${record.repos.length} public repositories on ${record.measuredAt} -> src/content/repos.probe.json`,
+      `measured ${record.publicRepos} public repositories (${record.repos.length} listed) on ${record.measuredAt} -> src/content/repos.probe.json`,
     );
   }
 }

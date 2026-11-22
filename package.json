@@ -10,6 +10,7 @@
   },
   "scripts": {
     "dev": "vite",
+    "prebuild": "node scripts/refresh-repos.mjs",
     "build": "vite build && node scripts/prerender-home.mjs && node scripts/prerender-routes.mjs",
     "typecheck": "tsc -b",
     "test": "bun run build && vitest run",
@@ -17,6 +18,7 @@
     "check:refresh": "bun run typecheck && vitest run tests/npm-downloads.test.ts tests/open-source-stats.test.ts",
     "preview": "vite preview",
     "preview:live": "node scripts/preview.mjs",
+    "refresh:stats": "node scripts/refresh-repos.mjs",
     "probe:repos": "node scripts/probe-repos.mjs --check"
   },
   "dependencies": {

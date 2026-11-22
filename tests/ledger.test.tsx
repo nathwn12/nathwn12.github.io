@@ -14,7 +14,9 @@ import { experience, spineDate } from "../src/content/experience";
 import { projects } from "../src/content/projects";
 import { signal, specLines } from "../src/content/signal";
 import { featuredRows, indexRows, workShelfIntro } from "../src/content/showcase";
+import probe from "../src/content/repos.probe.json";
 import { CONTACT_EMAIL } from "../src/lib/contact";
+import { publicRepoCount } from "../src/lib/repo-probe";
 import { coldRead, coordinates } from "../src/content/coordinates";
 
 const root = resolve(import.meta.dirname, "..");
@@ -475,7 +477,7 @@ describe("the 12-column field law", () => {
 describe("the coordinate and margin lines", () => {
   const stamps = [
     ["work", "01", "Work", `${experience.length} ENGAGEMENTS`],
-    ["oss", "02", "Open Source", `${featuredRows.length + indexRows.length} REPOS`],
+    ["oss", "02", "Open Source", `${probe.publicRepos} REPOS`],
     ["method", "03", "Approach", `${specLines.length} STEPS`],
     ["contact", "04", "Contact", "OPEN"],
   ] as const;
@@ -491,12 +493,29 @@ describe("the coordinate and margin lines", () => {
         section.indexOf("<h2"),
       );
       expect(head.replace(/<[^>]+>/g, "")).toBe(
-        `${num} / ${label.toUpperCase()} / ${value} / ${signal.snapshotDate}`,
+        `${num} / ${label.toUpperCase()} / ${value} / ${coordinates[id].date}`,
       );
       expect(coordinates[id].value).toBe(value);
-      expect(coordinates[id].date).toBe(signal.snapshotDate);
+      expect(coordinates[id].date).toBe(
+        id === "oss" ? probe.measuredAt : signal.snapshotDate,
+      );
     }
     expect(html).not.toContain('class="ch-index"');
+  });
+
+  test("the Open Source coordinate is the account's public repo count", () => {
+    expect(publicRepoCount(probe)).toBe(probe.publicRepos);
+    expect(coordinates.oss.value).toBe(`${probe.publicRepos} REPOS`);
+    expect(coordinates.oss.date).toBe(probe.measuredAt);
+  });
+
+  test("a missing probe field fails instead of rendering a guess", () => {
+    expect(() => publicRepoCount({ measuredAt: probe.measuredAt, repos: probe.repos })).toThrow(
+      /publicRepos is missing or invalid/,
+    );
+    expect(() => publicRepoCount({ ...probe, publicRepos: -1 })).toThrow(
+      /publicRepos is missing or invalid/,
+    );
   });
 
   test("the coordinate role is mono data, uppercase, with a signal NN", () => {
@@ -1135,11 +1154,15 @@ describe("the lead's pixel-pass residuals", () => {
     expect(css).toMatch(/@media \(min-width: 2200px\)[\s\S]*?\.pc \.band > div > span \{[^}]*white-space:\s*nowrap/);
   });
 
-  test("the Open Source margin keeps the ISO date whole without changing the snapshot", () => {
-    expect(coordinates.oss.date).toBe(signal.snapshotDate);
-    expect(coordinates.oss.margin).toContain("measured 2026\u201111\u201119");
-    expect(coordinates.oss.margin).not.toContain("2026-11-19");
-    // The coordinate line and the bake-date stamp still print the raw value.
+  test("the Open Source margin keeps the measured date whole and names the coverage gap", () => {
+    expect(coordinates.oss.date).toBe(probe.measuredAt);
+    expect(coordinates.oss.margin).toContain(`measured ${probe.measuredAt.replace(/-/g, "\u2011")}`);
+    expect(coordinates.oss.margin).not.toContain(probe.measuredAt);
+    expect(coordinates.oss.margin).toContain(
+      `${probe.publicRepos} public, ${featuredRows.length + indexRows.length} shown`,
+    );
+    // The coordinate line and the bake-date stamp still print the raw values.
+    expect(html).toContain(probe.measuredAt);
     expect(html).toContain(signal.snapshotDate);
   });
 

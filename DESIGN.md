@@ -137,18 +137,22 @@ aside 2 / band 4 is the geometry that holds. No content sits outside the field.
 ### Coordinate line and margin note
 
 One mono data line at measure left, above each title, exactly
-`NN / LABEL / VALUE / DATE`: Work 3 ENGAGEMENTS; Open Source 14 REPOS; Approach
-5 STEPS; Contact OPEN. Every value is derived in `src/content/coordinates.ts`
-from committed content; the date is the committed snapshot date (2026-11-19),
-not a fresh date. The `NN` lights signal on the active chapter. One margin note
-maximum per chapter, at aside beside the head and folding below the body at
-≤1100. The Open Source note names the committed cron `0 6 * * 1` from
-`.github/workflows/open-source-stats.yml`, which qualifies the npm evidence in
-that chapter.
+`NN / LABEL / VALUE / DATE`: Work 3 ENGAGEMENTS; Open Source the account's own
+public repo count from `repos.probe.json` (`16 REPOS` today, never the curated
+row count); Approach 5 STEPS; Contact OPEN. Every value is derived in
+`src/content/coordinates.ts` from committed data; its date is that value's
+measured date — the npm snapshot (2026-11-19) for three chapters, the repo
+probe date for Open Source — never a fresh date. The `NN` lights signal on the
+active chapter. One margin note maximum per chapter, at aside beside the head
+and folding below the body at ≤1100. The Open Source note names the committed
+cron `0 6 * * 1` from `.github/workflows/open-source-stats.yml` and the curated
+coverage gap (`<public> public, <rows> shown`), so the short shelf is never
+read as the whole account.
 
 Deviation recorded: the all-time npm figure stays as evidence in Open Source's
 figure band while the coordinate counts repositories; it is no longer a chapter
-of its own. Dates derive from snapshots; all four chapters share one date. The
+of its own. Dates derive from each value's own snapshot; the four chapters no
+longer share one date. The
 Contact margin note is `contactBlock.nextStep`, printed once. Approach is
 intentionally bare: its facts line below the prose already carries what a
 margin note would repeat.

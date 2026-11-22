@@ -10,6 +10,7 @@ import {
   monthFigure,
 } from "../lib/open-source-stats";
 import type { NpmDownloadSnapshot } from "../lib/npm-downloads";
+import { publicRepoCount } from "../lib/repo-probe";
 
 /**
  * The signal cluster reads only committed snapshots. Nothing here is fetched,
@@ -63,6 +64,10 @@ const milestones = [
 
 export const signal = {
   snapshotDate: downloads.snapshotDate,
+  /** The account's own repo count and the real date it was measured. The
+   *  curated rows below are a selection, not this figure. */
+  publicRepos: publicRepoCount(probe),
+  repoMeasuredAt: probe.measuredAt,
   stamp: `npm measured ${through} · GitHub annual through ${githubThrough}`,
   allTime: downloads.total,
   month,

@@ -1,6 +1,8 @@
 {
-  "measuredAt": "2026-11-18",
+  "measuredAt": "2026-11-22",
   "command": "gh repo list nathwn12 --limit 200 --json name,isFork,isArchived,visibility,primaryLanguage,createdAt,pushedAt,description",
+  "accountCommand": "gh api users/nathwn12 --jq .public_repos",
+  "publicRepos": 16,
   "repos": [
     {
       "name": "aimp-discord-presence",
@@ -10,8 +12,8 @@
       "parent": "Exle/aimp-discord-presence",
       "primaryLanguage": "C++",
       "createdAt": "2026-10-01",
-      "pushedAt": "2026-11-17",
-      "description": "Fork of Exle's AIMP plugin that shows what is playing as a Discord Rich Presence — C++."
+      "pushedAt": "2026-11-20",
+      "description": "Show what AIMP is playing as a Discord Rich Presence with artist, track and album art."
     },
     {
       "name": "arc-installer",
@@ -21,8 +23,8 @@
       "parent": null,
       "primaryLanguage": "PowerShell",
       "createdAt": "2026-10-14",
-      "pushedAt": "2026-11-17",
-      "description": "Install, repair, and revert the ARC icon theme on Windows — C# and PowerShell."
+      "pushedAt": "2026-11-20",
+      "description": "Install, remove, and repair the ARC icon theme on Windows 10 and 11."
     },
     {
       "name": "bytefry",
@@ -32,8 +34,8 @@
       "parent": null,
       "primaryLanguage": "C#",
       "createdAt": "2026-11-16",
-      "pushedAt": "2026-11-18",
-      "description": "Deep-fry images locally on Windows."
+      "pushedAt": "2026-11-20",
+      "description": "Deep-fry images locally on Windows with repeat JPEG crush, a bulge and five filters."
     },
     {
       "name": "gladius",
@@ -43,8 +45,8 @@
       "parent": null,
       "primaryLanguage": "Rust",
       "createdAt": "2026-10-11",
-      "pushedAt": "2026-11-18",
-      "description": "Drive headless Chrome over CDP from any MCP client — Rust."
+      "pushedAt": "2026-11-21",
+      "description": "Give your AI agent a real headless browser to test, screenshot, and check layout."
     },
     {
       "name": "hand",
@@ -54,8 +56,8 @@
       "parent": null,
       "primaryLanguage": "Rust",
       "createdAt": "2026-11-17",
-      "pushedAt": "2026-11-18",
-      "description": "One MCP server for the headless browser and the Windows desktop - the Gladius and Puppet engines in one Rust binary over MCP stdio."
+      "pushedAt": "2026-11-21",
+      "description": "Browser automation and Windows computer use in one MCP server: headless Chrome over CDP, native UI via UIA. Click, type, screenshot, test extensions - one Rust binary, no pointer steal."
     },
     {
       "name": "my-chromium-extensions",
@@ -65,8 +67,8 @@
       "parent": null,
       "primaryLanguage": "JavaScript",
       "createdAt": "2026-11-02",
-      "pushedAt": "2026-11-18",
-      "description": "Normalize per-site loudness, slow playback with reverb, and report Crunchyroll presence — JavaScript."
+      "pushedAt": "2026-11-20",
+      "description": "Normalize per-site loudness, slow playback with reverb, and report Crunchyroll and YouTube Music presence."
     },
     {
       "name": "nathwn12",
@@ -76,7 +78,7 @@
       "parent": null,
       "primaryLanguage": "JavaScript",
       "createdAt": "2026-10-02",
-      "pushedAt": "2026-11-18",
+      "pushedAt": "2026-11-21",
       "description": "Profile README. The work lives in the repos linked below."
     },
     {
@@ -87,7 +89,7 @@
       "parent": null,
       "primaryLanguage": "TypeScript",
       "createdAt": "2026-04-05",
-      "pushedAt": "2026-11-18",
+      "pushedAt": "2026-11-21",
       "description": "Explore the portfolio and resume in a terminal-themed single page — TypeScript."
     },
     {
@@ -98,8 +100,8 @@
       "parent": null,
       "primaryLanguage": "Rust",
       "createdAt": "2026-10-08",
-      "pushedAt": "2026-11-18",
-      "description": "Install OpenCode plugins, MCP servers, and tooling one package at a time — TypeScript."
+      "pushedAt": "2026-11-22",
+      "description": "Install OpenCode plugins, MCP servers and CLIs one package at a time"
     },
     {
       "name": "oc-templates",
@@ -109,8 +111,8 @@
       "parent": null,
       "primaryLanguage": "JavaScript",
       "createdAt": "2026-10-30",
-      "pushedAt": "2026-11-17",
-      "description": "Scaffold an OpenCode v2 plugin with a dependency-free stdio MCP server — TypeScript."
+      "pushedAt": "2026-11-20",
+      "description": "Scaffold an OpenCode v2 plugin with a dependency-free stdio MCP server."
     },
     {
       "name": "pear-slowed-reverb",
@@ -120,8 +122,8 @@
       "parent": "pear-devs/pear-desktop",
       "primaryLanguage": "TypeScript",
       "createdAt": "2026-09-04",
-      "pushedAt": "2026-11-18",
-      "description": "Fork of pear-desktop adding slowed + reverb playback and player plugins — TypeScript."
+      "pushedAt": "2026-11-20",
+      "description": "Play YouTube Music on Windows with a maintained Pear Desktop fork that ships its own builds."
     },
     {
       "name": "potflix",
@@ -131,8 +133,8 @@
       "parent": null,
       "primaryLanguage": "Rust",
       "createdAt": "2026-10-04",
-      "pushedAt": "2026-11-18",
-      "description": "Mirror whatever plays in PotPlayer on your Discord card — Rust."
+      "pushedAt": "2026-11-20",
+      "description": "Show what PotPlayer is playing on your Discord profile with matched artwork and episode details."
     },
     {
       "name": "puppet",
@@ -142,8 +144,8 @@
       "parent": null,
       "primaryLanguage": "Rust",
       "createdAt": "2026-10-11",
-      "pushedAt": "2026-11-18",
-      "description": "Control the Windows desktop from any MCP client: screenshot, window, input, cursor — Rust."
+      "pushedAt": "2026-11-21",
+      "description": "Drive Windows apps without stealing focus or moving the pointer: screenshot, windows, input and cursor over MCP."
     },
     {
       "name": "slowburn",
@@ -153,8 +155,8 @@
       "parent": null,
       "primaryLanguage": "TypeScript",
       "createdAt": "2026-10-05",
-      "pushedAt": "2026-11-18",
-      "description": "Windows media player with slowed reverb and an A-B loop — TypeScript."
+      "pushedAt": "2026-11-20",
+      "description": "Slow tracks, add reverb, and save an A-B loop per song on Windows."
     },
     {
       "name": "spotify-playlist-to-youtube",
@@ -164,7 +166,7 @@
       "parent": null,
       "primaryLanguage": "Python",
       "createdAt": "2026-11-11",
-      "pushedAt": "2026-11-17",
+      "pushedAt": "2026-11-20",
       "description": "Copy a public Spotify playlist into YouTube Music without an API key."
     },
     {
@@ -175,8 +177,8 @@
       "parent": "Vencord/Installer",
       "primaryLanguage": "PowerShell",
       "createdAt": "2026-09-26",
-      "pushedAt": "2026-11-17",
-      "description": "Install and repair Vencord from the official upstream release in one PowerShell line — fork of Vencord/Installer."
+      "pushedAt": "2026-11-20",
+      "description": "Install and repair Vencord from the official upstream release with one PowerShell line."
     }
   ]
 }

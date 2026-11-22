@@ -9,8 +9,8 @@ import { ProjectSchema } from "../types/models";
  * the schema projection below — no route paints a per-project hue.
  *
  * The list is a measurement, not a memory. It was written from
- * `src/content/repos.probe.json`, measured on 2026-11-18 by
- * `node scripts/probe-repos.mjs`, which reads the live account:
+ * `src/content/repos.probe.json`, measured by
+ * `node scripts/probe-repos.mjs` at build time, which reads the live account:
  * `gh repo list nathwn12 --limit 200` filtered to public and non-archived.
  * Sixteen repositories are public; thirteen are listed as case studies, the
  * profile README and this site are metadata entries, and one public fork is
