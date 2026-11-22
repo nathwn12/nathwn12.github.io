@@ -26,6 +26,11 @@ export const employer = {
   period: "March 2023 to May 2026",
 };
 
+/** Owner-signed shape of the team behind the role. The Work lede takes its
+    count word and the facts row its figure from this line; neither is retyped. */
+export const teamLine =
+  "Team of ten: 3 frontend, 3 backend, 1 lead, 1 project manager, 1 business analyst, 2 QA.";
+
 /** Past-tense framing for the delivered record. Xentra is historical — the role
     ended in May 2026 — so every surface states it as former employment and none
     may read as a current role or partnership. */

@@ -9,8 +9,8 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
 import LedgerPage from "../src/components/LedgerPage";
-import { aiPractice, consequenceHeadline, consequenceLede, contactBlock, displayName, figures, heroRoleLine, name, proofRows, spineStamp, statusLine, systemArea, workBand } from "../src/content/ledger";
-import { experience, spineDate } from "../src/content/experience";
+import { aiPractice, consequenceHeadline, consequenceLede, contactBlock, displayName, figures, heroRoleLine, name, proofRows, spineStamp, statusLine, systemArea, workBand, workFacts } from "../src/content/ledger";
+import { experience, formerRoleLine, spineDate, teamLine } from "../src/content/experience";
 import { projects } from "../src/content/projects";
 import { signal, specLines } from "../src/content/signal";
 import { featuredRows, indexRows, workShelfIntro } from "../src/content/showcase";
@@ -648,13 +648,28 @@ describe("the Work consequence", () => {
     expect(work.indexOf('class="consequence-lede"')).toBeLessThan(
       work.indexOf('class="band"'),
     );
-    for (const system of [
-      "payment and cash-management services",
-      "ASP.NET Core", "SQL", "Redis", "AWS",
+    for (const part of [
+      formerRoleLine,
+      "payments, cash management, and access control",
+      "a team of ten",
+      "C#/.NET", "EF Core", "Dapper", "Redis",
     ]) {
-      expect(consequenceLede.toLowerCase()).toContain(system.toLowerCase());
+      expect(consequenceLede).toContain(part);
     }
+    expect(teamLine).toContain("Team of ten");
     expect(consequenceLede.endsWith(".")).toBe(true);
+    // The facts row follows the Approach pattern, with all three values read
+    // from committed strings — none of them typed into the component.
+    expect(workFacts).toEqual(["team 10", "tenure 3 yrs 2 mos", "systems 3"]);
+    expect(work).toContain(`<div class="facts">${workFacts.join(" · ")}</div>`);
+    expect(work.indexOf('class="spine"')).toBeLessThan(
+      work.indexOf('class="facts"'),
+    );
+    // The internship keeps its text and date but no longer stands as a peer row.
+    expect(work.match(/<div class="node" data-closing="true">/g) ?? []).toHaveLength(1);
+    expect(work).toContain("MAR 2023 – JUN 2023");
+    expect(work).toContain("Scoped ASP.NET Core and MySQL fixes");
+    expect(read("src/styles/ledger.css")).toMatch(/\.pc \.node\[data-closing\]/);
   });
 
   test("the hero role names the work and keeps the status line", () => {

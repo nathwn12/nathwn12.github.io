@@ -3,6 +3,7 @@ import {
   experience,
   formerRoleLine,
   provenance,
+  teamLine,
 } from "./experience";
 import { projects } from "./projects";
 import { repos } from "./skills";
@@ -83,6 +84,26 @@ export function ledgerFigures(text: string): {
   return { commits, repositories, scanned };
 }
 
+const COUNT_WORDS = [
+  "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
+  "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+  "sixteen", "seventeen", "eighteen", "nineteen", "twenty",
+];
+
+export function teamWord(text: string): string | null {
+  return text.match(/\bTeam of ([a-z]+)\b/i)?.[1]?.toLowerCase() ?? null;
+}
+
+/** "Team of ten: ..." → "10", read off the stated size, not the role breakdown.
+    The breakdown in the approved line sums to 11; the signed size is ten, so
+    the one word after "Team of" owns the figure. */
+export function teamSize(text: string): string | null {
+  const word = teamWord(text);
+  if (!word) return null;
+  const size = COUNT_WORDS.indexOf(word);
+  return size > 0 ? String(size) : null;
+}
+
 /** The payments delivery's before/after, read out of its own description. */
 export function queryTimes(description: string): {
   before: string | null;
@@ -134,6 +155,22 @@ export const displayName = `${legalParts[0] ?? ""} ${legalParts[legalParts.lengt
     read as identity first and capability second — it names the company once. */
 export const standfirst =
   "At Xentra Infotech Solutions, I spent three years building C#/.NET services for payments, cash management, and access control. I still build every day: solo public projects, frontend apps, and practical tools for AI-assisted development.";
+
+/** The system areas are named by the standfirst's own list; their count is read
+    off that list, never typed as a separate figure. */
+const systemCount = (() => {
+  const areas = standfirst.match(/payments|cash management|access control/g) ?? [];
+  return areas.length > 0 ? String(areas.length) : null;
+})();
+
+/** Work's facts row. Every value is derived above from a committed string:
+    the team line, the one period, and the standfirst's system list. */
+const teamCount = teamSize(teamLine);
+export const workFacts = [
+  teamCount ? `team ${teamCount}` : null,
+  figures.tenure ? `tenure ${figures.tenure}` : null,
+  systemCount ? `systems ${systemCount}` : null,
+].filter((fact): fact is string => Boolean(fact));
 
 export const locatedIn = "Philippines";
 
@@ -270,22 +307,26 @@ export const consequenceHeadline = (() => {
   return `${times.before.replace(/\s+s$/, "")} seconds → ${times.after.replace(/\bone\b/, "1")}`;
 })();
 
-/** One lede sentence, assembled only from the record's own strings: the system
-    area above, then the four systems as named in the payments entries. No claim
-    is added; a missing token drops the sentence rather than being filled in. */
+/** The Work lede: one sentence holding the former employer, the three system
+    areas, the team and the stack. Every token is checked against the record's
+    own strings; a missing one drops the sentence rather than filling a guess. */
 export const consequenceLede = (() => {
-  const newest = experience[0];
-  const cash = cashEntry;
-  if (!newest || !cash || !systemArea) return "";
-  const systems = [
-    cash.tech.find((token) => token === "ASP.NET Core"),
-    cash.tech.find((token) => token === "SQL"),
-    cash.description.match(/\bRedis\b/)?.[0],
-    newest.tech.find((token) => token === "AWS"),
-  ].filter((token): token is string => Boolean(token));
-  if (systems.length !== 4) return "";
-  const area = systemArea.charAt(0).toUpperCase() + systemArea.slice(1);
-  return `${area}: ${systems.join(", ")}.`;
+  const areas =
+    standfirst.match(/payments, cash management, and access control/)?.[0];
+  const team = teamWord(teamLine);
+  if (!areas || !team) return "";
+  const tokens = ["C#/.NET", "EF Core", "Dapper", "Redis"];
+  const stack = tokens.filter((token) =>
+    standfirst.includes(token) ||
+    experience.some((entry) =>
+      `${entry.description} ${entry.outcome} ${entry.tech.join(" ")}`.includes(
+        token,
+      ),
+    ),
+  );
+  if (stack.length !== tokens.length) return "";
+  const list = `${stack.slice(0, -1).join(", ")}, and ${stack[stack.length - 1]}`;
+  return `${formerRoleLine}, I built ${areas} with a team of ${team} on ${list}.`;
 })();
 
 export interface WorkRow {
@@ -308,12 +349,6 @@ const WORK_LINES: Readonly<Record<string, string>> = {
   "oc-collections":
     "Six installable OpenCode packages plus the index, developed as one workspaces monorepo across Rust and TypeScript.",
 };
-
-const COUNT_WORDS = [
-  "zero", "one", "two", "three", "four", "five", "six", "seven", "eight",
-  "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
-  "sixteen", "seventeen", "eighteen", "nineteen", "twenty",
-];
 
 /** A small count in words, capitalised — so a numeral never heads a sentence. */
 export function countWord(n: number): string {
@@ -370,6 +405,7 @@ export const CONTACT_CTA = "Email me";
 export const homeSentences: string[] = [
   recordOpener,
   standfirst,
+  consequenceLede,
   measurement.label,
   measurement.provenance,
   workLede,

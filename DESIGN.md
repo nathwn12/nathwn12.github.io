@@ -66,6 +66,10 @@ systems from the record. The commit band — 1,182 commits · 17 repos · 21
 scanned — stays in Work beside the engagements. Every moved figure still
 derives from `src/content/`; no claim is retyped.
 
+Content law: no invented magnitude; flex with measured outcomes, team, tenure
+and scope; estimates are rounded and marked approximate; NDA-derived aggregates
+stay unnamed and unenumerated.
+
 ### Space law
 
 One 4px scale only: 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 / 96. Proximity decides

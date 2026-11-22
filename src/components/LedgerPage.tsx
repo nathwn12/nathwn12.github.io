@@ -21,6 +21,7 @@ import {
   spineStamp,
   statusLine,
   workBand,
+  workFacts,
 } from "../content/ledger";
 import { coldRead, coordinates, type CoordinateKey } from "../content/coordinates";
 import { signal, specLines } from "../content/signal";
@@ -281,21 +282,28 @@ export default function LedgerPage() {
             </>
           }
         >
-          <div className="spine">
-            {experience.map((entry) => (
-              <div className="node" key={entry.id}>
-                <span className="date">{spineDate(entry.date)}</span>
-                {spineStamp(entry.id) && (
-                  <span className="stampfig">{spineStamp(entry.id)}</span>
-                )}
-                <div className="node-body">
-                  <h3>{entry.name}</h3>
-                  <p className="out">{entry.outcome}</p>
-                  <p className="tex">{entry.texture}</p>
+          <>
+            <div className="spine">
+              {experience.map((entry) => (
+                <div
+                  className="node"
+                  key={entry.id}
+                  data-closing={entry.id === "01" ? "true" : undefined}
+                >
+                  <span className="date">{spineDate(entry.date)}</span>
+                  {spineStamp(entry.id) && (
+                    <span className="stampfig">{spineStamp(entry.id)}</span>
+                  )}
+                  <div className="node-body">
+                    <h3>{entry.name}</h3>
+                    <p className="out">{entry.outcome}</p>
+                    <p className="tex">{entry.texture}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+            <div className="facts">{workFacts.join(" · ")}</div>
+          </>
         </Cluster>
 
         <Cluster id="oss" index="02" label="Open Source" variant="wc sa" active={active}>
