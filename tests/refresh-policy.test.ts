@@ -3,7 +3,7 @@
  * Fixtures live in temp roots; no test reaches the network or the real files.
  */
 import { spawnSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterEach, describe, expect, test } from "vitest";
@@ -122,5 +122,23 @@ describe("local corruption is the only hard failure", () => {
         { key: "summaries", keys: ["repo", "one_line"] },
       ),
     ).toThrow(/summaries row missing required key one_line/);
+  });
+});
+
+describe("the weekly action", () => {
+  test("forces a refresh, opens a PR, and never pushes trunk or prunes", () => {
+    const workflow = readFileSync(
+      resolve(root, ".github", "workflows", "weekly-summaries.yml"),
+      "utf8",
+    );
+    expect(workflow).toMatch(/cron: '0 7 \* \* 1'/);
+    expect(workflow).toContain("workflow_dispatch:");
+    expect(workflow).toContain("repository_dispatch:");
+    expect(workflow).toContain("types: [repo-push]");
+    expect(workflow).toContain("bun run refresh:stats --force");
+    expect(workflow).toContain("gh pr create --base main");
+    expect(workflow).toContain("git push -u origin \"$branch\"");
+    expect(workflow).not.toContain("--prune");
+    expect(workflow).not.toContain("git push origin main");
   });
 });

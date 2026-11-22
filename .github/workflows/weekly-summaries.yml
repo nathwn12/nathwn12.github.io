@@ -1,0 +1,90 @@
+name: weekly-summaries
+
+# Weekly floor for the 16 planted ai/llms.txt summaries. The committed snapshot
+# is the render source, so a normal build never needs the network. This job is
+# the force path: it re-measures, then opens a PR for the owner. It never pushes
+# to trunk and never prunes - vanished rows stay marked for a human decision.
+
+on:
+  schedule:
+    - cron: '0 7 * * 1'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Force a refresh even when the snapshot is fresh
+        type: boolean
+        default: true
+  repository_dispatch:
+    types: [repo-push]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: weekly-summaries
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: main
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.4.4
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+
+      - run: bun install --frozen-lockfile
+
+      - name: Force a refresh of the committed snapshots
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bun run refresh:stats --force
+
+      - name: Report snapshot markers to the owner
+        id: markers
+        run: |
+          node -e '
+            const fs = require("node:fs");
+            const s = JSON.parse(fs.readFileSync("src/content/ai-summaries.json", "utf8"));
+            const gone = s.summaries.filter((row) => row.vanished);
+            const text = gone.length
+              ? gone.map((row) => "- " + row.repo + ": unavailable since " + row.lastSeen).join("\n")
+              : "- none";
+            fs.writeFileSync("marker-body.txt", text + "\n");
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, "## Snapshot markers\n\n" + text + "\n");
+          '
+
+      - name: Open a PR; never push to trunk
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if git diff --quiet -- src/content/ai-summaries.json src/content/repos.probe.json; then
+            echo "snapshots unchanged; no PR"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          branch="weekly-summaries-${{ github.run_id }}"
+          git checkout -b "$branch"
+          git add src/content/ai-summaries.json src/content/repos.probe.json
+          git commit -m "chore(content): refresh machine summaries"
+          git push -u origin "$branch"
+          {
+            echo "Weekly probe of the 16 ai/llms.txt files, measured $(node -p "require('./src/content/ai-summaries.json').measuredAt")."
+            echo ""
+            echo "Markers (vanished rows are kept, never pruned here):"
+            cat marker-body.txt
+            echo ""
+            echo "CI runs the full gate on this PR. Merge only when the markers are understood."
+          } > pr-body.txt
+          gh pr create --base main --head "$branch" \
+            --title "chore(content): refresh machine summaries" \
+            --body-file pr-body.txt
