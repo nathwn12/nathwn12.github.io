@@ -1,15 +1,11 @@
 /* Deep Field Ledger — component rules. The void shows through everywhere:
    no card, panel or plate sits behind text; hairlines are rules only. */
 
-.frame {
-  width: min(100% - (var(--gutter) * 2), var(--frame));
-  margin-inline: auto;
-}
-
-/* One field: every full-bleed strip centres the same geometry. */
+/* One fluid field: every full-bleed strip keeps the same side gutter. Chapter,
+   nav, colophon and cold-beat fields inherit this box; no max, no auto margin. */
 .field {
-  width: min(100% - (var(--gutter) * 2), var(--field));
-  margin-inline: auto;
+  width: 100%;
+  padding-inline: var(--gutter);
 }
 
 .data {
@@ -85,7 +81,7 @@ nav.spine {
     display: flex;
     flex-direction: column;
     position: fixed;
-    left: 24px;
+    left: 6vw;
     top: 50%;
     transform: translateY(-50%);
     z-index: 10;
@@ -279,15 +275,15 @@ video.horizon-media.is-playing {
   position: relative;
   z-index: 1;
   min-height: 100vh;
-  width: min(100% - (var(--gutter) * 2), var(--frame-native));
-  margin-inline: auto;
+  width: 100%;
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr auto;
   column-gap: var(--space-32);
   row-gap: var(--space-24);
   padding-block: var(--space-64) var(--space-32);
-  padding-inline-start: var(--index-rail);
+  padding-inline: var(--gutter);
+  padding-inline-start: calc(var(--gutter) + var(--index-rail));
   align-items: start;
 }
 
@@ -381,26 +377,10 @@ video.horizon-media.is-playing {
   background-color: var(--color-signal);
 }
 
-/* The gutter widens at 900px. */
-@media (max-width: 899px) {
-  :root {
-    --gutter: var(--space-16);
-  }
-}
-
-@media (min-width: 900px) {
-  :root {
-    --gutter: var(--space-32);
-  }
-}
-
-/* Native-first: 2560x1440 is the primary canvas. The frame widens to 110rem,
-   the gutter and display scale grow with it, no dead margins at the fold. */
+/* Native-first: 2560x1440 is the primary canvas. Geometry is fluid at every
+   width; these steps tune only the prose measures and the display/date scale. */
 @media (min-width: 1600px) {
   :root {
-    --frame-native: 96rem;
-    --gutter: var(--space-48);
-    --index-rail: var(--space-64);
     --measure-contact: 28ch;
     --measure-wide: 72ch;
     --text-date-margin: 0.5625rem;
@@ -409,10 +389,7 @@ video.horizon-media.is-playing {
 
 @media (min-width: 2200px) {
   :root {
-    --frame-native: 110rem;
-    --gutter: var(--space-64);
     --text-display: clamp(4rem, 8.5vw, 13rem);
-    --index-rail: var(--space-96);
     --measure-contact: 32ch;
     --measure-wide: 75ch;
     --date-gap: var(--space-16);
@@ -1273,14 +1250,11 @@ video.horizon-media.is-playing {
 
 @media (max-width: 700px) {
   :root {
-    --index-rail: 44px;
+    --index-rail: 12vw;
   }
 
-  /* The fixed spine owns the left 24px; the plate clears it. The right edge
-     stays on the field gutter, matching the chapter titles. */
-  .hero-hud {
-    padding-inline-start: var(--index-rail);
-  }
+  /* The spine sits at 6vw; the plate keeps the same gutter + rail origin as
+     the chapter field and ends on the field gutter. */
 
   /* DESIGN v2: the phone coordinate is NN / LABEL only. */
   .coord-tail {

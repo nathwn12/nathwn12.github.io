@@ -50,9 +50,9 @@
   --nav-mark: clamp(0.75rem, 0.58vw, 0.9375rem);
   --nav-pad: var(--gutter);
 
-  /* ONE content field and index rail for all five chapters. */
-  --field: var(--frame-native);
-  --index-rail: var(--space-32);
+  /* ONE fluid field and index rail for all five chapters. Both are viewport
+     derived: no fixed layout width survives. The rail clears the phone spine. */
+  --index-rail: 5vw;
   --measure-contact: 22ch;
   --measure-wide: 68ch;
   /* The Work margin stamps hang left of the body, never inside its measure. */
@@ -74,10 +74,9 @@
   --space-64: 64px;
   --space-96: 96px;
   --space-128: 128px;
-  /* Content frame: 82rem desktop, up to 110rem at native 1440p. */
-  --frame: 82rem;
-  --frame-native: 82rem;
-  --gutter: var(--space-24);
+  /* The gutter is the side pad of every field and the gap between its tracks.
+     It is viewport-derived at every width; no breakpoint step survives. */
+  --gutter: 3vw;
 
   /* Radius — none, everywhere. */
   --radius-none: 0px;

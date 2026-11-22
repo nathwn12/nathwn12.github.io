@@ -83,12 +83,16 @@ describe("one nav, five clusters in descent order", () => {
     expect(html.match(/aria-current="true"/g) ?? []).toHaveLength(2);
   });
 
-  test("the frame widens for the native 2560 composition", () => {
+  test("the field is fluid from phone to native", () => {
     const tokens = read("src/styles/tokens.css");
     const css = read("src/styles/ledger.css");
-    expect(tokens).toContain("--frame-native: 82rem");
-    expect(css).toMatch(/@media \(min-width: 2200px\)[\s\S]*?--frame-native:\s*110rem/);
-    expect(css).toContain("width: min(100% - (var(--gutter) * 2), var(--frame-native))");
+    expect(tokens).toMatch(/--gutter:\s*3vw/);
+    expect(tokens).toMatch(/--index-rail:\s*5vw/);
+    expect(tokens).not.toContain("--frame-native");
+    expect(tokens).not.toContain("--frame:");
+    expect(tokens).not.toContain("--field:");
+    expect(css).toMatch(/\.field \{[^}]*width:\s*100%[^}]*padding-inline:\s*var\(--gutter\)/);
+    expect(css).toMatch(/\.hero-hud \{[^}]*width:\s*100%[^}]*padding-inline-start:\s*calc\(var\(--gutter\) \+ var\(--index-rail\)\)/);
   });
 
   test("nav B scales from tokens and hides the ticker on phone", () => {
@@ -350,7 +354,7 @@ describe("the content survives the strip", () => {
     const css = read("src/styles/ledger.css");
     const tokens = read("src/styles/tokens.css");
     // One 12-track field inside every chapter, with subgrid children.
-    expect(css).toMatch(/\.field \{[^}]*width:\s*min\(100% - \(var\(--gutter\) \* 2\), var\(--field\)\)/);
+    expect(css).toMatch(/\.field \{[^}]*width:\s*100%[^}]*padding-inline:\s*var\(--gutter\)/);
     expect(css).toMatch(/\.chapter > \.field \{[^}]*display:\s*grid/);
     expect(css).toMatch(/\.ch-head,\s*\.v-body,\s*\.chapter-margin \{[^}]*grid-column:\s*field-start \/ field-end/);
     // One type scale: the same roles across all five variants.
@@ -371,10 +375,10 @@ describe("the content survives the strip", () => {
     expect(css).toMatch(/\.pc \.tex \{[^}]*max-width:\s*var\(--measure-wide\)/);
     // Contact uses the chapter display scale, not a lab clamp.
     expect(css).toMatch(/\.ca \.line \{[^}]*font-size:\s*var\(--text-chapter\)/);
-    // The field and rail step up at the site's existing native breakpoints.
-    expect(tokens).toMatch(/--field:\s*var\(--frame-native\)/);
+    // Geometry is fluid; the native steps tune only measure and type scale.
+    expect(tokens).toMatch(/--gutter:\s*3vw/);
     expect(tokens).toMatch(/--text-variant-value:\s*clamp\(/);
-    expect(css).toMatch(/@media \(min-width: 1600px\)[\s\S]*?--index-rail:/);
+    expect(css).toMatch(/@media \(min-width: 1600px\)[\s\S]*?--measure-wide:/);
     expect(css).toMatch(/@media \(min-width: 2200px\)[\s\S]*?--text-date-margin:/);
     // Below the measure the spec stacks on the measure line, not in the rail.
     expect(css).toMatch(/@media \(min-width: 701px\) and \(max-width: 1100px\)[\s\S]*?\.ma \.prose,[\s\S]*?grid-column:\s*measure-start \/ field-end/);
@@ -638,11 +642,11 @@ describe("the phone spine", () => {
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(/nav\.spine \{[^}]*display:\s*none/);
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*position:\s*fixed/);
-    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*left:\s*24px/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*left:\s*6vw/);
     expect(css).toMatch(/nav\.spine a \{[^}]*height:\s*44px/);
     expect(css).toMatch(/\.spine a \{[^}]*transition:\s*color var\(--motion-quick\)/);
-    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?--index-rail:\s*44px/);
-    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.hero-hud \{[^}]*padding-inline-start:\s*var\(--index-rail\)/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?--index-rail:\s*12vw/);
+    expect(css).toMatch(/\.hero-hud \{[^}]*padding-inline-start:\s*calc\(var\(--gutter\) \+ var\(--index-rail\)\)/);
     expect(css).toMatch(/\.lab-nav \.links a span\s*\{[^}]*display:\s*none/);
   });
 });
@@ -766,7 +770,7 @@ describe("the stripped floor", () => {
     expect(html).toContain('class="name-first"');
     expect(html).toContain('class="name-last"');
     const css = read("src/styles/ledger.css");
-    expect(css).toMatch(/\.hero-hud \{[^}]*padding-inline-start:\s*var\(--index-rail\)/);
+    expect(css).toMatch(/\.hero-hud \{[^}]*padding-inline-start:\s*calc\(var\(--gutter\) \+ var\(--index-rail\)\)/);
     expect(css).toMatch(/\.hud-role > p \{[^}]*margin-inline-start:\s*auto/);
     expect(css).toMatch(/@media \(min-width: 900px\)[\s\S]*?\.name-last \{[^}]*position:\s*absolute/);
   });

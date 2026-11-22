@@ -44,6 +44,28 @@ and constraints. V2 changes the structural layer: one field, one coordinate
 line per chapter, one margin note, a second hero beat, a tier ledger, a seal,
 a phone spine and one ornament. The goal remains a cold read with a margin.
 
+### Fluid geometry (supersedes the 82/96/110rem field and the 32/64/96px rail)
+
+The live law: no fixed layout sizing. Field, rail, gutter, gaps and component
+widths are fluid — vw, % or ch — so the document adapts at any viewport. This
+section outranks the fixed widths quoted in the field-law paragraphs below;
+those numbers survive only as history. Identity, palette, type roles and
+constraints are unchanged.
+
+- `--gutter: 3vw` at every width. It is both a field's side pad and the gap
+  between its tracks.
+- `--index-rail: 5vw` above 700; `12vw` at <=700 to clear the phone spine,
+  which sits at `6vw`. No 1600/2200 frame, gutter or rail overrides survive.
+- `.field` is `width: 100%` with `padding-inline: var(--gutter)`, no max and no
+  auto margin. The nav, cold beat, chapters and colophon all use that one box.
+- `.hero-hud` is full width with the same gutter pad: name and status start at
+  gutter + rail, role and scroll end at viewport − gutter, and the surname is
+  still absolutely positioned off the full padding box.
+- The chapter field keeps its twelve tracks and the `rail − gutter` first step;
+  every right edge lands at viewport − gutter.
+- Prose measure caps (ch), the type clamps (rem/vw), the nav height clamp and
+  the 44px touch targets stay. They are not layout widths.
+
 ### One field, twelve tracks
 
 Every full-bleed strip — nav, hero beats, chapters, footer — centres the same
