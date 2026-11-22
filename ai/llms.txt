@@ -1,0 +1,13 @@
+---
+project: nathwn12.github.io
+one_line: Explore the portfolio and resume in a terminal-themed single page ÔÇö TypeScript.
+stack: [TypeScript]
+status: draft
+since: 2026-04
+capabilities: []
+limits: []
+updated: 2026-11-22
+draft: true
+---
+
+The portfolio and record of Nathaniel Nikolai Ladero, a C# and .NET backend developer: what shipped, and what it measurably did.
