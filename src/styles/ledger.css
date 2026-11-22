@@ -1169,9 +1169,9 @@ video.horizon-media.is-playing {
   }
 
   /* The caption must keep the band's measure, not the figure's column. Lifting
-     the pair into the band grid lets the caption span every track. The seal
-     drops a row: it is far taller than the figure, so on row 1 it covered a
-     full-width one-line caption. */
+     the pair into the band grid lets the caption span every track on row 2.
+     The seal shares row 1 with the figure, right- and top-aligned, so the band
+     is two tight rows instead of a diagonal stack. */
   .pc .band > div {
     display: contents;
   }
@@ -1191,7 +1191,7 @@ video.horizon-media.is-playing {
 
   .pc .zero-seal {
     grid-column: 2;
-    grid-row: 3;
+    grid-row: 1;
     justify-self: end;
     flex: 0 0 auto;
     min-width: 150px;
