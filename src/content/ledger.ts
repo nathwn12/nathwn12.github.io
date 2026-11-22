@@ -226,7 +226,9 @@ export const proofRows: RecordRow[] = [
 export const workBand = [
   {
     figure: figures.commits,
-    label: `commits recovered · ${figures.repositories} repos · ${figures.scanned} scanned`,
+    label: `commits · ${figures.repositories} repos · ${figures.scanned} scanned`,
+    // The longer form is shown only where it holds one line.
+    labelLong: `commits recovered · ${figures.repositories} repos · ${figures.scanned} scanned`,
   },
   {
     figure: proofRows.find((row) => row.claim.startsWith("Security"))?.figure ?? "0",

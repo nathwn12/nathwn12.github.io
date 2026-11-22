@@ -686,6 +686,13 @@ video.horizon-media.is-playing {
   color: var(--color-ink-muted);
 }
 
+/* Work's short derived note uses its full aside column as a block; the shared
+   subgrid layout put the text in one narrow track. */
+#work .chapter-margin {
+  display: block;
+  max-width: 34ch;
+}
+
 /* The measured cron is one indivisible token inside the chapter's note. */
 .cron-value {
   white-space: nowrap;
@@ -1001,6 +1008,37 @@ video.horizon-media.is-playing {
   font-size: var(--text-mono);
   letter-spacing: var(--tracking-data);
   color: var(--color-ink-muted);
+}
+
+/* The caption keeps its shortest form; the recovered form appears only where
+   the band can hold it on one line. */
+.pc .band-caption-long {
+  display: none;
+}
+
+@media (min-width: 2200px) {
+  .pc .band-caption {
+    display: none;
+  }
+
+  .pc .band-caption-long {
+    display: inline;
+  }
+}
+
+/* Between 1100 and 1600 the four-track band is too narrow for the figure and
+   the seal. Use the full measure, a tighter gap, and a seal wide enough for a
+   two-line label so nothing crosses the field edge. */
+@media (min-width: 1100px) and (max-width: 1600px) {
+  .pc .band {
+    grid-column: measure-start / field-end;
+    column-gap: var(--space-24);
+  }
+
+  .pc .zero-seal {
+    flex: 0 0 auto;
+    min-width: 150px;
+  }
 }
 
 /* At native the figure widths this div a hair under the label's own text, so
@@ -1357,6 +1395,12 @@ video.horizon-media.is-playing {
 @media (max-width: 700px) {
   :root {
     --index-rail: 12vw;
+  }
+
+  /* The fixed dock needs a reserve at the end of the document so the last
+     row of links clears its top edge and the safe-area inset. */
+  .colophon {
+    padding-block-end: calc(44px + env(safe-area-inset-bottom) + 5vh + var(--space-16));
   }
 
   /* The spine sits at 6vw; the plate keeps the same gutter + rail origin as

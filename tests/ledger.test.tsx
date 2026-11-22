@@ -747,6 +747,35 @@ describe("one-time motion", () => {
   });
 });
 
+describe("the breathing band", () => {
+  test("the desktop band gives the seal room inside the field", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/@media \(min-width: 1100px\) and \(max-width: 1600px\)[\s\S]*?\.pc \.band \{[^}]*grid-column:\s*measure-start \/ field-end/);
+    expect(css).toMatch(/@media \(min-width: 1100px\) and \(max-width: 1600px\)[\s\S]*?\.pc \.zero-seal \{[^}]*min-width:\s*150px/);
+  });
+
+  test("the caption keeps the recovered form only on the native canvas", () => {
+    const css = read("src/styles/ledger.css");
+    expect(workBand[0].label).toContain("commits · ");
+    expect(workBand[0].labelLong).toContain("commits recovered · ");
+    expect(html).toContain(`class="band-caption">${workBand[0].label}</span>`);
+    expect(html).toContain(`class="band-caption-long">${workBand[0].labelLong}</span>`);
+    expect(css).toMatch(/\.pc \.band-caption-long \{\s*display:\s*none/);
+    expect(css).toMatch(/@media \(min-width: 2200px\)[\s\S]*?\.pc \.band-caption-long \{\s*display:\s*inline/);
+  });
+
+  test("the Work margin note is the short derived range", () => {
+    expect(coordinates.work.margin).toBe("Xentra · MAR 2023 – MAY 2026");
+    expect(html).toContain("Xentra · MAR 2023 – MAY 2026");
+    expect(read("src/styles/ledger.css")).toMatch(/#work \.chapter-margin \{[^}]*display:\s*block[^}]*max-width:\s*34ch/);
+  });
+
+  test("the phone dock has an end-of-document reserve", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.colophon \{[^}]*padding-block-end:\s*calc\(44px \+ env\(safe-area-inset-bottom\) \+ 5vh \+ var\(--space-16\)\)/);
+  });
+});
+
 describe("the held navigation", () => {
   test("the masthead sticks above the chapters and anchors clear it", () => {
     const css = read("src/styles/ledger.css");

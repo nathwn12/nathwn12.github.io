@@ -254,7 +254,10 @@ export default function LedgerPage() {
           <div className="band">
             <div>
               <b>{workBand[0].figure}</b>
-              <span>{workBand[0].label}</span>
+              <span>
+                <span className="band-caption">{workBand[0].label}</span>
+                <span className="band-caption-long">{workBand[0].labelLong}</span>
+              </span>
             </div>
             <ZeroSeal figure={workBand[1].figure} label={workBand[1].label} />
           </div>

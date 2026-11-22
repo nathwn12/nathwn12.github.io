@@ -1,4 +1,4 @@
-import { employer, experience } from "./experience";
+import { employer, experience, spineDate, tenureSpan } from "./experience";
 import { availability, recordOpener } from "./hero";
 import { contactBlock, standfirst } from "./ledger";
 import { signal, specLines } from "./signal";
@@ -33,7 +33,7 @@ export const coordinates: Record<CoordinateKey, Coordinate> = {
   work: {
     value: `${experience.length} ENGAGEMENTS`,
     date,
-    margin: `${employer.shortName}, ${employer.period}`,
+    margin: `${employer.shortName} · ${spineDate(tenureSpan)}`,
   },
   oss: {
     value: `${featuredRows.length + indexRows.length} REPOS`,
