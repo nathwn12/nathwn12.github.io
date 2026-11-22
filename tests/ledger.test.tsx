@@ -236,7 +236,7 @@ describe("the content survives the strip", () => {
     expect(css).toMatch(/\.wc \.tier-a,\s*\.wc \.tier-b \{[^}]*border-block-end:\s*1px solid/);
     expect(css).not.toMatch(/\.wc \.tier-a \{[^}]*background:/);
     expect(css).not.toMatch(/\.wc \.tier-b \{[^}]*background:/);
-    expect(css).toMatch(/\.wc \.tier-a \{[^}]*min-height:\s*96px/);
+    expect(css).toMatch(/\.wc \.tier-a \{[^}]*min-height:\s*48px/);
     expect(css).toMatch(/\.wc \.tier-b \{[^}]*min-height:\s*48px/);
     expect(css).toMatch(/\.wc \.tier-b \{[^}]*display:\s*block/);
     expect(css).toMatch(/\.wc \.tier-b a \{[^}]*display:\s*inline/);
@@ -534,7 +534,7 @@ describe("the coordinate and margin lines", () => {
     expect(css).toMatch(/\.chapter-margin \{[^}]*grid-row:\s*1/);
     expect(css).toMatch(/\.chapter-margin \{[^}]*max-width:\s*22ch/);
     expect(css).toMatch(/@media \(max-width: 1100px\)[\s\S]*?\.chapter-margin \{[^}]*grid-column:\s*measure-start \/ field-end/);
-    expect(css).toMatch(/@media \(min-width: 1101px\)[\s\S]*?\.chapter-margin \{[^}]*padding-block-start:\s*var\(--space-48\)/);
+    expect(css).toMatch(/@media \(min-width: 1101px\)[\s\S]*?\.chapter-margin \{[^}]*padding-block-start:\s*var\(--space-64\)/);
     expect(css).toMatch(/@media \(max-width: 1100px\)[\s\S]*?\.chapter-margin \{[^}]*padding-block-start:\s*0/);
     expect(css).toMatch(/@media \(max-width: 1100px\)[\s\S]*?\.chapter-margin \{[^}]*display:\s*block[^}]*max-width:\s*none/);
     expect(css).toMatch(/\.chapter-margin \{[^}]*display:\s*block[^}]*grid-column:\s*measure-start \/ field-end[^}]*max-width:\s*none/);
@@ -744,6 +744,24 @@ describe("one-time motion", () => {
     // The prerendered DOM bakes `is-armed`; with scripting off the noscript
     // override keeps the About beat in the static document.
     expect(indexHtml).toContain(".cold-read.is-armed p{opacity:1!important;transform:none!important}");
+  });
+});
+
+describe("the space law", () => {
+  test("DESIGN.md declares one scale and the proximity rules", () => {
+    const design = read("DESIGN.md");
+    expect(design).toContain("### Space law");
+    expect(design).toMatch(/4 \/ 8 \/ 12 \/ 16 \/ 24 \/ 32 \/ 48 \/ 64 \/ 96/);
+    expect(design).toContain("No gap above 96px inside a chapter");
+  });
+
+  test("chapter and group spacing comes from tokens", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.ch-head \{[^}]*padding-block:\s*var\(--space-64\) var\(--space-16\)/);
+    expect(css).toMatch(/\.v-body \{[^}]*padding-block:\s*var\(--space-32\) var\(--space-48\)/);
+    expect(css).toMatch(/\.wc \.tier-a \{[^}]*min-height:\s*48px[^}]*padding-block:\s*var\(--space-12\)/);
+    expect(css).toMatch(/\.pc \.node \+ \.node \{[^}]*margin-block-start:\s*var\(--space-24\)/);
+    expect(css).toMatch(/\.ca \.mail \{[^}]*margin-block-start:\s*var\(--space-24\)/);
   });
 });
 

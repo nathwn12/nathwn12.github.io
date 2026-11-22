@@ -66,6 +66,22 @@ systems from the record. The commit band — 1,182 commits · 17 repos · 21
 scanned — stays in Work beside the engagements. Every moved figure still
 derives from `src/content/`; no claim is retyped.
 
+### Space law
+
+One 4px scale only: 4 / 8 / 12 / 16 / 24 / 32 / 48 / 64 / 96. Proximity decides
+the step: inside one group ≤16px, between groups 24–48px, between chapters
+64–96px. No gap above 96px inside a chapter, except the hero's deliberate dark
+bands. A gap must separate two real groups; a gap that separates nothing is
+removed.
+
+Applied through space tokens, never per-rule numerals: chapter top 64 and
+bottom 48; head to first body block 32; body group to group 32; engagement row
+12/16; tier rows 48 minimum with 12 padding; npm strip to ledger 48; Approach
+spec rows 12; Contact statement to email 24, with the note's 32px step where it
+folds below the body. The hero's dark bands, the 56–75ch measures, the 24px band
+gap, the ≥44px touch targets and ≥24px between distinct text blocks all stay.
+Type, chapters and copy are unchanged.
+
 ### Fluid geometry (supersedes the 82/96/110rem field and the 32/64/96px rail)
 
 The live law: no fixed layout sizing. Field, rail, gutter, gaps and component
