@@ -28,6 +28,7 @@ jobs:
         with:
           node-version: 22
       - run: bun install --frozen-lockfile
+      - run: bunx playwright install chromium
       # The committed snapshots are the only source. A scheduled job measures
       # and commits them; a deploy must never overwrite them in memory.
       - run: bun run build
