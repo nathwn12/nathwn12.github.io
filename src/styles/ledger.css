@@ -1618,8 +1618,9 @@ video.horizon-media.is-playing {
   min-height: 48px;
   padding-block: var(--space-12);
   /* Below the grid margin the three spans wrap as inline runs; a taller line
-     box keeps the wrapped ink clear of the next line's ink. */
-  line-height: 1.9;
+     box keeps the wrapped ink clear of the next line's ink. Seeded one-liners
+     are longer than the old claims, so the line box clears 12px of ink. */
+  line-height: 2;
   font-family: var(--font-data);
   font-size: var(--text-mono);
   letter-spacing: var(--tracking-data);

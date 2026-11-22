@@ -11,7 +11,7 @@
   "scripts": {
     "dev": "vite",
     "prebuild": "node scripts/refresh-repos.mjs",
-    "build": "vite build && node scripts/prerender-home.mjs && node scripts/prerender-routes.mjs",
+    "build": "vite build && node scripts/prerender-home.mjs && node scripts/prerender-routes.mjs && node scripts/prerender-llms.mjs",
     "typecheck": "tsc -b",
     "test": "bun run build && vitest run",
     "check": "bun run typecheck && bun run test",

@@ -1,5 +1,6 @@
 import { projects } from "./projects";
 import probe from "./repos.probe.json";
+import aiSummaries from "./ai-summaries.json";
 import downloads from "./npm-downloads.json";
 
 /**
@@ -73,6 +74,12 @@ export interface ShowcaseRow {
   tech: string[];
   language: string;
   lifetime: number | null;
+  /** The row speaks from the repo's own machine summary when one exists. */
+  seeded: boolean;
+  /** The summary's own `draft` flag, carried as a quiet `seed` token. */
+  seed: boolean;
+  /** The summary's `updated` date precedes the repo's last push. */
+  stale: boolean;
 }
 
 /** One npm name per published package; collections sum their members. Used
@@ -93,25 +100,41 @@ const NAMES: Readonly<Record<string, readonly string[]>> = {
 };
 
 const byRepo = new Map(probe.repos.map((repo) => [repo.name, repo]));
+const bySummary = new Map(
+  aiSummaries.summaries.map((summary) => [summary.repo, summary]),
+);
 const byPackage = new Map(downloads.packages.map((item) => [item.name, item.downloads]));
 
 const rows: ShowcaseRow[] = projects.map((project, index) => {
   const repo = byRepo.get(project.dir);
+  const summary = bySummary.get(project.dir);
   const names = NAMES[project.dir] ?? [];
   const lifetime = names.reduce(
     (sum, name) => sum + (byPackage.get(name) ?? 0),
     0,
   );
+  // Status tokens ride the claim, in the row's voice, never as decoration.
+  // A repo that calls itself a draft is marked `seed`; a summary older than
+  // the repo's last push is marked `stale`. Neither is hidden.
+  const tokens = [
+    summary?.draft ? "seed" : null,
+    summary?.stale ? "stale" : null,
+  ].filter(Boolean);
   return {
     num: String(index + 1).padStart(2, "0"),
     name: project.name,
     dir: project.dir,
     url: project.url,
-    claim: CLAIMS[project.dir] ?? project.description,
+    claim: summary
+      ? `${summary.one_line}${tokens.length > 0 ? ` · ${tokens.join(" · ")}` : ""}`
+      : (CLAIMS[project.dir] ?? project.description),
     detail: DETAILS[project.dir] ?? project.description,
     tech: project.tech.slice(0, 3),
     language: repo?.primaryLanguage ?? project.tech[0] ?? "—",
     lifetime: names.length > 0 ? lifetime : null,
+    seeded: Boolean(summary),
+    seed: summary?.draft ?? false,
+    stale: summary?.stale ?? false,
   };
 });
 
@@ -129,6 +152,11 @@ const harnessRow: ShowcaseRow = {
   tech: ["OpenCode"],
   language: "—",
   lifetime: null,
+  // The harness is the lead's own addition, not one of the 16 public repos,
+  // so it has no machine summary and keeps its authored claim.
+  seeded: false,
+  seed: false,
+  stale: false,
 };
 
 const allRows: ShowcaseRow[] = [...rows, harnessRow];
