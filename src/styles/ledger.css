@@ -88,8 +88,9 @@
 }
 
 /* The phone's only chrome: a fixed 01-04 spine. Hidden wherever the top nav
-   still has room for the numerals. On the phone it sits along the bottom edge,
-   clear of the HUD copy it used to interleave. */
+   still has room for the numerals. On the phone it is a full-width bar on the
+   bottom edge: its hairline and ground match the field, so copy closes at the
+   bar instead of showing through an island at either side. */
 nav.spine {
   display: none;
 }
@@ -98,11 +99,12 @@ nav.spine {
   nav.spine {
     display: flex;
     flex-direction: row;
+    justify-content: center;
     position: fixed;
-    left: 50%;
-    bottom: 5vh;
+    left: 0;
+    right: 0;
+    bottom: 0;
     top: auto;
-    transform: translateX(-50%);
     z-index: 10;
     padding-block-end: env(safe-area-inset-bottom);
     background-color: var(--color-ground);
@@ -881,7 +883,9 @@ video.horizon-media.is-playing {
 .sa .strip {
   grid-column: measure-start / field-end;
   display: grid;
-  grid-template-columns: repeat(10, 1fr);
+  /* Trade columns for cell width instead of shrinking text: 10 at 1440,
+     6 at 768, 2 at 390. The slash gets an explicit wrap point in the markup. */
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
   border-block-start: 1px solid var(--color-rule-strong);
   margin-block-start: var(--space-24);
 }
@@ -896,16 +900,18 @@ video.horizon-media.is-playing {
   border-inline-end: 0;
 }
 
-/* Real inline constraint: the full package name wraps inside its own cell.
-   A nowrap+ellipsis box only clips the glyphs; the laid-out ink still crossed
-   into the neighbour cell and collided with the next name at narrow measures. */
+/* Real inline constraint: the full package name wraps inside its own cell,
+   but only at its own break opportunities (slash, hyphen). A nowrap+ellipsis
+   box clips glyphs; anywhere-wrap broke tokens mid-word. Neither is allowed. */
 .sa .pname {
   font-family: var(--font-data);
   font-size: var(--text-mono);
   letter-spacing: var(--tracking-data);
   color: var(--color-ink-muted);
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
 }
 
 .sa .spark {

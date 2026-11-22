@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { Fragment, useEffect, useState, type ReactNode } from "react";
 import HorizonVideo from "./HorizonVideo";
 import ZeroSeal from "./ZeroSeal";
 import WitnessMark from "./WitnessMark";
@@ -315,7 +315,18 @@ export default function LedgerPage() {
           <div className="strip">
             {signal.packages.map((item) => (
               <div className="cell" key={item.name}>
-                <div className="pname">{item.name}</div>
+                {/* A slash is a legal wrap point, but Chrome does not break
+                    there by default. Mark it explicitly so the scoped name
+                    wraps at the slash instead of overflowing its cell. */}
+                <div className="pname">
+                  {item.name.split("/").map((part, i, parts) => (
+                    <Fragment key={i}>
+                      {i > 0 && <wbr />}
+                      {part}
+                      {i < parts.length - 1 && "/"}
+                    </Fragment>
+                  ))}
+                </div>
                 <Sparkline values={item.daily} />
                 <div className="pval">{item.month.toLocaleString("en-US")}</div>
               </div>

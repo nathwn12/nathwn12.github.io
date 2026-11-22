@@ -155,6 +155,15 @@ describe("the content survives the strip", () => {
     expect(css).toMatch(/\.sa \.heat \.heatmap \{[^}]*flex-wrap:\s*wrap/);
   });
 
+  test("the npm strip trades columns for cell width and breaks only at tokens", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.sa \.strip \{[^}]*grid-template-columns:\s*repeat\(auto-fit, minmax\(110px, 1fr\)\)/);
+    expect(css).toMatch(/\.sa \.pname \{[^}]*overflow-wrap:\s*normal/);
+    expect(css).toMatch(/\.sa \.pname \{[^}]*word-break:\s*normal/);
+    expect(css).toMatch(/\.sa \.pname \{[^}]*hyphens:\s*none/);
+    expect(css).not.toMatch(/\.sa \.pname \{[^}]*overflow-wrap:\s*anywhere/);
+  });
+
   test("the activity strip is thirty measured cells with a text alternative", () => {
     expect(html.match(/class="heat-cell"/g) ?? []).toHaveLength(30);
     expect(html).toContain("active days from");
@@ -908,7 +917,11 @@ describe("the phone spine", () => {
     expect(css).toMatch(/nav\.spine \{[^}]*display:\s*none/);
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*position:\s*fixed/);
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*flex-direction:\s*row/);
-    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*bottom:\s*5vh/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*left:\s*0/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*right:\s*0/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*bottom:\s*0/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*justify-content:\s*center/);
+    expect(css).not.toMatch(/nav\.spine \{[^}]*translateX\(-50%\)/);
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*top:\s*auto/);
     expect(css).toMatch(/nav\.spine a \{[^}]*width:\s*44px/);
     expect(css).toMatch(/nav\.spine a \{[^}]*height:\s*44px/);
