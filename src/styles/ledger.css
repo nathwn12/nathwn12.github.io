@@ -71,7 +71,8 @@
 }
 
 /* The phone's only chrome: a fixed 01-05 spine. Hidden wherever the top nav
-   still has room for the numerals. */
+   still has room for the numerals. On the phone it sits along the bottom edge,
+   clear of the HUD copy it used to interleave. */
 nav.spine {
   display: none;
 }
@@ -79,17 +80,19 @@ nav.spine {
 @media (max-width: 700px) {
   nav.spine {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     position: fixed;
-    left: 6vw;
-    top: 50%;
-    transform: translateY(-50%);
+    left: 50%;
+    bottom: 5vh;
+    top: auto;
+    transform: translateX(-50%);
     z-index: 10;
   }
 
   nav.spine a {
     display: grid;
     place-items: center;
+    width: 44px;
     height: 44px;
     font-family: var(--font-data);
     font-size: 0.6875rem;
@@ -432,6 +435,17 @@ video.horizon-media.is-playing {
     text-align: left;
   }
 
+  /* The role copy stays left-aligned and stacked, but its block runs to the
+     field right like every other band instead of stopping at its last word. */
+  .hud-role {
+    justify-self: stretch;
+  }
+
+  .hud-role > p {
+    margin-inline-start: 0;
+    max-width: none;
+  }
+
   /* Phone nav: the strip keeps one hairline; the ticker yields entirely. */
   .lab-nav .field {
     gap: 12px;
@@ -629,6 +643,13 @@ video.horizon-media.is-playing {
 
 .ch-num.is-active {
   color: var(--color-signal);
+}
+
+/* Every coordinate part is an indivisible token: the date must never break at
+   a hyphen, and the value must not strand part of a figure on the next line. */
+.coord-value,
+.coord-date {
+  white-space: nowrap;
 }
 
 /* The one qualifying note, beside the head on wide screens. */
@@ -1112,6 +1133,22 @@ video.horizon-media.is-playing {
 
   .pc .tex {
     max-width: none;
+  }
+
+  /* Four tracks cannot hold the figure and the seal at tablet widths. Give
+     the pair the full measure span, let both shrink, and drop the figure a
+     step so the seal stays inside the field. */
+  .pc .band {
+    grid-column: measure-start / field-end;
+  }
+
+  .pc .band > * {
+    min-width: 0;
+  }
+
+  .pc .band b,
+  .zero-seal .seal-zero {
+    font-size: clamp(2.5rem, 5vw, 5rem);
   }
 }
 

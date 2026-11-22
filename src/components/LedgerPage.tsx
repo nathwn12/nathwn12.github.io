@@ -73,7 +73,12 @@ function Cluster({
               {index}
             </span>
             {` / ${label.toUpperCase()}`}
-            <span className="coord-tail">{` / ${coord.value} / ${coord.date}`}</span>
+            <span className="coord-tail">
+              {` / `}
+              <span className="coord-value">{coord.value}</span>
+              {` / `}
+              <span className="coord-date">{coord.date}</span>
+            </span>
           </span>
           <h2 id={`${id}-title`} className="ch-name">
             {label}

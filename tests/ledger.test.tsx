@@ -642,7 +642,10 @@ describe("the phone spine", () => {
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(/nav\.spine \{[^}]*display:\s*none/);
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*position:\s*fixed/);
-    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*left:\s*6vw/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*flex-direction:\s*row/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*bottom:\s*5vh/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?nav\.spine \{[^}]*top:\s*auto/);
+    expect(css).toMatch(/nav\.spine a \{[^}]*width:\s*44px/);
     expect(css).toMatch(/nav\.spine a \{[^}]*height:\s*44px/);
     expect(css).toMatch(/\.spine a \{[^}]*transition:\s*color var\(--motion-quick\)/);
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?--index-rail:\s*12vw/);
@@ -865,5 +868,28 @@ describe("the lead's pixel-pass residuals", () => {
   test("the phone hero keeps the field gutter on its right edge", () => {
     const css = read("src/styles/ledger.css");
     expect(css).not.toMatch(/\.hero-hud \{[^}]*padding-inline-end:/);
+  });
+});
+
+describe("the lead's hand-pass tablet faults", () => {
+  test("the tablet band spans the measure and its children can shrink", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/@media \(max-width: 1099px\)[\s\S]*?\.pc \.band \{[^}]*grid-column:\s*measure-start \/ field-end/);
+    expect(css).toMatch(/@media \(max-width: 1099px\)[\s\S]*?\.pc \.band > \* \{[^}]*min-width:\s*0/);
+    expect(css).toMatch(/@media \(max-width: 1099px\)[\s\S]*?\.pc \.band b,\s*\.zero-seal \.seal-zero \{[^}]*font-size:\s*clamp\(/);
+  });
+
+  test("coordinate value and date are indivisible tokens", () => {
+    const css = read("src/styles/ledger.css");
+    expect(html.match(/class="coord-value"/g) ?? []).toHaveLength(5);
+    expect(html.match(/class="coord-date"/g) ?? []).toHaveLength(5);
+    expect(css).toMatch(/\.coord-value,\s*\.coord-date \{[^}]*white-space:\s*nowrap/);
+  });
+
+  test("the phone role block runs to the field right and stays left-aligned", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.hud-role \{[^}]*justify-self:\s*stretch/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.hud-role > p \{[^}]*margin-inline-start:\s*0[^}]*max-width:\s*none/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.hud-role,[\s\S]*?text-align:\s*left/);
   });
 });
