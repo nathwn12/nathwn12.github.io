@@ -155,8 +155,10 @@ nav.spine {
   padding-block-start: var(--nav-height);
 }
 
+/* The beat pays for the nav once: padding and plate each reserve a masthead,
+   so the HUD fills the fold minus two of them. */
 .beat-one .hero-hud {
-  min-height: calc(100vh - var(--nav-height));
+  min-height: calc(100vh - var(--nav-height) - var(--nav-height));
 }
 
 .beat-cold {
@@ -714,7 +716,8 @@ video.horizon-media.is-playing {
 @media (min-width: 1101px) {
   #oss .chapter-margin,
   #contact .chapter-margin {
-    width: 330px;
+    /* 46ch of the 12px mono token lands on the old 330px measure. */
+    width: 46ch;
     max-width: none;
   }
 }
@@ -1018,6 +1021,7 @@ video.horizon-media.is-playing {
 
 .dl {
   display: flex;
+  justify-content: space-between;
   gap: var(--space-32);
   margin-block-start: var(--space-24);
   font-family: var(--font-data);
@@ -1026,15 +1030,11 @@ video.horizon-media.is-playing {
   color: var(--color-ink-muted);
 }
 
+.dl > div {
+  align-self: baseline;
+}
+
 @media (min-width: 1101px) {
-  .dl {
-    justify-content: space-between;
-  }
-
-  .dl > div {
-    align-self: baseline;
-  }
-
   .ma .v-body {
     padding-block-end: var(--space-48);
   }
@@ -1133,7 +1133,7 @@ video.horizon-media.is-playing {
   font-size: var(--text-mono);
   letter-spacing: var(--tracking-data);
   color: var(--color-ink-muted);
-  /* One derived caption, never stacked under a narrowed figure. */
+  /* One derived caption. It follows the figure and wraps in the narrow band. */
   width: max-content;
   white-space: nowrap;
 }
@@ -1166,12 +1166,18 @@ video.horizon-media.is-playing {
     column-gap: var(--space-24);
   }
 
+  /* Keep the figure and its caption one block: as separate grid rows the seal
+     pushed the caption a whole row below the figure. */
   .pc .band > div {
-    display: contents;
+    display: block;
+    grid-column: 1;
+    min-width: 0;
   }
 
   .pc .band > div > span {
-    grid-column: 1 / -1;
+    width: auto;
+    max-width: 100%;
+    white-space: normal;
   }
 
   .pc .zero-seal {
@@ -1396,14 +1402,14 @@ video.horizon-media.is-playing {
   }
 
   .pc .band > div {
-    display: contents;
+    display: block;
+    min-width: 0;
   }
 
   .pc .band > div > span {
-    grid-column: 1 / -1;
-    width: max-content;
+    width: auto;
     max-width: 100%;
-    white-space: nowrap;
+    white-space: normal;
   }
 
   .pc .zero-seal {
@@ -1684,7 +1690,9 @@ video.horizon-media.is-playing {
     grid-row: auto;
   }
 
+  /* The wrap stays phone-tight; only the one-line row spreads. */
   .dl {
+    justify-content: flex-start;
     flex-wrap: wrap;
     gap: var(--space-24);
   }

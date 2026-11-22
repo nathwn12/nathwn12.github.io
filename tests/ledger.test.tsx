@@ -800,13 +800,14 @@ describe("the clear masthead and readable notes", () => {
   test("the hero pays for the masthead without losing the fold", () => {
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(/\.beat-one \{[^}]*min-height:\s*calc\(100vh - var\(--nav-height\)\)[^}]*padding-block-start:\s*var\(--nav-height\)/);
-    expect(css).toMatch(/\.beat-one \.hero-hud \{[^}]*min-height:\s*calc\(100vh - var\(--nav-height\)\)/);
+    expect(css).toMatch(/\.beat-one \.hero-hud \{[^}]*min-height:\s*calc\(100vh - var\(--nav-height\) - var\(--nav-height\)\)/);
   });
 
   test("notes read as blocks and can reach past the aside", () => {
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(/\.chapter-margin \{[^}]*display:\s*block/);
-    expect(css).toMatch(/@media \(min-width: 1101px\)[\s\S]*?#oss \.chapter-margin,\s*#contact \.chapter-margin \{[^}]*width:\s*330px/);
+    expect(css).toMatch(/@media \(min-width: 1101px\)[\s\S]*?#oss \.chapter-margin,\s*#contact \.chapter-margin \{[^}]*width:\s*46ch/);
+    expect(css).not.toMatch(/#oss \.chapter-margin,\s*#contact \.chapter-margin \{[^}]*width:\s*\d+px/);
   });
 });
 
@@ -824,10 +825,10 @@ describe("the restored nav and band pair", () => {
     expect(css).toMatch(/@media \(min-width: 1100px\) and \(max-width: 1600px\)[\s\S]*?\.pc \.band b \{[^}]*font-size:\s*clamp\(2rem, calc\(13\.2vw - 114px\), 7rem\)/);
   });
 
-  test("the phone caption spans the band, not the figure column", () => {
+  test("the tablet caption stays with the figure, not the band", () => {
     const css = read("src/styles/ledger.css");
-    expect(css).toMatch(/@media \(max-width: 1099px\)[\s\S]*?\.pc \.band > div \{\s*display:\s*contents/);
-    expect(css).toMatch(/@media \(max-width: 1099px\)[\s\S]*?\.pc \.band > div > span \{[^}]*white-space:\s*nowrap/);
+    expect(css).toMatch(/@media \(max-width: 1099px\)[\s\S]*?\.pc \.band > div \{\s*display:\s*block/);
+    expect(css).toMatch(/@media \(max-width: 1099px\)[\s\S]*?\.pc \.band > div > span \{[^}]*white-space:\s*normal/);
   });
 });
 
