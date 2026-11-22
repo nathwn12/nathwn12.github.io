@@ -947,6 +947,15 @@ video.horizon-media.is-playing {
   color: var(--color-ink-muted);
 }
 
+/* At native the figure widths this div a hair under the label's own text, so
+   the last word drops to a second line. Below native the four-track band is
+   too narrow to hold a nowrap label and the seal, so wrapping stays allowed. */
+@media (min-width: 2200px) {
+  .pc .band > div > span {
+    white-space: nowrap;
+  }
+}
+
 /* The only hollow figure. A solid ink-muted fill is the fallback; where the
    stroke is supported the fill clears and the outline carries the figure. */
 .zero-seal {
@@ -1114,7 +1123,9 @@ video.horizon-media.is-playing {
   margin: 0;
 }
 
-/* Below the margin threshold the whole node stacks, date first. */
+/* Below the margin threshold the whole node stacks, date first. Every stacked
+   line spans the full field; the prose measure cap belongs only to the split
+   column at native, where the texture sits beside the head. */
 @media (max-width: 1099px) {
   .pc .date,
   .pc .stampfig,
@@ -1123,6 +1134,10 @@ video.horizon-media.is-playing {
   .pc .tex {
     grid-column: 1 / -1;
     grid-row: auto;
+  }
+
+  .pc .tex {
+    max-width: none;
   }
 }
 
@@ -1231,6 +1246,15 @@ video.horizon-media.is-playing {
   }
 }
 
+/* Stacked rows no longer have columns to separate the spans, so reinstate the
+   inline separator; above this width the grid gap does the separating. */
+@media (max-width: 1099px) {
+  .wc .b-life::before,
+  .wc .b-lang::before {
+    content: " · ";
+  }
+}
+
 /* Below the desktop measure the spec column is too narrow to hold its rows.
    Stack the same three blocks on the measure line, never in the rail. */
 @media (min-width: 701px) and (max-width: 1100px) {
@@ -1252,10 +1276,10 @@ video.horizon-media.is-playing {
     --index-rail: 44px;
   }
 
-  /* The fixed spine owns the left 24px; the plate clears it. */
+  /* The fixed spine owns the left 24px; the plate clears it. The right edge
+     stays on the field gutter, matching the chapter titles. */
   .hero-hud {
     padding-inline-start: var(--index-rail);
-    padding-inline-end: var(--space-16);
   }
 
   /* DESIGN v2: the phone coordinate is NN / LABEL only. */

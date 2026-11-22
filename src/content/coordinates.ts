@@ -31,7 +31,9 @@ export const coordinates: Record<CoordinateKey, Coordinate> = {
   signal: {
     value: signal.allTime.toLocaleString("en-US"),
     date,
-    margin: `measured ${date} · npm weekly cron 0 6 * * 1`,
+    // Display-only: non-breaking hyphens keep the snapshot date whole in the
+    // narrow margin. The underlying coordinate `date` stays the raw ISO value.
+    margin: `measured ${date.replace(/-/g, "\u2011")} · npm weekly cron 0 6 * * 1`,
   },
   work: {
     value: `${featuredRows.length + indexRows.length} REPOS`,

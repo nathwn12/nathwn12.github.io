@@ -807,3 +807,33 @@ describe("the stripped floor", () => {
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*?\.witness-outer,[\s\S]*?animation:\s*none/);
   });
 });
+
+describe("the lead's pixel-pass residuals", () => {
+  test("stacked tier-B rows keep the inline separator", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/@media \(max-width: 1099px\)[\s\S]*?\.wc \.b-life::before,\s*\.wc \.b-lang::before \{[^}]*content:\s*" · "/);
+  });
+
+  test("the stacked Work node fills the field", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/@media \(max-width: 1099px\)[\s\S]*?\.pc \.tex \{\s*max-width:\s*none/);
+  });
+
+  test("the Work commit label stays on one line at native", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/@media \(min-width: 2200px\)[\s\S]*?\.pc \.band > div > span \{[^}]*white-space:\s*nowrap/);
+  });
+
+  test("the Numbers margin keeps the ISO date whole without changing the snapshot", () => {
+    expect(coordinates.signal.date).toBe(signal.snapshotDate);
+    expect(coordinates.signal.margin).toContain("measured 2026\u201111\u201119");
+    expect(coordinates.signal.margin).not.toContain("2026-11-19");
+    // The coordinate line and the bake-date stamp still print the raw value.
+    expect(html).toContain(signal.snapshotDate);
+  });
+
+  test("the phone hero keeps the field gutter on its right edge", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).not.toMatch(/\.hero-hud \{[^}]*padding-inline-end:/);
+  });
+});
