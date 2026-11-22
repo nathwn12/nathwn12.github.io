@@ -222,6 +222,10 @@ describe("the content survives the strip", () => {
     expect(css).not.toMatch(/\.wc \.tier-b \{[^}]*background:/);
     expect(css).toMatch(/\.wc \.tier-a \{[^}]*min-height:\s*96px/);
     expect(css).toMatch(/\.wc \.tier-b \{[^}]*min-height:\s*48px/);
+    expect(css).toMatch(/\.wc \.tier-b \{[^}]*display:\s*block/);
+    expect(css).toMatch(/\.wc \.tier-b a \{[^}]*display:\s*inline/);
+    expect(css).toMatch(/@media \(min-width: 1100px\)[\s\S]*?\.wc \.tier-b \{[^}]*grid-template-columns:\s*5fr 2fr 4fr/);
+    expect(css).toMatch(/\.wc \.b-life \{[^}]*text-align:\s*right/);
     expect(read("DESIGN.md")).toContain("ruled data bands");
     expect(read("DESIGN.md")).not.toContain("one exception");
   });
@@ -238,15 +242,18 @@ describe("the content survives the strip", () => {
       expect(anchor.match(/<a /g) ?? []).toHaveLength(1);
     }
     for (const row of indexRows) {
-      const line = work.match(/<div class="tier-b">[\s\S]*?<\/div>/g) ?? [];
-      const entry = line.find((part) => part.includes(row.name)) ?? "";
+      const lines = work.match(/<div class="tier-b">[\s\S]*?<\/div>/g) ?? [];
+      const entry = lines.find((part) => part.includes(row.name)) ?? "";
       const lifetime =
         row.lifetime !== null
           ? row.lifetime.toLocaleString("en-US")
           : "no package";
-      expect(entry).toBe(
-        `<div class="tier-b"><a href="${row.url}" target="_blank" rel="noreferrer">${row.name}</a> · ${row.claim} · ${lifetime} · ${row.language}</div>`,
+      expect(entry).toContain(
+        `<a href="${row.url}" target="_blank" rel="noreferrer">${row.name}</a>`,
       );
+      expect(entry).toContain(` · ${row.claim}</span>`);
+      expect(entry).toContain(`<span class="b-life">${lifetime}</span>`);
+      expect(entry).toContain(`<span class="b-lang">${row.language}</span>`);
     }
   });
 
@@ -259,11 +266,17 @@ describe("the content survives the strip", () => {
     expect(html).toContain(figures.commits!);
   });
 
-  test("Work body keeps its spine and the dates leave the rail", () => {
+  test("Work body fills the field and the dates leave the rail", () => {
     const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.pc \.spine \{[^}]*grid-column:\s*measure-start \/ field-end/);
+    expect(css).toMatch(/\.pc \.node \{[^}]*grid-column:\s*measure-start \/ field-end/);
+    expect(css).toMatch(/\.node-body \{[^}]*display:\s*contents/);
     expect(css).toMatch(/\.pc \.spine \{[^}]*padding-inline-start:\s*0/);
     expect(css).toMatch(/\.pc \.spine::before \{[^}]*inset-inline-start:\s*calc\(-1 \* var\(--space-16\)\)/);
     expect(css).toMatch(/\.pc \.date \{[^}]*font-size:\s*var\(--text-mono-label\)/);
+    expect(css).toMatch(/\.pc \.tex \{[^}]*grid-column:\s*band-start \/ field-end/);
+    expect(css).toMatch(/@media \(min-width: 1100px\)[\s\S]*?\.pc \.tex \{[^}]*grid-row:\s*1 \/ span 2/);
+    expect(css).toMatch(/@media \(max-width: 1099px\)[\s\S]*?\.pc \.tex \{[^}]*grid-column:\s*1 \/ -1/);
   });
 
   test("Work dates move to the aside at 1100 and stack above below it", () => {
@@ -626,7 +639,7 @@ describe("the phone spine", () => {
     expect(css).toMatch(/\.spine a \{[^}]*height:\s*44px/);
     expect(css).toMatch(/\.spine a \{[^}]*transition:\s*color var\(--motion-quick\)/);
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?--index-rail:\s*44px/);
-    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.hero-hud \{[^}]*padding-inline-start:\s*40px/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.hero-hud \{[^}]*padding-inline-start:\s*var\(--index-rail\)/);
     expect(css).toMatch(/\.lab-nav \.links a span\s*\{[^}]*display:\s*none/);
   });
 });
@@ -750,6 +763,8 @@ describe("the stripped floor", () => {
     expect(html).toContain('class="name-first"');
     expect(html).toContain('class="name-last"');
     const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.hero-hud \{[^}]*padding-inline-start:\s*var\(--index-rail\)/);
+    expect(css).toMatch(/\.hud-role > p \{[^}]*margin-inline-start:\s*auto/);
     expect(css).toMatch(/@media \(min-width: 900px\)[\s\S]*?\.name-last \{[^}]*position:\s*absolute/);
   });
 

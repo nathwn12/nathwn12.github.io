@@ -287,6 +287,7 @@ video.horizon-media.is-playing {
   column-gap: var(--space-32);
   row-gap: var(--space-24);
   padding-block: var(--space-64) var(--space-32);
+  padding-inline-start: var(--index-rail);
   align-items: start;
 }
 
@@ -358,6 +359,10 @@ video.horizon-media.is-playing {
 }
 
 /* Keep the Role copy from stranding a word on its own last line. */
+.hud-role > p {
+  margin-inline-start: auto;
+}
+
 .hud-role > p:not(.eyebrow) {
   text-wrap: pretty;
 }
@@ -990,7 +995,7 @@ video.horizon-media.is-playing {
 }
 
 .pc .spine {
-  grid-column: measure-start / band-start;
+  grid-column: measure-start / field-end;
   display: grid;
   grid-template-columns: subgrid;
   position: relative;
@@ -1008,7 +1013,7 @@ video.horizon-media.is-playing {
 }
 
 .pc .node {
-  grid-column: measure-start / band-start;
+  grid-column: measure-start / field-end;
   display: grid;
   grid-template-columns: subgrid;
   position: relative;
@@ -1026,11 +1031,9 @@ video.horizon-media.is-playing {
   border-radius: 50%;
 }
 
+/* The body adds no box: its three lines become node subgrid items. */
 .node-body {
-  grid-column: measure-start / aside-start;
-  display: grid;
-  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-  column-gap: var(--space-64);
+  display: contents;
 }
 
 /* Below the desktop margin the date and stamp stack above the node. */
@@ -1072,8 +1075,20 @@ video.horizon-media.is-playing {
     font-size: var(--text-figure-sm);
   }
 
-  .node-body {
+  .pc h3 {
+    grid-column: measure-start / aside-start;
+    grid-row: 1;
+  }
+
+  .pc .out {
+    grid-column: measure-start / aside-start;
+    grid-row: 2;
+  }
+
+  .pc .tex {
+    grid-column: band-start / field-end;
     grid-row: 1 / span 2;
+    align-self: start;
   }
 }
 
@@ -1097,6 +1112,18 @@ video.horizon-media.is-playing {
   max-width: var(--measure-wide);
   line-height: 1.5;
   margin: 0;
+}
+
+/* Below the margin threshold the whole node stacks, date first. */
+@media (max-width: 1099px) {
+  .pc .date,
+  .pc .stampfig,
+  .pc h3,
+  .pc .out,
+  .pc .tex {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
 }
 
 /* 02 Open Source — one continuous ledger. Tier is a height, not a section:
@@ -1174,8 +1201,7 @@ video.horizon-media.is-playing {
 }
 
 .wc .tier-b {
-  grid-template-columns: minmax(0, 1fr);
-  align-items: center;
+  display: block;
   min-height: 48px;
   padding-block: var(--space-12);
   font-family: var(--font-data);
@@ -1185,8 +1211,24 @@ video.horizon-media.is-playing {
 }
 
 .wc .tier-b a {
+  display: inline;
   color: var(--color-ink);
   text-decoration: none;
+}
+
+/* On wide screens the row owns the v2 columns: claim at measure, lifetime in
+   the aside, language in the band. Below the margin the spans simply flow. */
+@media (min-width: 1100px) {
+  .wc .tier-b {
+    display: grid;
+    grid-template-columns: 5fr 2fr 4fr;
+    column-gap: var(--gutter);
+    align-items: baseline;
+  }
+
+  .wc .b-life {
+    text-align: right;
+  }
 }
 
 /* Below the desktop measure the spec column is too narrow to hold its rows.
@@ -1212,7 +1254,7 @@ video.horizon-media.is-playing {
 
   /* The fixed spine owns the left 24px; the plate clears it. */
   .hero-hud {
-    padding-inline-start: 40px;
+    padding-inline-start: var(--index-rail);
     padding-inline-end: var(--space-16);
   }
 
@@ -1292,15 +1334,10 @@ video.horizon-media.is-playing {
     gap: var(--space-4) var(--space-16);
   }
 
-  .node-body {
-    grid-template-columns: 1fr;
-    row-gap: var(--space-8);
-  }
-
   .pc h3,
   .pc .out,
   .pc .tex {
-    grid-column: 1;
+    grid-column: 1 / -1;
   }
 
   .ma .prose,

@@ -311,10 +311,14 @@ export default function LedgerPage() {
             ))}
             {indexRows.map((row) => (
               <div className="tier-b" key={row.dir}>
-                <a href={row.url} target="_blank" rel="noreferrer">
-                  {row.name}
-                </a>
-                {` · ${row.claim} · ${lifetimeOf(row)} · ${row.language}`}
+                <span className="b-main">
+                  <a href={row.url} target="_blank" rel="noreferrer">
+                    {row.name}
+                  </a>
+                  {` · ${row.claim}`}
+                </span>
+                <span className="b-life">{lifetimeOf(row)}</span>
+                <span className="b-lang">{row.language}</span>
               </div>
             ))}
           </div>
