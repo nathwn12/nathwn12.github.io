@@ -9,7 +9,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
 import LedgerPage from "../src/components/LedgerPage";
-import { aiPractice, consequenceHeadline, consequenceLede, contactBlock, displayName, figures, heroRoleLine, name, proofRows, spineStamp, statusLine, systemArea, workBand, workFacts } from "../src/content/ledger";
+import { aiPractice, consequenceHeadline, consequenceLede, contactBlock, displayName, figures, heroRoleLine, name, proofRows, spineStamp, statusLine, systemArea, teamSize, teamWord, workBand, workFacts } from "../src/content/ledger";
 import { experience, formerRoleLine, spineDate, teamLine } from "../src/content/experience";
 import { projects } from "../src/content/projects";
 import { signal, specLines } from "../src/content/signal";
@@ -651,16 +651,20 @@ describe("the Work consequence", () => {
     for (const part of [
       formerRoleLine,
       "payments, cash management, and access control",
-      "a team of ten",
+      `a team of ${teamWord(teamLine)}`,
       "C#/.NET", "EF Core", "Dapper", "Redis",
     ]) {
       expect(consequenceLede).toContain(part);
     }
-    expect(teamLine).toContain("Team of ten");
+    expect(teamLine).toContain(`Team of ${teamWord(teamLine)}`);
     expect(consequenceLede.endsWith(".")).toBe(true);
     // The facts row follows the Approach pattern, with all three values read
     // from committed strings — none of them typed into the component.
-    expect(workFacts).toEqual(["team 10", "tenure 3 yrs 2 mos", "systems 3"]);
+    expect(workFacts).toEqual([
+      `team ${teamSize(teamLine)}`,
+      "tenure 3 yrs 2 mos",
+      "systems 3",
+    ]);
     expect(work).toContain(`<div class="facts">${workFacts.join(" · ")}</div>`);
     expect(work.indexOf('class="spine"')).toBeLessThan(
       work.indexOf('class="facts"'),
@@ -670,6 +674,14 @@ describe("the Work consequence", () => {
     expect(work).toContain("MAR 2023 – JUN 2023");
     expect(work).toContain("Scoped ASP.NET Core and MySQL fixes");
     expect(read("src/styles/ledger.css")).toMatch(/\.pc \.node\[data-closing\]/);
+  });
+
+  test("the stated team size equals the sum of the role breakdown", () => {
+    const counts = [...teamLine.matchAll(/(\d+)\s+[A-Za-z]+/g)].map((match) =>
+      Number(match[1]),
+    );
+    const sum = counts.reduce((total, count) => total + count, 0);
+    expect(Number(teamSize(teamLine))).toBe(sum);
   });
 
   test("the hero role names the work and keeps the status line", () => {

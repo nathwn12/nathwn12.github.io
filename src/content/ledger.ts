@@ -94,9 +94,8 @@ export function teamWord(text: string): string | null {
   return text.match(/\bTeam of ([a-z]+)\b/i)?.[1]?.toLowerCase() ?? null;
 }
 
-/** "Team of ten: ..." → "10", read off the stated size, not the role breakdown.
-    The breakdown in the approved line sums to 11; the signed size is ten, so
-    the one word after "Team of" owns the figure. */
+/** "Team of eleven: ..." → "11", read off the stated size word. The word is the
+    one source of the figure; the role breakdown below it has to sum to it. */
 export function teamSize(text: string): string | null {
   const word = teamWord(text);
   if (!word) return null;
