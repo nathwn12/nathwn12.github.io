@@ -82,6 +82,17 @@ folds below the body. The hero's dark bands, the 56–75ch measures, the 24px ba
 gap, the ≥44px touch targets and ≥24px between distinct text blocks all stay.
 Type, chapters and copy are unchanged.
 
+**Ink, not boxes, is the clearance bar.** Between two stacked text blocks the
+ink-to-ink gap is the measure, never the box gap. Verify it by laying a
+`Range` over each block's text nodes and reading `getClientRects()`: the gap
+is the lower block's first rect top minus the upper block's last rect bottom.
+Target ≥ 12px ink at ≥ 701px and ≥ 10px ink at ≤ 700px. The display faces
+carry negative leading, so two touching boxes can put ink inside ink; a box
+gap may be 0 only when the inks still clear by this bar. The Work head holds
+tighter sub-bars at 1440 and 2560: coordinate→title ≥ 12px, title→consequence
+≥ 16px, consequence→lede ≥ 12px. Its row gap scales with the type in vw, not a
+fixed px, so the clearance survives every width.
+
 ### Fluid geometry (supersedes the 82/96/110rem field and the 32/64/96px rail)
 
 The live law: no fixed layout sizing. Field, rail, gutter, gaps and component

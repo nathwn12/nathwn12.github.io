@@ -664,6 +664,9 @@ video.horizon-media.is-playing {
 .ch-head {
   grid-row: 1;
   padding-block: var(--space-64) var(--space-16);
+  /* Ink clears ink, not box clears box. The display faces' negative leading
+     makes a 0 row gap overlap glyphs, so the head rows breathe in vw. */
+  row-gap: var(--head-ink-gap);
 }
 
 .ch-head > * {
@@ -793,6 +796,9 @@ video.horizon-media.is-playing {
   flex-direction: column;
   align-items: flex-end;
   gap: var(--space-32);
+  /* Below the margin the figures stack under the intro; the 0 body row gap
+     let the display figure's ink ride up into the intro's last line. */
+  margin-block-start: var(--space-48);
 }
 
 /* The two npm figures are one measured pair, not a stack in an empty corner. */
@@ -803,6 +809,8 @@ video.horizon-media.is-playing {
     align-items: flex-start;
     justify-content: space-between;
     gap: var(--space-24);
+    /* Here the figures sit beside the intro — no x-overlap, no stack to fix. */
+    margin-block-start: 0;
   }
 
   .sa .top > div {
@@ -1059,13 +1067,16 @@ video.horizon-media.is-playing {
   letter-spacing: -0.01em;
   font-weight: 400;
   margin: 0;
+  /* The head's row gap already buys the lede its clearance; keep the total
+     step on the 8px rung so the chapter does not grow past its height bar. */
+  margin-block-start: clamp(9px, 0.75vw, 12px);
   text-wrap: balance;
 }
 
 .pc .consequence-lede {
   grid-column: measure-start / field-end;
   max-width: var(--measure-wide);
-  margin: var(--space-16) 0 var(--space-8);
+  margin: var(--space-8) 0 var(--space-8);
   font-size: var(--text-lede);
   line-height: 1.55;
   color: var(--color-ink-muted);
@@ -1399,6 +1410,8 @@ video.horizon-media.is-playing {
 
   .pc .tex {
     max-width: none;
+    /* Stacked under the outcome: the node's 0 row gap is not ink clearance. */
+    margin-block-start: var(--space-12);
   }
 
   /* Four tracks cannot hold the figure and the seal at tablet widths. Give
