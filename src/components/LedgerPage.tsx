@@ -11,6 +11,7 @@ import {
 import {
   aiPractice,
   contactBlock,
+  displayName,
   figures,
   locatedIn,
   name,
@@ -143,9 +144,9 @@ export default function LedgerPage() {
     };
   }, []);
 
-  const nameParts = name.split(" ");
-  const firstName = nameParts.slice(0, -1).join(" ");
-  const lastName = nameParts[nameParts.length - 1] ?? "";
+  const displayParts = displayName.split(" ");
+  const givenName = displayParts[0] ?? "";
+  const familyName = displayParts[displayParts.length - 1] ?? "";
   const mailSubject = encodeURIComponent("Role, system, or problem");
   const mailBody = encodeURIComponent(contactBlock.line);
 
@@ -199,8 +200,8 @@ export default function LedgerPage() {
             <div className="hud hud-name">
               <p className="eyebrow data">Event horizon / portfolio / 2026</p>
               <h1 id="hero-name">
-                <span className="name-first">{firstName}</span>{" "}
-                <span className="name-last">{lastName}</span>
+                <span className="name-line">{givenName}</span>
+                <span className="name-line">{familyName}</span>
               </h1>
             </div>
             <div className="hud hud-role">

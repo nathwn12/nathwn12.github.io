@@ -9,7 +9,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
 import LedgerPage from "../src/components/LedgerPage";
-import { aiPractice, contactBlock, figures, proofRows, spineStamp, workBand } from "../src/content/ledger";
+import { aiPractice, contactBlock, displayName, figures, name, proofRows, spineStamp, workBand } from "../src/content/ledger";
 import { experience, spineDate } from "../src/content/experience";
 import { projects } from "../src/content/projects";
 import { signal, specLines } from "../src/content/signal";
@@ -763,16 +763,42 @@ describe("the stripped floor", () => {
     }
   });
 
-  test("the hero has two beats and an anchored surname at desktop", () => {
+  test("the hero has two beats and one stacked name block", () => {
     expect(html).toContain('class="beat beat-one"');
     expect(html).toContain('class="beat beat-cold"');
     for (const line of coldRead) expect(html).toContain(line);
-    expect(html).toContain('class="name-first"');
-    expect(html).toContain('class="name-last"');
+    expect(html.match(/class="name-line"/g) ?? []).toHaveLength(2);
+    expect(html).toContain('<span class="name-line">Nathaniel</span>');
+    expect(html).toContain('<span class="name-line">Ladero</span>');
+    expect(html).not.toContain('class="name-first"');
+    expect(html).not.toContain('class="name-last"');
+    expect(html).not.toContain("Nathaniel Nikolai</span>");
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(/\.hero-hud \{[^}]*padding-inline-start:\s*calc\(var\(--gutter\) \+ var\(--index-rail\)\)/);
     expect(css).toMatch(/\.hud-role > p \{[^}]*margin-inline-start:\s*auto/);
-    expect(css).toMatch(/@media \(min-width: 900px\)[\s\S]*?\.name-last \{[^}]*position:\s*absolute/);
+    expect(css).toMatch(/#hero-name \.name-line \{[^}]*display:\s*block/);
+    expect(css).not.toMatch(/\.name-last/);
+    expect(css).not.toMatch(/left:\s*53%/);
+  });
+
+  test("only the hero display shortens; the legal name stays everywhere else", () => {
+    expect(name).toBe("Nathaniel Nikolai Ladero");
+    expect(displayName).toBe("Nathaniel Ladero");
+    expect(indexHtml).toContain("<title>Nathaniel Nikolai Ladero — event horizon</title>");
+    for (const meta of [
+      'property="og:title" content="Nathaniel Nikolai Ladero',
+      'name="twitter:title" content="Nathaniel Nikolai Ladero',
+      'property="og:image:alt" content="Deep Field Ledger card for Nathaniel Nikolai Ladero',
+      'name="twitter:image:alt" content="Deep Field Ledger card for Nathaniel Nikolai Ladero',
+    ]) {
+      expect(indexHtml).toContain(meta);
+    }
+    const ld = JSON.parse(indexHtml.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)?.[1] ?? "{}");
+    expect(ld.name).toBe("Nathaniel Nikolai Ladero");
+    expect(ld.email).toMatch(/^mailto:/);
+    expect(html).toContain(`mailto:${CONTACT_EMAIL}`);
+    const src = read("src/components/LedgerPage.tsx");
+    expect(src).toMatch(/document\.title =\s*`\$\{name\}/);
   });
 
   test("only the witness rotates; there is no runtime field loop", () => {

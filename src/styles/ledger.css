@@ -327,21 +327,18 @@ video.horizon-media.is-playing {
   overflow-wrap: break-word;
 }
 
-/* At desktop the surname crosses the disc horizon; below 900 the plate stays
-   packed at the top, where anchoring would bury it in the media. */
-@media (min-width: 900px) {
-  .name-last {
-    position: absolute;
-    left: 53%;
-    top: 46%;
-    white-space: nowrap;
-  }
+/* One name block: given name over surname, both at the same left edge in
+   normal flow. No absolute offset at any width; the disc stays behind. */
+#hero-name .name-line {
+  display: block;
+  white-space: nowrap;
 }
 
-@media (min-width: 2200px) {
-  .name-last {
-    left: 35%;
-    top: 47%;
+/* Lift the plate where the recorded disc is live: the stacked surname must
+   clear the ring's brightest arc without a scrim, plate or text shadow. */
+@media (min-width: 1100px) {
+  .hero-hud {
+    padding-block-start: var(--space-16);
   }
 }
 

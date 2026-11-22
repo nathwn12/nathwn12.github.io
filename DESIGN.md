@@ -104,14 +104,17 @@ date. The Contact margin note is `contactBlock.nextStep`, printed once.
 
 `#horizon` is a wrapper. Beat one is 100vh with the singularity and HUD; beat
 two is 100vh with three cold-read lines at measure from existing copy. The
-surname crosses the disc horizon at ≥900. The still poster is the base paint,
-LCP and no-JS path. The recorded loop attaches only on `(pointer: fine)`,
-`(min-width: 1100px)`, reduced-motion no-preference and `saveData` off; it has
-no poster, `preload="none"`, and fades in over 280ms only while playing. The
-inactive master never plays.
+hero display name is `Nathaniel` over `Ladero`: one stacked block at gutter +
+rail, in normal flow, with no absolute offset at any width. The still poster is
+the base paint, LCP and no-JS path. The recorded loop attaches only on
+`(pointer: fine)`, `(min-width: 1100px)`, reduced-motion no-preference and
+`saveData` off; it has no poster, `preload="none"`, and fades in over 280ms only
+while playing. The inactive master never plays.
 
-Deviation recorded: below 900 the plate stays packed at the top; anchoring the
-surname there would bury it in the media. The phone keeps labels-only in the
+Deviation recorded: the earlier 53% absolute surname and its 900/2200 offsets
+are gone; the name is one block so the surname never detaches from the given
+name. The full legal name `Nathaniel Nikolai Ladero` stays in the title,
+og/twitter metadata, JSON-LD and the mailto. The phone keeps labels-only in the
 top nav because five full labels and numerals do not fit 390.
 
 ### Sections

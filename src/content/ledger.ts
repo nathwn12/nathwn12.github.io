@@ -125,6 +125,11 @@ export const figures = {
 
 export const name = "Nathaniel Nikolai Ladero";
 
+/** Hero display only: given name and surname. The middle name stays in the
+    legal `name` used by the title, social metadata, JSON-LD and the mailto. */
+const legalParts = name.split(" ");
+export const displayName = `${legalParts[0] ?? ""} ${legalParts[legalParts.length - 1] ?? ""}`.trim();
+
 /** The h1's supporting sentence: who, and what the work was. One sentence,
     read as identity first and capability second — it names the company once. */
 export const standfirst =
