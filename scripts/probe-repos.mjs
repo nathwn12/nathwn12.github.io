@@ -29,7 +29,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -183,6 +183,23 @@ function check() {
   );
 }
 
+/**
+ * The on-disk form of the snapshot: two-space indent, the record's insertion
+ * key order, and one trailing newline. The serialized bytes are the contract,
+ * so a fresh measurement that matches the committed file is not a change.
+ */
+export function serializeRecord(record) {
+  return JSON.stringify(record, null, 2) + "\n";
+}
+
+/** Write only when the bytes differ; true if a write happened, false if no-op. */
+export function writeRecordIfChanged(out, record) {
+  const bytes = serializeRecord(record);
+  if (existsSync(out) && readFileSync(out, "utf8") === bytes) return false;
+  writeFileSync(out, bytes, "utf8");
+  return true;
+}
+
 const isMain =
   Boolean(process.argv[1]) &&
   import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
@@ -192,9 +209,9 @@ if (isMain) {
     check();
   } else {
     const record = measure();
-    writeFileSync(OUT, JSON.stringify(record, null, 2) + "\n", "utf8");
+    const changed = writeRecordIfChanged(OUT, record);
     console.log(
-      `measured ${record.publicRepos} public repositories (${record.repos.length} listed) on ${record.measuredAt} -> src/content/repos.probe.json`,
+      `measured ${record.publicRepos} public repositories (${record.repos.length} listed) on ${record.measuredAt}${changed ? " -> src/content/repos.probe.json" : "; snapshot unchanged"}`,
     );
   }
 }

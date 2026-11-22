@@ -12,7 +12,7 @@
       "parent": "Exle/aimp-discord-presence",
       "primaryLanguage": "C++",
       "createdAt": "2026-10-01",
-      "pushedAt": "2026-11-20",
+      "pushedAt": "2026-11-22",
       "description": "Show what AIMP is playing as a Discord Rich Presence with artist, track and album art."
     },
     {
@@ -23,7 +23,7 @@
       "parent": null,
       "primaryLanguage": "PowerShell",
       "createdAt": "2026-10-14",
-      "pushedAt": "2026-11-20",
+      "pushedAt": "2026-11-22",
       "description": "Install, remove, and repair the ARC icon theme on Windows 10 and 11."
     },
     {
@@ -34,7 +34,7 @@
       "parent": null,
       "primaryLanguage": "C#",
       "createdAt": "2026-11-16",
-      "pushedAt": "2026-11-20",
+      "pushedAt": "2026-11-22",
       "description": "Deep-fry images locally on Windows with repeat JPEG crush, a bulge and five filters."
     },
     {
@@ -45,7 +45,7 @@
       "parent": null,
       "primaryLanguage": "Rust",
       "createdAt": "2026-10-11",
-      "pushedAt": "2026-11-21",
+      "pushedAt": "2026-11-22",
       "description": "Give your AI agent a real headless browser to test, screenshot, and check layout."
     },
     {
@@ -56,7 +56,7 @@
       "parent": null,
       "primaryLanguage": "Rust",
       "createdAt": "2026-11-17",
-      "pushedAt": "2026-11-21",
+      "pushedAt": "2026-11-22",
       "description": "Browser automation and Windows computer use in one MCP server: headless Chrome over CDP, native UI via UIA. Click, type, screenshot, test extensions - one Rust binary, no pointer steal."
     },
     {
@@ -67,7 +67,7 @@
       "parent": null,
       "primaryLanguage": "JavaScript",
       "createdAt": "2026-11-02",
-      "pushedAt": "2026-11-20",
+      "pushedAt": "2026-11-22",
       "description": "Normalize per-site loudness, slow playback with reverb, and report Crunchyroll and YouTube Music presence."
     },
     {
@@ -78,7 +78,7 @@
       "parent": null,
       "primaryLanguage": "JavaScript",
       "createdAt": "2026-10-02",
-      "pushedAt": "2026-11-21",
+      "pushedAt": "2026-11-22",
       "description": "Profile README. The work lives in the repos linked below."
     },
     {
@@ -89,7 +89,7 @@
       "parent": null,
       "primaryLanguage": "TypeScript",
       "createdAt": "2026-04-05",
-      "pushedAt": "2026-11-21",
+      "pushedAt": "2026-11-22",
       "description": "Explore the portfolio and resume in a terminal-themed single page — TypeScript."
     },
     {
@@ -111,7 +111,7 @@
       "parent": null,
       "primaryLanguage": "JavaScript",
       "createdAt": "2026-10-30",
-      "pushedAt": "2026-11-20",
+      "pushedAt": "2026-11-22",
       "description": "Scaffold an OpenCode v2 plugin with a dependency-free stdio MCP server."
     },
     {
@@ -122,7 +122,7 @@
       "parent": "pear-devs/pear-desktop",
       "primaryLanguage": "TypeScript",
       "createdAt": "2026-09-04",
-      "pushedAt": "2026-11-20",
+      "pushedAt": "2026-11-22",
       "description": "Play YouTube Music on Windows with a maintained Pear Desktop fork that ships its own builds."
     },
     {
@@ -133,7 +133,7 @@
       "parent": null,
       "primaryLanguage": "Rust",
       "createdAt": "2026-10-04",
-      "pushedAt": "2026-11-20",
+      "pushedAt": "2026-11-22",
       "description": "Show what PotPlayer is playing on your Discord profile with matched artwork and episode details."
     },
     {
@@ -144,7 +144,7 @@
       "parent": null,
       "primaryLanguage": "Rust",
       "createdAt": "2026-10-11",
-      "pushedAt": "2026-11-21",
+      "pushedAt": "2026-11-22",
       "description": "Drive Windows apps without stealing focus or moving the pointer: screenshot, windows, input and cursor over MCP."
     },
     {
@@ -155,7 +155,7 @@
       "parent": null,
       "primaryLanguage": "TypeScript",
       "createdAt": "2026-10-05",
-      "pushedAt": "2026-11-20",
+      "pushedAt": "2026-11-22",
       "description": "Slow tracks, add reverb, and save an A-B loop per song on Windows."
     },
     {
@@ -166,7 +166,7 @@
       "parent": null,
       "primaryLanguage": "Python",
       "createdAt": "2026-11-11",
-      "pushedAt": "2026-11-20",
+      "pushedAt": "2026-11-22",
       "description": "Copy a public Spotify playlist into YouTube Music without an API key."
     },
     {
@@ -177,7 +177,7 @@
       "parent": "Vencord/Installer",
       "primaryLanguage": "PowerShell",
       "createdAt": "2026-09-26",
-      "pushedAt": "2026-11-20",
+      "pushedAt": "2026-11-22",
       "description": "Install and repair Vencord from the official upstream release with one PowerShell line."
     }
   ]
