@@ -1617,9 +1617,10 @@ video.horizon-media.is-playing {
   display: block;
   min-height: 48px;
   padding-block: var(--space-12);
-  /* Below the grid margin the three spans wrap as inline runs; a taller line
-     box keeps the wrapped ink clear of the next line's ink. Seeded one-liners
-     are longer than the old claims, so the line box clears 12px of ink. */
+  /* Below the grid margin the name and its one meta cell wrap as inline runs;
+     a taller line box keeps the wrapped ink clear of the next line's ink.
+     Seeded one-liners are longer than the old claims, so the line box clears
+     12px of ink. */
   line-height: 2;
   font-family: var(--font-data);
   font-size: var(--text-mono);
@@ -1633,26 +1634,26 @@ video.horizon-media.is-playing {
   text-decoration: none;
 }
 
-/* On wide screens the row owns the v2 columns: claim at measure, lifetime in
-   the aside, language in the band. Below the margin the spans simply flow. */
+/* On wide screens the row owns two columns: the name and claim at measure,
+   one meta cell (installs or stack) flush to band-end. Below the margin the
+   spans simply flow. */
 @media (min-width: 1100px) {
   .wc .tier-b {
     display: grid;
-    grid-template-columns: 5fr 2fr 4fr;
+    grid-template-columns: 5fr 3fr;
     column-gap: var(--gutter);
     align-items: baseline;
   }
 
-  .wc .b-life {
+  .wc .b-meta {
     text-align: right;
   }
 }
 
-/* Stacked rows no longer have columns to separate the spans, so reinstate the
+/* Stacked rows have no column gap to separate the spans, so reinstate the
    inline separator; above this width the grid gap does the separating. */
 @media (max-width: 1099px) {
-  .wc .b-life::before,
-  .wc .b-lang::before {
+  .wc .b-meta::before {
     content: " · ";
   }
 }

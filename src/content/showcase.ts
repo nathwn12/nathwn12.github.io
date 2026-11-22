@@ -64,6 +64,13 @@ const DETAILS: Readonly<Record<string, string>> = {
     "A WinForms window around WebView2 with the page's network policy closed; save and copy refuse while a render is still in flight.",
 };
 
+/** The only technology tokens a tier-B meta cell may add. Chosen from the
+ *  repo's own words, never from its name; order fixes which two survive. */
+export const STACK_ALLOWLIST = [
+  "CDP", "MCP", "UIA", "OpenCode", "PowerShell", "Rust", "C#",
+  "AWS", "Redis", "Docker", "Discord", "Spotify", "Windows", "stdio", "CLI",
+] as const;
+
 export interface ShowcaseRow {
   num: string;
   name: string;
@@ -72,6 +79,8 @@ export interface ShowcaseRow {
   claim: string;
   detail: string;
   tech: string[];
+  /** The repo's own words, read by stackTokensOf; never the repo name. */
+  metaSource: string;
   /** Null when neither the probe nor the machine summary names one. */
   language: string | null;
   lifetime: number | null;
@@ -91,7 +100,7 @@ export interface ShowcaseRow {
 
 /** One npm name per published package; collections sum their members. Used
  *  only for lifetime downloads, never for the daily windows signal owns. */
-const NAMES: Readonly<Record<string, readonly string[]>> = {
+export const PACKAGE_NAMES: Readonly<Record<string, readonly string[]>> = {
   hand: ["hand-mcp"],
   puppet: ["puppet-mcp"],
   gladius: ["gladius-mcp"],
@@ -115,7 +124,7 @@ const byPackage = new Map(downloads.packages.map((item) => [item.name, item.down
 const rows: ShowcaseRow[] = projects.map((project, index) => {
   const repo = byRepo.get(project.dir);
   const summary = bySummary.get(project.dir);
-  const names = NAMES[project.dir] ?? [];
+  const names = PACKAGE_NAMES[project.dir] ?? [];
   const lifetime = names.reduce(
     (sum, name) => sum + (byPackage.get(name) ?? 0),
     0,
@@ -138,6 +147,7 @@ const rows: ShowcaseRow[] = projects.map((project, index) => {
       : (CLAIMS[project.dir] ?? project.description),
     detail: DETAILS[project.dir] ?? project.description,
     tech: project.tech.slice(0, 3),
+    metaSource: [summary?.one_line, repo?.description].filter(Boolean).join(" "),
     language: repo?.primaryLanguage ?? summary?.stack?.find(Boolean) ?? project.tech[0] ?? null,
     lifetime: names.length > 0 ? lifetime : null,
     pushedAt: repo?.pushedAt ?? null,
@@ -152,15 +162,19 @@ const rows: ShowcaseRow[] = projects.map((project, index) => {
 /** Lead addition, for the owner's veto: the public harness he drives daily.
  *  Grounded in the harness atlas, not in repos.probe.json — so it carries no
  *  probe-derived language or pushed date and no npm lifetime figure. */
+const harnessClaim = "The public harness I drive every day.";
+const harnessDetail =
+  "Doctrine-guarded and self-policing: nine seats, a verify allowlist, and the Atlas as the only channel into live configuration. The rules are written down because the loop is the asset.";
+const harnessTech = ["OpenCode"];
 const harnessRow: ShowcaseRow = {
   num: String(rows.length + 1).padStart(2, "0"),
   name: "OpenCode Harness",
   dir: "opencode-harness",
   url: "https://github.com/nathwn12/opencode-harness",
-  claim: "The public harness I drive every day.",
-  detail:
-    "Doctrine-guarded and self-policing: nine seats, a verify allowlist, and the Atlas as the only channel into live configuration. The rules are written down because the loop is the asset.",
-  tech: ["OpenCode"],
+  claim: harnessClaim,
+  detail: harnessDetail,
+  tech: harnessTech,
+  metaSource: `${harnessClaim} ${harnessDetail} ${harnessTech.join(" ")}`,
   language: null,
   lifetime: null,
   pushedAt: null,
@@ -182,3 +196,23 @@ export const workShelfIntro =
 
 export const featuredRows = allRows.slice(0, 3);
 export const indexRows = allRows.slice(3);
+
+/** Up to two allowlisted tokens that appear verbatim in the repo's own words.
+ *  The language itself is never repeated as a token; allowlist order breaks
+ *  ties so the derived tags are stable. */
+export function stackTokensOf(row: ShowcaseRow): string[] {
+  if (row.lifetime !== null) return [];
+  return STACK_ALLOWLIST.filter(
+    (token) => token !== row.language && row.metaSource.includes(token),
+  ).slice(0, 2);
+}
+
+/** The single meta cell every tier-B row carries: exact all-time installs for
+ *  a repo with an npm release, otherwise the probe language plus at most two
+ *  allowlisted tokens from its own prose. Never blank by construction. */
+export function metaOf(row: ShowcaseRow): string {
+  if (row.lifetime !== null) {
+    return `${row.lifetime.toLocaleString("en-US")} installs`;
+  }
+  return [row.language, ...stackTokensOf(row)].filter(Boolean).join(" · ");
+}

@@ -28,6 +28,7 @@ import { signal, specLines } from "../content/signal";
 import {
   featuredRows,
   indexRows,
+  metaOf,
   workShelfIntro,
 } from "../content/showcase";
 import { CONTACT_EMAIL, CV_PATH, RESUME_PATH } from "../lib/contact";
@@ -381,8 +382,7 @@ export default function LedgerPage() {
                   )}
                   {` · ${row.claim}`}
                 </span>
-                {figureOf(row) && <span className="b-life">{figureOf(row)}</span>}
-                {row.language && <span className="b-lang">{row.language}</span>}
+                <span className="b-meta">{metaOf(row)}</span>
               </div>
             ))}
           </div>

@@ -8,12 +8,12 @@ import { resolve } from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, test } from "vitest";
-import LedgerPage, { figureOf } from "../src/components/LedgerPage";
+import LedgerPage from "../src/components/LedgerPage";
 import { aiPractice, consequenceHeadline, consequenceLede, contactBlock, displayName, figures, heroRoleLine, name, proofRows, spineStamp, statusLine, systemArea, teamSize, teamWord, workBand, workFacts } from "../src/content/ledger";
 import { experience, formerRoleLine, spineDate, teamLine } from "../src/content/experience";
 import { projects } from "../src/content/projects";
 import { signal, specLines } from "../src/content/signal";
-import { featuredRows, indexRows, workShelfIntro } from "../src/content/showcase";
+import { featuredRows, indexRows, metaOf, workShelfIntro } from "../src/content/showcase";
 import probe from "../src/content/repos.probe.json";
 import { CONTACT_EMAIL } from "../src/lib/contact";
 import { publicRepoCount } from "../src/lib/repo-probe";
@@ -251,8 +251,8 @@ describe("the content survives the strip", () => {
     expect(css).toMatch(/\.wc \.tier-b \{[^}]*min-height:\s*48px/);
     expect(css).toMatch(/\.wc \.tier-b \{[^}]*display:\s*block/);
     expect(css).toMatch(/\.wc \.tier-b a \{[^}]*display:\s*inline/);
-    expect(css).toMatch(/@media \(min-width: 1100px\)[\s\S]*?\.wc \.tier-b \{[^}]*grid-template-columns:\s*5fr 2fr 4fr/);
-    expect(css).toMatch(/\.wc \.b-life \{[^}]*text-align:\s*right/);
+    expect(css).toMatch(/@media \(min-width: 1100px\)[\s\S]*?\.wc \.tier-b \{[^}]*grid-template-columns:\s*5fr 3fr/);
+    expect(css).toMatch(/\.wc \.b-meta \{[^}]*text-align:\s*right/);
     expect(read("DESIGN.md")).toContain("ruled data bands");
     expect(read("DESIGN.md")).not.toContain("one exception");
   });
@@ -275,11 +275,12 @@ describe("the content survives the strip", () => {
         `<a href="${row.url}" target="_blank" rel="noreferrer">${row.name}</a>`,
       );
       expect(entry).toContain(` · ${row.claim}</span>`);
-      const figure = figureOf(row);
-      if (figure) expect(entry).toContain(`<span class="b-life">${figure}</span>`);
-      else expect(entry).not.toContain('class="b-life"');
-      if (row.language) expect(entry).toContain(`<span class="b-lang">${row.language}</span>`);
-      else expect(entry).not.toContain('class="b-lang"');
+      const metas = [...entry.matchAll(/<span class="b-meta">([^<]*)<\/span>/g)].map(
+        (match) => match[1],
+      );
+      expect(metas).toEqual([metaOf(row)]);
+      expect(entry).not.toContain('class="b-life"');
+      expect(entry).not.toContain('class="b-lang"');
     }
   });
 
@@ -1182,7 +1183,7 @@ describe("the stripped floor", () => {
 describe("the lead's pixel-pass residuals", () => {
   test("stacked tier-B rows keep the inline separator", () => {
     const css = read("src/styles/ledger.css");
-    expect(css).toMatch(/@media \(max-width: 1099px\)[\s\S]*?\.wc \.b-life::before,\s*\.wc \.b-lang::before \{[^}]*content:\s*" · "/);
+    expect(css).toMatch(/@media \(max-width: 1099px\)[\s\S]*?\.wc \.b-meta::before \{[^}]*content:\s*" · "/);
   });
 
   test("the stacked Work node fills the field", () => {
