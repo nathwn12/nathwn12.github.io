@@ -747,6 +747,37 @@ describe("one-time motion", () => {
   });
 });
 
+describe("the quadrant pass", () => {
+  test("Work's head holds the outcome and the figure pair", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.pc \.ch-head > \.band \{[^}]*grid-column:\s*band-start \/ field-end/);
+    expect(css).toMatch(/\.pc \.ch-head > \.band \{[^}]*grid-row:\s*3 \/ span 2/);
+    const work = html.slice(html.indexOf('id="work"'), html.indexOf('class="v-body pc"'));
+    expect(work).toContain('class="consequence"');
+    expect(work).toContain('class="band"');
+  });
+
+  test("Open Source sets the two figures on one row at measure", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.sa \.top \{[^}]*grid-column:\s*aside-start \/ field-end[^}]*flex-direction:\s*row/);
+    expect(css).toMatch(/\.sa \.figure,\s*\.sa \.flabel \{[^}]*text-align:\s*left/);
+  });
+
+  test("Approach spreads its three facts on one baseline", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.dl \{[^}]*justify-content:\s*space-between/);
+    expect(css).toMatch(/\.ma \.v-body \{[^}]*padding-block-end:\s*var\(--space-48\)/);
+  });
+
+  test("the phone band stacks and the dock is opaque", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/nav\.spine \{[^}]*background-color:\s*var\(--color-ground\)/);
+    expect(css).toMatch(/nav\.spine \{[^}]*border-block-start:\s*1px solid var\(--color-rule-strong\)/);
+    expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.pc \.band \{[^}]*flex-direction:\s*column/);
+    expect(css).toMatch(/\.pc \.zero-seal \.seal-label \{[^}]*text-align:\s*left/);
+  });
+});
+
 describe("the clear masthead and readable notes", () => {
   test("the hero pays for the masthead without losing the fold", () => {
     const css = read("src/styles/ledger.css");

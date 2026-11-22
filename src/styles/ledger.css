@@ -105,6 +105,8 @@ nav.spine {
     transform: translateX(-50%);
     z-index: 10;
     padding-block-end: env(safe-area-inset-bottom);
+    background-color: var(--color-ground);
+    border-block-start: 1px solid var(--color-rule-strong);
   }
 
   nav.spine a {
@@ -790,6 +792,36 @@ video.horizon-media.is-playing {
   gap: var(--space-32);
 }
 
+/* The two npm figures are one measured pair, not a stack in an empty corner. */
+@media (min-width: 1101px) {
+  .sa .top {
+    grid-column: aside-start / field-end;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-24);
+  }
+
+  .sa .top > div {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .sa .top .figure {
+    /* The pair must fit aside-start / field-end, not just the right band. */
+    font-size: clamp(3rem, 7.6vw, 8rem);
+  }
+
+  .sa .figure,
+  .sa .flabel {
+    text-align: left;
+  }
+
+  .wc .intro {
+    max-width: var(--measure-wide);
+  }
+}
+
 .sa .figure {
   font-family: var(--font-display);
   font-size: var(--text-figure);
@@ -990,6 +1022,20 @@ video.horizon-media.is-playing {
   color: var(--color-ink-muted);
 }
 
+@media (min-width: 1101px) {
+  .dl {
+    justify-content: space-between;
+  }
+
+  .dl > div {
+    align-self: baseline;
+  }
+
+  .ma .v-body {
+    padding-block-end: var(--space-48);
+  }
+}
+
 .dl b {
   display: block;
   font-size: var(--text-variant-value);
@@ -1027,6 +1073,35 @@ video.horizon-media.is-playing {
 @media (max-width: 430px) {
   .pc .consequence {
     font-size: 2.5rem;
+  }
+}
+
+/* Work's outcome and its figure pair share the head row on wide measure; the
+   figure's cap height sits with the headline's, not a row below it. */
+@media (min-width: 1101px) {
+  .pc .ch-head > .consequence,
+  .pc .ch-head > .consequence-lede {
+    grid-column: measure-start / aside-start;
+  }
+
+  .pc .ch-head > .ch-coordinate { grid-row: 1; }
+  .pc .ch-head > .ch-name { grid-row: 2; }
+  .pc .ch-head > .consequence { grid-row: 3; }
+  .pc .ch-head > .consequence-lede { grid-row: 4; }
+
+  .pc .ch-head > .band {
+    grid-column: band-start / field-end;
+    grid-row: 3 / span 2;
+    align-self: start;
+    margin-block-end: 0;
+  }
+}
+
+@media (max-width: 1100px) {
+  .pc .ch-head > .consequence,
+  .pc .ch-head > .consequence-lede,
+  .pc .ch-head > .band {
+    grid-column: measure-start / field-end;
   }
 }
 
@@ -1515,6 +1590,26 @@ video.horizon-media.is-playing {
 
   .pc .band {
     grid-column: measure-start / field-end;
+  }
+
+  /* Three rows: figure + caption, then the seal with its own label. */
+  .pc .band {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-24);
+  }
+
+  .pc .band > div {
+    display: block;
+  }
+
+  .pc .zero-seal {
+    align-items: flex-start;
+  }
+
+  .pc .zero-seal .seal-label {
+    text-align: left;
   }
 
   /* At phone the field is one column: measure spans to the field edge, so

@@ -52,6 +52,7 @@ function Cluster({
   variant,
   active,
   ornament,
+  headContent,
   children,
 }: {
   id: CoordinateKey;
@@ -60,13 +61,14 @@ function Cluster({
   variant: string;
   active: string;
   ornament?: ReactNode;
+  headContent?: ReactNode;
   children: ReactNode;
 }) {
   const coord = coordinates[id];
   return (
     <section
       id={id}
-      className={active === id ? "chapter is-active" : "chapter"}
+      className={active === id ? `chapter ${variant} is-active` : `chapter ${variant}`}
       aria-labelledby={`${id}-title`}
     >
       {ornament}
@@ -87,6 +89,7 @@ function Cluster({
           <h2 id={`${id}-title`} className="ch-name">
             {label}
           </h2>
+          {headContent}
         </div>
         <div className={`v-body ${variant}`}>{children}</div>
         {coord.margin && (
@@ -255,19 +258,29 @@ export default function LedgerPage() {
           </div>
         </section>
 
-        <Cluster id="work" index="01" label="Work" variant="pc" active={active}>
-          <p className="consequence">{consequenceHeadline}</p>
-          <p className="consequence-lede">{consequenceLede}</p>
-          <div className="band">
-            <div>
-              <b>{workBand[0].figure}</b>
-              <span>
-                <span className="band-caption">{workBand[0].label}</span>
-                <span className="band-caption-long">{workBand[0].labelLong}</span>
-              </span>
-            </div>
-            <ZeroSeal figure={workBand[1].figure} label={workBand[1].label} />
-          </div>
+        <Cluster
+          id="work"
+          index="01"
+          label="Work"
+          variant="pc"
+          active={active}
+          headContent={
+            <>
+              <p className="consequence">{consequenceHeadline}</p>
+              <p className="consequence-lede">{consequenceLede}</p>
+              <div className="band">
+                <div>
+                  <b>{workBand[0].figure}</b>
+                  <span>
+                    <span className="band-caption">{workBand[0].label}</span>
+                    <span className="band-caption-long">{workBand[0].labelLong}</span>
+                  </span>
+                </div>
+                <ZeroSeal figure={workBand[1].figure} label={workBand[1].label} />
+              </div>
+            </>
+          }
+        >
           <div className="spine">
             {experience.map((entry) => (
               <div className="node" key={entry.id}>
