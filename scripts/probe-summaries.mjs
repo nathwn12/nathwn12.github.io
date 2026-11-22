@@ -20,7 +20,9 @@ import { pathToFileURL } from "node:url";
 import { z } from "zod";
 import { writeRecordIfChanged } from "./probe-repos.mjs";
 
-const root = resolve(import.meta.dirname, "..");
+const root = process.env.LEDGER_ROOT
+  ? resolve(process.env.LEDGER_ROOT)
+  : resolve(import.meta.dirname, "..");
 export const OUT = resolve(root, "src", "content", "ai-summaries.json");
 const REPOS = resolve(root, "src", "content", "repos.probe.json");
 const RAW = (repo) =>
@@ -94,6 +96,9 @@ export function computeStale(updated, pushedAt) {
 
 /** Network is the only external dependency. Injected by tests with a seed. */
 export async function defaultFetchText(repo) {
+  if (process.env.LEDGER_PROBE_OFFLINE === "1") {
+    throw new Error("offline: fetch is disabled for this refresh");
+  }
   const response = await fetch(RAW(repo), {
     headers: { "user-agent": "nathwn12-portfolio-summary-probe" },
   });

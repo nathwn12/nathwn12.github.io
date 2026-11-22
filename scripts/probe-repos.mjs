@@ -33,7 +33,9 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
-const root = resolve(import.meta.dirname, "..");
+const root = process.env.LEDGER_ROOT
+  ? resolve(process.env.LEDGER_ROOT)
+  : resolve(import.meta.dirname, "..");
 const OUT = resolve(root, "src", "content", "repos.probe.json");
 const CONTENT = resolve(root, "src", "content", "projects.ts");
 
@@ -49,6 +51,9 @@ const FIELDS = [
 ];
 
 function gh(args) {
+  if (process.env.LEDGER_PROBE_OFFLINE === "1") {
+    throw new Error("offline: gh is disabled for this refresh");
+  }
   return execFileSync("gh", args, {
     encoding: "utf8",
     maxBuffer: 16 * 1024 * 1024,
