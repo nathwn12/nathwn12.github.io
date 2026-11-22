@@ -747,6 +747,20 @@ describe("one-time motion", () => {
   });
 });
 
+describe("the clear masthead and readable notes", () => {
+  test("the hero pays for the masthead without losing the fold", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.beat-one \{[^}]*min-height:\s*calc\(100vh - var\(--nav-height\)\)[^}]*padding-block-start:\s*var\(--nav-height\)/);
+    expect(css).toMatch(/\.beat-one \.hero-hud \{[^}]*min-height:\s*calc\(100vh - var\(--nav-height\)\)/);
+  });
+
+  test("notes read as blocks and can reach past the aside", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.chapter-margin \{[^}]*display:\s*block/);
+    expect(css).toMatch(/@media \(min-width: 1101px\)[\s\S]*?#oss \.chapter-margin,\s*#contact \.chapter-margin \{[^}]*width:\s*330px/);
+  });
+});
+
 describe("the restored nav and band pair", () => {
   test("the masthead sits on the content axis with a word gap", () => {
     const css = read("src/styles/ledger.css");

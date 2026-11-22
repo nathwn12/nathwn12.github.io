@@ -147,6 +147,16 @@ nav.spine {
   min-height: 100vh;
 }
 
+/* The sticky masthead owns the first 44px; the fold still measures 100vh. */
+.beat-one {
+  min-height: calc(100vh - var(--nav-height));
+  padding-block-start: var(--nav-height);
+}
+
+.beat-one .hero-hud {
+  min-height: calc(100vh - var(--nav-height));
+}
+
 .beat-cold {
   display: grid;
   align-items: center;
@@ -687,6 +697,9 @@ video.horizon-media.is-playing {
   grid-row: 1;
   grid-column: aside-start / band-start;
   align-self: start;
+  /* A block note reads across tracks; as a subgrid item it broke into single
+     words beside the nowrap cron token. */
+  display: block;
   max-width: 22ch;
   margin: 0;
   font-family: var(--font-data);
@@ -694,6 +707,14 @@ video.horizon-media.is-playing {
   line-height: 1.45;
   letter-spacing: var(--tracking-data);
   color: var(--color-ink-muted);
+}
+
+@media (min-width: 1101px) {
+  #oss .chapter-margin,
+  #contact .chapter-margin {
+    width: 330px;
+    max-width: none;
+  }
 }
 
 /* Work's short derived note uses its full aside column as a block; the shared
