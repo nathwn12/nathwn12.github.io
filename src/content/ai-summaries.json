@@ -1,0 +1,261 @@
+{
+  "measuredAt": "2026-11-22",
+  "summaries": [
+    {
+      "repo": "aimp-discord-presence",
+      "project": "aimp-discord-presence",
+      "one_line": "Show what AIMP is playing as a Discord Rich Presence with artist, track and album art.",
+      "stack": [
+        "C++"
+      ],
+      "status": "draft",
+      "since": "2026-10",
+      "capabilities": [],
+      "limits": [],
+      "updated": "2026-11-22",
+      "draft": true,
+      "pushedAt": "2026-11-22",
+      "stale": false
+    },
+    {
+      "repo": "arc-installer",
+      "project": "arc-installer",
+      "one_line": "Install, remove, and repair the ARC icon theme on Windows 10 and 11.",
+      "stack": [
+        "PowerShell"
+      ],
+      "status": "draft",
+      "since": "2026-10",
+      "capabilities": [],
+      "limits": [],
+      "updated": "2026-11-22",
+      "draft": true,
+      "pushedAt": "2026-11-22",
+      "stale": false
+    },
+    {
+      "repo": "bytefry",
+      "project": "bytefry",
+      "one_line": "Deep-fry images locally on Windows with repeat JPEG crush, a bulge and five filters.",
+      "stack": [
+        "C#"
+      ],
+      "status": "draft",
+      "since": "2026-11",
+      "capabilities": [],
+      "limits": [],
+      "updated": "2026-11-22",
+      "draft": true,
+      "pushedAt": "2026-11-22",
+      "stale": false
+    },
+    {
+      "repo": "gladius",
+      "project": "gladius",
+      "one_line": "Give your AI agent a real headless browser to test, screenshot, and check layout.",
+      "stack": [
+        "Rust"
+      ],
+      "status": "draft",
+      "since": "2026-10",
+      "capabilities": [],
+      "limits": [],
+      "updated": "2026-11-22",
+      "draft": true,
+      "pushedAt": "2026-11-22",
+      "stale": false
+    },
+    {
+      "repo": "hand",
+      "project": "hand",
+      "one_line": "Browser automation and Windows computer use in one MCP server: headless Chrome over CDP, native UI via UIA. Click, type, screenshot, test extensions - one Rust binary, no pointer steal.",
+      "stack": [
+        "Rust"
+      ],
+      "status": "draft",
+      "since": "2026-11",
+      "capabilities": [],
+      "limits": [],
+      "updated": "2026-11-22",
+      "draft": true,
+      "pushedAt": "2026-11-22",
+      "stale": false
+    },
+    {
+      "repo": "my-chromium-extensions",
+      "project": "my-chromium-extensions",
+      "one_line": "Normalize per-site loudness, slow playback with reverb, and report Crunchyroll and YouTube Music presence.",
+      "stack": [
+        "JavaScript"
+      ],
+      "status": "draft",
+      "since": "2026-11",
+      "capabilities": [],
+      "limits": [],
+      "updated": "2026-11-22",
+      "draft": true,
+      "pushedAt": "2026-11-22",
+      "stale": false
+    },
+    {
+      "repo": "nathwn12",
+      "project": "nathwn12",
+      "one_line": "Profile README. The work lives in the repos linked below.",
+      "stack": [
+        "JavaScript"
+      ],
+      "status": "draft",
+      "since": "2026-10",
+      "capabilities": [],
+      "limits": [],
+      "updated": "2026-11-22",
+      "draft": true,
+      "pushedAt": "2026-11-22",
+      "stale": false
+    },
+    {
+      "repo": "nathwn12.github.io",
+      "project": "nathwn12.github.io",
+      "one_line": "Explore the portfolio and resume in a terminal-themed single page ÔÇö TypeScript.",
+      "stack": [
+        "TypeScript"
+      ],
+      "status": "draft",
+      "since": "2026-04",
+      "capabilities": [],
+      "limits": [],
+      "updated": "2026-11-22",
+      "draft": true,
+      "pushedAt": "2026-11-22",
+      "stale": false
+    },
+    {
+      "repo": "oc-collections",
+      "project": "oc-collections",
+      "one_line": "Install OpenCode plugins, MCP servers and CLIs one package at a time",
+      "stack": [
+        "Rust"
+      ],
+      "status": "draft",
+      "since": "2026-10",
+      "capabilities": [],
+      "limits": [],
+      "updated": "2026-11-22",
+      "draft": true,
+      "pushedAt": "2026-11-22",
+      "stale": false
+    },
+    {
+      "repo": "oc-templates",
+      "project": "oc-templates",
+      "one_line": "Scaffold an OpenCode v2 plugin with a dependency-free stdio MCP server.",
+      "stack": [
+        "JavaScript"
+      ],
+      "status": "draft",
+      "since": "2026-10",
+      "capabilities": [],
+      "limits": [],
+      "updated": "2026-11-22",
+      "draft": true,
+      "pushedAt": "2026-11-22",
+      "stale": false
+    },
+    {
+      "repo": "pear-slowed-reverb",
+      "project": "pear-slowed-reverb",
+      "one_line": "Play YouTube Music on Windows with a maintained Pear Desktop fork that ships its own builds.",
+      "stack": [
+        "TypeScript"
+      ],
+      "status": "draft",
+      "since": "2026-09",
+      "capabilities": [],
+      "limits": [],
+      "updated": "2026-11-22",
+      "draft": true,
+      "pushedAt": "2026-11-22",
+      "stale": false
+    },
+    {
+      "repo": "potflix",
+      "project": "potflix",
+      "one_line": "Show what PotPlayer is playing on your Discord profile with matched artwork and episode details.",
+      "stack": [
+        "Rust"
+      ],
+      "status": "draft",
+      "since": "2026-10",
+      "capabilities": [],
+      "limits": [],
+      "updated": "2026-11-22",
+      "draft": true,
+      "pushedAt": "2026-11-22",
+      "stale": false
+    },
+    {
+      "repo": "puppet",
+      "project": "puppet",
+      "one_line": "Drive Windows apps without stealing focus or moving the pointer: screenshot, windows, input and cursor over MCP.",
+      "stack": [
+        "Rust"
+      ],
+      "status": "draft",
+      "since": "2026-10",
+      "capabilities": [],
+      "limits": [],
+      "updated": "2026-11-22",
+      "draft": true,
+      "pushedAt": "2026-11-22",
+      "stale": false
+    },
+    {
+      "repo": "slowburn",
+      "project": "slowburn",
+      "one_line": "Slow tracks, add reverb, and save an A-B loop per song on Windows.",
+      "stack": [
+        "TypeScript"
+      ],
+      "status": "draft",
+      "since": "2026-10",
+      "capabilities": [],
+      "limits": [],
+      "updated": "2026-11-22",
+      "draft": true,
+      "pushedAt": "2026-11-22",
+      "stale": false
+    },
+    {
+      "repo": "spotify-playlist-to-youtube",
+      "project": "spotify-playlist-to-youtube",
+      "one_line": "Copy a public Spotify playlist into YouTube Music without an API key.",
+      "stack": [
+        "Python"
+      ],
+      "status": "draft",
+      "since": "2026-11",
+      "capabilities": [],
+      "limits": [],
+      "updated": "2026-11-22",
+      "draft": true,
+      "pushedAt": "2026-11-22",
+      "stale": false
+    },
+    {
+      "repo": "vencord-bootstrap",
+      "project": "vencord-bootstrap",
+      "one_line": "Install and repair Vencord from the official upstream release with one PowerShell line.",
+      "stack": [
+        "PowerShell"
+      ],
+      "status": "draft",
+      "since": "2026-09",
+      "capabilities": [],
+      "limits": [],
+      "updated": "2026-11-22",
+      "draft": true,
+      "pushedAt": "2026-11-22",
+      "stale": false
+    }
+  ]
+}

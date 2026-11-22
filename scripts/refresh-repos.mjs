@@ -14,6 +14,8 @@ import { resolve } from "node:path";
 const root = resolve(import.meta.dirname, "..");
 const snapshot = resolve(root, "src", "content", "repos.probe.json");
 const probe = resolve(root, "scripts", "probe-repos.mjs");
+const summarySnapshot = resolve(root, "src", "content", "ai-summaries.json");
+const summaryProbe = resolve(root, "scripts", "probe-summaries.mjs");
 
 try {
   process.stdout.write(
@@ -29,5 +31,17 @@ try {
   }
   console.warn(
     `probe failed (${reason}); keeping committed snapshot measured ${record.measuredAt} (${record.publicRepos} public repos)`,
+  );
+}
+
+try {
+  process.stdout.write(
+    execFileSync(process.execPath, [summaryProbe], { cwd: root, encoding: "utf8" }),
+  );
+} catch (error) {
+  const reason = String(error.message || error.stderr || error).trim().split("\n")[0];
+  const record = JSON.parse(readFileSync(summarySnapshot, "utf8"));
+  console.warn(
+    `summary probe failed (${reason}); keeping committed snapshot measured ${record.measuredAt}`,
   );
 }
