@@ -44,6 +44,26 @@ and constraints. V2 changes the structural layer: one field, one coordinate
 line per chapter, one margin note, a second hero beat, a tier ledger, a seal,
 a phone spine and one ornament. The goal remains a cold read with a margin.
 
+## V3 — the weight law
+
+This section supersedes the v2 chapter order below. The page is weighted by
+consequence: production work first, shipped public work second, the method
+third, the ask last. Four chapters carry that order, ids included:
+
+| NN | Chapter | Id | Coordinate |
+|---|---|---|---|
+| 01 | Work | `work` | the measured record |
+| 02 | Open Source | `oss` | the all-time npm installs |
+| 03 | Approach | `method` | the spec steps |
+| 04 | Contact | `contact` | open |
+
+Numbers is evidence, not a chapter. Its all-time total becomes Open Source's
+coordinate figure; the last-30-day count and the per-package sparkline strip
+sit under the Open Source intro, and the GitHub activity row (contributions and
+heat strip) closes that chapter as the public record. The commit band —
+1,182 commits · 17 repos · 21 scanned — stays in Work beside the engagements.
+Every moved figure still derives from `src/content/`; no claim is retyped.
+
 ### Fluid geometry (supersedes the 82/96/110rem field and the 32/64/96px rail)
 
 The live law: no fixed layout sizing. Field, rail, gutter, gaps and component
@@ -88,17 +108,18 @@ aside 2 / band 4 is the geometry that holds. No content sits outside the field.
 ### Coordinate line and margin note
 
 One mono data line at measure left, above each title, exactly
-`NN / LABEL / VALUE / DATE`: Numbers 35,143; Open Source 14 REPOS; Work 1,182;
-Approach 5 STEPS; Contact OPEN. Every value is derived in
-`src/content/coordinates.ts` from committed content; the date is the committed
-snapshot date (2026-11-19), not a fresh date. The `NN` lights signal on the
-active chapter. One margin note maximum per chapter, at aside beside the head
-and folding below the body at ≤1100. The Numbers note names the committed cron
-`0 6 * * 1` from `.github/workflows/open-source-stats.yml`.
+`NN / LABEL / VALUE / DATE`: Work 1,182; Open Source 35,143; Approach 5 STEPS;
+Contact OPEN. Every value is derived in `src/content/coordinates.ts` from
+committed content; the date is the committed snapshot date (2026-11-19), not a
+fresh date. The `NN` lights signal on the active chapter. One margin note
+maximum per chapter, at aside beside the head and folding below the body at
+≤1100. The Open Source note names the committed cron `0 6 * * 1` from
+`.github/workflows/open-source-stats.yml`, which qualifies its all-time figure.
 
-Deviation recorded: the OS coordinate is 14 REPOS (featured + index rows), not
-the design note's 11. Dates derive from snapshots; all five chapters share one
-date. The Contact margin note is `contactBlock.nextStep`, printed once.
+Deviation recorded: the all-time npm figure is now the Open Source coordinate
+rather than a chapter of its own. Dates derive from snapshots; all four
+chapters share one date. The Contact margin note is `contactBlock.nextStep`,
+printed once.
 
 ### Two-beat hero, still-first
 
@@ -115,22 +136,25 @@ Deviation recorded: the earlier 53% absolute surname and its 900/2200 offsets
 are gone; the name is one block so the surname never detaches from the given
 name. The full legal name `Nathaniel Nikolai Ladero` stays in the title,
 og/twitter metadata, JSON-LD and the mailto. The phone keeps labels-only in the
-top nav because five full labels and numerals do not fit 390.
+top nav because four full labels and numerals do not fit 390.
 
 ### Sections
 
-Open Source is one ruled tier ledger: tier A's three rows are whole-row links
-with name, claim, detail, tech, lifetime and language; tier B's eleven rows are
-one mono line each with the name as the only link. Lifetime and language appear
-in every row. Hairlines only, no boxes. Work's `1,182` sits at band left and a
+Work opens with the engagement record; its `1,182` sits at band left and a
 hollow zero seal at band right, the only outline figure, with `−98%` as a real
-text node in its counter. Approach places prose at measure, the five-rule table
-flush right at `aside-start / field-end`, facts and data full. Contact asks and
-mails at measure; the band stays void.
+text node in its counter. Open Source carries the npm evidence first — the
+monthly figure at band right, the per-package sparkline strip at measure, the
+GitHub activity row at the end — then one ruled tier ledger: tier A's three
+rows are whole-row links with name, claim, detail, tech, lifetime and language;
+tier B's eleven rows are one mono line each with the name as the only link.
+Lifetime and language appear in every row. Hairlines only, no boxes. Approach
+places prose at measure, the five-rule table flush right at
+`aside-start / field-end`, facts and data full. Contact asks and mails at
+measure; the band stays void.
 
 ### Phone spine, witness mark, motion
 
-At ≤700 a fixed left spine carries 01–05 with a 44px tap height at 24px from
+At ≤700 a fixed left spine carries 01–04 with a 44px tap height at 24px from
 the left edge, and `--index-rail` becomes 44px. It is the only persistent phone
 chrome. The witness is one inline SVG with five hairline rings in two
 counter-rotating groups, 240s linear, at the 8% `--witness` tint; it sits behind
@@ -217,21 +241,21 @@ viewBox to the glyph, with the strokes untouched; the canonical tiled file
 stays in the brand kit. The owned mark keeps its own file, format and
 palette; site tokens bind site surfaces, never the brand mark. The site
 renders it as a quiet imprint at 0.6 opacity — a CSS treatment only; the
-SVG file is untouched. Then the five chapter links on one hairline — the
+SVG file is untouched. Then the four chapter links on one hairline — the
 constellation line; the active chapter carries the signal tint. The hero is one full-viewport singularity — a recorded loop
 with its plate content in the corners. Chapters alternate dense catalog
 blocks — figures, sparklines,
 ruled rows — with open register rows; hairline rules separate rows, never
-boxes. Rhythm: dense, open, dense; never five equal bands.
+boxes. Rhythm: dense, open, dense; never four equal bands.
 
-One system, five arrangements: 2560x1440 is the primary canvas — the sky
+One system, four arrangements: 2560x1440 is the primary canvas — the sky
 spans edge to edge, the content field widens with the viewport (82rem on
 desktop, up to 110rem at native 1440p), and display scale is tuned at
-native. All five chapters share that field, an index rail, one type scale,
+native. All four chapters share that field, an index rail, one type scale,
 hairline rules and the same padding rhythm; only the inner arrangement
 changes. 390-430 keeps compact art direction — condensed numeral navigation
 on one hairline, stacked catalog rows, touch-first targets. Never a squeezed
-desktop, never five unrelated blocks.
+desktop, never four unrelated blocks.
 
 ## Motion
 
@@ -246,9 +270,10 @@ scroll; no interception, no snap, no scroll-driven choreography.
 
 - The void is the only ground; no panel, plate, card or fill behind text; a
   hairline is a rule, not a box. Every chapter is one system: a shared content
-  field and index rail, one type scale, the same rhythm. Numbers and Open Source
-  are ruled data bands; Open Source's three featured entries are a three-column
-  band with a top hairline and vertical separators, never boxed cards.
+  field and index rail, one type scale, the same rhythm. Open Source carries
+  the ruled data bands — the npm evidence and the repository ledger; its three
+  featured entries are a three-column band with a top hairline and vertical
+  separators, never boxed cards.
 - Tokens are normative; prose explains and never overrides.
 - One navigation; every chapter reachable from it.
 - Reduced motion is a complete document, not a frozen animation.

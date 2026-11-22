@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 /**
- * The ledger's surviving floor: one nav, five clusters in descent order,
+ * The ledger's surviving floor: one nav, four chapters in consequence order,
  * committed data, and a document with no committed design law.
  */
 import { existsSync, readFileSync } from "node:fs";
@@ -22,10 +22,10 @@ const read = (rel: string) => readFileSync(resolve(root, rel), "utf8");
 
 const html = renderToStaticMarkup(createElement(LedgerPage));
 const indexHtml = read("index.html");
-const ORDER = ["signal", "work", "proof", "method", "contact"];
+const ORDER = ["work", "oss", "method", "contact"];
 
-describe("one nav, five clusters in descent order", () => {
-  test("the nav lists the five stages in descent order", () => {
+describe("one nav, four chapters in consequence order", () => {
+  test("the nav lists the four stages in consequence order", () => {
     expect(html.match(/<nav\b/g) ?? []).toHaveLength(2);
     const nav = html.match(/<nav class="links"[\s\S]*?<\/nav>/)?.[0] ?? "";
     const links = [...nav.matchAll(/href="#([a-z]+)"/g)].map((match) => match[1]);
@@ -37,7 +37,7 @@ describe("one nav, five clusters in descent order", () => {
     expect(html.match(/<header\b/g) ?? []).toHaveLength(1);
     expect(html.indexOf("skip-link")).toBeLessThan(html.indexOf("lab-nav"));
     const ids = [...html.matchAll(/<section id="([a-z]+)"/g)].map((match) => match[1]);
-    expect(ids.slice(0, 6)).toEqual(["horizon", ...ORDER]);
+    expect(ids.slice(0, 5)).toEqual(["horizon", ...ORDER]);
     for (const id of ORDER) {
       expect(html).toContain(`aria-labelledby="${id}-title"`);
     }
@@ -71,7 +71,7 @@ describe("one nav, five clusters in descent order", () => {
 
   test("the final labels are visible with stable ids", () => {
     for (const [id, label] of [
-      ["signal", "Numbers"], ["work", "Open Source"], ["proof", "Work"],
+      ["work", "Work"], ["oss", "Open Source"],
       ["method", "Approach"], ["contact", "Contact"],
     ]) {
       expect(html).toContain(`id="${id}"`);
@@ -130,16 +130,23 @@ describe("the content survives the strip", () => {
     expect(html).toContain(signal.allTime.toLocaleString("en-US"));
   });
 
-  test("Numbers uses the approved variant A shell", () => {
-    const signalSection = html.slice(
-      html.indexOf('id="signal"'),
-      html.indexOf('id="work"'),
+  test("Open Source carries the npm evidence in the approved shells", () => {
+    const ossSection = html.slice(
+      html.indexOf('id="oss"'),
+      html.indexOf('id="method"'),
     );
-    expect(signalSection).toContain('class="v-body sa"');
-    expect(signalSection).toContain('class="top"');
-    expect(signalSection).toContain('class="strip"');
-    expect(signalSection).toContain('class="lower"');
-    expect(signalSection).toContain('class="stamp"');
+    expect(ossSection).toContain('class="v-body wc sa"');
+    expect(ossSection).toContain('class="top"');
+    expect(ossSection).toContain('class="strip"');
+    expect(ossSection).toContain('class="lower"');
+    expect(ossSection).toContain('class="stamp"');
+    // The evidence follows the intro and precedes the public activity row.
+    expect(ossSection.indexOf('class="intro"')).toBeLessThan(
+      ossSection.indexOf('class="top"'),
+    );
+    expect(ossSection.indexOf('class="ledger"')).toBeLessThan(
+      ossSection.indexOf('class="lower"'),
+    );
   });
 
   test("the heat strip wraps at narrow widths instead of widening the page", () => {
@@ -182,7 +189,7 @@ describe("the content survives the strip", () => {
   });
 
   test("the cards keep lifetime downloads and language in the foot", () => {
-    const work = html.slice(html.indexOf('id="work"'), html.indexOf('id="proof"'));
+    const work = html.slice(html.indexOf('id="oss"'), html.indexOf('id="method"'));
     for (const row of featuredRows) {
       expect(work).toContain(row.lifetime!.toLocaleString("en-US"));
       expect(work).toContain(row.language);
@@ -196,23 +203,28 @@ describe("the content survives the strip", () => {
     expect(work).not.toContain("40 MCP tools");
   });
 
-  test("the work section repeats no signal or proof figure", () => {
-    const work = html.slice(html.indexOf('id="work"'), html.indexOf('id="proof"'));
-    const repeats = [
+  test("Work carries the commit record; the npm evidence stays in Open Source", () => {
+    const work = html.slice(html.indexOf('id="work"'), html.indexOf('id="oss"'));
+    const evidence = [
       ...signal.packages.map((item) => item.month.toLocaleString("en-US")),
       signal.allTime.toLocaleString("en-US"),
       signal.month.toLocaleString("en-US"),
-      figures.commits!,
-      "/ 30d",
+      "last 30 days",
     ];
-    for (const figure of repeats) {
+    for (const figure of evidence) {
       expect(work).not.toContain(figure);
     }
-    expect(work).not.toContain("class=\"spark\"");
+    expect(work).not.toContain('class="spark"');
+    expect(work).toContain(figures.commits!);
+
+    const oss = html.slice(html.indexOf('id="oss"'), html.indexOf('id="method"'));
+    for (const figure of evidence) {
+      expect(oss).toContain(figure);
+    }
   });
 
   test("the shelf keeps every real repository link", () => {
-    const work = html.slice(html.indexOf('id="work"'), html.indexOf('id="proof"'));
+    const work = html.slice(html.indexOf('id="oss"'), html.indexOf('id="method"'));
     expect(work).toContain("opencode-harness");
     expect(work).toContain("The public harness he drives every day.");
     expect(work.match(/target="_blank"/g) ?? []).toHaveLength(14);
@@ -235,7 +247,7 @@ describe("the content survives the strip", () => {
   });
 
   test("tier A is one whole-row link; tier B links only the name", () => {
-    const work = html.slice(html.indexOf('id="work"'), html.indexOf('id="proof"'));
+    const work = html.slice(html.indexOf('id="oss"'), html.indexOf('id="method"'));
     const anchors = work.match(/<a class="tier-a"[^>]*>[\s\S]*?<\/a>/g) ?? [];
     for (const row of featuredRows) {
       const anchor = anchors.find((part) => part.includes(row.name)) ?? "";
@@ -291,20 +303,20 @@ describe("the content survives the strip", () => {
   });
 
   test("the Work band and spine derive from the measured record", () => {
-    const proof = html.slice(html.indexOf('id="proof"'), html.indexOf('id="method"'));
-    expect(proof).toContain('class="band"');
-    expect(proof).toContain('class="spine"');
-    expect(proof.match(/class="node"/g) ?? []).toHaveLength(experience.length);
+    const work = html.slice(html.indexOf('id="work"'), html.indexOf('id="oss"'));
+    expect(work).toContain('class="band"');
+    expect(work).toContain('class="spine"');
+    expect(work.match(/class="node"/g) ?? []).toHaveLength(experience.length);
     for (const item of workBand) {
-      expect(proof).toContain(item.figure);
-      expect(proof).toContain(item.label);
+      expect(work).toContain(item.figure);
+      expect(work).toContain(item.label);
     }
-    expect(proof.match(/class="stampfig"/g) ?? []).toHaveLength(2);
+    expect(work.match(/class="stampfig"/g) ?? []).toHaveLength(2);
     for (const entry of experience) {
-      expect(proof).toContain(spineDate(entry.date));
-      expect(proof).toContain(entry.name);
-      expect(proof).toContain(entry.outcome);
-      expect(proof).toContain(entry.texture.replace(/'/g, "&#x27;"));
+      expect(work).toContain(spineDate(entry.date));
+      expect(work).toContain(entry.name);
+      expect(work).toContain(entry.outcome);
+      expect(work).toContain(entry.texture.replace(/'/g, "&#x27;"));
     }
   });
 
@@ -350,14 +362,14 @@ describe("the content survives the strip", () => {
     expect(css).toContain(".colophon-links");
   });
 
-  test("all five chapters share one field, type scale and rhythm", () => {
+  test("all four chapters share one field, type scale and rhythm", () => {
     const css = read("src/styles/ledger.css");
     const tokens = read("src/styles/tokens.css");
     // One 12-track field inside every chapter, with subgrid children.
     expect(css).toMatch(/\.field \{[^}]*width:\s*100%[^}]*padding-inline:\s*var\(--gutter\)/);
     expect(css).toMatch(/\.chapter > \.field \{[^}]*display:\s*grid/);
     expect(css).toMatch(/\.ch-head,\s*\.v-body,\s*\.chapter-margin \{[^}]*grid-column:\s*field-start \/ field-end/);
-    // One type scale: the same roles across all five variants.
+    // One type scale: the same roles across all four variants.
     expect(css).toMatch(/\.ma \.prose p \{[^}]*font-size:\s*var\(--text-lede\)/);
     expect(css).toMatch(/\.wc \.intro \{[^}]*font-size:\s*var\(--text-lede\)/);
     expect(css).toMatch(/\.pc h3 \{[^}]*font-size:\s*var\(--text-lede\)/);
@@ -367,8 +379,8 @@ describe("the content survives the strip", () => {
     expect(css).toMatch(/\.sa \.flabel \{[^}]*font-size:\s*var\(--text-mono\)/);
     expect(css).toMatch(/\.sa \.flabel \{[^}]*text-align:\s*right/);
     expect(css).toMatch(/\.chapter-margin \{[^}]*font-size:\s*var\(--text-mono\)/);
-    // Numbers figures and the Work band share one display token; both are
-    // data bands spanning the same field.
+    // The npm evidence figures and the Work band share one display token;
+    // both are data bands spanning the same field.
     expect(css).toMatch(/\.sa \.figure \{[^}]*font-size:\s*var\(--text-figure\)/);
     expect(css).toMatch(/\.pc \.band b \{[^}]*font-size:\s*var\(--text-figure\)/);
     expect(css).toMatch(/\.pc \.band \{[^}]*justify-content:\s*space-between/);
@@ -406,7 +418,7 @@ describe("the content survives the strip", () => {
 
 describe("the 12-column field law", () => {
   test("every chapter and both strips share one centred field", () => {
-    expect(html.match(/class="field"/g) ?? []).toHaveLength(8);
+    expect(html.match(/class="field"/g) ?? []).toHaveLength(7);
     expect(html).toMatch(/<header class="lab-nav" aria-label="Site"><div class="field">/);
     expect(html).toMatch(/<footer class="colophon">[\s\S]*?<div class="field">/);
     for (const id of ORDER) {
@@ -453,11 +465,10 @@ describe("the 12-column field law", () => {
 
 describe("the coordinate and margin lines", () => {
   const stamps = [
-    ["signal", "01", "Numbers", signal.allTime.toLocaleString("en-US")],
-    ["work", "02", "Open Source", `${featuredRows.length + indexRows.length} REPOS`],
-    ["proof", "03", "Work", figures.commits ?? ""],
-    ["method", "04", "Approach", `${specLines.length} STEPS`],
-    ["contact", "05", "Contact", "OPEN"],
+    ["work", "01", "Work", figures.commits ?? ""],
+    ["oss", "02", "Open Source", signal.allTime.toLocaleString("en-US")],
+    ["method", "03", "Approach", `${specLines.length} STEPS`],
+    ["contact", "04", "Contact", "OPEN"],
   ] as const;
 
   test("each chapter carries one coordinate line with derived values", () => {
@@ -488,12 +499,12 @@ describe("the coordinate and margin lines", () => {
     expect(css).toMatch(/\.ch-num \{[^}]*color:\s*var\(--color-ink-muted\)/);
     expect(css).toMatch(/\.ch-num\.is-active \{[^}]*color:\s*var\(--color-signal\)/);
     expect(html.match(/class="ch-num is-active"/g) ?? []).toHaveLength(1);
-    expect(html.match(/class="coord-tail"/g) ?? []).toHaveLength(5);
+    expect(html.match(/class="coord-tail"/g) ?? []).toHaveLength(4);
     expect(css).toMatch(/@media \(max-width: 700px\)[\s\S]*?\.coord-tail \{[^}]*display:\s*none/);
   });
 
   test("exactly one margin note per chapter, qualified from content", () => {
-    expect(html.match(/class="chapter-margin"/g) ?? []).toHaveLength(5);
+    expect(html.match(/class="chapter-margin"/g) ?? []).toHaveLength(4);
     for (const [id] of stamps) {
       const at = html.indexOf(`id="${id}"`);
       const next = html.indexOf('<section id="', at + 8);
@@ -501,14 +512,14 @@ describe("the coordinate and margin lines", () => {
       expect(section.match(/class="chapter-margin"/g) ?? []).toHaveLength(1);
       expect(section).toContain(coordinates[id].margin);
     }
-    expect(coordinates.proof.margin).toContain("Xentra");
+    expect(coordinates.work.margin).toContain("Xentra");
     expect(coordinates.method.margin).toBe("MCP · local models · spec-driven");
     expect(coordinates.method.margin).not.toBe(aiPractice.facts.join(" · "));
     expect(coordinates.contact.margin).toBe(contactBlock.nextStep);
   });
 
-  test("the Numbers caveat names the committed snapshot cron", () => {
-    expect(coordinates.signal.margin).toContain("0 6 * * 1");
+  test("the Open Source caveat names the committed snapshot cron", () => {
+    expect(coordinates.oss.margin).toContain("0 6 * * 1");
     expect(read(".github/workflows/open-source-stats.yml")).toMatch(
       /cron:\s*'0 6 \* \* 1'/,
     );
@@ -531,20 +542,20 @@ describe("the Work zero seal", () => {
   test("the band is flush to the field right, with the seal at its end", () => {
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(/\.pc \.band \{[^}]*grid-column:\s*band-start \/ field-end/);
-    const proof = html.slice(html.indexOf('id="proof"'), html.indexOf('id="method"'));
-    expect(proof).toContain(workBand[0].figure!);
-    expect(proof).toContain('class="zero-seal"');
-    expect(proof.indexOf(workBand[0].figure!)).toBeLessThan(
-      proof.indexOf('class="zero-seal"'),
+    const work = html.slice(html.indexOf('id="work"'), html.indexOf('id="oss"'));
+    expect(work).toContain(workBand[0].figure!);
+    expect(work).toContain('class="zero-seal"');
+    expect(work.indexOf(workBand[0].figure!)).toBeLessThan(
+      work.indexOf('class="zero-seal"'),
     );
   });
 
   test("the zero is the only hollow figure, with its stamp as real text", () => {
     const css = read("src/styles/ledger.css");
-    const proof = html.slice(html.indexOf('id="proof"'), html.indexOf('id="method"'));
-    expect(proof).toContain('class="seal-zero"');
-    expect(proof).toContain('class="seal-stamp"');
-    expect(proof).toContain(spineStamp("03")!);
+    const work = html.slice(html.indexOf('id="work"'), html.indexOf('id="oss"'));
+    expect(work).toContain('class="seal-zero"');
+    expect(work).toContain('class="seal-stamp"');
+    expect(work).toContain(spineStamp("03")!);
     expect(css).toMatch(/\.seal-zero \{[^}]*font-family:\s*var\(--font-data\)/);
     expect(css).toMatch(/\.seal-zero \{[^}]*font-size:\s*var\(--text-figure\)/);
     expect(css).toMatch(/\.seal-zero \{[^}]*color:\s*var\(--color-ink-muted\)/);
@@ -558,19 +569,20 @@ describe("the Work zero seal", () => {
 });
 
 describe("chapter placement on the field", () => {
-  test("Numbers stacks its figures in the right band; the strip is full", () => {
+  test("Open Source stacks the monthly figure in the band; the strip is full", () => {
     const css = read("src/styles/ledger.css");
     expect(css).toMatch(/\.sa \.top \{[^}]*grid-column:\s*band-start \/ field-end/);
     expect(css).toMatch(/\.sa \.top \{[^}]*flex-direction:\s*column/);
     expect(css).toMatch(/\.sa \.figure \{[^}]*text-align:\s*right/);
     expect(css).toMatch(/\.sa \.strip \{[^}]*grid-column:\s*measure-start \/ field-end/);
-    const signalSection = html.slice(
-      html.indexOf('id="signal"'),
-      html.indexOf('id="work"'),
+    const ossSection = html.slice(
+      html.indexOf('id="oss"'),
+      html.indexOf('id="method"'),
     );
-    expect(signalSection.match(/class="count-up figure"/g) ?? []).toHaveLength(2);
-    expect(signalSection.indexOf('class="top"')).toBeLessThan(
-      signalSection.indexOf('class="strip"'),
+    // The all-time total is now the coordinate; only the month stays in-band.
+    expect(ossSection.match(/class="count-up figure"/g) ?? []).toHaveLength(1);
+    expect(ossSection.indexOf('class="top"')).toBeLessThan(
+      ossSection.indexOf('class="strip"'),
     );
   });
 
@@ -627,14 +639,14 @@ describe("one-time motion", () => {
 });
 
 describe("the phone spine", () => {
-  test("one fixed spine carries 01-05 with a single active item", () => {
+  test("one fixed spine carries 01-04 with a single active item", () => {
     expect(html.match(/<nav class="spine" aria-label="Chapters, phone">/g) ?? []).toHaveLength(1);
     const spine = html.match(/<nav class="spine"[\s\S]*?<\/nav>/)?.[0] ?? "";
-    expect(spine.match(/href="#[a-z]+"/g) ?? []).toHaveLength(5);
+    expect(spine.match(/href="#[a-z]+"/g) ?? []).toHaveLength(4);
     expect(spine.match(/aria-current="true"/g) ?? []).toHaveLength(1);
     for (const [id, num] of [
-      ["signal", "01"], ["work", "02"], ["proof", "03"],
-      ["method", "04"], ["contact", "05"],
+      ["work", "01"], ["oss", "02"],
+      ["method", "03"], ["contact", "04"],
     ]) {
       expect(spine).toContain(`href="#${id}"`);
       expect(spine).toContain(`<span>${num}</span>`);
@@ -857,10 +869,10 @@ describe("the lead's pixel-pass residuals", () => {
     expect(css).toMatch(/@media \(min-width: 2200px\)[\s\S]*?\.pc \.band > div > span \{[^}]*white-space:\s*nowrap/);
   });
 
-  test("the Numbers margin keeps the ISO date whole without changing the snapshot", () => {
-    expect(coordinates.signal.date).toBe(signal.snapshotDate);
-    expect(coordinates.signal.margin).toContain("measured 2026\u201111\u201119");
-    expect(coordinates.signal.margin).not.toContain("2026-11-19");
+  test("the Open Source margin keeps the ISO date whole without changing the snapshot", () => {
+    expect(coordinates.oss.date).toBe(signal.snapshotDate);
+    expect(coordinates.oss.margin).toContain("measured 2026\u201111\u201119");
+    expect(coordinates.oss.margin).not.toContain("2026-11-19");
     // The coordinate line and the bake-date stamp still print the raw value.
     expect(html).toContain(signal.snapshotDate);
   });
@@ -881,8 +893,8 @@ describe("the lead's hand-pass tablet faults", () => {
 
   test("coordinate value and date are indivisible tokens", () => {
     const css = read("src/styles/ledger.css");
-    expect(html.match(/class="coord-value"/g) ?? []).toHaveLength(5);
-    expect(html.match(/class="coord-date"/g) ?? []).toHaveLength(5);
+    expect(html.match(/class="coord-value"/g) ?? []).toHaveLength(4);
+    expect(html.match(/class="coord-date"/g) ?? []).toHaveLength(4);
     expect(css).toMatch(/\.coord-value,\s*\.coord-date \{[^}]*white-space:\s*nowrap/);
   });
 

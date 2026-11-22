@@ -15,7 +15,7 @@
   letter-spacing: var(--tracking-data);
 }
 
-/* Nav B — one token-scaled strip on the field: mark, five links, ticker.
+/* Nav B — one token-scaled strip on the field: mark, four links, ticker.
    The strip stays full-bleed with its hairline; the field owns both edges. */
 .lab-nav {
   height: var(--nav-height);
@@ -70,7 +70,7 @@
   text-overflow: ellipsis;
 }
 
-/* The phone's only chrome: a fixed 01-05 spine. Hidden wherever the top nav
+/* The phone's only chrome: a fixed 01-04 spine. Hidden wherever the top nav
    still has room for the numerals. On the phone it sits along the bottom edge,
    clear of the HUD copy it used to interleave. */
 nav.spine {
@@ -461,7 +461,7 @@ video.horizon-media.is-playing {
     font-size: 0.6875rem;
   }
 
-  /* The final labels are longer; the numerals yield so all five fit. */
+  /* The final labels are longer; the numerals yield so all four fit. */
   .lab-nav .links a span {
     display: none;
   }
@@ -525,7 +525,7 @@ video.horizon-media.is-playing {
   color: var(--color-ink-muted);
 }
 
-/* 05 Contact — the ask and the one mailto sit at measure; the next step is
+/* 04 Contact — the ask and the one mailto sit at measure; the next step is
    the chapter's single margin note at aside. The band stays intentionally void. */
 .ca .line {
   grid-column: measure-start / aside-start;
@@ -587,9 +587,9 @@ video.horizon-media.is-playing {
 }
 
 /* ---------- One chapter system ----------
-   All five variants keep their content arrangement. The field, index rail,
+   All four variants keep their content arrangement. The field, index rail,
    header, type roles, hairlines and rhythm are shared tokens, so the page
-   scrolls as one document instead of five separate blocks. */
+   scrolls as one document instead of four separate blocks. */
 .chapter {
   position: relative;
   border-block-start: 1px solid var(--color-rule-strong);
@@ -701,7 +701,8 @@ video.horizon-media.is-playing {
   grid-column: measure-start / field-end;
 }
 
-/* 01 Numbers — the figure pair is the right band; the strip is the full band. */
+/* The npm evidence now lives inside Open Source: the monthly figure is the
+   right band; the per-package strip and the activity row fill the measure. */
 .sa .top {
   grid-column: band-start / field-end;
   display: flex;
@@ -842,7 +843,7 @@ video.horizon-media.is-playing {
   margin-block-start: var(--space-32);
 }
 
-/* 04 Approach — prose at measure, spec flush right, facts and data full. */
+/* 03 Approach — prose at measure, spec flush right, facts and data full. */
 .ma .prose {
   grid-column: measure-start / aside-start;
 }
@@ -915,7 +916,7 @@ video.horizon-media.is-playing {
   letter-spacing: 0;
 }
 
-/* 03 Work — the band is the field's right track; the seal ends it. */
+/* 01 Work — the band is the field's right track; the seal ends it. */
 .pc .band {
   grid-column: band-start / field-end;
   display: flex;
@@ -1152,7 +1153,8 @@ video.horizon-media.is-playing {
   }
 }
 
-/* 02 Open Source — one continuous ledger. Tier is a height, not a section:
+/* 02 Open Source — the npm evidence above one continuous ledger. Tier is a
+   height, not a section:
    the whole tier-A row is the link; tier B links only the name. Hairlines
    are the only surface, and every row carries lifetime and language. */
 .wc .intro {

@@ -28,13 +28,14 @@ import {
 } from "../content/showcase";
 import { CONTACT_EMAIL, CV_PATH, RESUME_PATH } from "../lib/contact";
 
-/** The ids stay stable; the labels are the owner's final visible copy. */
+/** Four chapters, weighted by consequence: the employment record, the public
+ *  record, the method, the ask. The npm figures are evidence inside Open Source,
+ *  not a chapter of their own. */
 const SECTIONS = [
-  { id: "signal", index: "01", label: "Numbers" },
-  { id: "work", index: "02", label: "Open Source" },
-  { id: "proof", index: "03", label: "Work" },
-  { id: "method", index: "04", label: "Approach" },
-  { id: "contact", index: "05", label: "Contact" },
+  { id: "work", index: "01", label: "Work" },
+  { id: "oss", index: "02", label: "Open Source" },
+  { id: "method", index: "03", label: "Approach" },
+  { id: "contact", index: "04", label: "Contact" },
 ] as const;
 
 /** Lifetime downloads as the ledger prints them: a figure, or no package. */
@@ -92,7 +93,7 @@ function Cluster({
 }
 
 export default function LedgerPage() {
-  const [active, setActive] = useState<string>("signal");
+  const [active, setActive] = useState<string>("work");
 
   useEffect(() => {
     document.title = `${name} — event horizon`;
@@ -219,7 +220,7 @@ export default function LedgerPage() {
               <p>{statusLine}</p>
               <p className="data">{employer.period}</p>
             </div>
-            <a className="hud hud-scroll data" href="#signal">
+            <a className="hud hud-scroll data" href="#work">
               <span className="scroll-line" aria-hidden="true" />
               <span>Descend to the record</span>
               <span aria-hidden="true">↓</span>
@@ -238,12 +239,35 @@ export default function LedgerPage() {
           </div>
         </section>
 
-        <Cluster id="signal" index="01" label="Numbers" variant="sa" active={active}>
-          <div className="top">
+        <Cluster id="work" index="01" label="Work" variant="pc" active={active}>
+          <div className="band">
             <div>
-              <CountUp value={signal.allTime} className="figure" />
-              <div className="flabel">npm downloads / all time</div>
+              <b>{workBand[0].figure}</b>
+              <span>{workBand[0].label}</span>
             </div>
+            <ZeroSeal figure={workBand[1].figure} label={workBand[1].label} />
+          </div>
+          <div className="spine">
+            {experience.map((entry) => (
+              <div className="node" key={entry.id}>
+                <span className="date">{spineDate(entry.date)}</span>
+                {spineStamp(entry.id) && (
+                  <span className="stampfig">{spineStamp(entry.id)}</span>
+                )}
+                <div className="node-body">
+                  <h3>{entry.name}</h3>
+                  <p className="out">{entry.outcome}</p>
+                  <p className="tex">{entry.texture}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </Cluster>
+
+        <Cluster id="oss" index="02" label="Open Source" variant="wc sa" active={active}>
+          <p className="intro">{workShelfIntro}</p>
+
+          <div className="top">
             <div>
               <CountUp value={signal.month} className="figure" />
               <div className="flabel">npm downloads / last 30 days</div>
@@ -256,6 +280,40 @@ export default function LedgerPage() {
                 <div className="pname">{item.name}</div>
                 <Sparkline values={item.daily} />
                 <div className="pval">{item.month.toLocaleString("en-US")}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="ledger">
+            {featuredRows.map((row) => (
+              <a
+                className="tier-a"
+                key={row.dir}
+                href={row.url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <span className="a-head">
+                  <span className="a-name">{row.name}</span>
+                  <span className="claim a-claim">{row.claim}</span>
+                </span>
+                <span className="a-detail">{row.detail}</span>
+                <span className="a-foot">
+                  <span>{row.tech.join(" / ")}</span>
+                  <span>{`${lifetimeOf(row)} · ${row.language}`}</span>
+                </span>
+              </a>
+            ))}
+            {indexRows.map((row) => (
+              <div className="tier-b" key={row.dir}>
+                <span className="b-main">
+                  <a href={row.url} target="_blank" rel="noreferrer">
+                    {row.name}
+                  </a>
+                  {` · ${row.claim}`}
+                </span>
+                <span className="b-life">{lifetimeOf(row)}</span>
+                <span className="b-lang">{row.language}</span>
               </div>
             ))}
           </div>
@@ -293,69 +351,7 @@ export default function LedgerPage() {
           <div className="stamp">{signal.stamp}</div>
         </Cluster>
 
-        <Cluster id="work" index="02" label="Open Source" variant="wc" active={active}>
-          <p className="intro">{workShelfIntro}</p>
-          <div className="ledger">
-            {featuredRows.map((row) => (
-              <a
-                className="tier-a"
-                key={row.dir}
-                href={row.url}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <span className="a-head">
-                  <span className="a-name">{row.name}</span>
-                  <span className="claim a-claim">{row.claim}</span>
-                </span>
-                <span className="a-detail">{row.detail}</span>
-                <span className="a-foot">
-                  <span>{row.tech.join(" / ")}</span>
-                  <span>{`${lifetimeOf(row)} · ${row.language}`}</span>
-                </span>
-              </a>
-            ))}
-            {indexRows.map((row) => (
-              <div className="tier-b" key={row.dir}>
-                <span className="b-main">
-                  <a href={row.url} target="_blank" rel="noreferrer">
-                    {row.name}
-                  </a>
-                  {` · ${row.claim}`}
-                </span>
-                <span className="b-life">{lifetimeOf(row)}</span>
-                <span className="b-lang">{row.language}</span>
-              </div>
-            ))}
-          </div>
-        </Cluster>
-
-        <Cluster id="proof" index="03" label="Work" variant="pc" active={active}>
-          <div className="band">
-            <div>
-              <b>{workBand[0].figure}</b>
-              <span>{workBand[0].label}</span>
-            </div>
-            <ZeroSeal figure={workBand[1].figure} label={workBand[1].label} />
-          </div>
-          <div className="spine">
-            {experience.map((entry) => (
-              <div className="node" key={entry.id}>
-                <span className="date">{spineDate(entry.date)}</span>
-                {spineStamp(entry.id) && (
-                  <span className="stampfig">{spineStamp(entry.id)}</span>
-                )}
-                <div className="node-body">
-                  <h3>{entry.name}</h3>
-                  <p className="out">{entry.outcome}</p>
-                  <p className="tex">{entry.texture}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Cluster>
-
-        <Cluster id="method" index="04" label="Approach" variant="ma" active={active}>
+        <Cluster id="method" index="03" label="Approach" variant="ma" active={active}>
           <div className="prose">
             {aiPractice.sentences.map((sentence) => (
               <p key={sentence}>{sentence}</p>
@@ -383,7 +379,7 @@ export default function LedgerPage() {
           </div>
         </Cluster>
 
-        <Cluster id="contact" index="05" label="Contact" variant="ca" active={active} ornament={<WitnessMark className="witness-contact" />}>
+        <Cluster id="contact" index="04" label="Contact" variant="ca" active={active} ornament={<WitnessMark className="witness-contact" />}>
           <p className="line">{contactBlock.line}</p>
           <a
             className="mail"
