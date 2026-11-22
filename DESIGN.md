@@ -188,8 +188,10 @@ monthly figure at band right, the per-package sparkline strip at measure, the
 GitHub activity row at the end — then one ruled tier ledger: tier A's three
 rows are whole-row links with name, claim, detail, tech, lifetime and language;
 tier B's eleven rows are one mono line each with the name as the only link.
-Lifetime and language appear in every row. Hairlines only, no boxes. Approach
-places prose at measure, the five-rule table flush right at
+Each carries one meta cell: exact npm installs where a package exists,
+otherwise language plus up to two technology tokens from the repo's own
+summary. Hairlines only, no boxes. Approach places prose at measure, the
+five-rule table flush right at
 `aside-start / field-end`, facts and data full. Contact asks and mails at
 measure; the band stays void.
 
@@ -315,6 +317,9 @@ scroll; no interception, no snap, no scroll-driven choreography.
   the ruled data bands — the npm evidence and the repository ledger; its three
   featured entries are a three-column band with a top hairline and vertical
   separators, never boxed cards.
+- Each tier-B row's one meta cell is installs when a package exists, otherwise
+  language plus up to two verbatim technology tokens from the repo's own
+  summary, capped at two, never a placeholder.
 - Tokens are normative; prose explains and never overrides.
 - One navigation; every chapter reachable from it.
 - Reduced motion is a complete document, not a frozen animation.
