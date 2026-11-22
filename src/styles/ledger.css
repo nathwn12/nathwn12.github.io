@@ -18,7 +18,11 @@
 /* Nav B — one token-scaled strip on the field: mark, four links, ticker.
    The strip stays full-bleed with its hairline; the field owns both edges. */
 .lab-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
   height: var(--nav-height);
+  background-color: var(--color-ground);
   border-block-end: 1px solid var(--color-rule);
 }
 
@@ -50,6 +54,9 @@
 }
 
 .lab-nav .links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
   color: var(--color-ink);
   text-decoration: none;
   white-space: nowrap;
@@ -87,11 +94,13 @@ nav.spine {
     top: auto;
     transform: translateX(-50%);
     z-index: 10;
+    padding-block-end: env(safe-area-inset-bottom);
   }
 
   nav.spine a {
     display: grid;
     place-items: center;
+    min-width: 44px;
     width: 44px;
     height: 44px;
     font-family: var(--font-data);
@@ -103,6 +112,15 @@ nav.spine {
 
   nav.spine a[aria-current="true"] {
     color: var(--color-signal);
+  }
+
+  /* The active numeral carries a signal rule as well as the tint, so the
+     destination is never distinguished by colour alone. */
+  nav.spine a[aria-current="true"] span {
+    text-decoration: underline;
+    text-decoration-color: var(--color-signal);
+    text-decoration-thickness: 2px;
+    text-underline-offset: 4px;
   }
 }
 
@@ -593,6 +611,8 @@ video.horizon-media.is-playing {
 .chapter {
   position: relative;
   border-block-start: 1px solid var(--color-rule-strong);
+  /* Anchor jumps land the heading below the sticky masthead, never under it. */
+  scroll-margin-block-start: calc(var(--nav-height) + var(--space-4));
 }
 
 /* One chapter field: twelve tracks, four named lines, one right edge. The
@@ -1435,5 +1455,20 @@ video.horizon-media.is-playing {
   .dl {
     flex-wrap: wrap;
     gap: var(--space-24);
+  }
+}
+
+/* At 320 the four labels need less room than the generic phone spacing. */
+@media (max-width: 359px) {
+  .lab-nav .field {
+    gap: 8px;
+  }
+
+  .lab-nav .links {
+    gap: 4px;
+  }
+
+  .lab-nav .links a {
+    font-size: 0.625rem;
   }
 }

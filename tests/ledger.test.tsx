@@ -708,6 +708,35 @@ describe("one-time motion", () => {
   });
 });
 
+describe("the held navigation", () => {
+  test("the masthead sticks above the chapters and anchors clear it", () => {
+    const css = read("src/styles/ledger.css");
+    const tokens = read("src/styles/tokens.css");
+    expect(css).toMatch(/\.lab-nav \{[^}]*position:\s*sticky/);
+    expect(css).toMatch(/\.lab-nav \{[^}]*z-index:\s*20/);
+    expect(css).toMatch(/\.lab-nav \{[^}]*background-color:\s*var\(--color-ground\)/);
+    expect(css).toMatch(/\.chapter \{[^}]*scroll-margin-block-start:\s*calc\(var\(--nav-height\) \+ var\(--space-4\)\)/);
+    expect(tokens).toMatch(/--nav-height:\s*2\.75rem/);
+  });
+
+  test("both navigations hold 44px targets and the dock names its chapter", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.lab-nav \.links a \{[^}]*min-height:\s*44px/);
+    expect(css).toMatch(/nav\.spine a \{[^}]*min-width:\s*44px/);
+    expect(css).toMatch(/padding-block-end:\s*env\(safe-area-inset-bottom\)/);
+    expect(css).toMatch(/aria-current="true"\] span \{[^}]*text-decoration:\s*underline/);
+    expect(css).toMatch(/@media \(max-width: 359px\)[\s\S]*?\.lab-nav \.links a \{[^}]*font-size:\s*0\.625rem/);
+    const spine = html.match(/<nav class="spine"[\s\S]*?<\/nav>/)?.[0] ?? "";
+    for (const [id, num, label] of [
+      ["work", "01", "Work"], ["oss", "02", "Open Source"],
+      ["method", "03", "Approach"], ["contact", "04", "Contact"],
+    ]) {
+      expect(spine).toContain(`href="#${id}"`);
+      expect(spine).toContain(`aria-label="${num} — ${label}"`);
+    }
+  });
+});
+
 describe("the phone spine", () => {
   test("one fixed spine carries 01-04 with a single active item", () => {
     expect(html.match(/<nav class="spine" aria-label="Chapters, phone">/g) ?? []).toHaveLength(1);

@@ -46,7 +46,7 @@
   --text-data-lg: clamp(0.9375rem, 1.4vw, 1.5rem);
   --text-variant-value: clamp(0.625rem, 0.7vw, 0.75rem);
   --text-nav: clamp(0.5625rem, 0.5vw, 0.75rem);
-  --nav-height: clamp(2.125rem, 1.7vw, 2.75rem);
+  --nav-height: 2.75rem;
   --nav-mark: clamp(0.75rem, 0.58vw, 0.9375rem);
   --nav-pad: var(--gutter);
 

@@ -196,6 +196,7 @@ export default function LedgerPage() {
           <a
             key={section.id}
             href={`#${section.id}`}
+            aria-label={`${section.index} — ${section.label}`}
             aria-current={active === section.id ? "true" : undefined}
           >
             <span>{section.index}</span>
