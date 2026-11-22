@@ -19,6 +19,8 @@ export interface Coordinate {
   date: string;
   /** The single caveat that sits beside the claim. */
   margin: string;
+  /** The measured cron, kept whole in its own nowrap span. */
+  cron?: string;
 }
 
 const date = signal.snapshotDate;
@@ -38,7 +40,8 @@ export const coordinates: Record<CoordinateKey, Coordinate> = {
     date,
     // Display-only: non-breaking hyphens keep the snapshot date whole in the
     // narrow margin. The underlying coordinate `date` stays the raw ISO value.
-    margin: `measured ${date.replace(/-/g, "\u2011")} · npm weekly cron 0 6 * * 1`,
+    margin: `measured ${date.replace(/-/g, "\u2011")} · npm weekly cron`,
+    cron: "0 6 * * 1",
   },
   method: {
     value: `${specLines.length} STEPS`,

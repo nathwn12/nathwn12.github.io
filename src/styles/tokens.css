@@ -42,7 +42,7 @@
   --text-figure-sm: clamp(1.625rem, 2vw, 2.25rem);
   --text-lede: clamp(1.0625rem, 0.95vw, 1.3125rem);
   --text-detail: clamp(0.8125rem, 0.75vw, 1rem);
-  --text-mono: clamp(0.5rem, 0.45vw, 0.6875rem);
+  --text-mono: 0.75rem;
   --text-data-lg: clamp(0.9375rem, 1.4vw, 1.5rem);
   --text-variant-value: clamp(0.625rem, 0.7vw, 0.75rem);
   --text-nav: clamp(0.5625rem, 0.5vw, 0.75rem);
@@ -58,8 +58,6 @@
   /* The Work margin stamps hang left of the body, never inside its measure. */
   --date-offset: clamp(112px, 6.9vw, 176px);
   --date-gap: var(--space-8);
-  /* Mono label size for dates above the node below native. */
-  --text-mono-label: 0.53125rem;
 
   /* Spacing — unit 4px; scale [0,4,8,12,16,24,32,48,64,96,128]. */
   --spacing: 4px;

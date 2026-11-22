@@ -289,7 +289,7 @@ describe("the content survives the strip", () => {
     expect(css).toMatch(/\.node-body \{[^}]*display:\s*contents/);
     expect(css).toMatch(/\.pc \.spine \{[^}]*padding-inline-start:\s*0/);
     expect(css).toMatch(/\.pc \.spine::before \{[^}]*inset-inline-start:\s*calc\(-1 \* var\(--space-16\)\)/);
-    expect(css).toMatch(/\.pc \.date \{[^}]*font-size:\s*var\(--text-mono-label\)/);
+    expect(css).toMatch(/\.pc \.date \{[^}]*font-size:\s*var\(--text-mono\)/);
     expect(css).toMatch(/\.pc \.tex \{[^}]*grid-column:\s*band-start \/ field-end/);
     expect(css).toMatch(/@media \(min-width: 1100px\)[\s\S]*?\.pc \.tex \{[^}]*grid-row:\s*1 \/ span 2/);
     expect(css).toMatch(/@media \(max-width: 1099px\)[\s\S]*?\.pc \.tex \{[^}]*grid-column:\s*1 \/ -1/);
@@ -519,7 +519,8 @@ describe("the coordinate and margin lines", () => {
   });
 
   test("the Open Source caveat names the committed snapshot cron", () => {
-    expect(coordinates.oss.margin).toContain("0 6 * * 1");
+    expect(coordinates.oss.cron).toBe("0 6 * * 1");
+    expect(html).toContain('<span class="cron-value">0 6 * * 1</span>');
     expect(read(".github/workflows/open-source-stats.yml")).toMatch(
       /cron:\s*'0 6 \* \* 1'/,
     );
@@ -535,6 +536,30 @@ describe("the coordinate and margin lines", () => {
     expect(css).toMatch(/@media \(max-width: 1100px\)[\s\S]*?\.chapter-margin \{[^}]*padding-block-start:\s*0/);
     expect(css).toMatch(/@media \(max-width: 1100px\)[\s\S]*?\.chapter-margin \{[^}]*display:\s*block[^}]*max-width:\s*none/);
     expect(css).toMatch(/\.chapter-margin \{[^}]*display:\s*block[^}]*grid-column:\s*measure-start \/ field-end[^}]*max-width:\s*none/);
+  });
+});
+
+describe("the data layer", () => {
+  test("mono data reads one 12px token and one tracking value", () => {
+    const tokens = read("src/styles/tokens.css");
+    const css = read("src/styles/ledger.css");
+    expect(tokens).toMatch(/--text-mono:\s*0\.75rem/);
+    expect(tokens).not.toContain("--text-mono-label");
+    expect(css).not.toMatch(/letter-spacing:\s*0(?:\.\d+)?em/);
+    expect(css.match(/letter-spacing:\s*var\(--tracking-data\)/g)?.length).toBeGreaterThan(10);
+    expect(css).toMatch(/\.sa \.flabel \{[^}]*width:\s*max-content/);
+    expect(css).toMatch(/\.chapter-margin \{[^}]*line-height:\s*1\.45/);
+    expect(css).toMatch(/\.eyebrow \{[^}]*margin-block-end:\s*clamp\(16px, 1\.2vw, 32px\)/);
+    expect(css).toMatch(/\.zero-seal \.seal-stamp \{[^}]*line-height:\s*1/);
+    // Mono tracking belongs to labels, not the display figures inside a micro.
+    expect(css).toMatch(/\.sa \.micro span:not\(\.count-up\) \{[^}]*font-family:\s*var\(--font-data\)/);
+  });
+
+  test("the Work headline is a larger step than the chapter title", () => {
+    const css = read("src/styles/ledger.css");
+    expect(css).toMatch(/\.pc \.consequence \{[^}]*font-size:\s*clamp\(3\.25rem, 4\.4vw, 5rem\)/);
+    expect(css).toMatch(/@media \(max-width: 430px\)[\s\S]*?\.pc \.consequence \{[^}]*font-size:\s*2\.5rem/);
+    expect(html).toContain(`<p class="consequence">${consequenceHeadline}</p>`);
   });
 });
 
