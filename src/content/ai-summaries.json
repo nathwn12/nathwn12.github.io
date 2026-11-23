@@ -1,5 +1,5 @@
 {
-  "measuredAt": "2026-11-22",
+  "measuredAt": "2026-11-23",
   "summaries": [
     {
       "repo": "aimp-discord-presence",
@@ -68,8 +68,8 @@
       "limits": [],
       "updated": "2026-11-22",
       "draft": true,
-      "pushedAt": "2026-11-22",
-      "stale": false,
+      "pushedAt": "2026-11-23",
+      "stale": true,
       "vanished": false,
       "lastSeen": null
     },
@@ -86,8 +86,8 @@
       "limits": [],
       "updated": "2026-11-22",
       "draft": true,
-      "pushedAt": "2026-11-22",
-      "stale": false,
+      "pushedAt": "2026-11-23",
+      "stale": true,
       "vanished": false,
       "lastSeen": null
     },
@@ -122,8 +122,8 @@
       "limits": [],
       "updated": "2026-11-22",
       "draft": true,
-      "pushedAt": "2026-11-22",
-      "stale": false,
+      "pushedAt": "2026-11-23",
+      "stale": true,
       "vanished": false,
       "lastSeen": null
     },
@@ -158,8 +158,8 @@
       "limits": [],
       "updated": "2026-11-22",
       "draft": true,
-      "pushedAt": "2026-11-22",
-      "stale": false,
+      "pushedAt": "2026-11-23",
+      "stale": true,
       "vanished": false,
       "lastSeen": null
     },
@@ -230,8 +230,8 @@
       "limits": [],
       "updated": "2026-11-22",
       "draft": true,
-      "pushedAt": "2026-11-22",
-      "stale": false,
+      "pushedAt": "2026-11-23",
+      "stale": true,
       "vanished": false,
       "lastSeen": null
     },
