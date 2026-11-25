@@ -12,6 +12,4 @@ AGENTS.md
 .stitch/
 preview-status.json
 
-.seed/
-.opencode/skills/*-seed/
 decision.tsv
