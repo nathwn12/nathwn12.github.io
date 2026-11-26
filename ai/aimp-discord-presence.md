@@ -12,8 +12,8 @@ capabilities: []
 limits: []
 updated: 2026-11-22
 draft: true
-measured: 2026-11-22
-stale: false
+measured: 2026-11-26
+stale: true
 vanished: false
 ---
 
@@ -27,4 +27,4 @@ Fork of Exle/aimp-discord-presence.
 
 npm: no published package in the committed snapshot.
 
-Measured: repos 2026-11-22 · summaries 2026-11-22 · stats 2026-11-19. Schema nathwn12/ai-card/1.
+Measured: repos 2026-11-26 · summaries 2026-11-26 · stats 2026-11-19. Schema nathwn12/ai-card/1.

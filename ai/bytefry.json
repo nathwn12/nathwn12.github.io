@@ -4,7 +4,7 @@
   "url": "https://github.com/nathwn12/bytefry",
   "one_line": "Deep-fry images locally on Windows with repeat JPEG crush, a bulge and five filters.",
   "description": "Deep-fry images locally on Windows with repeat JPEG crush, a bulge and five filters.",
-  "language": "C#",
+  "language": "JavaScript",
   "isFork": false,
   "parent": null,
   "topics": [
@@ -22,16 +22,16 @@
   "since": "2026-11",
   "updated": "2026-11-22",
   "draft": true,
-  "stale": false,
+  "stale": true,
   "vanished": false,
   "npm": null,
   "dates": {
     "createdAt": "2026-11-16",
-    "pushedAt": "2026-11-22"
+    "pushedAt": "2026-11-26"
   },
   "measuredAt": {
-    "repos": "2026-11-22",
-    "summaries": "2026-11-22",
+    "repos": "2026-11-26",
+    "summaries": "2026-11-26",
     "stats": "2026-11-19"
   }
 }

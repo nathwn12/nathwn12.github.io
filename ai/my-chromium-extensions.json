@@ -23,16 +23,16 @@
   "since": "2026-11",
   "updated": "2026-11-22",
   "draft": true,
-  "stale": false,
+  "stale": true,
   "vanished": false,
   "npm": null,
   "dates": {
     "createdAt": "2026-11-02",
-    "pushedAt": "2026-11-22"
+    "pushedAt": "2026-11-26"
   },
   "measuredAt": {
-    "repos": "2026-11-22",
-    "summaries": "2026-11-22",
+    "repos": "2026-11-26",
+    "summaries": "2026-11-26",
     "stats": "2026-11-19"
   }
 }
