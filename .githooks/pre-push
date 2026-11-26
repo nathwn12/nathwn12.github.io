@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-# [skip ci] is only safe on docs-only commits: code with that marker skips
-# the required check and the Pages deploy. Enforce it at the push boundary.
+# [skip ci] is never correct here: CI work is scoped by GitHub path filters
+# and the Pages deploy is unfiltered, so the marker can only hide a required
+# check or publish a stale site. Refuse it on any path at the push boundary.
 set -euo pipefail
-
-docs='^(.*\.md|docs/.*|LICEN[CS]E(\.md)?)$'
 
 while read -r local_ref local_sha remote_ref remote_sha; do
   [ -n "$local_ref" ] || continue
@@ -16,17 +15,14 @@ while read -r local_ref local_sha remote_ref remote_sha; do
   fi
 
   for sha in $commits; do
-    git log -1 --format=%B "$sha" | grep -Eiq '\[skip ci\]' || continue
-    while IFS= read -r file; do
-      [ -n "$file" ] || continue
-      printf '%s\n' "$file" | grep -qvE "$docs" || continue
-      printf 'BLOCKED: %s (%s) has [skip ci] but changes %s\n' \
-        "$(git rev-parse --short "$sha")" "$(git log -1 --format=%s "$sha")" "$file" >&2
-      printf 'Reason: [skip ci] is for docs-only commits; on code it skips the check and the deploy.\n' >&2
+    if git log -1 --format=%B "$sha" | grep -Eiq '\[skip ci\]'; then
+      printf 'BLOCKED: %s (%s) carries [skip ci]\n' \
+        "$(git rev-parse --short "$sha")" "$(git log -1 --format=%s "$sha")" >&2
+      printf 'Reason: the marker is never valid; path filters scope CI and the deploy always runs.\n' >&2
       exit 1
-    done < <(git diff-tree --no-commit-id --name-only -r --root -m --first-parent "$sha")
+    fi
   done
 done
 
-echo "🔒 Checking lockfile is up to date..."
+echo "?? Checking lockfile is up to date..."
 bun install --frozen-lockfile
