@@ -1,3 +1,4 @@
+# A docs-only change (*.md, docs/, LICEN[CS]E) keeps the required check green and runs no build.
 name: ci
 
 on:
@@ -11,15 +12,53 @@ jobs:
       REQUIRE_CHROMIUM: "1"
     steps:
       - uses: actions/checkout@v7
+        with:
+          # Full history: the scope step diffs against the base branch with
+          # `...`, which needs a merge base.
+          fetch-depth: 0
+
+      - name: Detect a docs-only change
+        id: scope
+        shell: bash
+        run: |
+          docs='^(.*\.md|docs/.*|LICEN[CS]E(\.md)?)$'
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch --no-tags origin "${{ github.base_ref }}"
+            changed=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD")
+          else
+            changed=$(git ls-files)
+          fi
+          if [ -n "$changed" ] && ! printf '%s\n' "$changed" | grep -qvE "$docs"; then
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/setup-node@v7
+        if: steps.scope.outputs.code == 'true'
         with:
           node-version: 24
       - uses: oven-sh/setup-bun@v2
+        if: steps.scope.outputs.code == 'true'
         with:
           bun-version: 1.4.4
-      - run: bun install --frozen-lockfile
+      - name: Install (root lockfile)
+        if: steps.scope.outputs.code == 'true'
+        run: bun install --frozen-lockfile
       - name: Install Chromium for the browser tests
+        if: steps.scope.outputs.code == 'true'
         run: bunx playwright install --with-deps chromium
-      - run: bun run check
-      - run: bun run build
-      - run: bunx vitest run
+      - name: Check
+        if: steps.scope.outputs.code == 'true'
+        run: bun run check
+      - name: Build
+        if: steps.scope.outputs.code == 'true'
+        run: bun run build
+      - name: Tests
+        if: steps.scope.outputs.code == 'true'
+        run: bunx vitest run
+
+      - name: Scope
+        if: always()
+        run: |
+          echo "scope: ${{ steps.scope.outputs.code == 'true' && 'code changed - the full gate ran' || 'docs-only - build skipped, the check stays green' }}"
