@@ -2,6 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   workflow_dispatch:
+  # No `paths` or `paths-ignore` filter here. ai/*.md cards are served
+  # assets, so a "docs-only" diff can change what users download; no path
+  # may be presumed inert. A deploy skipped on a doc change is a stale site.
   push:
     branches: [main]
   schedule:

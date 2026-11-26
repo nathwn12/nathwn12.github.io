@@ -1,26 +1,68 @@
+# The pull_request trigger stays unfiltered so the required check always
+# reports; a docs-only PR skips the work inside the job, not the check itself.
 name: docs-report
 
 on:
+  # Unfiltered on purpose: a path-filtered required check leaves a PR BLOCKED
+  # with "Expected - Waiting for status to be reported".
   pull_request:
   push:
     branches: [main]
+    # Ignore pure-doc push diffs. ai/** is a build input, never a doc path;
+    # **/*.json, **/*.ts and **/*.mjs stay in scope.
+    paths-ignore: ['**/*.md', 'docs/**', 'LICEN[CS]E']
   workflow_dispatch:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   docs-report:
     runs-on: ubuntu-latest
     steps:
+      # First step: read the PR's changed files directly. When every path is a
+      # doc path outside ai/, report green and skip all the work below.
+      - name: Scope
+        id: scope
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          docs='^(.*\.md|docs/.*|LICEN[CS]E(\.md)?)$'
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          changed=$(gh api --paginate \
+            "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
+            --jq '.[] | .filename')
+          if [ -n "$changed" ] \
+             && ! printf '%s\n' "$changed" | grep -qE '^ai/' \
+             && ! printf '%s\n' "$changed" | grep -qvE "$docs"; then
+            echo "no code changed: docs only"
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/checkout@v4
+        if: steps.scope.outputs.code == 'true'
       - uses: actions/setup-node@v4
+        if: steps.scope.outputs.code == 'true'
         with:
           node-version: '26'
       - name: docs gate (report-only, phase 1)
+        if: steps.scope.outputs.code == 'true'
         run: node docs-check.mjs --report
       - name: link check (offline, report-only)
+        if: steps.scope.outputs.code == 'true'
         uses: lycheeverse/lychee-action@v2.2.0
         with:
           args: --no-progress --offline '**/*.md'
           fail: false
+
+      - name: Scope report
+        if: always()
+        run: |
+          echo "scope: ${{ steps.scope.outputs.code == 'true' && 'code changed - the full gate ran' || 'no code changed: docs only - check reported green' }}"

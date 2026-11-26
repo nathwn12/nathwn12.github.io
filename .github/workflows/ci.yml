@@ -1,11 +1,23 @@
-# A docs-only change (*.md, docs/, LICEN[CS]E) keeps the required check green and runs no build.
+# CI is scoped by GitHub path filters, never by an author's commit-message claim.
+# The pull_request trigger stays unfiltered so the required check always
+# reports: a docs-only PR skips the work inside the job, not the check itself.
 name: ci
 
 on:
+  # Unfiltered on purpose. A path-filtered required check leaves a PR BLOCKED
+  # with "Expected - Waiting for status to be reported": the same trap as a
+  # skipped workflow.
   pull_request:
   push:
     branches: [main]
+    # Ignore pure-doc push diffs. ai/** is a build input and is never a doc
+    # path; **/*.json, **/*.ts and **/*.mjs are build inputs too and stay in.
+    paths-ignore: ['**/*.md', 'docs/**', 'LICEN[CS]E']
   workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: read
 
 jobs:
   build:
@@ -14,29 +26,34 @@ jobs:
     env:
       REQUIRE_CHROMIUM: "1"
     steps:
-      - uses: actions/checkout@v7
-        with:
-          # Full history: the scope step diffs against the base branch with
-          # `...`, which needs a merge base.
-          fetch-depth: 0
-
-      - name: Detect a docs-only change
+      # First step: read the PR's changed files directly. When every path is a
+      # doc path outside ai/, report green and skip all the work below.
+      - name: Scope
         id: scope
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           docs='^(.*\.md|docs/.*|LICEN[CS]E(\.md)?)$'
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            git fetch --no-tags origin "${{ github.base_ref }}"
-            changed=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD")
-          else
-            changed=$(git ls-files)
+          if [ "${{ github.event_name }}" != "pull_request" ]; then
+            echo "code=true" >> "$GITHUB_OUTPUT"
+            echo "scope: code changed - the full gate ran"
+            exit 0
           fi
-          if [ -n "$changed" ] && ! printf '%s\n' "$changed" | grep -qvE "$docs"; then
+          changed=$(gh api --paginate \
+            "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
+            --jq '.[] | .filename')
+          if [ -n "$changed" ] \
+             && ! printf '%s\n' "$changed" | grep -qE '^ai/' \
+             && ! printf '%s\n' "$changed" | grep -qvE "$docs"; then
+            echo "no code changed: docs only"
             echo "code=false" >> "$GITHUB_OUTPUT"
           else
             echo "code=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - uses: actions/checkout@v7
+        if: steps.scope.outputs.code == 'true'
       - uses: actions/setup-node@v7
         if: steps.scope.outputs.code == 'true'
         with:
@@ -61,7 +78,7 @@ jobs:
         if: steps.scope.outputs.code == 'true'
         run: bunx vitest run
 
-      - name: Scope
+      - name: Scope report
         if: always()
         run: |
-          echo "scope: ${{ steps.scope.outputs.code == 'true' && 'code changed - the full gate ran' || 'docs-only - build skipped, the check stays green' }}"
+          echo "scope: ${{ steps.scope.outputs.code == 'true' && 'code changed - the full gate ran' || 'no code changed: docs only - check reported green' }}"
