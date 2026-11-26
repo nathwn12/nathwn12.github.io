@@ -5,8 +5,8 @@
  * The committed snapshots are the only input: repos.probe.json (identity,
  * language, dates), ai-summaries.json (each repo's own words), the case-study
  * tokens and npm mapping in projects.ts, and open-source-stats.json (npm
- * counts). No network, no DOM, no application rewrite. ai/llms.txt is this
- * site's own summary and is never touched here.
+ * counts). No network, no DOM, no application rewrite. ai/llms.txt keeps this
+ * site's own summary and gains one generated, marked card index block.
  *
  *   node scripts/gen-ai-cards.mjs           write only changed files
  *   node scripts/gen-ai-cards.mjs --check   fail on drift or stray cards
@@ -17,6 +17,8 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 export const CARD_SCHEMA = "nathwn12/ai-card/1";
 export const INDEX_SCHEMA = "nathwn12/ai-index/1";
+export const LLMS_OPEN = "<!-- docs:ai-card-index -->";
+export const LLMS_CLOSE = "<!-- /docs:ai-card-index -->";
 
 const root = process.env.LEDGER_ROOT
   ? resolve(process.env.LEDGER_ROOT)
@@ -28,6 +30,7 @@ const paths = {
   stats: resolve(root, "src", "content", "open-source-stats.json"),
   projects: resolve(root, "src", "content", "projects.ts"),
   ai: resolve(root, "ai"),
+  llms: resolve(root, "ai", "llms.txt"),
 };
 
 function readJson(file, label) {
@@ -208,18 +211,47 @@ export function renderMarkdown(card) {
 }
 
 /** Deterministic bytes: two-space JSON, one trailing newline, sorted names. */
-export function renderFiles(record) {
+export function renderFiles(record, llms = null) {
   const files = new Map();
   for (const card of record.cards) {
     files.set("ai/" + card.project + ".json", JSON.stringify(card, null, 2) + "\n");
     files.set("ai/" + card.project + ".md", renderMarkdown(card));
   }
   files.set("ai/index.json", JSON.stringify(record.index, null, 2) + "\n");
+  if (llms !== null) files.set("ai/llms.txt", renderLlms(record, llms));
   return files;
+}
+
+/** One marked card-index block in this site's own llms.txt. Every card is
+ *  named once, with root-relative paths that resolve under /ai/ after deploy. */
+export function renderLlms(record, existing) {
+  const rows = record.cards.map(
+    (card) =>
+      "- [" +
+      card.project +
+      "](ai/" +
+      card.project +
+      ".json) · [markdown](ai/" +
+      card.project +
+      ".md)",
+  );
+  const block = [LLMS_OPEN, "## Cards", "", ...rows, LLMS_CLOSE].join("\n") + "\n";
+  const base = String(existing ?? "").replace(/\s+$/, "\n");
+  const openAt = base.indexOf(LLMS_OPEN);
+  const closeAt = openAt < 0 ? -1 : base.indexOf(LLMS_CLOSE, openAt + LLMS_OPEN.length);
+  if (openAt >= 0 && closeAt >= 0) {
+    const tail = base
+      .slice(closeAt + LLMS_CLOSE.length)
+      .replace(/^\s*\n/, "")
+      .replace(/\s+$/, "\n");
+    return base.slice(0, openAt) + block + (tail ? "\n" + tail : "");
+  }
+  return base + "\n" + block;
 }
 
 function loadInputs() {
   return {
+    llms: existsSync(paths.llms) ? readFileSync(paths.llms, "utf8") : null,
     repos: readJson(paths.repos, "repos.probe.json"),
     summaries: readJson(paths.summaries, "ai-summaries.json"),
     stats: readJson(paths.stats, "open-source-stats.json"),
@@ -238,8 +270,15 @@ function writeFiles(files) {
   return changed;
 }
 
-function checkFiles(files) {
+function checkFiles(files, record, llms) {
   const problems = [];
+  if (llms !== null) {
+    const absolute = resolve(root, "ai/llms.txt");
+    if (!existsSync(absolute)) problems.push("missing card: ai/llms.txt");
+    else if (readFileSync(absolute, "utf8") !== renderLlms(record, llms)) {
+      problems.push("drifted card: ai/llms.txt");
+    }
+  }
   for (const [relative, bytes] of files) {
     const absolute = resolve(root, relative);
     if (!existsSync(absolute)) {
@@ -267,9 +306,11 @@ function main() {
     process.exitCode = 2;
     return;
   }
-  const files = renderFiles(buildCards(loadInputs()));
+  const inputs = loadInputs();
+  const record = buildCards(inputs);
+  const files = renderFiles(record, inputs.llms);
   if (args.includes("--check")) {
-    const problems = checkFiles(files);
+    const problems = checkFiles(files, record, inputs.llms);
     for (const problem of problems) process.stderr.write("gen-ai-cards: " + problem + "\n");
     if (problems.length > 0) {
       process.exitCode = 1;

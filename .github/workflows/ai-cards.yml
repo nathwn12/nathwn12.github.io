@@ -3,7 +3,7 @@ name: ai-cards
 # Per-repository machine cards, rebuilt from the committed snapshots only.
 # The stats workflow measures npm/GitHub figures; the repo and summary probes
 # own identity and each repo's own words. This job never calls either probe and
-# commits only generated ai/*.json and ai/*.md files.
+# commits only generated ai/*.json, ai/*.md and ai/llms.txt files.
 
 on:
   schedule:
@@ -41,6 +41,6 @@ jobs:
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add ai/*.json ai/*.md
+          git add ai/*.json ai/*.md ai/llms.txt
           git commit -m "chore: refresh the per-repository ai cards"
           git push

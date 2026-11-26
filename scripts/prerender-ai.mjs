@@ -13,7 +13,7 @@ const root = process.env.LEDGER_ROOT
 const src = resolve(root, "ai");
 const dest = resolve(root, "dist", "ai");
 const names = readdirSync(src)
-  .filter((name) => /\.(json|md)$/.test(name))
+  .filter((name) => /\.(json|md|txt)$/.test(name))
   .sort();
 
 mkdirSync(dest, { recursive: true });
@@ -21,4 +21,4 @@ for (const existing of readdirSync(dest)) {
   if (!names.includes(existing)) rmSync(resolve(dest, existing), { force: true });
 }
 for (const name of names) copyFileSync(resolve(src, name), resolve(dest, name));
-console.log("OK: prerendered dist/ai with " + names.length + " committed cards");
+console.log("OK: prerendered dist/ai with " + names.length + " committed ai files");

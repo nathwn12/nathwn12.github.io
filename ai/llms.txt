@@ -11,3 +11,24 @@ draft: true
 ---
 
 The portfolio and record of Nathaniel Nikolai Ladero, a C# and .NET backend developer: what shipped, and what it measurably did.
+
+<!-- docs:ai-card-index -->
+## Cards
+
+- [aimp-discord-presence](ai/aimp-discord-presence.json) · [markdown](ai/aimp-discord-presence.md)
+- [arc-installer](ai/arc-installer.json) · [markdown](ai/arc-installer.md)
+- [bytefry](ai/bytefry.json) · [markdown](ai/bytefry.md)
+- [gladius](ai/gladius.json) · [markdown](ai/gladius.md)
+- [hand](ai/hand.json) · [markdown](ai/hand.md)
+- [my-chromium-extensions](ai/my-chromium-extensions.json) · [markdown](ai/my-chromium-extensions.md)
+- [nathwn12](ai/nathwn12.json) · [markdown](ai/nathwn12.md)
+- [nathwn12.github.io](ai/nathwn12.github.io.json) · [markdown](ai/nathwn12.github.io.md)
+- [oc-collections](ai/oc-collections.json) · [markdown](ai/oc-collections.md)
+- [oc-templates](ai/oc-templates.json) · [markdown](ai/oc-templates.md)
+- [pear-slowed-reverb](ai/pear-slowed-reverb.json) · [markdown](ai/pear-slowed-reverb.md)
+- [potflix](ai/potflix.json) · [markdown](ai/potflix.md)
+- [puppet](ai/puppet.json) · [markdown](ai/puppet.md)
+- [slowburn](ai/slowburn.json) · [markdown](ai/slowburn.md)
+- [spotify-playlist-to-youtube](ai/spotify-playlist-to-youtube.json) · [markdown](ai/spotify-playlist-to-youtube.md)
+- [vencord-bootstrap](ai/vencord-bootstrap.json) · [markdown](ai/vencord-bootstrap.md)
+<!-- /docs:ai-card-index -->

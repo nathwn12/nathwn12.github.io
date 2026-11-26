@@ -4,8 +4,9 @@
 
 `ai/` is the account's machine-reading shelf. One `ai/<repo>.json` and one
 `ai/<repo>.md` exists per public, non-archived repository, plus
-`ai/index.json`. `ai/llms.txt` is this site's own summary and is not part of
-the generated set.
+`ai/index.json`. `ai/llms.txt` keeps this site's own summary and carries one
+generated, marked card index block, so every card is listed once with paths
+that resolve under `/ai/`.
 
 ## Sources
 

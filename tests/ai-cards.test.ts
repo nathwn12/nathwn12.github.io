@@ -81,6 +81,11 @@ function fixture() {
     }),
   );
   writeFileSync(
+    join(dir, "ai", "llms.txt"),
+    "---\nproject: demo\n---\n\nA demo in its own words.\n",
+    "utf8",
+  );
+  writeFileSync(
     join(content, "projects.ts"),
     [
       "export const projects: ProjectLore[] = [",
@@ -123,6 +128,18 @@ describe("the committed ai cards", () => {
       expect(index.repos.some((row: { json: string }) => row.json === "ai/" + name + ".json")).toBe(true);
       expect(read("ai/" + name + ".md").startsWith("---\n")).toBe(true);
       expect(JSON.stringify(card)).not.toMatch(/stars?/i);
+    }
+  });
+
+  test("llms.txt lists every card once with relative paths that resolve", () => {
+    const index = JSON.parse(read("ai/index.json"));
+    const llms = read("ai/llms.txt");
+    expect(llms.match(/<!-- docs:ai-card-index -->/g)?.length).toBe(1);
+    for (const name of index.repos.map((row: { name: string }) => row.name)) {
+      const link = "[" + name + "](ai/" + name + ".json)";
+      expect(llms.split(link).length - 1).toBe(1);
+      expect(existsSync(resolve(root, "ai", name + ".json"))).toBe(true);
+      expect(existsSync(resolve(root, "ai", name + ".md"))).toBe(true);
     }
   });
 
@@ -170,7 +187,7 @@ describe("the generator contract", () => {
     expect(run(dir, generator).status).toBe(0);
     const first = run(dir, generator, ["--check"]);
     expect(first.status).toBe(0);
-    expect(first.stdout).toContain("3 generated files match");
+    expect(first.stdout).toContain("4 generated files match");
     expect(run(dir, generator, ["--check"]).status).toBe(0);
   });
 
@@ -182,6 +199,16 @@ describe("the generator contract", () => {
     const drift = run(dir, generator, ["--check"]);
     expect(drift.status).toBe(1);
     expect(drift.stderr).toContain("drifted card: ai/demo.json");
+    expect(run(dir, generator).status).toBe(0);
+    const llmsPath = join(dir, "ai", "llms.txt");
+    writeFileSync(
+      llmsPath,
+      readFileSync(llmsPath, "utf8").replace("[demo](ai/demo.json)", "[wrong](ai/demo.json)"),
+      "utf8",
+    );
+    const llmsDrift = run(dir, generator, ["--check"]);
+    expect(llmsDrift.status).toBe(1);
+    expect(llmsDrift.stderr).toContain("drifted card: ai/llms.txt");
     expect(run(dir, generator).status).toBe(0);
     writeFileSync(join(dir, "ai", "stray.md"), "not generated", "utf8");
     const stray = run(dir, generator, ["--check"]);
@@ -217,7 +244,7 @@ describe("commit scope", () => {
     const yaml = read(".github/workflows/ai-cards.yml");
     expect(yaml).toMatch(/cron:\s*'30 \*\/6 \* \* \*'/);
     expect(yaml).toContain("workflow_dispatch:");
-    expect(yaml).toContain("git add ai/*.json ai/*.md");
+    expect(yaml).toContain("git add ai/*.json ai/*.md ai/llms.txt");
     expect(yaml).toContain('git status --porcelain -- ai');
     expect(yaml).not.toMatch(/git add[\s\S]*src\//);
     expect(yaml).toContain("node scripts/gen-ai-cards.mjs --check");

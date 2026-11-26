@@ -170,8 +170,8 @@ language and dates, `ai-summaries.json` for each repository's own one-liner,
 `projects.ts` for the declared topics and npm name, and
 `open-source-stats.json` for the npm counts. The generator writes only changed
 files; a six-hour workflow commits them, and the build copies them to
-`dist/ai/`. No card invents a figure, and `ai/llms.txt` stays the site's own
-summary, outside the generated set.
+`dist/ai/`. No card invents a figure; `ai/llms.txt` keeps the site's own summary and
+carries one generated card index listing each card once.
 
 ### Two-beat hero, still-first
 
