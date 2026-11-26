@@ -1,0 +1,25 @@
+id: 1
+title: Vendor the generic phase-1 docs gate locally
+status: decided
+date: "2026-11-26"
+context: |-
+  This repository already had a README, docs/GEOMETRY.md, CI and a Pages deploy
+  workflow, but no local docs structure or documentation gate. The canonical
+  docs-template records the agreed structure and checker pin; cite that source
+  rather than restating it.
+decision: |-
+  Add the policy-only root AGENTS.md, two local adoption specs, the plan and
+  this decision record before vendoring the checker pair verbatim.
+  Phase 1 stays report-only; strict mode is earned locally after a clean report.
+  The Node tool performs no link checking. Because CI and a deploy workflow
+  already exist, add a separate pull-request-only report workflow using offline
+  pinned lychee v2.2.0 with fail false and contents: read. Do not change any
+  existing workflow, the README or the application.
+consequences: |-
+  The existing README, docs/GEOMETRY.md, deployment workflow and app are unchanged.
+  AGENTS.md is force-added because .gitignore lists it; once tracked, that ignore
+  rule no longer hides it. A targeted .gitattributes rule keeps the vendored
+  checker byte-identical across checkouts.
+  No tool capability is created or improved; this is adoption only.
+  No network access, application execution, secrets, releases or pushes are involved.
+undo: git revert <sha>

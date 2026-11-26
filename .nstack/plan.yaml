@@ -1,0 +1,18 @@
+project: .
+name: nathwn12.github.io
+goal: |-
+  Adopt the canonical phase-1 docs gate locally, report-only, in one isolated docs commit.
+seam: |-
+  .nstack/plan.yaml, spec/docs-structure.md, spec/checker.md, adr/0001-vendor-docs-gate.yaml,
+  AGENTS.md, docs-check.mjs, docs-check.json, .gitattributes, .github/workflows/docs-report.yml
+check: |-
+  node docs-check.mjs --report exits 0; --report --json count 0; --print-hash matches the pin; a planted wrong SHA makes --strict exit 1 with the exact mismatch; a byte-exact restore makes --strict exit 0; git diff --cached --check exits 0; staged paths are exact; tree clean after commit.
+undo: |-
+  git revert <sha>
+state: |-
+  Plan, specs and ADR written before the vendored pair. Local-only: no network, no push;
+  existing deployment, release and app files unchanged. AGENTS.md is force-added because
+  .gitignore lists it; README.md is preserved untouched.
+log:
+  - cycle: 0
+    note: report green; strict proven red then green; commit records receipts with repo-relative trailers.
