@@ -46,8 +46,8 @@ export const coordinates: Record<CoordinateKey, Coordinate> = {
     date: signal.repoMeasuredAt,
     // Display-only: non-breaking hyphens keep the snapshot date whole in the
     // narrow margin. The underlying coordinate `date` stays the raw ISO value.
-    margin: `measured ${signal.repoMeasuredAt.replace(/-/g, "\u2011")} · ${signal.publicRepos} public, ${featuredRows.length + indexRows.length} shown · npm weekly cron`,
-    cron: "0 6 * * 1",
+    margin: `measured ${signal.repoMeasuredAt.replace(/-/g, "\u2011")} · ${signal.publicRepos} public, ${featuredRows.length + indexRows.length} shown · npm six-hour cron`,
+    cron: "0 */6 * * *",
   },
   method: {
     value: `${specLines.length} STEPS`,

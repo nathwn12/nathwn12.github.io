@@ -1,0 +1,37 @@
+{
+  "schema": "nathwn12/ai-card/1",
+  "project": "bytefry",
+  "url": "https://github.com/nathwn12/bytefry",
+  "one_line": "Deep-fry images locally on Windows with repeat JPEG crush, a bulge and five filters.",
+  "description": "Deep-fry images locally on Windows with repeat JPEG crush, a bulge and five filters.",
+  "language": "C#",
+  "isFork": false,
+  "parent": null,
+  "topics": [
+    "C#",
+    "WinForms",
+    "WebView2",
+    "WebGL"
+  ],
+  "stack": [
+    "C#"
+  ],
+  "capabilities": [],
+  "limits": [],
+  "status": "draft",
+  "since": "2026-11",
+  "updated": "2026-11-22",
+  "draft": true,
+  "stale": false,
+  "vanished": false,
+  "npm": null,
+  "dates": {
+    "createdAt": "2026-11-16",
+    "pushedAt": "2026-11-22"
+  },
+  "measuredAt": {
+    "repos": "2026-11-22",
+    "summaries": "2026-11-22",
+    "stats": "2026-11-19"
+  }
+}

@@ -149,7 +149,7 @@ measured date — the npm snapshot (2026-11-19) for three chapters, the repo
 probe date for Open Source — never a fresh date. The `NN` lights signal on the
 active chapter. One margin note maximum per chapter, at aside beside the head
 and folding below the body at ≤1100. The Open Source note names the committed
-cron `0 6 * * 1` from `.github/workflows/open-source-stats.yml` and the curated
+cron `0 */6 * * *` from `.github/workflows/open-source-stats.yml` and the curated
 coverage gap (`<public> public, <rows> shown`), so the short shelf is never
 read as the whole account.
 
@@ -160,6 +160,18 @@ longer share one date. The
 Contact margin note is `contactBlock.nextStep`, printed once. Approach is
 intentionally bare: its facts line below the prose already carries what a
 margin note would repeat.
+
+### Per-repository AI cards
+
+`ai/` is the account's machine-reading shelf: one `ai/<repo>.json` and one
+`ai/<repo>.md` per public, non-archived repository, plus `ai/index.json`.
+Every card derives from committed snapshots — `repos.probe.json` for identity,
+language and dates, `ai-summaries.json` for each repository's own one-liner,
+`projects.ts` for the declared topics and npm name, and
+`open-source-stats.json` for the npm counts. The generator writes only changed
+files; a six-hour workflow commits them, and the build copies them to
+`dist/ai/`. No card invents a figure, and `ai/llms.txt` stays the site's own
+summary, outside the generated set.
 
 ### Two-beat hero, still-first
 

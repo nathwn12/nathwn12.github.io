@@ -1,0 +1,94 @@
+{
+  "schema": "nathwn12/ai-index/1",
+  "owner": "nathwn12",
+  "site": "https://nathwn12.github.io",
+  "publicRepos": 16,
+  "cards": 16,
+  "measuredAt": {
+    "repos": "2026-11-22",
+    "summaries": "2026-11-22",
+    "stats": "2026-11-19"
+  },
+  "repos": [
+    {
+      "name": "aimp-discord-presence",
+      "json": "ai/aimp-discord-presence.json",
+      "md": "ai/aimp-discord-presence.md"
+    },
+    {
+      "name": "arc-installer",
+      "json": "ai/arc-installer.json",
+      "md": "ai/arc-installer.md"
+    },
+    {
+      "name": "bytefry",
+      "json": "ai/bytefry.json",
+      "md": "ai/bytefry.md"
+    },
+    {
+      "name": "gladius",
+      "json": "ai/gladius.json",
+      "md": "ai/gladius.md"
+    },
+    {
+      "name": "hand",
+      "json": "ai/hand.json",
+      "md": "ai/hand.md"
+    },
+    {
+      "name": "my-chromium-extensions",
+      "json": "ai/my-chromium-extensions.json",
+      "md": "ai/my-chromium-extensions.md"
+    },
+    {
+      "name": "nathwn12",
+      "json": "ai/nathwn12.json",
+      "md": "ai/nathwn12.md"
+    },
+    {
+      "name": "nathwn12.github.io",
+      "json": "ai/nathwn12.github.io.json",
+      "md": "ai/nathwn12.github.io.md"
+    },
+    {
+      "name": "oc-collections",
+      "json": "ai/oc-collections.json",
+      "md": "ai/oc-collections.md"
+    },
+    {
+      "name": "oc-templates",
+      "json": "ai/oc-templates.json",
+      "md": "ai/oc-templates.md"
+    },
+    {
+      "name": "pear-slowed-reverb",
+      "json": "ai/pear-slowed-reverb.json",
+      "md": "ai/pear-slowed-reverb.md"
+    },
+    {
+      "name": "potflix",
+      "json": "ai/potflix.json",
+      "md": "ai/potflix.md"
+    },
+    {
+      "name": "puppet",
+      "json": "ai/puppet.json",
+      "md": "ai/puppet.md"
+    },
+    {
+      "name": "slowburn",
+      "json": "ai/slowburn.json",
+      "md": "ai/slowburn.md"
+    },
+    {
+      "name": "spotify-playlist-to-youtube",
+      "json": "ai/spotify-playlist-to-youtube.json",
+      "md": "ai/spotify-playlist-to-youtube.md"
+    },
+    {
+      "name": "vencord-bootstrap",
+      "json": "ai/vencord-bootstrap.json",
+      "md": "ai/vencord-bootstrap.md"
+    }
+  ]
+}

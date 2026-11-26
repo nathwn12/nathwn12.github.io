@@ -1,0 +1,39 @@
+{
+  "schema": "nathwn12/ai-card/1",
+  "project": "oc-templates",
+  "url": "https://github.com/nathwn12/oc-templates",
+  "one_line": "Scaffold an OpenCode v2 plugin with a dependency-free stdio MCP server.",
+  "description": "Scaffold an OpenCode v2 plugin with a dependency-free stdio MCP server.",
+  "language": "JavaScript",
+  "isFork": false,
+  "parent": null,
+  "topics": [
+    "JavaScript",
+    "TypeScript",
+    "MCP",
+    "stdio",
+    "OpenCode plugin API",
+    "Node.js"
+  ],
+  "stack": [
+    "JavaScript"
+  ],
+  "capabilities": [],
+  "limits": [],
+  "status": "draft",
+  "since": "2026-10",
+  "updated": "2026-11-22",
+  "draft": true,
+  "stale": false,
+  "vanished": false,
+  "npm": null,
+  "dates": {
+    "createdAt": "2026-10-30",
+    "pushedAt": "2026-11-22"
+  },
+  "measuredAt": {
+    "repos": "2026-11-22",
+    "summaries": "2026-11-22",
+    "stats": "2026-11-19"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "schema": "nathwn12/ai-card/1",
+  "project": "oc-collections",
+  "url": "https://github.com/nathwn12/oc-collections",
+  "one_line": "Install OpenCode plugins, MCP servers and CLIs one package at a time",
+  "description": "Install OpenCode plugins, MCP servers and CLIs one package at a time",
+  "language": "Rust",
+  "isFork": false,
+  "parent": null,
+  "topics": [
+    "Rust",
+    "TypeScript",
+    "npm workspaces",
+    "OpenCode plugin API",
+    "MCP"
+  ],
+  "stack": [
+    "Rust"
+  ],
+  "capabilities": [],
+  "limits": [],
+  "status": "draft",
+  "since": "2026-10",
+  "updated": "2026-11-22",
+  "draft": true,
+  "stale": false,
+  "vanished": false,
+  "npm": null,
+  "dates": {
+    "createdAt": "2026-10-08",
+    "pushedAt": "2026-11-22"
+  },
+  "measuredAt": {
+    "repos": "2026-11-22",
+    "summaries": "2026-11-22",
+    "stats": "2026-11-19"
+  }
+}

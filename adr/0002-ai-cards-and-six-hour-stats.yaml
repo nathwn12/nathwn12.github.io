@@ -1,0 +1,30 @@
+id: 2
+title: Generate per-repository ai cards and run the stats snapshot cron every six hours
+status: decided
+date: "2026-11-26"
+context: |-
+  ai/llms.txt already gives each public repository a machine summary that this
+  site probes, but the portfolio site had no per-repository card of its own.
+  The committed snapshots already hold identity, each repo's own words, topic
+  tokens and npm counts, so another live probe would duplicate a source and
+  make builds depend on the network. The stats snapshot cron also ran weekly,
+  which left the measured figures a week behind the rest of the record.
+decision: |-
+  Add a dependency-free generator that writes one JSON and one Markdown card
+  per published repository plus an index from the committed snapshots, a
+  --check mode that fails on drift or stray cards, and a build step that copies
+  the cards into dist/ai/. A dedicated six-hour scheduled and manually
+  dispatched workflow commits only the generated ai/*.json and ai/*.md files.
+  Tighten the existing open-source-stats.yml schedule from 0 6 * * 1 to
+  0 */6 * * *, keep its manual dispatch, and keep its commit step limited to
+  the two generated stats snapshots. Update every stated cron reference in the
+  design, content and tests. Deploy and CI workflows, secrets and application
+  code are otherwise unchanged.
+consequences: |-
+  The ai/ shelf now updates from repository data on the same six-hour window
+  as the stats snapshots, with one staggered commit per generated asset set.
+  Builds remain offline and reproducible: the committed snapshots are the only
+  source and a build never rewrites them. A vanished repository keeps its last
+  card with its marker rather than disappearing silently.
+  No publish, push, secret, release or application rewrite is involved.
+undo: git revert <sha>

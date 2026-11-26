@@ -1,0 +1,38 @@
+{
+  "schema": "nathwn12/ai-card/1",
+  "project": "puppet",
+  "url": "https://github.com/nathwn12/puppet",
+  "one_line": "Drive Windows apps without stealing focus or moving the pointer: screenshot, windows, input and cursor over MCP.",
+  "description": "Drive Windows apps without stealing focus or moving the pointer: screenshot, windows, input and cursor over MCP.",
+  "language": "Rust",
+  "isFork": false,
+  "parent": null,
+  "topics": [
+    "Rust",
+    "MCP",
+    "JSON-RPC 2.0",
+    "Win32",
+    "UIA"
+  ],
+  "stack": [
+    "Rust"
+  ],
+  "capabilities": [],
+  "limits": [],
+  "status": "draft",
+  "since": "2026-10",
+  "updated": "2026-11-22",
+  "draft": true,
+  "stale": false,
+  "vanished": false,
+  "npm": null,
+  "dates": {
+    "createdAt": "2026-10-11",
+    "pushedAt": "2026-11-22"
+  },
+  "measuredAt": {
+    "repos": "2026-11-22",
+    "summaries": "2026-11-22",
+    "stats": "2026-11-19"
+  }
+}

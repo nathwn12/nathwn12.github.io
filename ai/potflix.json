@@ -1,0 +1,38 @@
+{
+  "schema": "nathwn12/ai-card/1",
+  "project": "potflix",
+  "url": "https://github.com/nathwn12/potflix",
+  "one_line": "Show what PotPlayer is playing on your Discord profile with matched artwork and episode details.",
+  "description": "Show what PotPlayer is playing on your Discord profile with matched artwork and episode details.",
+  "language": "Rust",
+  "isFork": false,
+  "parent": null,
+  "topics": [
+    "Rust",
+    "Win32",
+    "Discord IPC",
+    "TVmaze",
+    "AniList"
+  ],
+  "stack": [
+    "Rust"
+  ],
+  "capabilities": [],
+  "limits": [],
+  "status": "draft",
+  "since": "2026-10",
+  "updated": "2026-11-22",
+  "draft": true,
+  "stale": false,
+  "vanished": false,
+  "npm": null,
+  "dates": {
+    "createdAt": "2026-10-04",
+    "pushedAt": "2026-11-22"
+  },
+  "measuredAt": {
+    "repos": "2026-11-22",
+    "summaries": "2026-11-22",
+    "stats": "2026-11-19"
+  }
+}

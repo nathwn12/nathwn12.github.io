@@ -1,0 +1,36 @@
+{
+  "schema": "nathwn12/ai-card/1",
+  "project": "vencord-bootstrap",
+  "url": "https://github.com/nathwn12/vencord-bootstrap",
+  "one_line": "Install and repair Vencord from the official upstream release with one PowerShell line.",
+  "description": "Install and repair Vencord from the official upstream release with one PowerShell line.",
+  "language": "PowerShell",
+  "isFork": true,
+  "parent": "Vencord/Installer",
+  "topics": [
+    "PowerShell",
+    "Vencord Installer",
+    "Windows"
+  ],
+  "stack": [
+    "PowerShell"
+  ],
+  "capabilities": [],
+  "limits": [],
+  "status": "draft",
+  "since": "2026-09",
+  "updated": "2026-11-22",
+  "draft": true,
+  "stale": false,
+  "vanished": false,
+  "npm": null,
+  "dates": {
+    "createdAt": "2026-09-26",
+    "pushedAt": "2026-11-22"
+  },
+  "measuredAt": {
+    "repos": "2026-11-22",
+    "summaries": "2026-11-22",
+    "stats": "2026-11-19"
+  }
+}

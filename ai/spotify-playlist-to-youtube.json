@@ -1,0 +1,37 @@
+{
+  "schema": "nathwn12/ai-card/1",
+  "project": "spotify-playlist-to-youtube",
+  "url": "https://github.com/nathwn12/spotify-playlist-to-youtube",
+  "one_line": "Copy a public Spotify playlist into YouTube Music without an API key.",
+  "description": "Copy a public Spotify playlist into YouTube Music without an API key.",
+  "language": "Python",
+  "isFork": false,
+  "parent": null,
+  "topics": [
+    "Python",
+    "WebView2",
+    "YouTube Music",
+    "Spotify"
+  ],
+  "stack": [
+    "Python"
+  ],
+  "capabilities": [],
+  "limits": [],
+  "status": "draft",
+  "since": "2026-11",
+  "updated": "2026-11-22",
+  "draft": true,
+  "stale": false,
+  "vanished": false,
+  "npm": null,
+  "dates": {
+    "createdAt": "2026-11-11",
+    "pushedAt": "2026-11-22"
+  },
+  "measuredAt": {
+    "repos": "2026-11-22",
+    "summaries": "2026-11-22",
+    "stats": "2026-11-19"
+  }
+}

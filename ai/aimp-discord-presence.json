@@ -1,0 +1,37 @@
+{
+  "schema": "nathwn12/ai-card/1",
+  "project": "aimp-discord-presence",
+  "url": "https://github.com/nathwn12/aimp-discord-presence",
+  "one_line": "Show what AIMP is playing as a Discord Rich Presence with artist, track and album art.",
+  "description": "Show what AIMP is playing as a Discord Rich Presence with artist, track and album art.",
+  "language": "C++",
+  "isFork": true,
+  "parent": "Exle/aimp-discord-presence",
+  "topics": [
+    "C++",
+    "AIMP SDK",
+    "Discord IPC",
+    "Win32"
+  ],
+  "stack": [
+    "C++"
+  ],
+  "capabilities": [],
+  "limits": [],
+  "status": "draft",
+  "since": "2026-10",
+  "updated": "2026-11-22",
+  "draft": true,
+  "stale": false,
+  "vanished": false,
+  "npm": null,
+  "dates": {
+    "createdAt": "2026-10-01",
+    "pushedAt": "2026-11-22"
+  },
+  "measuredAt": {
+    "repos": "2026-11-22",
+    "summaries": "2026-11-22",
+    "stats": "2026-11-19"
+  }
+}
