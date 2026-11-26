@@ -1,3 +1,32 @@
 #!/usr/bin/env bash
+# [skip ci] is only safe on docs-only commits: code with that marker skips
+# the required check and the Pages deploy. Enforce it at the push boundary.
+set -euo pipefail
+
+docs='^(.*\.md|docs/.*|LICEN[CS]E(\.md)?)$'
+
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ -n "$local_ref" ] || continue
+  [ "$local_sha" = "0000000000000000000000000000000000000000" ] && continue
+
+  if git rev-parse --verify --quiet "${remote_sha}^{commit}" >/dev/null 2>&1; then
+    commits=$(git rev-list "$remote_sha..$local_sha")
+  else
+    commits=$(git rev-list "$local_sha" --not --remotes)
+  fi
+
+  for sha in $commits; do
+    git log -1 --format=%B "$sha" | grep -Eiq '\[skip ci\]' || continue
+    while IFS= read -r file; do
+      [ -n "$file" ] || continue
+      printf '%s\n' "$file" | grep -qvE "$docs" || continue
+      printf 'BLOCKED: %s (%s) has [skip ci] but changes %s\n' \
+        "$(git rev-parse --short "$sha")" "$(git log -1 --format=%s "$sha")" "$file" >&2
+      printf 'Reason: [skip ci] is for docs-only commits; on code it skips the check and the deploy.\n' >&2
+      exit 1
+    done < <(git diff-tree --no-commit-id --name-only -r --root -m --first-parent "$sha")
+  done
+done
+
 echo "🔒 Checking lockfile is up to date..."
 bun install --frozen-lockfile
