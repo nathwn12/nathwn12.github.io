@@ -1,0 +1,43 @@
+{
+  "schema": "nathwn12/ai-card/1",
+  "project": "hand",
+  "url": "https://github.com/nathwn12/hand",
+  "one_line": "Browser automation and Windows computer use in one MCP server: headless Chrome over CDP, native UI via UIA. Click, type, screenshot, test extensions - one Rust binary, no pointer steal.",
+  "description": "Browser automation and Windows computer use in one MCP server: headless Chrome over CDP, native UI via UIA. Click, type, screenshot, test extensions - one Rust binary, no pointer steal.",
+  "language": "Rust",
+  "isFork": false,
+  "parent": null,
+  "topics": [
+    "Rust",
+    "MCP stdio",
+    "CDP",
+    "Win32",
+    "UIA"
+  ],
+  "stack": [
+    "Rust"
+  ],
+  "capabilities": [],
+  "limits": [],
+  "status": "draft",
+  "since": "2026-11",
+  "updated": "2026-11-22",
+  "draft": true,
+  "stale": true,
+  "vanished": false,
+  "npm": {
+    "name": "hand-mcp",
+    "month": 326,
+    "allTime": 540,
+    "snapshotDate": "2026-11-19"
+  },
+  "dates": {
+    "createdAt": "2026-11-17",
+    "pushedAt": "2026-11-26"
+  },
+  "measuredAt": {
+    "repos": "2026-11-26",
+    "summaries": "2026-11-26",
+    "stats": "2026-11-19"
+  }
+}

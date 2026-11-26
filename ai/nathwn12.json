@@ -1,0 +1,34 @@
+{
+  "schema": "nathwn12/ai-card/1",
+  "project": "nathwn12",
+  "url": "https://github.com/nathwn12/nathwn12",
+  "one_line": "Profile README. The work lives in the repos linked below.",
+  "description": "Profile README. The work lives in the repos linked below.",
+  "language": "JavaScript",
+  "isFork": false,
+  "parent": null,
+  "topics": [
+    "JavaScript"
+  ],
+  "stack": [
+    "JavaScript"
+  ],
+  "capabilities": [],
+  "limits": [],
+  "status": "draft",
+  "since": "2026-10",
+  "updated": "2026-11-22",
+  "draft": true,
+  "stale": true,
+  "vanished": false,
+  "npm": null,
+  "dates": {
+    "createdAt": "2026-10-02",
+    "pushedAt": "2026-11-26"
+  },
+  "measuredAt": {
+    "repos": "2026-11-26",
+    "summaries": "2026-11-26",
+    "stats": "2026-11-19"
+  }
+}

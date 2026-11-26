@@ -1,0 +1,38 @@
+{
+  "schema": "nathwn12/ai-card/1",
+  "project": "gladius",
+  "url": "https://github.com/nathwn12/gladius",
+  "one_line": "Give your AI agent a real headless browser to test, screenshot, and check layout.",
+  "description": "Give your AI agent a real headless browser to test, screenshot, and check layout.",
+  "language": "Rust",
+  "isFork": false,
+  "parent": null,
+  "topics": [
+    "Rust",
+    "CDP",
+    "WebSocket",
+    "MCP",
+    "chrome-headless-shell"
+  ],
+  "stack": [
+    "Rust"
+  ],
+  "capabilities": [],
+  "limits": [],
+  "status": "draft",
+  "since": "2026-10",
+  "updated": "2026-11-22",
+  "draft": true,
+  "stale": true,
+  "vanished": false,
+  "npm": null,
+  "dates": {
+    "createdAt": "2026-10-11",
+    "pushedAt": "2026-11-26"
+  },
+  "measuredAt": {
+    "repos": "2026-11-26",
+    "summaries": "2026-11-26",
+    "stats": "2026-11-19"
+  }
+}

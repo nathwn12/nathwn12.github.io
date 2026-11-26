@@ -1,0 +1,38 @@
+{
+  "schema": "nathwn12/ai-card/1",
+  "project": "slowburn",
+  "url": "https://github.com/nathwn12/slowburn",
+  "one_line": "Slow tracks, add reverb, and save an A-B loop per song on Windows.",
+  "description": "Slow tracks, add reverb, and save an A-B loop per song on Windows.",
+  "language": "TypeScript",
+  "isFork": false,
+  "parent": null,
+  "topics": [
+    "TypeScript",
+    "Rust",
+    "Tauri",
+    "React",
+    "TanStack Router"
+  ],
+  "stack": [
+    "TypeScript"
+  ],
+  "capabilities": [],
+  "limits": [],
+  "status": "draft",
+  "since": "2026-10",
+  "updated": "2026-11-22",
+  "draft": true,
+  "stale": true,
+  "vanished": false,
+  "npm": null,
+  "dates": {
+    "createdAt": "2026-10-05",
+    "pushedAt": "2026-11-26"
+  },
+  "measuredAt": {
+    "repos": "2026-11-26",
+    "summaries": "2026-11-26",
+    "stats": "2026-11-19"
+  }
+}

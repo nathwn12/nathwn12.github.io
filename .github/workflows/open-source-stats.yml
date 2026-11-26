@@ -1,12 +1,13 @@
 name: open-source-stats
 
-# Committed-snapshot cron, mirroring the profile repo's stats.yml. Test first,
+# Committed-snapshot cron on a six-hour floor, mirroring the profile repo's
+# stats.yml. Test first,
 # measure, commit only when a measured number changed. The default GITHUB_TOKEN
 # is enough: this writes snapshots in this public solo-owned repo.
 
 on:
   schedule:
-    - cron: '0 6 * * 1'
+    - cron: '0 */6 * * *'
   workflow_dispatch:
 
 permissions:

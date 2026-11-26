@@ -1,0 +1,34 @@
+{
+  "schema": "nathwn12/ai-card/1",
+  "project": "nathwn12.github.io",
+  "url": "https://github.com/nathwn12/nathwn12.github.io",
+  "one_line": "Explore the portfolio and resume in a terminal-themed single page ÔÇö TypeScript.",
+  "description": "Explore the portfolio and resume in a terminal-themed single page — TypeScript.",
+  "language": "TypeScript",
+  "isFork": false,
+  "parent": null,
+  "topics": [
+    "TypeScript"
+  ],
+  "stack": [
+    "TypeScript"
+  ],
+  "capabilities": [],
+  "limits": [],
+  "status": "draft",
+  "since": "2026-04",
+  "updated": "2026-11-22",
+  "draft": true,
+  "stale": true,
+  "vanished": false,
+  "npm": null,
+  "dates": {
+    "createdAt": "2026-04-05",
+    "pushedAt": "2026-11-26"
+  },
+  "measuredAt": {
+    "repos": "2026-11-26",
+    "summaries": "2026-11-26",
+    "stats": "2026-11-19"
+  }
+}

@@ -11,6 +11,7 @@ the server on `http://127.0.0.1:5277`.
 
 `bun run check` runs the typecheck, the production build and the behavior tests.
 `bun run probe:repos` fails when `src/content/projects.ts` stops matching what GitHub publishes.
+`bun run check:ai` fails when a generated `ai/` card or its `llms.txt` index drifts.
 
 ## Deploy
 

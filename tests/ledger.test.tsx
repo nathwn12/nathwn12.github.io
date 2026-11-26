@@ -563,10 +563,10 @@ describe("the coordinate and margin lines", () => {
   });
 
   test("the Open Source caveat names the committed snapshot cron", () => {
-    expect(coordinates.oss.cron).toBe("0 6 * * 1");
-    expect(html).toContain('<span class="cron-value">0 6 * * 1</span>');
+    expect(coordinates.oss.cron).toBe("0 */6 * * *");
+    expect(html).toContain('<span class="cron-value">0 */6 * * *</span>');
     expect(read(".github/workflows/open-source-stats.yml")).toMatch(
-      /cron:\s*'0 6 \* \* 1'/,
+      /cron:\s*'0 \*\/6 \* \* \*'/,
     );
   });
 

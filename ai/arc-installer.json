@@ -1,0 +1,36 @@
+{
+  "schema": "nathwn12/ai-card/1",
+  "project": "arc-installer",
+  "url": "https://github.com/nathwn12/arc-installer",
+  "one_line": "Install, remove, and repair the ARC icon theme on Windows 10 and 11.",
+  "description": "Install, remove, and repair the ARC icon theme on Windows 10 and 11.",
+  "language": "PowerShell",
+  "isFork": false,
+  "parent": null,
+  "topics": [
+    "PowerShell",
+    "C#",
+    "Windows"
+  ],
+  "stack": [
+    "PowerShell"
+  ],
+  "capabilities": [],
+  "limits": [],
+  "status": "draft",
+  "since": "2026-10",
+  "updated": "2026-11-22",
+  "draft": true,
+  "stale": true,
+  "vanished": false,
+  "npm": null,
+  "dates": {
+    "createdAt": "2026-10-14",
+    "pushedAt": "2026-11-26"
+  },
+  "measuredAt": {
+    "repos": "2026-11-26",
+    "summaries": "2026-11-26",
+    "stats": "2026-11-19"
+  }
+}
