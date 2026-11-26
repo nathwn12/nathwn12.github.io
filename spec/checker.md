@@ -1,10 +1,11 @@
 # Checker contract (local adoption)
 
-This repository vendors the canonical phase-1 gate from the "docs-template"
-repository. The two local files are the checker [docs-check.mjs](../docs-check.mjs)
-and its configuration [docs-check.json](../docs-check.json); the gate does not
-edit either. Tests live only in the canonical template: no local test/ tree was
-vendored, so no local test path is implied.
+This repository vendors the canonical phase-1 gate from the local
+docs-template@cffb46a6c6f09ca452ffbf04e14c349fa65af814 verbatim. The two local
+files are the checker [docs-check.mjs](../docs-check.mjs) and its configuration
+[docs-check.json](../docs-check.json); the gate does not edit either. Tests live
+only in the canonical template: no local test/ tree was vendored, so no local
+test path is implied.
 
 ## What it checks
 
@@ -17,24 +18,23 @@ docs-structure.md for the PR-only report workflow that applies here.
 
 ## Working commands
 
-From the repository root:
+From the repository root, each command stands alone:
 
 ```text
-node docs-check.mjs --report               # default: findings print, exit 0
-node docs-check.mjs --strict               # exit 1 when findings exist
-node docs-check.mjs --report --json        # stable JSON output
-node docs-check.mjs --print-hash           # print the script SHA-256, exit 0
-node docs-check.mjs --config <path> --report
+node docs-check.mjs --report
+node docs-check.mjs --strict
+node docs-check.mjs --json
+node docs-check.mjs --print-hash
 ```
 
---config defaults to docs-check.json in the current directory; config paths
-resolve relative to that file. Exit codes: 0 for no findings or report mode,
+--config defaults to docs-check.json in the current directory and resolves
+paths relative to that file. Exit codes: 0 for no findings or report mode,
 1 for findings in strict mode, 2 for a config or checker error.
 
---report and --strict are mutually exclusive. A repeated --strict, a repeated
---json, an unknown option, and --print-hash with --json, --strict or an
-explicit --config are config errors exiting 2. Repeating --report or --config
-is accepted; the last --config wins.
+CLI edge cases follow the canonical contract cited above: `--report --strict`
+selects strict mode, and `--print-hash --config docs-check.json` is accepted
+because the explicit value equals the default. Repeated `--strict` or `--json`,
+and unknown options, exit 2.
 
 The checker hashes the script actually running and normalizes line endings,
 so the targeted LF rule in .gitattributes keeps the bytes identical across
