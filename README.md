@@ -5,7 +5,8 @@
 ## Run it
 
 Node 20.19+ and bun 1.4.4. Run `bun install --frozen-lockfile`, then `bun run preview:live` for
-the server on `http://127.0.0.1:5277`.
+the server on `http://127.0.0.1:5277`. Run `git config core.hooksPath .githooks` once so the
+pre-push guard is active.
 
 ## Checks
 
