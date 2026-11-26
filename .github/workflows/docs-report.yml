@@ -52,9 +52,9 @@ jobs:
         if: steps.scope.outputs.code == 'true'
         with:
           node-version: '26'
-      - name: docs gate (report-only, phase 1)
+      - name: docs gate (strict)
         if: steps.scope.outputs.code == 'true'
-        run: node docs-check.mjs --report
+        run: node docs-check.mjs --strict
       - name: link check (offline, report-only)
         if: steps.scope.outputs.code == 'true'
         uses: lycheeverse/lychee-action@v2.2.0
