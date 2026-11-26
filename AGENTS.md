@@ -8,4 +8,4 @@
 - A claim without a command is unverified. A check that never failed proves nothing.
 - Report the command and its exit beside every result.
 - Phase 1 is report-only; strict mode is earned by a clean report, per repository.
-- Archives are frozen and are not migration targets.
+- The opencode workflow is disabled by owner decision; never re-enable it or trigger its slash commands.
