@@ -218,6 +218,7 @@ describe("commit scope", () => {
     expect(yaml).toMatch(/cron:\s*'30 \*\/6 \* \* \*'/);
     expect(yaml).toContain("workflow_dispatch:");
     expect(yaml).toContain("git add ai/*.json ai/*.md");
+    expect(yaml).toContain('git status --porcelain -- ai');
     expect(yaml).not.toMatch(/git add[\s\S]*src\//);
     expect(yaml).toContain("node scripts/gen-ai-cards.mjs --check");
   });
