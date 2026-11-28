@@ -33,6 +33,9 @@ jobs:
 
       - run: bun install --frozen-lockfile
 
+      - name: Install Chromium for the browser tests
+        run: bunx playwright install --with-deps chromium
+
       - name: Test pure logic before measuring
         # The freshness alarm is deliberately time-dependent. It must not sit
         # in the recovery path: a stale snapshot has to be able to reach the
