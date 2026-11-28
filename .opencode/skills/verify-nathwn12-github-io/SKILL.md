@@ -3,7 +3,7 @@ name: verify-nathwn12-github-io
 description: Use before claiming any build, behavior or rendered-page result for this portfolio. Wraps the surviving gates and the dist render instrument. Numbers are measured, never passed by a threshold.
 ---
 
-# Verify nathwn12.github.io
+# Verify nathwn12.GitHub.io
 
 The proof for a rendered claim is the built `dist/` artefact. Nothing below substitutes for looking at the PNGs.
 

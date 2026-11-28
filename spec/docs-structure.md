@@ -20,6 +20,6 @@ records only how the agreement applies locally, using relative paths.
 The gate is report-only locally; strict mode is earned after a clean report and
 is run here as part of the local check. Link checking is not part of the Node gate.
 This repository already had CI and a Pages deploy workflow (both unchanged), so a
-separate pull-request-only report workflow, .github/workflows/docs-report.yml,
+separate pull-request-only report workflow, .GitHub/workflows/docs-report.yml,
 uses pinned offline lychee v2.2.0 with fail: false and contents: read only. It
 does not run the strict gate and does not touch the existing workflows.

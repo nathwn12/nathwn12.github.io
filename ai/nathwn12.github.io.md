@@ -17,7 +17,7 @@ stale: true
 vanished: false
 ---
 
-# nathwn12.github.io
+# nathwn12.GitHub.io
 
 Explore the portfolio and resume in a terminal-themed single page ÔÇö TypeScript.
 

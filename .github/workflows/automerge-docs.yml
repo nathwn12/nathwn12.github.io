@@ -7,12 +7,13 @@
 name: automerge-docs
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
 
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 
 jobs:
   automerge-docs:
@@ -39,6 +40,9 @@ jobs:
             echo "docs_only=false" >> "$GITHUB_OUTPUT"
           fi
 
+      # No `gh pr review --approve` step: the Actions token is forbidden to
+      # approve pull requests (addPullRequestReview). The label plus the armed
+      # squash merge are the whole contract; a red approve step killed this lane.
       - name: Queue the squash merge
         if: steps.scope.outputs.docs_only == 'true'
         shell: bash

@@ -19,9 +19,9 @@ vanished: false
 
 # puppet
 
-Drive Windows apps without stealing focus or moving the pointer: screenshot, windows, input and cursor over MCP.
+Drive Windows apps without stealing focus or moving the pointer: screenshot, Windows, input and cursor over MCP.
 
-GitHub description: Drive Windows apps without stealing focus or moving the pointer: screenshot, windows, input and cursor over MCP.
+GitHub description: Drive Windows apps without stealing focus or moving the pointer: screenshot, Windows, input and cursor over MCP.
 
 npm: no published package in the committed snapshot.
 

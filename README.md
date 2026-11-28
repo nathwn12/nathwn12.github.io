@@ -1,4 +1,4 @@
-# nathwn12.github.io
+# nathwn12.GitHub.io
 
 **The portfolio and record of Nathaniel Nikolai Ladero, a C# and .NET backend developer: what shipped, and what it measurably did.**
 
@@ -21,6 +21,6 @@ Push to `main`. `.github/workflows/deploy.yml` builds and publishes `dist` to Gi
 
 ## Links
 
-- Issues: https://github.com/nathwn12/nathwn12.github.io/issues
-- Live: https://nathwn12.github.io
+- Issues: <https://github.com/nathwn12/nathwn12.github.io/issues>
+- Live: <https://nathwn12.github.io>
 - Licence: [LICENSE](LICENSE)

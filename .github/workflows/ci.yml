@@ -1,67 +1,107 @@
-# CI is scoped by GitHub path filters, never by an author's commit-message claim.
-# The pull_request trigger stays unfiltered so the required check always
-# reports: a docs-only PR skips the work inside the job, not the check itself.
+# CI is scoped by the GitHub API, never by an author's commit-message claim
+# or a paths-ignore filter. The pull_request trigger stays unfiltered so the
+# required check always reports: a docs-only PR skips the work inside the job,
+# not the check itself. Branch protection requires the `build` check, so the
+# workflow file name `ci`, the job id `build` and its name stay unchanged.
 name: ci
 
 on:
-  # Unfiltered on purpose. A path-filtered required check leaves a PR BLOCKED
-  # with "Expected - Waiting for status to be reported": the same trap as a
-  # skipped workflow.
   pull_request:
   push:
     branches: [main]
-    # Ignore pure-doc push diffs. ai/** is a build input and is never a doc
-    # path; **/*.json, **/*.ts and **/*.mjs are build inputs too and stay in.
-    paths-ignore: ['**/*.md', 'docs/**', 'LICEN[CS]E']
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'push' }}
 
 permissions:
   contents: read
   pull-requests: read
 
+env:
+  REPO: ${{ github.repository }}
+  EVENT: ${{ github.event_name }}
+  PR_NUMBER: ${{ github.event.pull_request.number }}
+  BEFORE: ${{ github.event.before }}
+  AFTER: ${{ github.event.after }}
+
 jobs:
+  # Folded in from docs-report.yml, which branch protection does not require.
+  # lychee's action unpacks an x86_64-linux binary, so this job is Ubuntu.
+  static:
+    name: static
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 24
+      - name: docs gate (strict)
+        run: node docs-check.mjs --strict
+      - name: link check (offline, report-only)
+        uses: lycheeverse/lychee-action@f796c8b7d468feb9b8c0a46da3fac0af6874d374 # v2.2.0
+        with:
+          args: --no-progress --offline '**/*.md'
+          fail: false
+
   build:
     name: build
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     env:
       REQUIRE_CHROMIUM: "1"
     steps:
-      # First step: read the PR's changed files directly. When every path is a
-      # doc path outside ai/, report green and skip all the work below.
-      - name: Scope
+      # Read the event's changed files before checkout. An empty list (dispatch,
+      # all-zero before, API failure) is fail-closed: run the full gate.
+      - name: Detect a docs-only change
         id: scope
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           docs='^(.*\.md|docs/.*|LICEN[CS]E(\.md)?)$'
-          if [ "${{ github.event_name }}" != "pull_request" ]; then
-            echo "code=true" >> "$GITHUB_OUTPUT"
-            echo "scope: code changed - the full gate ran"
-            exit 0
+          if [ "$EVENT" = "pull_request" ]; then
+            changed=$(gh api "repos/$REPO/pulls/$PR_NUMBER/files" --paginate --jq '.[].filename')
+          elif [ "$EVENT" = "push" ] && [ -n "$BEFORE" ] && [ "$BEFORE" != "0000000000000000000000000000000000000000" ]; then
+            changed=$(gh api "repos/$REPO/compare/$BEFORE...$AFTER" --paginate --jq '.files[].filename')
+          else
+            changed=""
           fi
-          changed=$(gh api --paginate \
-            "repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files" \
-            --jq '.[] | .filename')
+          # ai/** md cards are served build inputs, never docs.
           if [ -n "$changed" ] \
              && ! printf '%s\n' "$changed" | grep -qE '^ai/' \
              && ! printf '%s\n' "$changed" | grep -qvE "$docs"; then
-            echo "no code changed: docs only"
             echo "code=false" >> "$GITHUB_OUTPUT"
           else
             echo "code=true" >> "$GITHUB_OUTPUT"
           fi
 
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         if: steps.scope.outputs.code == 'true'
-      - uses: actions/setup-node@v7
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         if: steps.scope.outputs.code == 'true'
         with:
           node-version: 24
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         if: steps.scope.outputs.code == 'true'
         with:
           bun-version: 1.4.4
+      - name: Cache bun downloads
+        if: steps.scope.outputs.code == 'true'
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-install-${{ hashFiles('bun.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-install-
       - name: Install (root lockfile)
         if: steps.scope.outputs.code == 'true'
         run: bun install --frozen-lockfile

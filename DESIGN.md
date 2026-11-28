@@ -51,7 +51,7 @@ consequence: production work first, shipped public work second, the method
 third, the ask last. Four chapters carry that order, ids included:
 
 | NN | Chapter | Id | Coordinate |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | 01 | Work | `work` | the engagement count |
 | 02 | Open Source | `oss` | the public repositories |
 | 03 | Approach | `method` | the spec steps |
@@ -277,7 +277,7 @@ Three OFL faces, self-hosted as latin-subset woff2 with their licence files
 in `public/fonts/`, `font-display: swap`, no runtime font CDN:
 
 | Role | Face | Where |
-|---|---|---|
+| --- | --- | --- |
 | Display | Libre Bodoni (variable 400–700) | the name, the statement, chapter titles |
 | Text | Newsreader (variable, opsz 6–72) | running copy, row descriptions, prose columns |
 | Data | IBM Plex Mono (400–600) | all figures, catalog labels, coordinates, meta |

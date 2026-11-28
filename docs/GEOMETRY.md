@@ -45,13 +45,13 @@ markup therefore breaks the gate instead of silently losing its exception.
 
 Exact command:
 
-```
+```sh
 bun run check:geometry --inject=overlap
 ```
 
 Expected on the current build (the port and JSON path are ephemeral):
 
-```
+```text
 GEOMETRY PORT=<port> URL=http://127.0.0.1:<port>/
 URL: http://127.0.0.1:<port>/  inject=overlap  configs=32
 INV1 | div#root > main#main > section#horizon > div.beat.beat-one > div.hero-hud > div.hud.hud-role > p "Backend developer · payment " <> div#root > main#main > section#horizon > div.beat.beat-one > div.hero-hud > div.hud.hud-role > p.data "Philippines" | 320 | no-preference | 6.8px ink overlap | 0 ink overlap (vertical tol 1px)
