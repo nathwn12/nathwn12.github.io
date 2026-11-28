@@ -42,7 +42,7 @@ describe("npm all-time download aggregation", () => {
 
   test("the package inventory has exact, unique names", () => {
     expect(NPM_PACKAGES).toEqual(expectedPackages);
-    expect(new Set(NPM_PACKAGES).size).toBe(10);
+    expect(new Set(NPM_PACKAGES).size).toBe(12);
     expect(snapshot.packages.map((item) => item.name)).toEqual(expectedPackages);
     expect(() =>
       validatePackageNames(["puppet-mcp", "puppet-mcp"]),

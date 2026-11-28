@@ -8,5 +8,7 @@
   "oc-plugin-view",
   "oc-talk",
   "rea-shim",
-  "hand-mcp"
+  "hand-mcp",
+  "oc-phone-link",
+  "oc-title"
 ]

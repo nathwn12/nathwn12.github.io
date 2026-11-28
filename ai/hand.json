@@ -27,17 +27,17 @@
   "vanished": false,
   "npm": {
     "name": "hand-mcp",
-    "month": 326,
-    "allTime": 540,
-    "snapshotDate": "2026-11-19"
+    "month": 1816,
+    "allTime": 1539,
+    "snapshotDate": "2026-11-25"
   },
   "dates": {
     "createdAt": "2026-11-17",
-    "pushedAt": "2026-11-26"
+    "pushedAt": "2026-11-28"
   },
   "measuredAt": {
-    "repos": "2026-11-26",
-    "summaries": "2026-11-26",
-    "stats": "2026-11-19"
+    "repos": "2026-11-28",
+    "summaries": "2026-11-28",
+    "stats": "2026-11-25"
   }
 }

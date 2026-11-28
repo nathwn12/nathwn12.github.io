@@ -12,7 +12,7 @@ capabilities: []
 limits: []
 updated: 2026-11-22
 draft: true
-measured: 2026-11-26
+measured: 2026-11-28
 stale: true
 vanished: false
 ---
@@ -25,4 +25,4 @@ GitHub description: Deep-fry images locally on Windows with repeat JPEG crush, a
 
 npm: no published package in the committed snapshot.
 
-Measured: repos 2026-11-26 · summaries 2026-11-26 · stats 2026-11-19. Schema nathwn12/ai-card/1.
+Measured: repos 2026-11-28 · summaries 2026-11-28 · stats 2026-11-25. Schema nathwn12/ai-card/1.
