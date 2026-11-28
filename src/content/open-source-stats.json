@@ -1,6 +1,6 @@
 {
   "source": "npm download-count API and GitHub GraphQL, measured by scripts/open-source-stats.mjs",
-  "generatedAt": "2026-11-28T11:47:03.198Z",
+  "generatedAt": "2026-11-28T11:54:41.903Z",
   "snapshotDate": "2026-11-25",
   "npmMonth": 22449,
   "npmAllTime": 38642,
@@ -67,9 +67,9 @@
     }
   ],
   "github": {
-    "contributions": 8133,
-    "commits": 3549,
-    "pullRequests": 619,
+    "contributions": 8138,
+    "commits": 3552,
+    "pullRequests": 621,
     "calendarRange": [
       "2025-11-23",
       "2026-11-28"
@@ -78,11 +78,11 @@
   "activity": [
     {
       "date": "2026-10-30",
-      "value": 29
+      "value": 30
     },
     {
       "date": "2026-10-31",
-      "value": 174
+      "value": 173
     },
     {
       "date": "2026-11-01",
@@ -118,11 +118,11 @@
     },
     {
       "date": "2026-11-09",
-      "value": 19
+      "value": 20
     },
     {
       "date": "2026-11-10",
-      "value": 157
+      "value": 156
     },
     {
       "date": "2026-11-11",
@@ -134,11 +134,11 @@
     },
     {
       "date": "2026-11-13",
-      "value": 266
+      "value": 267
     },
     {
       "date": "2026-11-14",
-      "value": 149
+      "value": 148
     },
     {
       "date": "2026-11-15",
@@ -146,7 +146,7 @@
     },
     {
       "date": "2026-11-16",
-      "value": 48
+      "value": 49
     },
     {
       "date": "2026-11-17",
@@ -154,7 +154,7 @@
     },
     {
       "date": "2026-11-18",
-      "value": 493
+      "value": 492
     },
     {
       "date": "2026-11-19",
@@ -194,7 +194,7 @@
     },
     {
       "date": "2026-11-28",
-      "value": 84
+      "value": 89
     }
   ]
 }
