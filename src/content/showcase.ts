@@ -112,6 +112,8 @@ export const PACKAGE_NAMES: Readonly<Record<string, readonly string[]>> = {
     "oc-talk",
     "rea-shim",
     "@nathwn12/janua",
+    "oc-phone-link",
+    "oc-title",
   ],
 };
 

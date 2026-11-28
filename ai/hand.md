@@ -12,7 +12,7 @@ capabilities: []
 limits: []
 updated: 2026-11-22
 draft: true
-measured: 2026-11-26
+measured: 2026-11-28
 stale: true
 vanished: false
 ---
@@ -23,6 +23,6 @@ Browser automation and Windows computer use in one MCP server: headless Chrome o
 
 GitHub description: Browser automation and Windows computer use in one MCP server: headless Chrome over CDP, native UI via UIA. Click, type, screenshot, test extensions - one Rust binary, no pointer steal.
 
-npm: hand-mcp — 30-day 326, all-time 540 (snapshot 2026-11-19).
+npm: hand-mcp — 30-day 1816, all-time 1539 (snapshot 2026-11-25).
 
-Measured: repos 2026-11-26 · summaries 2026-11-26 · stats 2026-11-19. Schema nathwn12/ai-card/1.
+Measured: repos 2026-11-28 · summaries 2026-11-28 · stats 2026-11-25. Schema nathwn12/ai-card/1.
